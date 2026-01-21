@@ -48,8 +48,8 @@ from config import DOCUMENTS_DIR, VECTOR_STORE_DIR, DATA_DIR
 # Lazy import of app to delay torch import
 def get_app_lazy():
     """Lazy import of app module to delay torch import"""
-    from app import get_app
-    return get_app()
+    from app import SafetyCopilotApp
+    return SafetyCopilotApp()
 
 # Custom CSS
 st.markdown("""
@@ -137,48 +137,95 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state
+# Initialize session state (NON-NEGOTIABLE - never use globals)
 if "app" not in st.session_state:
     st.session_state.app = None
 if "initialized" not in st.session_state:
     st.session_state.initialized = False
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+if "vector_store_loading" not in st.session_state:
+    st.session_state.vector_store_loading = False
 
 # Header
 st.markdown('<h1 class="main-header">🛡️ Safety Copilot</h1>', unsafe_allow_html=True)
 st.markdown('<p style="text-align: center; color: #666; font-size: 1.1rem;">AI-Powered Safety Engineering Assistant</p>', unsafe_allow_html=True)
 st.markdown("---")
 
+# Cached function for heavy initialization work (SAFE PATTERN)
+@st.cache_resource(show_spinner=True)
+def initialize_vector_store(force_rebuild: bool = False):
+    """
+    Initialize vector store - cached to prevent re-running on every button click
+    This is the ONLY safe way to do heavy work in Streamlit
+    """
+    try:
+        from app import SafetyCopilotApp
+        app = SafetyCopilotApp()
+        app.initialize(force_rebuild=force_rebuild)
+        return app
+    except Exception as e:
+        # Return None on error, let button handler show the error
+        print(f"Error in initialize_vector_store: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
 # Sidebar
 with st.sidebar:
     st.header("⚙️ Configuration")
     
-    # Initialize button
+    # Initialize button (SAFE PATTERN - defensive with try-except)
     if st.button("🔄 Initialize/Reload Vector Store", type="primary"):
-        with st.spinner("Initializing Safety Copilot..."):
+        if st.session_state.vector_store_loading:
+            st.warning("⏳ Initialization already in progress...")
+        else:
+            st.session_state.vector_store_loading = True
             try:
-                app = get_app_lazy()
-                app.initialize(force_rebuild=False)
-                st.session_state.app = app
-                st.session_state.initialized = True
-                st.success("✅ Safety Copilot initialized!")
-                st.rerun()
+                with st.spinner("Initializing Safety Copilot... This may take a few moments."):
+                    # Clear cache if needed
+                    initialize_vector_store.clear()
+                    # Initialize with caching
+                    app = initialize_vector_store(force_rebuild=False)
+                    
+                    if app and app.is_initialized:
+                        st.session_state.app = app
+                        st.session_state.initialized = True
+                        st.session_state.vector_store_loading = False
+                        st.success("✅ Safety Copilot initialized!")
+                    else:
+                        st.session_state.vector_store_loading = False
+                        st.error("❌ Initialization failed. Check logs for details.")
             except Exception as e:
-                st.error(f"❌ Error: {e}")
+                st.session_state.vector_store_loading = False
+                st.error("❌ Initialization failed")
+                st.exception(e)  # Show full traceback for debugging
     
-    # Force rebuild button
+    # Force rebuild button (SAFE PATTERN)
     if st.button("🔨 Force Rebuild Vector Store"):
-        with st.spinner("Rebuilding vector store from documents..."):
+        if st.session_state.vector_store_loading:
+            st.warning("⏳ Rebuild already in progress...")
+        else:
+            st.session_state.vector_store_loading = True
             try:
-                app = get_app_lazy()
-                app.initialize(force_rebuild=True)
-                st.session_state.app = app
-                st.session_state.initialized = True
-                st.success("✅ Vector store rebuilt!")
-                st.rerun()
+                with st.spinner("Rebuilding vector store from documents... This may take several minutes."):
+                    # Clear cache to force rebuild
+                    initialize_vector_store.clear()
+                    # Rebuild with caching
+                    app = initialize_vector_store(force_rebuild=True)
+                    
+                    if app and app.is_initialized:
+                        st.session_state.app = app
+                        st.session_state.initialized = True
+                        st.session_state.vector_store_loading = False
+                        st.success("✅ Vector store rebuilt!")
+                    else:
+                        st.session_state.vector_store_loading = False
+                        st.error("❌ Rebuild failed. Check logs for details.")
             except Exception as e:
-                st.error(f"❌ Error: {e}")
+                st.session_state.vector_store_loading = False
+                st.error("❌ Rebuild failed")
+                st.exception(e)  # Show full traceback for debugging
     
     st.markdown("---")
     
@@ -330,22 +377,23 @@ else:
         with st.chat_message("assistant"):
             with st.spinner("🔍 Searching safety documents and generating answer..."):
                 try:
-                    # Ensure app is initialized
-                    if st.session_state.app is None:
-                        st.session_state.app = get_app_lazy()
-                    
-                    # Get conversation history for synthesis agent
-                    conv_history = []
-                    for chat in st.session_state.chat_history:
-                        if chat.get("question"):
-                            conv_history.append({"role": "user", "content": chat["question"]})
-                        if chat.get("answer"):
-                            conv_history.append({"role": "assistant", "content": chat["answer"]})
-                    
-                    response = st.session_state.app.process_query(user_question, conversation_history=conv_history)
-                    
-                    # Update last chat entry
-                    st.session_state.chat_history[-1].update(response)
+                    # Ensure app is initialized (defensive check)
+                    if st.session_state.app is None or not st.session_state.initialized:
+                        st.error("⚠️ Safety Copilot not initialized. Please click 'Initialize/Reload Vector Store' in the sidebar first.")
+                        st.session_state.chat_history[-1]["answer"] = "Error: Safety Copilot not initialized"
+                    else:
+                        # Get conversation history for synthesis agent
+                        conv_history = []
+                        for chat in st.session_state.chat_history:
+                            if chat.get("question"):
+                                conv_history.append({"role": "user", "content": chat["question"]})
+                            if chat.get("answer"):
+                                conv_history.append({"role": "assistant", "content": chat["answer"]})
+                        
+                        response = st.session_state.app.process_query(user_question, conversation_history=conv_history)
+                        
+                        # Update last chat entry
+                        st.session_state.chat_history[-1].update(response)
                     
                     # Check if refused
                     if response.get("refused"):

@@ -127,13 +127,6 @@ class SafetyCopilotApp:
             "embedding_model": EMBEDDING_MODEL
         }
 
-# Global app instance
-_app_instance: Optional[SafetyCopilotApp] = None
-
-def get_app() -> SafetyCopilotApp:
-    """Get or create global app instance"""
-    global _app_instance
-    if _app_instance is None:
-        _app_instance = SafetyCopilotApp()
-    return _app_instance
+# Removed global singleton - use st.session_state instead
+# This prevents issues with Streamlit's rerun model
 

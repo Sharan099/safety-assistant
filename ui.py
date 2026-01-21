@@ -441,8 +441,8 @@ with st.sidebar:
             if len(legacy_pdfs) > 5:
                 st.write(f"  ... and {len(legacy_pdfs) - 5} more")
     
-    if not st.session_state.uploaded_documents and not pdf_files and not legacy_pdfs:
-        st.info("📤 Upload PDF documents above to get started!")
+    if not base_regulations and not st.session_state.uploaded_documents and not pdf_files and not legacy_pdfs:
+        st.info("📤 Add PDFs to `/data/regulations/` folder or upload documents above to get started!")
     
     st.markdown("---")
     

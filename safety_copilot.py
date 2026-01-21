@@ -439,19 +439,43 @@ def answer_generation_agent(state: SafetyCopilotState) -> SafetyCopilotState:
 7. **Remember Context**: Reference previous conversation if relevant, but stay focused on current question
 8. **DO NOT mention document names, page numbers, or file paths in your answer text**
 
-**OUTPUT FORMAT (Use Markdown for Better Readability):**
-Structure your answer with:
-- **Brief Summary** (1-2 sentences) of what the scenario involves
-- **Key Requirements** (bullet points) from the documents that apply
-- **Logical Analysis** (paragraph) explaining how requirements apply to this scenario
-- **Conclusion** (1-2 sentences) with the answer or what's missing
+**OUTPUT FORMAT (MANDATORY 4-SECTION STRUCTURE):**
+
+You MUST structure your answer in exactly 4 sections:
+
+### 1. Simple Explanation
+<plain language explanation of the scenario and answer in 2-3 sentences, ELI5 style>
+
+### 2. Exact Regulation Statement
+"<exact quoted requirement with keywords preserved that applies to this scenario>"
+
+Include:
+- Exact limits (e.g., "HIC ≤ 1000")
+- Exact wording from regulations
+- Preserve legal terminology
+
+### 3. Analysis / Calculation (if applicable)
+<step-by-step reasoning showing how the regulation applies to this specific scenario>
+
+If calculation needed:
+- Show given values from scenario
+- Show regulation limit
+- Perform calculation
+- State result
+
+If no calculation, provide logical analysis of how the requirement applies to the scenario.
+
+### 4. References
+- **Regulation**: <name> (e.g., UNECE R94)
+- **Clause**: <number> (e.g., 5.2.1)
+- **Page**: <page number>
 
 **Formatting Guidelines:**
-- Use **bold** for important terms and key requirements
+- Use **bold** for regulation names, limits, and key terms
 - Use bullet points (•) for lists
 - Use numbered lists for step-by-step processes
-- Use paragraphs for explanations
-- Keep sentences clear and concise
+- Preserve exact regulation wording in quotes
+- Keep it clear and professional
 
 **Example Good Scenario Answer:**
 "Based on the UNECE R94 requirements for frontal collision protection, in a scenario where a vehicle undergoes a 40% offset deformable barrier test, the HIC value must not exceed 1000 for a 50th percentile male dummy. The standard specifies that this measurement is taken during the test procedure, and if the value exceeds the threshold, the vehicle would not meet the regulatory requirement. The test protocol requires specific dummy positioning and instrumentation setup as defined in the regulation."

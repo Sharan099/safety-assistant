@@ -198,14 +198,122 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* Answer container */
+    /* Answer container - Human-friendly, no white box */
     .answer-container {
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        padding: 1.5rem;
-        border-radius: 0.75rem;
+        background: transparent;
+        padding: 1rem 0;
+        margin: 0.5rem 0;
+        line-height: 1.8;
+    }
+    
+    /* Chat message styling - More human-friendly */
+    [data-testid="stChatMessage"] {
+        background: transparent !important;
+        padding: 1rem 0 !important;
+    }
+    
+    /* Answer text - Better readability with spacing */
+    .answer-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.05rem;
+        line-height: 1.9;
+        color: #2c3e50;
+        text-align: left;
+        padding: 0.5rem 0;
+    }
+    
+    .answer-text p {
+        margin-bottom: 1rem;
+        text-align: left;
+    }
+    
+    /* Section styling */
+    .answer-section {
+        margin: 1.2rem 0;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .answer-section:last-child {
+        border-bottom: none;
+    }
+    
+    /* Source highlighting - Different colors */
+    .source-highlight {
+        display: inline-block;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        color: #2e7d32;
+        padding: 0.3rem 0.6rem;
+        border-radius: 0.4rem;
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin: 0.2rem 0.3rem 0.2rem 0;
+        border-left: 3px solid #4caf50;
+    }
+    
+    .clause-highlight {
+        display: inline-block;
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        color: #e65100;
+        padding: 0.3rem 0.6rem;
+        border-radius: 0.4rem;
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin: 0.2rem 0.3rem 0.2rem 0;
+        border-left: 3px solid #ff9800;
+    }
+    
+    /* Source links - Professional styling */
+    .source-links-container {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+        border-radius: 0.5rem;
         border-left: 4px solid #1e88e5;
-        margin: 1rem 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .source-link-item {
+        display: inline-block;
+        background: #ffffff;
+        color: #1e88e5;
+        padding: 0.5rem 1rem;
+        border-radius: 0.4rem;
+        margin: 0.3rem 0.5rem 0.3rem 0;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: 1px solid #e0e0e0;
+        transition: all 0.2s;
+    }
+    
+    .source-link-item:hover {
+        background: #1e88e5;
+        color: white;
+        border-color: #1e88e5;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(30, 136, 229, 0.2);
+    }
+    
+    /* Disclaimer styling */
+    .disclaimer-box {
+        margin-top: 2rem;
+        padding: 1rem 1.2rem;
+        background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+        border-left: 4px solid #ffc107;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        color: #856404;
+        line-height: 1.6;
+    }
+    
+    /* Remove white background from chat messages */
+    .stChatMessage {
+        background: transparent !important;
+    }
+    
+    /* Better paragraph spacing */
+    .answer-text p + p {
+        margin-top: 0.8rem;
     }
     
     /* Improved readability */
@@ -600,13 +708,34 @@ else:
                 # Check if answer has 4-section format
                 has_sections = "### 1. Simple Explanation" in answer or "## Simple Explanation" in answer
                 
+                # Process answer text - remove disclaimer for separate display
+                answer_clean = answer
+                disclaimer_text = None
+                if "⚠️" in answer or "Disclaimer" in answer:
+                    # Extract disclaimer
+                    lines = answer.split('\n')
+                    answer_lines = []
+                    disclaimer_lines = []
+                    in_disclaimer = False
+                    for line in lines:
+                        if "⚠️" in line or ("Disclaimer" in line and "disclaimer" in line.lower()):
+                            in_disclaimer = True
+                        if in_disclaimer:
+                            disclaimer_lines.append(line)
+                        else:
+                            answer_lines.append(line)
+                    answer_clean = '\n'.join(answer_lines).strip()
+                    if disclaimer_lines:
+                        disclaimer_text = '\n'.join(disclaimer_lines).replace('⚠️ **Disclaimer**:', '').replace('⚠️ **Disclaimer**', '').strip()
+                
+                # Display answer with better formatting
                 if has_sections:
-                    # Parse and display sections separately
+                    # Parse and display sections separately with better styling
                     sections = {}
                     current_section = None
                     current_text = []
                     
-                    lines = answer.split('\n')
+                    lines = answer_clean.split('\n')
                     for line in lines:
                         if line.startswith('###') or line.startswith('##'):
                             if current_section:
@@ -621,62 +750,75 @@ else:
                     if current_section:
                         sections[current_section] = '\n'.join(current_text).strip()
                     
-                    # Display sections with expandable references
+                    # Display sections with professional styling
                     for section_name, section_text in sections.items():
                         if "Reference" in section_name or "References" in section_name:
-                            with st.expander(f"📌 {section_name}", expanded=False):
-                                st.markdown(section_text)
+                            # Skip - will be shown separately with sources
+                            continue
                         elif "Calculation" in section_name or "Analysis" in section_name:
-                            st.markdown(f'<div style="background-color: #f0f7ff; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #1e88e5; margin: 0.5rem 0;">', unsafe_allow_html=True)
-                            st.markdown(f"**{section_name}**")
-                            st.markdown(section_text)
+                            st.markdown(f'<div class="answer-section" style="background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #1e88e5;">', unsafe_allow_html=True)
+                            st.markdown(f'<h4 style="color: #1e88e5; margin-top: 0; margin-bottom: 0.8rem;">{section_name}</h4>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="answer-text">{section_text}</div>', unsafe_allow_html=True)
                             st.markdown('</div>', unsafe_allow_html=True)
                         else:
-                            st.markdown(f"**{section_name}**")
-                            st.markdown(section_text)
+                            st.markdown(f'<div class="answer-section">', unsafe_allow_html=True)
+                            st.markdown(f'<h4 style="color: #2c3e50; margin-top: 0; margin-bottom: 0.8rem; font-weight: 600;">{section_name}</h4>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="answer-text">{section_text}</div>', unsafe_allow_html=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
                 else:
-                    # Display as regular answer
+                    # Display as regular answer with better formatting
                     st.markdown(f'<div class="answer-container">', unsafe_allow_html=True)
-                    st.markdown(answer)
+                    st.markdown(f'<div class="answer-text">{answer_clean}</div>', unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Confidence score
-                confidence = chat.get("confidence_score", 0.0)
-                confidence_level = chat.get("confidence_level", "low")
-                
-                if confidence_level == "high":
-                    conf_class = "confidence-high"
-                    conf_icon = "✅"
-                elif confidence_level == "medium":
-                    conf_class = "confidence-medium"
-                    conf_icon = "⚠️"
-                else:
-                    conf_class = "confidence-low"
-                    conf_icon = "❌"
-                
-                st.markdown(f'<p class="{conf_class}">{conf_icon} Confidence: {confidence:.1%} ({confidence_level})</p>', unsafe_allow_html=True)
-                
-                # Sources - Small clickable links
+                # Sources - Highlighted with different colors
                 sources = chat.get("sources", [])
                 if sources:
                     from pdf_linker import find_pdf_path
                     # Collect unique PDF files for bottom display
                     unique_pdfs = set()
-                    source_links = []
+                    source_links_html = []
+                    
                     for source in sources:
                         pdf_path = find_pdf_path(source.get('document_name', ''))
                         if pdf_path:
                             unique_pdfs.add(pdf_path.name)
-                            # Create small clickable link
+                            
+                            # Extract regulation and clause info
+                            regulation = source.get('regulation') or source.get('method') or source.get('document_name', 'Document')
+                            clause = source.get('clause') or source.get('section_number', '')
+                            page = source.get('page_number', 1)
+                            
+                            # Create styled link
                             file_url = pdf_path.as_uri()
-                            anchor = f"#page={source.get('page_number', 1)}"
+                            anchor = f"#page={page}"
                             full_url = f"{file_url}{anchor}"
-                            link_text = f"📄 {source.get('document_name', 'Document')} (p.{source.get('page_number', 1)})"
-                            source_links.append(f'<a href="{full_url}" target="_blank" style="color: #1e88e5; text-decoration: none; font-size: 0.9rem; margin-right: 0.8rem; display: inline-block;">{link_text}</a>')
+                            
+                            # Build link text with highlights
+                            link_parts = []
+                            if regulation:
+                                link_parts.append(f'<span class="source-highlight">{regulation}</span>')
+                            if clause:
+                                link_parts.append(f'<span class="clause-highlight">Clause {clause}</span>')
+                            link_parts.append(f'<a href="{full_url}" target="_blank" class="source-link-item">📄 Page {page}</a>')
+                            
+                            source_links_html.append(' '.join(link_parts))
                     
-                    # Display small links inline
-                    if source_links:
-                        st.markdown(f'<div style="margin-top: 0.5rem; padding: 0.5rem; background-color: #f5f5f5; border-radius: 0.3rem;">{" ".join(source_links)}</div>', unsafe_allow_html=True)
+                    # Display sources in styled container
+                    if source_links_html:
+                        st.markdown('<div class="source-links-container">', unsafe_allow_html=True)
+                        st.markdown('<strong style="color: #1e88e5; font-size: 0.95rem; margin-bottom: 0.5rem; display: block;">📚 Sources:</strong>', unsafe_allow_html=True)
+                        st.markdown('<div>' + '<br>'.join(source_links_html) + '</div>', unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    # Store for footer
+                    if 'pdf_files_used' not in st.session_state:
+                        st.session_state.pdf_files_used = set()
+                    st.session_state.pdf_files_used.update(unique_pdfs)
+                
+                # Show disclaimer separately at the end with spacing
+                if disclaimer_text:
+                    st.markdown(f'<div class="disclaimer-box"><strong>⚠️ Disclaimer:</strong> {disclaimer_text}</div>', unsafe_allow_html=True)
     
     # Chat input
     user_question = st.chat_input("Ask about ISO 26262, safety goals, ASIL levels, etc...")
@@ -722,24 +864,70 @@ else:
                     if response.get("refused"):
                         st.markdown(f'<div class="refusal-box">⚠️ <strong>Request Refused</strong><br>{response.get("refusal_reason", "")}</div>', unsafe_allow_html=True)
                     else:
-                        # Display answer
-                        st.markdown(response["answer"])
+                        # Process answer - remove disclaimer for separate display
+                        answer_clean = response.get("answer", "")
+                        disclaimer_text = None
+                        if "⚠️" in answer_clean or "Disclaimer" in answer_clean:
+                            lines = answer_clean.split('\n')
+                            answer_lines = []
+                            disclaimer_lines = []
+                            in_disclaimer = False
+                            for line in lines:
+                                if "⚠️" in line or ("Disclaimer" in line and "disclaimer" in line.lower()):
+                                    in_disclaimer = True
+                                if in_disclaimer:
+                                    disclaimer_lines.append(line)
+                                else:
+                                    answer_lines.append(line)
+                            answer_clean = '\n'.join(answer_lines).strip()
+                            if disclaimer_lines:
+                                disclaimer_text = '\n'.join(disclaimer_lines).replace('⚠️ **Disclaimer**:', '').replace('⚠️ **Disclaimer**', '').strip()
                         
-                        # Confidence score
-                        confidence = response.get("confidence_score", 0.0)
-                        confidence_level = response.get("confidence_level", "low")
+                        # Display answer with better formatting
+                        st.markdown(f'<div class="answer-container">', unsafe_allow_html=True)
+                        st.markdown(f'<div class="answer-text">{answer_clean}</div>', unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
                         
-                        if confidence_level == "high":
-                            conf_class = "confidence-high"
-                            conf_icon = "✅"
-                        elif confidence_level == "medium":
-                            conf_class = "confidence-medium"
-                            conf_icon = "⚠️"
-                        else:
-                            conf_class = "confidence-low"
-                            conf_icon = "❌"
+                        # Sources - Highlighted
+                        sources = response.get("sources", [])
+                        if sources:
+                            from pdf_linker import find_pdf_path
+                            unique_pdfs = set()
+                            source_links_html = []
+                            
+                            for source in sources:
+                                pdf_path = find_pdf_path(source.get('document_name', ''))
+                                if pdf_path:
+                                    unique_pdfs.add(pdf_path.name)
+                                    regulation = source.get('regulation') or source.get('method') or source.get('document_name', 'Document')
+                                    clause = source.get('clause') or source.get('section_number', '')
+                                    page = source.get('page_number', 1)
+                                    
+                                    file_url = pdf_path.as_uri()
+                                    anchor = f"#page={page}"
+                                    full_url = f"{file_url}{anchor}"
+                                    
+                                    link_parts = []
+                                    if regulation:
+                                        link_parts.append(f'<span class="source-highlight">{regulation}</span>')
+                                    if clause:
+                                        link_parts.append(f'<span class="clause-highlight">Clause {clause}</span>')
+                                    link_parts.append(f'<a href="{full_url}" target="_blank" class="source-link-item">📄 Page {page}</a>')
+                                    source_links_html.append(' '.join(link_parts))
+                            
+                            if source_links_html:
+                                st.markdown('<div class="source-links-container">', unsafe_allow_html=True)
+                                st.markdown('<strong style="color: #1e88e5; font-size: 0.95rem; margin-bottom: 0.5rem; display: block;">📚 Sources:</strong>', unsafe_allow_html=True)
+                                st.markdown('<div>' + '<br>'.join(source_links_html) + '</div>', unsafe_allow_html=True)
+                                st.markdown('</div>', unsafe_allow_html=True)
+                            
+                            if 'pdf_files_used' not in st.session_state:
+                                st.session_state.pdf_files_used = set()
+                            st.session_state.pdf_files_used.update(unique_pdfs)
                         
-                        st.markdown(f'<p class="{conf_class}">{conf_icon} Confidence: {confidence:.1%} ({confidence_level})</p>', unsafe_allow_html=True)
+                        # Disclaimer at the end
+                        if disclaimer_text:
+                            st.markdown(f'<div class="disclaimer-box"><strong>⚠️ Disclaimer:</strong> {disclaimer_text}</div>', unsafe_allow_html=True)
                         
                         # Show synthesis indicators if synthesis was used
                         synthesis_result = response.get("synthesis_result")

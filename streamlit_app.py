@@ -137,26 +137,26 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state (NON-NEGOTIABLE - never use globals)
+# Initialize session state (NON-NEGOTIABLE - must use session_state)
 if "app" not in st.session_state:
     st.session_state.app = None
 if "initialized" not in st.session_state:
     st.session_state.initialized = False
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-if "vector_store_loading" not in st.session_state:
-    st.session_state.vector_store_loading = False
+if "vector_store" not in st.session_state:
+    st.session_state.vector_store = None
 
 # Header
 st.markdown('<h1 class="main-header">🛡️ Safety Copilot</h1>', unsafe_allow_html=True)
 st.markdown('<p style="text-align: center; color: #666; font-size: 1.1rem;">AI-Powered Safety Engineering Assistant</p>', unsafe_allow_html=True)
 st.markdown("---")
 
-# Cached function for heavy initialization work (SAFE PATTERN)
+# Cached function for loading vector store (SAFE PATTERN)
 @st.cache_resource(show_spinner=True)
-def initialize_vector_store(force_rebuild: bool = False):
+def load_vector_store(force_rebuild: bool = False):
     """
-    Initialize vector store - cached to prevent re-running on every button click
+    Load or build vector store - cached to prevent re-running on every button click
     This is the ONLY safe way to do heavy work in Streamlit
     """
     try:
@@ -165,67 +165,49 @@ def initialize_vector_store(force_rebuild: bool = False):
         app.initialize(force_rebuild=force_rebuild)
         return app
     except Exception as e:
-        # Return None on error, let button handler show the error
-        print(f"Error in initialize_vector_store: {e}")
-        import traceback
-        traceback.print_exc()
-        return None
+        # Re-raise with context for better error messages
+        raise RuntimeError(f"Failed to initialize vector store: {str(e)}") from e
 
 # Sidebar
 with st.sidebar:
     st.header("⚙️ Configuration")
     
-    # Initialize button (SAFE PATTERN - defensive with try-except)
+    # Initialize button (SAFE PATTERN with defensive error handling)
     if st.button("🔄 Initialize/Reload Vector Store", type="primary"):
-        if st.session_state.vector_store_loading:
-            st.warning("⏳ Initialization already in progress...")
-        else:
-            st.session_state.vector_store_loading = True
-            try:
-                with st.spinner("Initializing Safety Copilot... This may take a few moments."):
-                    # Clear cache if needed
-                    initialize_vector_store.clear()
-                    # Initialize with caching
-                    app = initialize_vector_store(force_rebuild=False)
-                    
-                    if app and app.is_initialized:
-                        st.session_state.app = app
-                        st.session_state.initialized = True
-                        st.session_state.vector_store_loading = False
-                        st.success("✅ Safety Copilot initialized!")
-                    else:
-                        st.session_state.vector_store_loading = False
-                        st.error("❌ Initialization failed. Check logs for details.")
-            except Exception as e:
-                st.session_state.vector_store_loading = False
-                st.error("❌ Initialization failed")
-                st.exception(e)  # Show full traceback for debugging
+        try:
+            with st.spinner("Initializing Safety Copilot..."):
+                # Clear cache if needed
+                if st.session_state.vector_store is not None:
+                    load_vector_store.clear()
+                
+                # Load vector store (cached - won't re-run if already loaded)
+                app = load_vector_store(force_rebuild=False)
+                st.session_state.app = app
+                st.session_state.vector_store = app.vector_store
+                st.session_state.initialized = True
+                st.success("✅ Safety Copilot initialized!")
+                st.rerun()
+        except Exception as e:
+            st.error("❌ Initialization failed")
+            st.exception(e)  # Show full traceback for debugging
     
     # Force rebuild button (SAFE PATTERN)
     if st.button("🔨 Force Rebuild Vector Store"):
-        if st.session_state.vector_store_loading:
-            st.warning("⏳ Rebuild already in progress...")
-        else:
-            st.session_state.vector_store_loading = True
-            try:
-                with st.spinner("Rebuilding vector store from documents... This may take several minutes."):
-                    # Clear cache to force rebuild
-                    initialize_vector_store.clear()
-                    # Rebuild with caching
-                    app = initialize_vector_store(force_rebuild=True)
-                    
-                    if app and app.is_initialized:
-                        st.session_state.app = app
-                        st.session_state.initialized = True
-                        st.session_state.vector_store_loading = False
-                        st.success("✅ Vector store rebuilt!")
-                    else:
-                        st.session_state.vector_store_loading = False
-                        st.error("❌ Rebuild failed. Check logs for details.")
-            except Exception as e:
-                st.session_state.vector_store_loading = False
-                st.error("❌ Rebuild failed")
-                st.exception(e)  # Show full traceback for debugging
+        try:
+            with st.spinner("Rebuilding vector store from documents... (This may take a few minutes)"):
+                # Clear cache to force rebuild
+                load_vector_store.clear()
+                
+                # Rebuild vector store
+                app = load_vector_store(force_rebuild=True)
+                st.session_state.app = app
+                st.session_state.vector_store = app.vector_store
+                st.session_state.initialized = True
+                st.success("✅ Vector store rebuilt!")
+                st.rerun()
+        except Exception as e:
+            st.error("❌ Rebuild failed")
+            st.exception(e)  # Show full traceback for debugging
     
     st.markdown("---")
     
@@ -379,8 +361,8 @@ else:
                 try:
                     # Ensure app is initialized (defensive check)
                     if st.session_state.app is None or not st.session_state.initialized:
-                        st.error("⚠️ Safety Copilot not initialized. Please click 'Initialize/Reload Vector Store' in the sidebar first.")
-                        st.session_state.chat_history[-1]["answer"] = "Error: Safety Copilot not initialized"
+                        st.warning("⚠️ App not initialized. Please initialize from sidebar first.")
+                        st.session_state.chat_history[-1]["answer"] = "App not initialized. Please click 'Initialize/Reload Vector Store' in the sidebar."
                     else:
                         # Get conversation history for synthesis agent
                         conv_history = []
@@ -459,8 +441,9 @@ else:
                             st.session_state.pdf_files_used.update(unique_pdfs)
                     
                 except Exception as e:
-                    st.error(f"❌ Error processing query: {e}")
-                    st.session_state.chat_history[-1]["answer"] = f"Error: {e}"
+                    st.error("❌ Error processing query")
+                    st.exception(e)  # Show full traceback for debugging
+                    st.session_state.chat_history[-1]["answer"] = f"Error processing query: {str(e)}"
         
         st.rerun()
 

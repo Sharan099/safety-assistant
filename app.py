@@ -38,8 +38,6 @@ class SafetyCopilotApp:
                 print("✅ Vector store loaded successfully")
             except Exception as e:
                 print(f"⚠️  Error loading vector store: {e}, rebuilding...")
-                import traceback
-                traceback.print_exc()
                 force_rebuild = True
         
         # Build vector store if needed
@@ -61,17 +59,9 @@ class SafetyCopilotApp:
                                f"  - {DOCUMENTS_DIR} (legacy)")
             
             self.vector_store.create_index(chunks)
-            
-            # Save vector store - handle file I/O errors gracefully for Streamlit Cloud
-            try:
-                self.vector_store.save(VECTOR_STORE_DIR)
-                print("✅ Vector store built and saved")
-            except Exception as e:
-                print(f"⚠️  Warning: Could not save vector store to disk: {e}")
-                print("   This is OK in Streamlit Cloud - vector store is in memory")
-                # Continue anyway - vector store is in memory
-            
+            self.vector_store.save(VECTOR_STORE_DIR)
             self.is_initialized = True
+            print("✅ Vector store built and saved")
         
         # Create workflow
         self.workflow = create_safety_copilot_workflow(self.vector_store)
@@ -137,6 +127,6 @@ class SafetyCopilotApp:
             "embedding_model": EMBEDDING_MODEL
         }
 
-# Removed global singleton - use st.session_state instead
+# Removed global app instance - use st.session_state instead
 # This prevents issues with Streamlit's rerun model
 

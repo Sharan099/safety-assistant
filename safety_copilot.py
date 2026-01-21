@@ -141,7 +141,8 @@ def safety_guardrail_agent(state: SafetyCopilotState) -> SafetyCopilotState:
         "workflow_stage": "refused" if should_refuse else ("synthesis" if needs_synthesis else ("scenario" if needs_scenario_reasoning else "retrieval"))
     }
 
-def retrieval_agent(state: SafetyCopilotState, vector_store: SafetyVectorStore) -> SafetyCopilotState:
+def retrieval_agent(state: SafetyCopilotState, vector_store: SafetyVectorStore, 
+                    use_hybrid: bool = True) -> SafetyCopilotState:
     """Retrieve relevant document chunks with improved search"""
     question = state.get("user_question", "")
     needs_synthesis = state.get("needs_synthesis", False)
@@ -511,19 +512,43 @@ Structure your answer with:
 9. **DO NOT mention document names, page numbers, or file paths in your answer text**
 10. If context contains garbled text, skip it and use only clear information
 
-**OUTPUT FORMAT (Use Markdown for Better Readability):**
-Structure your answer with:
-- **Brief Summary** (1 sentence) of the answer
-- **Key Information** (bullet points or paragraphs) with details
-- **Reasoning** (paragraph) explaining how you arrived at this answer
-- **Context** (if needed) connecting to previous conversation
+**OUTPUT FORMAT (MANDATORY 4-SECTION STRUCTURE):**
+
+You MUST structure your answer in exactly 4 sections:
+
+### 1. Simple Explanation
+<plain language explanation in 2-3 sentences, ELI5 style>
+
+### 2. Exact Regulation Statement
+"<exact quoted requirement with keywords preserved>"
+
+Include:
+- Exact limits (e.g., "HIC ≤ 1000")
+- Exact wording from regulations
+- Preserve legal terminology
+
+### 3. Analysis / Calculation (if applicable)
+<step-by-step reasoning or calculation>
+
+If calculation needed:
+- Show given values
+- Show regulation limit
+- Perform calculation
+- State result
+
+If no calculation, provide logical analysis of how the requirement applies.
+
+### 4. References
+- **Regulation**: <name> (e.g., UNECE R94)
+- **Clause**: <number> (e.g., 5.2.1)
+- **Page**: <page number>
 
 **Formatting Guidelines:**
-- Use **bold** for important terms, values, and key concepts
-- Use bullet points (•) for lists of requirements or features
-- Use numbered lists (1., 2., 3.) for step-by-step processes
-- Use paragraphs for explanations and reasoning
-- Keep sentences clear, concise, and well-structured
+- Use **bold** for regulation names, limits, and key terms
+- Use bullet points (•) for lists
+- Use numbered lists for step-by-step processes
+- Preserve exact regulation wording in quotes
+- Keep it clear and professional
 
 **Example Good Answer (with all 3 R's):**
 "The maximum allowable HIC (Head Injury Criterion) for a 50th percentile male dummy in UNECE R94 is 1000. This value is specified in the performance criteria section of the regulation, which defines the injury thresholds for frontal collision tests. The test procedures require measuring HIC during the 40% offset deformable barrier test to ensure occupant safety."

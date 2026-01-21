@@ -270,7 +270,9 @@ class SafetyVectorStore:
         print(f"✅ Loaded vector store: {len(self.chunks)} chunks, {self.index.ntotal} vectors")
     
     @staticmethod
-    def load_or_build_store(force_rebuild: bool = False) -> 'SafetyVectorStore':
+    def load_or_build_store(force_rebuild: bool = False, 
+                           regulations_dir: Optional[Path] = None,
+                           user_documents: Optional[List[Path]] = None) -> 'SafetyVectorStore':
         """
         Load or build vector store from documents
         This function does heavy work - should be called from @st.cache_resource

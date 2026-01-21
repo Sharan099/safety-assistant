@@ -577,10 +577,51 @@ else:
             if chat.get("refused"):
                 st.markdown(f'<div class="refusal-box">⚠️ <strong>Request Refused</strong><br>{chat.get("refusal_reason", "")}</div>', unsafe_allow_html=True)
             else:
-                # Display answer with better formatting
-                st.markdown(f'<div class="answer-container">', unsafe_allow_html=True)
-                st.markdown(chat["answer"])
-                st.markdown('</div>', unsafe_allow_html=True)
+                # Display answer with better formatting and expandable sections
+                answer = chat["answer"]
+                
+                # Check if answer has 4-section format
+                has_sections = "### 1. Simple Explanation" in answer or "## Simple Explanation" in answer
+                
+                if has_sections:
+                    # Parse and display sections separately
+                    sections = {}
+                    current_section = None
+                    current_text = []
+                    
+                    lines = answer.split('\n')
+                    for line in lines:
+                        if line.startswith('###') or line.startswith('##'):
+                            if current_section:
+                                sections[current_section] = '\n'.join(current_text).strip()
+                            # Extract section name
+                            section_name = line.replace('#', '').strip()
+                            current_section = section_name
+                            current_text = []
+                        else:
+                            if current_section:
+                                current_text.append(line)
+                    if current_section:
+                        sections[current_section] = '\n'.join(current_text).strip()
+                    
+                    # Display sections with expandable references
+                    for section_name, section_text in sections.items():
+                        if "Reference" in section_name or "References" in section_name:
+                            with st.expander(f"📌 {section_name}", expanded=False):
+                                st.markdown(section_text)
+                        elif "Calculation" in section_name or "Analysis" in section_name:
+                            st.markdown(f'<div style="background-color: #f0f7ff; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #1e88e5; margin: 0.5rem 0;">', unsafe_allow_html=True)
+                            st.markdown(f"**{section_name}**")
+                            st.markdown(section_text)
+                            st.markdown('</div>', unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"**{section_name}**")
+                            st.markdown(section_text)
+                else:
+                    # Display as regular answer
+                    st.markdown(f'<div class="answer-container">', unsafe_allow_html=True)
+                    st.markdown(answer)
+                    st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Confidence score
                 confidence = chat.get("confidence_score", 0.0)

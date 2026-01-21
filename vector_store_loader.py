@@ -66,3 +66,4 @@ def load_or_build_vector_store(force_rebuild: bool = False) -> SafetyVectorStore
     
     return vector_store
 
+

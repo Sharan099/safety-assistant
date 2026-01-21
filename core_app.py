@@ -95,3 +95,4 @@ class SafetyCopilotCore:
             "embedding_model": EMBEDDING_MODEL
         }
 
+

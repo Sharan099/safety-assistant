@@ -358,3 +358,4 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
                 st.error(f"Error: {e}")
                 st.exception(e)
 
+

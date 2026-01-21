@@ -718,8 +718,12 @@ else:
                 # Display answer with better formatting and expandable sections
                 answer = chat["answer"]
                 
-                # Check if answer has 4-section format
-                has_sections = "### 1. Simple Explanation" in answer or "## Simple Explanation" in answer
+                # Check if answer has structured format (new emoji format or old format)
+                has_sections = (
+                    "### ✅" in answer or "### 📘" in answer or "### 🧮" in answer or "### 🔗" in answer or
+                    "### 1. Simple" in answer or "## Simple" in answer or
+                    "### Simple Answer" in answer or "### Regulation Requirement" in answer
+                )
                 
                 # Process answer text - remove disclaimer for separate display
                 answer_clean = answer
@@ -794,8 +798,8 @@ else:
                             st.markdown(section_text)
                             st.markdown('</div>', unsafe_allow_html=True)
                 else:
-                    # Display as regular answer with ChatGPT-style formatting
-                    # Render markdown directly for better readability
+                    # Display as regular answer - force ChatGPT-style formatting
+                    # Split into lines and render with proper spacing
                     st.markdown(answer_clean)
                 
                 # Sources - Highlighted with different colors

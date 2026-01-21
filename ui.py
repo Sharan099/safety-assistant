@@ -577,8 +577,10 @@ else:
             if chat.get("refused"):
                 st.markdown(f'<div class="refusal-box">⚠️ <strong>Request Refused</strong><br>{chat.get("refusal_reason", "")}</div>', unsafe_allow_html=True)
             else:
-                # Display answer
+                # Display answer with better formatting
+                st.markdown(f'<div class="answer-container">', unsafe_allow_html=True)
                 st.markdown(chat["answer"])
+                st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Confidence score
                 confidence = chat.get("confidence_score", 0.0)

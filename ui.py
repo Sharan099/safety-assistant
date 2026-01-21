@@ -1,5 +1,5 @@
 """
-Streamlit UI for Safety Copilot - ChatGPT Style with Custom Design
+Streamlit UI for Safety Copilot - Clean & Simple Design with Sky Blue/Teal Theme
 """
 # Fix for Streamlit + PyTorch conflict - MUST be first
 import os
@@ -48,218 +48,164 @@ if 'initialized' not in st.session_state:
     st.session_state.initialized = False
 if 'core' not in st.session_state:
     st.session_state.core = None
-if 'dark_mode' not in st.session_state:
-    st.session_state.dark_mode = False
 
-# Custom CSS with Design System
+# Custom CSS with Sky Blue/Teal Theme
 st.markdown("""
 <style>
     /* Import Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
     
-    /* Color Palette */
+    /* Color Palette - Sky Blue & Teal */
     :root {
-        --primary-orange: #EF6A36;
-        --dark-sidebar: #1E1E21;
-        --light-bg: #F7F7F7;
-        --text-dark: #000000;
+        --primary-teal: #14B8A6;
+        --primary-sky: #0EA5E9;
+        --accent-blue: #3B82F6;
+        --light-teal: #E0F2FE;
+        --light-sky: #F0F9FF;
+        --dark-teal: #0F766E;
+        --text-dark: #1E293B;
         --text-light: #FFFFFF;
-        --border-gray: #E5E5E5;
-        --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        --border-color: #CBD5E1;
+        --bg-light: #F8FAFC;
+        --shadow: 0 2px 8px rgba(20, 184, 166, 0.1);
     }
     
     /* Main App Background */
     .stApp {
-        background: var(--light-bg) !important;
-        font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--bg-light) !important;
+        font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
     }
     
-    /* Sidebar Styling - Dark Background */
+    /* Sidebar Styling */
     [data-testid="stSidebar"] {
-        background: var(--dark-sidebar) !important;
-    }
-    
-    [data-testid="stSidebar"] .css-1d391kg {
-        background: var(--dark-sidebar) !important;
+        background: linear-gradient(180deg, #0F766E 0%, #14B8A6 100%) !important;
     }
     
     [data-testid="stSidebar"] * {
         color: var(--text-light) !important;
     }
     
-    /* Sidebar Navigation Cards */
-    [data-testid="stSidebar"] .css-1lcbmhc {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px !important;
-        padding: 0.75rem !important;
-        margin: 0.5rem 0 !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-    
-    /* PRO Badge */
-    .pro-badge {
-        background: var(--primary-orange) !important;
-        color: white !important;
-        padding: 0.2rem 0.5rem !important;
-        border-radius: 4px !important;
-        font-size: 0.7rem !important;
-        font-weight: 600 !important;
-        margin-left: 0.5rem !important;
-    }
-    
     /* Main Content Area */
     .main .block-container {
-        max-width: 1200px;
-        padding: 2rem;
-        background: var(--light-bg);
+        max-width: 1000px;
+        padding: 2rem 1rem;
+        background: var(--bg-light);
     }
     
-    /* Chat Container - Large Border Radius */
-    .chat-container {
-        background: white !important;
-        border-radius: 20px !important;
-        box-shadow: var(--shadow) !important;
-        padding: 2rem !important;
-        margin: 1rem 0 !important;
-        border: 1px solid var(--border-gray) !important;
-    }
-    
-    /* Chat Messages */
+    /* Chat Messages - Clean White Cards */
     [data-testid="stChatMessage"] {
-        background: transparent !important;
-        padding: 1rem 0 !important;
-        margin: 0.5rem 0 !important;
+        background: white !important;
+        padding: 1.5rem !important;
+        border-radius: 12px !important;
+        margin: 1rem 0 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        border: 1px solid var(--border-color) !important;
     }
     
-    /* User Message - White Rounded Container */
+    /* User Message */
     [data-testid="stChatMessage"][data-message-author="user"] {
-        background: white !important;
-        padding: 1rem 1.5rem !important;
-        border-radius: 12px !important;
-        border: 1px solid var(--border-gray) !important;
-        margin: 1rem 0 !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        background: var(--light-sky) !important;
+        border-left: 4px solid var(--primary-sky) !important;
     }
     
     /* Assistant Message */
     [data-testid="stChatMessage"][data-message-author="assistant"] {
-        background: transparent !important;
-        padding: 1rem 0 !important;
+        background: white !important;
+        border-left: 4px solid var(--primary-teal) !important;
     }
     
-    /* Markdown Styling - Line by Line */
+    /* Markdown Styling - Clean & Readable */
     .stMarkdown {
         color: var(--text-dark) !important;
         font-family: 'Inter', 'Poppins', sans-serif !important;
         font-size: 1rem !important;
-        line-height: 1.8 !important;
+        line-height: 1.7 !important;
     }
     
     .stMarkdown p {
         margin-bottom: 0.8rem !important;
         color: var(--text-dark) !important;
-        line-height: 1.8 !important;
+        line-height: 1.7 !important;
     }
     
-    /* Headings */
+    /* Headings - Teal Color */
     .stMarkdown h3, .stMarkdown h4 {
-        color: var(--primary-orange) !important;
+        color: var(--primary-teal) !important;
         margin-top: 1.5rem !important;
         margin-bottom: 1rem !important;
         font-weight: 600 !important;
         font-family: 'Inter', 'Poppins', sans-serif !important;
     }
     
-    /* Bullet Points - Line by Line */
+    /* Bullet Points */
     .stMarkdown ul, .stMarkdown ol {
         margin: 1rem 0 !important;
         padding-left: 1.5rem !important;
     }
     
     .stMarkdown li {
-        margin-bottom: 0.6rem !important;
+        margin-bottom: 0.5rem !important;
         color: var(--text-dark) !important;
-        line-height: 1.8 !important;
+        line-height: 1.7 !important;
     }
     
-    /* Code Blocks - Syntax Highlighting */
+    /* Code Blocks */
     .stMarkdown code {
-        background: #f5f5f5 !important;
-        color: var(--text-dark) !important;
+        background: var(--light-teal) !important;
+        color: var(--dark-teal) !important;
         padding: 0.2rem 0.4rem !important;
         border-radius: 4px !important;
-        font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+        font-family: 'Courier New', monospace !important;
     }
     
     .stMarkdown pre {
-        background: #f5f5f5 !important;
+        background: var(--light-teal) !important;
         border-radius: 8px !important;
         padding: 1rem !important;
-        border: 1px solid var(--border-gray) !important;
+        border: 1px solid var(--border-color) !important;
     }
     
-    .stMarkdown pre code {
-        background: transparent !important;
-        color: #d73a49 !important; /* Red for keywords */
-    }
-    
-    /* Section Styling */
-    .answer-section {
-        margin: 1.5rem 0 !important;
-        padding: 1.5rem !important;
-        background: white !important;
-        border-radius: 12px !important;
-        border-left: 4px solid var(--primary-orange) !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-    }
-    
-    .regulation-section {
-        border-left-color: #4caf50 !important;
-        background: #f1f8f4 !important;
-    }
-    
-    .calculation-section {
-        border-left-color: #1e88e5 !important;
-        background: #e3f2fd !important;
-    }
-    
-    /* Buttons - Orange Rounded */
+    /* Buttons - Teal */
     .stButton > button {
-        background: var(--primary-orange) !important;
+        background: var(--primary-teal) !important;
         color: white !important;
         border-radius: 8px !important;
         border: none !important;
-        padding: 0.5rem 1.5rem !important;
+        padding: 0.6rem 1.5rem !important;
         font-weight: 600 !important;
         font-family: 'Inter', 'Poppins', sans-serif !important;
         transition: all 0.2s !important;
     }
     
     .stButton > button:hover {
-        background: #d85a26 !important;
+        background: var(--dark-teal) !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 4px 8px rgba(239, 106, 54, 0.3) !important;
+        box-shadow: 0 4px 8px rgba(20, 184, 166, 0.3) !important;
     }
     
     /* Chat Input */
     .stChatInput {
         background: white !important;
         border-radius: 12px !important;
-        border: 1px solid var(--border-gray) !important;
+        border: 2px solid var(--border-color) !important;
         box-shadow: var(--shadow) !important;
+    }
+    
+    .stChatInput:focus {
+        border-color: var(--primary-teal) !important;
     }
     
     /* Source Links */
     .source-links {
         margin-top: 1.5rem !important;
         padding: 1rem !important;
-        background: #f9f9f9 !important;
-        border-radius: 12px !important;
-        border: 1px solid var(--border-gray) !important;
+        background: var(--light-teal) !important;
+        border-radius: 8px !important;
+        border: 1px solid var(--border-color) !important;
     }
     
     .source-link {
-        color: var(--primary-orange) !important;
+        color: var(--primary-teal) !important;
         text-decoration: none !important;
         margin-right: 1rem !important;
         font-weight: 500 !important;
@@ -267,17 +213,25 @@ st.markdown("""
     
     .source-link:hover {
         text-decoration: underline !important;
+        color: var(--dark-teal) !important;
     }
     
     /* Disclaimer */
     .disclaimer {
-        margin-top: 2rem !important;
+        margin-top: 1.5rem !important;
         padding: 1rem 1.5rem !important;
-        background: #fff9e6 !important;
-        border-left: 4px solid #ffc107 !important;
-        border-radius: 12px !important;
+        background: #FEF3C7 !important;
+        border-left: 4px solid #F59E0B !important;
+        border-radius: 8px !important;
         font-size: 0.9rem !important;
-        color: #856404 !important;
+        color: #92400E !important;
+    }
+    
+    /* Title */
+    h1 {
+        color: var(--primary-teal) !important;
+        font-family: 'Inter', 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
     }
     
     /* Hide Streamlit branding */
@@ -285,17 +239,14 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* History Sidebar on Right */
-    .history-sidebar {
-        position: fixed;
-        right: 0;
-        top: 0;
-        width: 300px;
-        height: 100vh;
-        background: white;
-        border-left: 1px solid var(--border-gray);
-        padding: 1rem;
-        overflow-y: auto;
+    /* Status indicators */
+    .status-ready {
+        color: var(--primary-teal) !important;
+        font-weight: 600 !important;
+    }
+    
+    .status-waiting {
+        color: #64748B !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -304,30 +255,10 @@ st.markdown("""
 with st.sidebar:
     st.markdown("""
     <div style='text-align: center; padding: 1rem 0;'>
-        <h1 style='color: #EF6A36; font-size: 1.8rem; margin: 0;'>🛡️ Safety Copilot</h1>
-        <p style='color: #FFFFFF; opacity: 0.8; font-size: 0.9rem; margin-top: 0.5rem;'>AI-Powered Safety Assistant</p>
+        <h1 style='color: #FFFFFF; font-size: 1.8rem; margin: 0; font-weight: 700;'>🛡️ Safety Copilot</h1>
+        <p style='color: #FFFFFF; opacity: 0.9; font-size: 0.9rem; margin-top: 0.5rem;'>AI-Powered Safety Assistant</p>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Navigation Items as Cards
-    st.markdown("### Navigation")
-    
-    nav_items = [
-        ("💬 Chat", "chat", True),
-        ("📚 Documents", "documents", False),
-        ("⚙️ Settings", "settings", False),
-        ("📊 Analytics", "analytics", True),  # PRO feature
-    ]
-    
-    for item, key, is_pro in nav_items:
-        badge = '<span class="pro-badge">PRO</span>' if is_pro else ''
-        st.markdown(f"""
-        <div style='background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.75rem; margin: 0.5rem 0; border: 1px solid rgba(255,255,255,0.1);'>
-            {item} {badge}
-        </div>
-        """, unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -341,7 +272,7 @@ with st.sidebar:
         )
     
     # Initialize button
-    if st.button("🚀 Initialize", use_container_width=True):
+    if st.button("🚀 Initialize Safety Copilot", use_container_width=True):
         with st.spinner("Initializing..."):
             try:
                 vector_store = load_vector_store()
@@ -349,15 +280,20 @@ with st.sidebar:
                 core.set_vector_store(vector_store)
                 st.session_state.core = core
                 st.session_state.initialized = True
-                st.success("✅ Initialized!")
+                st.success("✅ Initialized successfully!")
                 st.rerun()
             except Exception as e:
-                st.error(f"Error: {e}")
+                st.error(f"❌ Error: {e}")
+                st.exception(e)
+    
+    # Status indicator
+    st.markdown("---")
+    if st.session_state.initialized:
+        st.markdown('<p class="status-ready">✅ Ready</p>', unsafe_allow_html=True)
+    else:
+        st.markdown('<p class="status-waiting">⏳ Not initialized</p>', unsafe_allow_html=True)
 
 # Main Content Area
-st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-
-# Title
 st.title("💬 Safety Assistant")
 
 # Initialize if not done
@@ -367,94 +303,16 @@ else:
     # Display chat history
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
+            answer = message.get("content", "") or ""
+            
             if message["role"] == "user":
                 st.write(message["content"])
             else:
-                # Parse and display structured answer - LINE BY LINE
-                answer = message.get("content", "") or ""
-                
-                # If answer is empty, show error
-                if not answer or answer.strip() == "":
-                    st.warning("⚠️ No answer generated. Please try again or check if the Safety Copilot is properly initialized.")
-                    continue
-                
-                # Check for structured format
-                has_sections = "### ✅" in answer or "### 📘" in answer or "### 🧮" in answer or "### Simple Answer" in answer
-                
-                if has_sections:
-                    # Parse sections
-                    sections = {}
-                    current_section = None
-                    current_text = []
-                    
-                    for line in answer.split('\n'):
-                        line = line.strip()
-                        if not line:
-                            if current_section:
-                                current_text.append('')  # Preserve blank lines
-                            continue
-                        if line.startswith('###'):
-                            if current_section:
-                                sections[current_section] = '\n'.join(current_text).strip()
-                            current_section = line.replace('#', '').strip()
-                            current_text = []
-                        else:
-                            if current_section:
-                                current_text.append(line)
-                    if current_section:
-                        sections[current_section] = '\n'.join(current_text).strip()
-                    
-                    # Display sections LINE BY LINE with proper formatting
-                    for section_name, section_text in sections.items():
-                        if "🔗" in section_name or "Reference" in section_name:
-                            continue
-                        elif "📘" in section_name or "Regulation" in section_name:
-                            st.markdown(f'<div class="answer-section regulation-section">', unsafe_allow_html=True)
-                            st.markdown(f"**{section_name}**")
-                            # Render line by line
-                            for line in section_text.split('\n'):
-                                if line.strip():
-                                    if line.strip().startswith('-'):
-                                        st.markdown(line)
-                                    else:
-                                        st.markdown(f"- {line}")
-                            st.markdown('</div>', unsafe_allow_html=True)
-                        elif "🧮" in section_name or "Calculation" in section_name or "Analysis" in section_name:
-                            st.markdown(f'<div class="answer-section calculation-section">', unsafe_allow_html=True)
-                            st.markdown(f"**{section_name}**")
-                            # Render line by line
-                            for line in section_text.split('\n'):
-                                if line.strip():
-                                    if line.strip().startswith('-') or line.strip().startswith('Step'):
-                                        st.markdown(line)
-                                    else:
-                                        st.markdown(f"- {line}")
-                            st.markdown('</div>', unsafe_allow_html=True)
-                        else:
-                            # Simple Answer or other sections
-                            st.markdown(f'<div class="answer-section">', unsafe_allow_html=True)
-                            st.markdown(f"**{section_name}**")
-                            # Render line by line with bullet points
-                            for line in section_text.split('\n'):
-                                if line.strip():
-                                    if line.strip().startswith('-'):
-                                        st.markdown(line)
-                                    else:
-                                        # Convert to bullet point if not already
-                                        st.markdown(f"- {line}")
-                            st.markdown('</div>', unsafe_allow_html=True)
+                # Display answer - SIMPLIFIED: Just show markdown directly
+                if answer and answer.strip():
+                    st.markdown(answer)
                 else:
-                    # Display as regular markdown - convert to line-by-line
-                    lines = answer.split('\n')
-                    for line in lines:
-                        if line.strip():
-                            if line.strip().startswith('-') or line.strip().startswith('*'):
-                                st.markdown(line)
-                            elif line.strip().startswith('#'):
-                                st.markdown(line)
-                            else:
-                                # Convert to bullet point for readability
-                                st.markdown(f"- {line}")
+                    st.warning("⚠️ No answer generated. Please try again.")
                 
                 # Sources
                 sources = message.get("sources", [])
@@ -486,7 +344,7 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
     # Add user message
     st.session_state.messages.append({"role": "user", "content": prompt})
     
-    # Display user message
+    # Display user message immediately
     with st.chat_message("user"):
         st.write(prompt)
     
@@ -494,6 +352,7 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
     with st.chat_message("assistant"):
         try:
             if st.session_state.core:
+                # Show spinner while processing
                 with st.spinner("Thinking..."):
                     # Get conversation history
                     conv_history = []
@@ -503,71 +362,30 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
                     # Process query
                     response = st.session_state.core.process_query(prompt, conversation_history=conv_history)
                 
-                # Get answer from response (outside spinner so it displays)
+                # Get answer from response
                 answer = response.get("answer", "") or ""
                 sources = response.get("sources", [])
                 
-                # Debug: Check answer content
-                print(f"🔍 DEBUG UI: Answer length: {len(answer)}, Preview: {answer[:200] if answer else 'EMPTY'}")
+                # Debug output
+                print(f"🔍 DEBUG: Answer length: {len(answer)}, Preview: {answer[:200] if answer else 'EMPTY'}")
                 
-                # If answer is empty or only contains disclaimer, show error message
-                answer_without_disclaimer = answer.replace("⚠️", "").replace("Disclaimer", "").replace("**", "").strip()
-                if not answer or answer.strip() == "" or len(answer_without_disclaimer) < 20:
-                    answer = "### ✅ Simple Answer\n\n- I couldn't generate an answer. Please check if the LLM service is available and try again.\n- Make sure the Safety Copilot is properly initialized."
+                # If answer is empty, show error
+                if not answer or answer.strip() == "":
+                    answer = "### ✅ Simple Answer\n\n- I couldn't generate an answer. Please check if the LLM service is available and try again."
                     st.warning("⚠️ No answer generated. Check LLM service availability.")
                 else:
-                    # Only clean if answer doesn't have structured format (preserve markdown)
+                    # Minimal cleaning - only for non-structured answers
                     if "###" not in answer and "**" not in answer:
-                        # Clean answer - remove garbled patterns (only for non-structured answers)
                         import re
+                        # Remove garbled patterns like "F z F z"
                         answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
                         answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b(?=\s+[A-Za-z])', r'\1\2', answer)
-                        
-                        # Remove isolated single letters (except a, I)
-                        words = answer.split()
-                        clean_words = []
-                        for i, word in enumerate(words):
-                            if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
-                                if i > 0 and i < len(words) - 1:
-                                    continue
-                            clean_words.append(word)
-                        answer = ' '.join(clean_words)
-                    
-                    # Ensure structured format if not present
-                    if "### ✅" not in answer and "### Simple Answer" not in answer and "### 📘" not in answer:
-                        # Format as structured markdown with line-by-line bullet points
-                        lines = [l.strip() for l in answer.split('\n') if l.strip() and len(l.strip()) > 5]
-                        if not lines:
-                            import re
-                            sentences = re.split(r'[.!?]\s+', answer)
-                            lines = [s.strip() for s in sentences if s.strip() and len(s.strip()) > 10]
-                        
-                        if lines:
-                            formatted = "### ✅ Simple Answer\n\n"
-                            count = 0
-                            for line in lines:
-                                if count >= 3:
-                                    break
-                                if len(line) > 10 and not line.startswith('⚠️') and 'Disclaimer' not in line:
-                                    formatted += f"- {line}\n"
-                                    count += 1
-                            if count > 0:
-                                formatted += "\n### 📘 Regulation Requirement\n\n"
-                                count = 0
-                                for line in lines[3:]:
-                                    if count >= 3:
-                                        break
-                                    if len(line) > 10 and not line.startswith('⚠️') and 'Disclaimer' not in line:
-                                        formatted += f"- {line}\n"
-                                        count += 1
-                                formatted += "\n### 🔗 References\n\n"
-                                formatted += "- See sources below\n"
-                                answer = formatted
-                        else:
-                            answer = f"### ✅ Simple Answer\n\n- {answer[:200]}\n"
                 
-                # Display answer - SIMPLIFIED: Just show the markdown directly
-                st.markdown(answer)
+                # Display answer immediately - SIMPLIFIED
+                if answer and answer.strip():
+                    st.markdown(answer)
+                else:
+                    st.error("Failed to generate answer.")
                 
                 # Show sources if available
                 if sources:
@@ -589,22 +407,21 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
                     if source_links:
                         st.markdown(f'<div class="source-links"><strong>📚 Sources:</strong><br>{" ".join(source_links)}</div>', unsafe_allow_html=True)
                 
-                # Show disclaimer if present
+                # Show disclaimer
                 if "Disclaimer" in answer or "⚠️" in answer:
                     st.markdown('<div class="disclaimer"><strong>⚠️ Disclaimer:</strong> This information is for decision support only. Always consult qualified safety engineers and follow your organization\'s safety processes.</div>', unsafe_allow_html=True)
                 
-                # Add assistant message to history AFTER displaying
+                # Save to session state AFTER displaying
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": answer,
                     "sources": sources
                 })
                 
+                # Rerun to show in history
                 st.rerun()
             else:
-                st.error("Safety Copilot not initialized. Please initialize from the sidebar.")
+                st.error("❌ Safety Copilot not initialized. Please initialize from the sidebar.")
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"❌ Error: {e}")
             st.exception(e)
-
-st.markdown('</div>', unsafe_allow_html=True)

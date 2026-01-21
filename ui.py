@@ -414,9 +414,19 @@ with st.sidebar:
     # Document management
     st.header("📄 Documents in Knowledge Base")
     
+    # Show base regulations from /data/regulations/
+    from config import REGULATIONS_DIR
+    base_regulations = list(REGULATIONS_DIR.glob("*.pdf")) if REGULATIONS_DIR.exists() else []
+    if base_regulations:
+        st.write(f"**Base Regulations ({len(base_regulations)}):**")
+        for pdf_file in base_regulations[:10]:  # Show first 10
+            st.write(f"- 📄 {pdf_file.name}")
+        if len(base_regulations) > 10:
+            st.write(f"  ... and {len(base_regulations) - 10} more")
+    
     # Show uploaded documents
     if st.session_state.uploaded_documents:
-        st.write(f"**Uploaded Documents ({len(st.session_state.uploaded_documents)}):**")
+        st.write(f"**User Uploaded Documents ({len(st.session_state.uploaded_documents)}):**")
         for doc in st.session_state.uploaded_documents:
             st.write(f"- 📄 {doc}")
     

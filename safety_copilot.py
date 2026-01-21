@@ -858,38 +858,41 @@ Step 2:
         clean_words.append(word)
     answer = ' '.join(clean_words)
     
-    # Clean up text
-    answer = re.sub(r'[^\w\s\-.,;:()\[\]{}%°±×÷≤≥≠≈∞∑∏∫√αβγδεθλμπστφω]', ' ', answer)
-    answer = re.sub(r'\s+', ' ', answer)
-    
-    # Remove sentences that are mostly garbled (less than 60% alphanumeric)
-    sentences = re.split(r'[.!?]\s+', answer)
-    clean_sentences = []
-    for sentence in sentences:
-        if sentence.strip() and len(sentence.strip()) >= 10:
-            alnum_ratio = sum(1 for c in sentence if c.isalnum() or c.isspace()) / len(sentence) if sentence else 0
-            # Check for too many single-letter "words" (garbled pattern)
-            words_in_sentence = sentence.split()
-            single_letter_words = sum(1 for w in words_in_sentence if len(w) == 1 and w.isalpha() and w.lower() not in ['a', 'i'])
-            if len(words_in_sentence) > 0 and single_letter_words / len(words_in_sentence) > 0.3:
-                continue  # Skip sentences with >30% single-letter words
-            if alnum_ratio >= 0.6:  # At least 60% readable
-                clean_sentences.append(sentence.strip())
-    
-    if clean_sentences:
-        answer = '. '.join(clean_sentences) + '.'
-    else:
-        # If no clean sentences, try to extract meaningful phrases
-        words = answer.split()
-        phrases = []
-        for i in range(len(words) - 2):
-            phrase = ' '.join(words[i:i+3])
-            if sum(1 for c in phrase if c.isalnum()) / len(phrase) >= 0.6:
-                phrases.append(phrase)
-        if phrases:
-            answer = '. '.join(phrases[:3]) + '.'
+    # ONLY clean if answer contains structured format markers - preserve markdown structure
+    if "###" not in answer and "**" not in answer:
+        # Only apply aggressive cleaning if answer doesn't have markdown structure
+        # Clean up text (less aggressive for structured answers)
+        answer = re.sub(r'[^\w\s\-.,;:()\[\]{}%°±×÷≤≥≠≈∞∑∏∫√αβγδεθλμπστφω]', ' ', answer)
+        answer = re.sub(r'\s+', ' ', answer)
+        
+        # Remove sentences that are mostly garbled (less than 60% alphanumeric)
+        sentences = re.split(r'[.!?]\s+', answer)
+        clean_sentences = []
+        for sentence in sentences:
+            if sentence.strip() and len(sentence.strip()) >= 10:
+                alnum_ratio = sum(1 for c in sentence if c.isalnum() or c.isspace()) / len(sentence) if sentence else 0
+                # Check for too many single-letter "words" (garbled pattern)
+                words_in_sentence = sentence.split()
+                single_letter_words = sum(1 for w in words_in_sentence if len(w) == 1 and w.isalpha() and w.lower() not in ['a', 'i'])
+                if len(words_in_sentence) > 0 and single_letter_words / len(words_in_sentence) > 0.3:
+                    continue  # Skip sentences with >30% single-letter words
+                if alnum_ratio >= 0.6:  # At least 60% readable
+                    clean_sentences.append(sentence.strip())
+        
+        if clean_sentences:
+            answer = '. '.join(clean_sentences) + '.'
         else:
-            answer = "I found some information in the documents, but it appears to be unclear or garbled. Please try rephrasing your question or check if the documents contain clear information about this topic."
+            # If no clean sentences, try to extract meaningful phrases
+            words = answer.split()
+            phrases = []
+            for i in range(len(words) - 2):
+                phrase = ' '.join(words[i:i+3])
+                if sum(1 for c in phrase if c.isalnum()) / len(phrase) >= 0.6:
+                    phrases.append(phrase)
+            if phrases:
+                answer = '. '.join(phrases[:3]) + '.'
+            else:
+                answer = "I found some information in the documents, but it appears to be unclear or garbled. Please try rephrasing your question or check if the documents contain clear information about this topic."
     
     # Final cleanup - ensure no "F z" patterns remain and proper spacing
     answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)

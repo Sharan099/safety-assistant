@@ -506,30 +506,43 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
                     # Get answer from response
                     answer = response.get("answer", "") or ""
                     
-                    # If answer is empty, show error message
-                    if not answer or answer.strip() == "":
+                    # Debug: Check answer content
+                    print(f"🔍 DEBUG: Answer length: {len(answer)}, Preview: {answer[:200] if answer else 'EMPTY'}")
+                    
+                    # If answer is empty or only contains disclaimer, show error message
+                    answer_without_disclaimer = answer.replace("⚠️", "").replace("Disclaimer", "").strip()
+                    if not answer or answer.strip() == "" or len(answer_without_disclaimer) < 20:
                         answer = "### ✅ Simple Answer\n\n- I couldn't generate an answer. Please check if the LLM service is available and try again.\n- Make sure the Safety Copilot is properly initialized."
                         st.warning("⚠️ No answer generated. Check LLM service availability.")
                     else:
-                        # Clean answer - remove garbled patterns
-                        import re
-                        answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
-                        answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b(?=\s+[A-Za-z])', r'\1\2', answer)
-                        
-                        # Remove isolated single letters (except a, I)
-                        words = answer.split()
-                        clean_words = []
-                        for i, word in enumerate(words):
-                            if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
-                                if i > 0 and i < len(words) - 1:
-                                    continue
-                            clean_words.append(word)
-                        answer = ' '.join(clean_words)
+                        # Only clean if answer doesn't have structured format (preserve markdown)
+                        if "###" not in answer and "**" not in answer:
+                            # Clean answer - remove garbled patterns (only for non-structured answers)
+                            import re
+                            answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
+                            answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b(?=\s+[A-Za-z])', r'\1\2', answer)
+                            
+                            # Remove isolated single letters (except a, I)
+                            words = answer.split()
+                            clean_words = []
+                            for i, word in enumerate(words):
+                                if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
+                                    if i > 0 and i < len(words) - 1:
+                                        continue
+                                clean_words.append(word)
+                            answer = ' '.join(clean_words)
                         
                         # Ensure structured format if not present
                         if "### ✅" not in answer and "### Simple Answer" not in answer and "### 📘" not in answer:
                             # Format as structured markdown with line-by-line bullet points
+                            # Split by sentences or lines
                             lines = [l.strip() for l in answer.split('\n') if l.strip() and len(l.strip()) > 5]
+                            # If no lines, split by sentences
+                            if not lines:
+                                import re
+                                sentences = re.split(r'[.!?]\s+', answer)
+                                lines = [s.strip() for s in sentences if s.strip() and len(s.strip()) > 10]
+                            
                             if lines:
                                 formatted = "### ✅ Simple Answer\n\n"
                                 # First 2-3 meaningful lines as simple answer
@@ -540,18 +553,22 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
                                     if len(line) > 10 and not line.startswith('⚠️') and 'Disclaimer' not in line:
                                         formatted += f"- {line}\n"
                                         count += 1
-                                formatted += "\n### 📘 Regulation Requirement\n\n"
-                                # Next lines as regulation requirement
-                                count = 0
-                                for line in lines[3:]:
-                                    if count >= 3:
-                                        break
-                                    if len(line) > 10 and not line.startswith('⚠️') and 'Disclaimer' not in line:
-                                        formatted += f"- {line}\n"
-                                        count += 1
-                                formatted += "\n### 🔗 References\n\n"
-                                formatted += "- See sources below\n"
-                                answer = formatted
+                                if count > 0:
+                                    formatted += "\n### 📘 Regulation Requirement\n\n"
+                                    # Next lines as regulation requirement
+                                    count = 0
+                                    for line in lines[3:]:
+                                        if count >= 3:
+                                            break
+                                        if len(line) > 10 and not line.startswith('⚠️') and 'Disclaimer' not in line:
+                                            formatted += f"- {line}\n"
+                                            count += 1
+                                    formatted += "\n### 🔗 References\n\n"
+                                    formatted += "- See sources below\n"
+                                    answer = formatted
+                            else:
+                                # If still no content, use the original answer
+                                answer = f"### ✅ Simple Answer\n\n- {answer[:200]}\n"
                     
                     # Display the answer immediately using the same parsing logic as history
                     # Check for structured format

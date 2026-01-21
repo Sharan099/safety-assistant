@@ -371,7 +371,12 @@ else:
                 st.write(message["content"])
             else:
                 # Parse and display structured answer - LINE BY LINE
-                answer = message.get("content", "")
+                answer = message.get("content", "") or ""
+                
+                # If answer is empty, show error
+                if not answer or answer.strip() == "":
+                    st.warning("⚠️ No answer generated. Please try again or check if the Safety Copilot is properly initialized.")
+                    continue
                 
                 # Check for structured format
                 has_sections = "### ✅" in answer or "### 📘" in answer or "### 🧮" in answer or "### Simple Answer" in answer
@@ -498,46 +503,160 @@ if prompt := st.chat_input("💬 Ask a Safety Question"):
                     # Process query
                     response = st.session_state.core.process_query(prompt, conversation_history=conv_history)
                     
-                    # Clean answer - remove garbled patterns
-                    answer = response.get("answer", "")
+                    # Get answer from response
+                    answer = response.get("answer", "") or ""
                     
-                    # Remove patterns like "F z F z"
-                    import re
-                    answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
-                    answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b(?=\s+[A-Za-z])', r'\1\2', answer)
+                    # If answer is empty, show error message
+                    if not answer or answer.strip() == "":
+                        answer = "### ✅ Simple Answer\n\n- I couldn't generate an answer. Please check if the LLM service is available and try again.\n- Make sure the Safety Copilot is properly initialized."
+                        st.warning("⚠️ No answer generated. Check LLM service availability.")
+                    else:
+                        # Clean answer - remove garbled patterns
+                        import re
+                        answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
+                        answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b(?=\s+[A-Za-z])', r'\1\2', answer)
+                        
+                        # Remove isolated single letters (except a, I)
+                        words = answer.split()
+                        clean_words = []
+                        for i, word in enumerate(words):
+                            if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
+                                if i > 0 and i < len(words) - 1:
+                                    continue
+                            clean_words.append(word)
+                        answer = ' '.join(clean_words)
+                        
+                        # Ensure structured format if not present
+                        if "### ✅" not in answer and "### Simple Answer" not in answer and "### 📘" not in answer:
+                            # Format as structured markdown with line-by-line bullet points
+                            lines = [l.strip() for l in answer.split('\n') if l.strip() and len(l.strip()) > 5]
+                            if lines:
+                                formatted = "### ✅ Simple Answer\n\n"
+                                # First 2-3 meaningful lines as simple answer
+                                count = 0
+                                for line in lines:
+                                    if count >= 3:
+                                        break
+                                    if len(line) > 10 and not line.startswith('⚠️') and 'Disclaimer' not in line:
+                                        formatted += f"- {line}\n"
+                                        count += 1
+                                formatted += "\n### 📘 Regulation Requirement\n\n"
+                                # Next lines as regulation requirement
+                                count = 0
+                                for line in lines[3:]:
+                                    if count >= 3:
+                                        break
+                                    if len(line) > 10 and not line.startswith('⚠️') and 'Disclaimer' not in line:
+                                        formatted += f"- {line}\n"
+                                        count += 1
+                                formatted += "\n### 🔗 References\n\n"
+                                formatted += "- See sources below\n"
+                                answer = formatted
                     
-                    # Remove isolated single letters (except a, I)
-                    words = answer.split()
-                    clean_words = []
-                    for i, word in enumerate(words):
-                        if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
-                            if i > 0 and i < len(words) - 1:
+                    # Display the answer immediately using the same parsing logic as history
+                    # Check for structured format
+                    has_sections = "### ✅" in answer or "### 📘" in answer or "### 🧮" in answer or "### Simple Answer" in answer
+                    
+                    if has_sections:
+                        # Parse sections
+                        sections = {}
+                        current_section = None
+                        current_text = []
+                        
+                        for line in answer.split('\n'):
+                            line = line.strip()
+                            if not line:
+                                if current_section:
+                                    current_text.append('')
                                 continue
-                        clean_words.append(word)
-                    answer = ' '.join(clean_words)
+                            if line.startswith('###'):
+                                if current_section:
+                                    sections[current_section] = '\n'.join(current_text).strip()
+                                current_section = line.replace('#', '').strip()
+                                current_text = []
+                            else:
+                                if current_section:
+                                    current_text.append(line)
+                        if current_section:
+                            sections[current_section] = '\n'.join(current_text).strip()
+                        
+                        # Display sections LINE BY LINE with proper formatting
+                        for section_name, section_text in sections.items():
+                            if "🔗" in section_name or "Reference" in section_name:
+                                continue
+                            elif "📘" in section_name or "Regulation" in section_name:
+                                st.markdown(f'<div class="answer-section regulation-section">', unsafe_allow_html=True)
+                                st.markdown(f"**{section_name}**")
+                                for line in section_text.split('\n'):
+                                    if line.strip():
+                                        if line.strip().startswith('-'):
+                                            st.markdown(line)
+                                        else:
+                                            st.markdown(f"- {line}")
+                                st.markdown('</div>', unsafe_allow_html=True)
+                            elif "🧮" in section_name or "Calculation" in section_name or "Analysis" in section_name:
+                                st.markdown(f'<div class="answer-section calculation-section">', unsafe_allow_html=True)
+                                st.markdown(f"**{section_name}**")
+                                for line in section_text.split('\n'):
+                                    if line.strip():
+                                        if line.strip().startswith('-') or line.strip().startswith('Step'):
+                                            st.markdown(line)
+                                        else:
+                                            st.markdown(f"- {line}")
+                                st.markdown('</div>', unsafe_allow_html=True)
+                            else:
+                                st.markdown(f'<div class="answer-section">', unsafe_allow_html=True)
+                                st.markdown(f"**{section_name}**")
+                                for line in section_text.split('\n'):
+                                    if line.strip():
+                                        if line.strip().startswith('-'):
+                                            st.markdown(line)
+                                        else:
+                                            st.markdown(f"- {line}")
+                                st.markdown('</div>', unsafe_allow_html=True)
+                    else:
+                        # Display as regular markdown - convert to line-by-line
+                        if answer.strip():
+                            lines = answer.split('\n')
+                            for line in lines:
+                                if line.strip():
+                                    if line.strip().startswith('-') or line.strip().startswith('*'):
+                                        st.markdown(line)
+                                    elif line.strip().startswith('#'):
+                                        st.markdown(line)
+                                    else:
+                                        st.markdown(f"- {line}")
                     
-                    # Ensure structured format if not present
-                    if "### ✅" not in answer and "### Simple Answer" not in answer:
-                        # Try to format as structured
-                        lines = answer.split('\n')
-                        formatted = "### ✅ Simple Answer\n\n"
-                        for line in lines[:3]:
-                            if line.strip() and len(line.strip()) > 10:
-                                formatted += f"- {line.strip()}\n"
-                        formatted += "\n### 📘 Regulation Requirement\n\n"
-                        for line in lines[3:6]:
-                            if line.strip() and len(line.strip()) > 10:
-                                formatted += f"- {line.strip()}\n"
-                        if len(lines) > 6:
-                            formatted += "\n### 🔗 References\n\n"
-                            formatted += "- See sources below\n"
-                        answer = formatted
+                    # Show sources if available
+                    sources = response.get("sources", [])
+                    if sources:
+                        from pdf_linker import find_pdf_path
+                        source_links = []
+                        for source in sources:
+                            pdf_path = find_pdf_path(source.get('document_name', ''))
+                            if pdf_path:
+                                page = source.get('page_number', 1)
+                                file_url = pdf_path.as_uri()
+                                full_url = f"{file_url}#page={page}"
+                                regulation = source.get('regulation') or source.get('document_name', 'Document')
+                                clause = source.get('clause', '')
+                                if clause:
+                                    source_links.append(f'<a href="{full_url}" target="_blank" class="source-link">📄 {regulation} - Clause {clause} (p.{page})</a>')
+                                else:
+                                    source_links.append(f'<a href="{full_url}" target="_blank" class="source-link">📄 {regulation} (p.{page})</a>')
+                        
+                        if source_links:
+                            st.markdown(f'<div class="source-links"><strong>📚 Sources:</strong><br>{" ".join(source_links)}</div>', unsafe_allow_html=True)
                     
-                    # Add assistant message
+                    # Show disclaimer if present
+                    if "Disclaimer" in answer or "⚠️" in answer:
+                        st.markdown('<div class="disclaimer"><strong>⚠️ Disclaimer:</strong> This information is for decision support only. Always consult qualified safety engineers and follow your organization\'s safety processes.</div>', unsafe_allow_html=True)
+                    
+                    # Add assistant message to history AFTER displaying
                     st.session_state.messages.append({
                         "role": "assistant",
                         "content": answer,
-                        "sources": response.get("sources", [])
+                        "sources": sources
                     })
                     
                     st.rerun()

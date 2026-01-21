@@ -374,15 +374,33 @@ def answer_generation_agent(state: SafetyCopilotState) -> SafetyCopilotState:
     cleaned_context = re.sub(r'\s+', ' ', cleaned_context)  # Multiple spaces to single
     cleaned_context = re.sub(r'([a-z])([A-Z])', r'\1 \2', cleaned_context)  # Fix merged words
     
+    # Get conversation history for context
+    conversation_history = state.get("conversation_history", [])
+    
+    # Build conversation context
+    history_context = ""
+    if conversation_history:
+        recent_context = []
+        for msg in conversation_history[-6:]:  # Last 6 messages (3 exchanges)
+            role = msg.get("role", "")
+            content = msg.get("content", "")
+            if role == "user":
+                recent_context.append(f"**Previous Question:** {content}")
+            elif role == "assistant":
+                recent_context.append(f"**Previous Answer:** {content[:200]}...")  # Truncate long answers
+        if recent_context:
+            history_context = "\n\n**Conversation History (for context):**\n" + "\n".join(recent_context)
+    
     # Check if scenario reasoning is needed
     needs_scenario = state.get("needs_scenario_reasoning", False)
     
     # Generate answer using LLM with human-friendly format following The Three R's
     if needs_scenario:
         # Scenario-based reasoning prompt
-        prompt = f"""You are an intelligent AI Safety Assistant. Your role is to provide thoughtful, scenario-based answers by combining information from verified safety documents with logical reasoning.
+        prompt = f"""You are an intelligent AI Safety Assistant. Your role is to provide thoughtful, well-formatted, scenario-based answers by combining information from verified safety documents with logical reasoning and clear summarization.
 
 **User Question (Scenario-Based):** {question}
+{history_context}
 
 **Relevant Context from Safety Documents:**
 {cleaned_context}
@@ -411,21 +429,28 @@ def answer_generation_agent(state: SafetyCopilotState) -> SafetyCopilotState:
 - It's better to say "I can partially answer based on..." than to guess
 
 **SCENARIO REASONING INSTRUCTIONS:**
-1. Analyze the scenario described in the question
-2. Identify which document requirements/standards apply to this scenario
-3. Think through how those requirements would apply in this specific situation
-4. Provide a reasoned answer that combines document knowledge with logical analysis
-5. Explain your reasoning process clearly
-6. Stay grounded in the documents - all conclusions must be traceable to the provided context
-7. Write in SIMPLE, CLEAR language that anyone can understand
-8. DO NOT mention document names, page numbers, or file paths in your answer text
+1. **Think Logically**: Analyze the scenario step-by-step, applying document requirements to the specific situation
+2. **Summarize Key Points**: Provide a clear summary of relevant requirements before applying them
+3. **Reason Through**: Explain your thought process - how document requirements apply to this scenario
+4. **Stay Grounded**: All conclusions must be traceable to the provided context - NO hallucination
+5. **Format Beautifully**: Use markdown formatting (headers, bullet points, bold text) for clarity
+6. **Be Conversational**: Write naturally, as if explaining to a colleague
+7. **Remember Context**: Reference previous conversation if relevant, but stay focused on current question
+8. **DO NOT mention document names, page numbers, or file paths in your answer text**
 
-**OUTPUT FORMAT:**
-Provide a thoughtful answer that:
-- Analyzes the scenario using document information
-- Explains your reasoning process
-- Applies relevant standards/requirements to the specific situation
-- Admits when information is missing
+**OUTPUT FORMAT (Use Markdown for Better Readability):**
+Structure your answer with:
+- **Brief Summary** (1-2 sentences) of what the scenario involves
+- **Key Requirements** (bullet points) from the documents that apply
+- **Logical Analysis** (paragraph) explaining how requirements apply to this scenario
+- **Conclusion** (1-2 sentences) with the answer or what's missing
+
+**Formatting Guidelines:**
+- Use **bold** for important terms and key requirements
+- Use bullet points (•) for lists
+- Use numbered lists for step-by-step processes
+- Use paragraphs for explanations
+- Keep sentences clear and concise
 
 **Example Good Scenario Answer:**
 "Based on the UNECE R94 requirements for frontal collision protection, in a scenario where a vehicle undergoes a 40% offset deformable barrier test, the HIC value must not exceed 1000 for a 50th percentile male dummy. The standard specifies that this measurement is taken during the test procedure, and if the value exceeds the threshold, the vehicle would not meet the regulatory requirement. The test protocol requires specific dummy positioning and instrumentation setup as defined in the regulation."
@@ -441,10 +466,11 @@ Provide a thoughtful answer that:
 
 **Answer:**"""
     else:
-        # Standard factual retrieval prompt
-        prompt = f"""You are a helpful AI Safety Assistant. Your role is to provide clear, easy-to-understand answers based on verified safety documents.
+        # Standard factual retrieval prompt with enhanced formatting and reasoning
+        prompt = f"""You are an intelligent AI Safety Assistant. Your role is to provide clear, well-formatted, logically reasoned answers based on verified safety documents. You can summarize, analyze, and think through problems while staying grounded in the provided documents.
 
 **User Question:** {question}
+{history_context}
 
 **Relevant Context from Safety Documents:**
 {cleaned_context}
@@ -457,11 +483,14 @@ Provide a thoughtful answer that:
 - Do NOT use information from your training data - only from the context provided
 - Verify that the context actually answers the question before responding
 
-**2. REASONING (Why did you give that answer?):**
-- Explain WHERE in the documents you found the information (e.g., "According to the test procedures section..." or "The table shows...")
-- If you're citing a specific value, explain the context (e.g., "The standard specifies..." or "The test protocol requires...")
-- Be clear about what part of the document supports your answer
-- Use natural language, not technical citations
+**2. REASONING (Think through and explain your answer):**
+- **Summarize**: Provide a clear summary of the key information found
+- **Analyze**: Think through what this information means in context
+- **Explain**: Explain WHERE in the documents you found the information (e.g., "According to the test procedures section..." or "The table shows...")
+- **Connect**: If citing a specific value, explain the context and why it matters (e.g., "The standard specifies... because...")
+- **Reason**: Use logical thinking to connect document information to the question
+- **Remember**: Reference previous conversation context if relevant
+- Use natural, conversational language - not technical citations
 
 **3. REFUSAL (Admit when data is missing):**
 - If the context doesn't contain the answer, say so clearly
@@ -471,17 +500,30 @@ Provide a thoughtful answer that:
 - It's better to say "I cannot find this information" than to guess
 
 **ADDITIONAL INSTRUCTIONS:**
-1. Write in SIMPLE, CLEAR language that anyone can understand
-2. Be CONCISE and to the point - avoid unnecessary technical jargon
-3. DO NOT mention document names, page numbers, or file paths in your answer text
-4. Explain your reasoning naturally (e.g., "The standard requires..." or "According to the test procedures...")
-5. If the context contains garbled or unclear text, skip it and use only clear information
+1. **Think First**: Before answering, think through the question logically
+2. **Summarize**: Start with a brief summary of what you found
+3. **Format Beautifully**: Use markdown (bold, bullet points, headers) for better readability
+4. **Be Conversational**: Write naturally, as if explaining to a colleague
+5. **Stay Grounded**: All information must come from the provided context - NO hallucination
+6. **Remember Context**: Reference previous conversation if relevant
+7. **Write Clearly**: Use simple, clear language that anyone can understand
+8. **Be Concise**: Get to the point but provide enough detail
+9. **DO NOT mention document names, page numbers, or file paths in your answer text**
+10. If context contains garbled text, skip it and use only clear information
 
-**OUTPUT FORMAT:**
-Provide a simple, human-friendly answer that:
-- Answers the question if information is available
-- Explains where/how you found the information (reasoning)
-- Admits when information is missing (refusal)
+**OUTPUT FORMAT (Use Markdown for Better Readability):**
+Structure your answer with:
+- **Brief Summary** (1 sentence) of the answer
+- **Key Information** (bullet points or paragraphs) with details
+- **Reasoning** (paragraph) explaining how you arrived at this answer
+- **Context** (if needed) connecting to previous conversation
+
+**Formatting Guidelines:**
+- Use **bold** for important terms, values, and key concepts
+- Use bullet points (•) for lists of requirements or features
+- Use numbered lists (1., 2., 3.) for step-by-step processes
+- Use paragraphs for explanations and reasoning
+- Keep sentences clear, concise, and well-structured
 
 **Example Good Answer (with all 3 R's):**
 "The maximum allowable HIC (Head Injury Criterion) for a 50th percentile male dummy in UNECE R94 is 1000. This value is specified in the performance criteria section of the regulation, which defines the injury thresholds for frontal collision tests. The test procedures require measuring HIC during the 40% offset deformable barrier test to ensure occupant safety."

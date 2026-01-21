@@ -53,12 +53,66 @@ from vector_store import SafetyVectorStore
 # Custom CSS
 st.markdown("""
 <style>
+    /* Import Google Fonts for better typography */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    
+    /* Main content styling */
+    .main-container {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        line-height: 1.7;
+        color: #2c3e50;
+    }
+    
+    /* Answer text styling */
+    .stMarkdown {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #2c3e50;
+    }
+    
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        color: #1e88e5;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stMarkdown p {
+        margin-bottom: 1rem;
+        text-align: justify;
+    }
+    
+    .stMarkdown ul, .stMarkdown ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stMarkdown li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .stMarkdown strong {
+        color: #1976d2;
+        font-weight: 600;
+    }
+    
+    .stMarkdown code {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        background-color: #f5f5f5;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+    
     .main-header {
         font-size: 2.5rem;
         font-weight: bold;
         color: #1e88e5;
         text-align: center;
         padding: 1rem;
+        font-family: 'Inter', sans-serif;
     }
     .confidence-high {
         color: #4caf50;
@@ -132,6 +186,32 @@ st.markdown("""
         border-radius: 0.5rem;
         border-left: 4px solid #ffc107;
         margin: 0.5rem 0;
+    }
+    
+    /* Chat message styling */
+    .stChatMessage {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Better spacing for chat */
+    [data-testid="stChatMessage"] {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Answer container */
+    .answer-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border-left: 4px solid #1e88e5;
+        margin: 1rem 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    /* Improved readability */
+    .main .block-container {
+        max-width: 900px;
+        padding-top: 2rem;
     }
 </style>
 """, unsafe_allow_html=True)

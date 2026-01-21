@@ -10,8 +10,11 @@ load_dotenv()
 # Project paths
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"  # Professional data structure
+REGULATIONS_DIR = DATA_DIR / "regulations"  # Base regulations folder (loaded at startup)
 DOCUMENTS_DIR = BASE_DIR / "documents"  # Legacy support
 VECTOR_STORE_DIR = BASE_DIR / "vector_store"
+BASE_INDEX_DIR = VECTOR_STORE_DIR / "base_index"  # Base regulations index
+USER_INDEX_DIR = VECTOR_STORE_DIR / "user_index"  # User-uploaded documents index
 LOGS_DIR = BASE_DIR / "logs"
 
 # Professional data structure subdirectories
@@ -26,8 +29,11 @@ PASSIVE_SAFETY_FUNDAMENTALS_DIR = PASSIVE_SAFETY_DIR / "fundamentals_training"
 
 # Ensure directories exist
 DATA_DIR.mkdir(exist_ok=True)
+REGULATIONS_DIR.mkdir(exist_ok=True)
 DOCUMENTS_DIR.mkdir(exist_ok=True)
 VECTOR_STORE_DIR.mkdir(exist_ok=True)
+BASE_INDEX_DIR.mkdir(exist_ok=True)
+USER_INDEX_DIR.mkdir(exist_ok=True)
 LOGS_DIR.mkdir(exist_ok=True)
 UNECE_DIR.mkdir(exist_ok=True)
 NHTSA_DIR.mkdir(exist_ok=True)
@@ -50,10 +56,13 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 # Embedding Model
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
-# RAG Configuration (Professional chunking strategy)
-CHUNK_SIZE = 600  # 500-700 tokens ≈ 600 characters
-CHUNK_OVERLAP = 100  # 100 token overlap for context preservation
-TOP_K_RETRIEVAL = 8  # Increased for better coverage
+# RAG Configuration (Hierarchical chunking strategy for regulations)
+CHUNK_SIZE = 500  # 300-600 tokens range, using 500 as middle
+CHUNK_OVERLAP = 50  # Reduced overlap for regulations
+TOP_K_DENSE = 10  # Dense retrieval top-K
+TOP_K_KEYWORD = 10  # Keyword retrieval top-K
+TOP_K_FINAL = 5  # Final results after re-ranking
+TOP_K_RETRIEVAL = 8  # Legacy support
 SIMILARITY_THRESHOLD = 0.3  # Lowered to catch more relevant results
 
 # Domain Classification

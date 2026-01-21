@@ -1,4 +1,4 @@
-# AI Safety Copilot Requirements
+=# AI Safety Copilot Requirements
 
 # Core AI/ML Libraries
 langchain>=0.1.0
@@ -13,6 +13,9 @@ anthropic>=0.18.0
 PyPDF2>=3.0.0
 pdfplumber>=0.10.0
 pypdf>=3.17.0
+PyMuPDF>=1.23.0  # fitz for better PDF parsing with layout
+unstructured>=0.10.0  # Fallback parser
+rank-bm25>=0.2.2  # BM25 for keyword retrieval
 
 # Web Framework
 streamlit>=1.29.0

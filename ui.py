@@ -47,6 +47,8 @@ from config import DOCUMENTS_DIR, VECTOR_STORE_DIR, DATA_DIR
 
 # Import core app (NO circular imports - core_app has no Streamlit)
 from core_app import SafetyCopilotCore
+# Import vector store loader (NO Streamlit imports)
+from vector_store import SafetyVectorStore
 
 # Custom CSS
 st.markdown("""
@@ -151,14 +153,13 @@ st.markdown("---")
 # Cached function for loading vector store (SAFE PATTERN)
 # Cache ONLY the vector store - NOT the whole app
 @st.cache_resource(show_spinner=True)
-def load_vector_store(force_rebuild: bool = False):
+def load_vector_store(force_rebuild: bool = False) -> SafetyVectorStore:
     """
     Load or build vector store - cached to prevent re-running on every button click
     Returns ONLY the vector store object - NOT the app
     This is the ONLY safe way to do heavy work in Streamlit
     """
-    from vector_store_loader import load_or_build_vector_store
-    return load_or_build_vector_store(force_rebuild=force_rebuild)
+    return SafetyVectorStore.load_or_build_store(force_rebuild=force_rebuild)
 
 # Sidebar
 with st.sidebar:
@@ -184,28 +185,38 @@ with st.sidebar:
             st.error("❌ Initialization failed")
             st.exception(e)  # Show full traceback for debugging
     
-    # Force rebuild button (SAFE PATTERN)
+    # Force rebuild button (DISABLED on free tier - SAFE PATTERN)
     if st.button("🔨 Force Rebuild Vector Store"):
-        try:
-            with st.spinner("Rebuilding vector store from documents... (This may take a few minutes)"):
-                # Clear cache to force rebuild
-                load_vector_store.clear()
-                
-                # Rebuild vector store
-                vector_store = load_vector_store(force_rebuild=True)
-                
-                # Create core app instance and set vector store
-                core = SafetyCopilotCore()
-                core.set_vector_store(vector_store)
-                
-                # Store ONLY the core reference - NOT FAISS objects
-                st.session_state.core = core
-                st.session_state.initialized = True
-                st.success("✅ Vector store rebuilt!")
-                st.rerun()
-        except Exception as e:
-            st.error("❌ Rebuild failed")
-            st.exception(e)  # Show full traceback for debugging
+        # Disable rebuild on free tier (Streamlit Cloud / Render)
+        # Rebuilds should be done locally, committed, and loaded read-only
+        st.warning("⚠️ **Rebuild disabled on free tier**\n\n"
+                  "For security and stability, vector store rebuilds are disabled in cloud deployments.\n\n"
+                  "To rebuild:\n"
+                  "1. Run locally: `python initialize.py`\n"
+                  "2. Commit the updated vector store to Git\n"
+                  "3. Deploy - the app will load the pre-built vector store")
+        
+        # Uncomment below for local development only
+        # try:
+        #     with st.spinner("Rebuilding vector store from documents... (This may take a few minutes)"):
+        #         # Clear cache to force rebuild
+        #         load_vector_store.clear()
+        #         
+        #         # Rebuild vector store
+        #         vector_store = load_vector_store(force_rebuild=True)
+        #         
+        #         # Create core app instance and set vector store
+        #         core = SafetyCopilotCore()
+        #         core.set_vector_store(vector_store)
+        #         
+        #         # Store ONLY the core reference - NOT FAISS objects
+        #         st.session_state.core = core
+        #         st.session_state.initialized = True
+        #         st.success("✅ Vector store rebuilt!")
+        #         st.rerun()
+        # except Exception as e:
+        #     st.error("❌ Rebuild failed")
+        #     st.exception(e)
     
     st.markdown("---")
     

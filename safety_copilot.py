@@ -807,15 +807,22 @@ Step 2:
             answer += "- I couldn't find relevant information in the available safety documents for your question.\n"
             answer += "- Please try rephrasing your question or check if the specific document you're looking for is available.\n"
     
-    # Add disclaimer
-    answer = SafetyGuardrails.add_disclaimer(answer)
-    
-    # Clean up answer - remove garbled text patterns and source citations
+    # Clean up answer - remove garbled text patterns and source citations FIRST
     import re
     
     # CRITICAL: Remove patterns like "F z F z" FIRST (before other cleaning)
     answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
     answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b(?=\s+[A-Za-z])', r'\1\2', answer)  # Fix split words like "F z" -> "Fz" if followed by letter
+    
+    # Remove isolated single letters (except a, I) BEFORE other cleaning
+    words = answer.split()
+    clean_words = []
+    for i, word in enumerate(words):
+        if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
+            if i > 0 and i < len(words) - 1:
+                continue
+        clean_words.append(word)
+    answer = ' '.join(clean_words)
     
     # Remove common citation patterns from answer
     answer = re.sub(r'\[Document[^\]]+\]', '', answer)
@@ -884,11 +891,34 @@ Step 2:
         else:
             answer = "I found some information in the documents, but it appears to be unclear or garbled. Please try rephrasing your question or check if the documents contain clear information about this topic."
     
-    # Final cleanup - ensure no "F z" patterns remain
+    # Final cleanup - ensure no "F z" patterns remain and proper spacing
     answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
     answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b', r'\1\2', answer)  # Merge remaining "F z" -> "Fz"
     answer = re.sub(r'\s+', ' ', answer)
     answer = answer.strip()
+    
+    # Ensure structured format if answer doesn't have it
+    if answer and "### ✅" not in answer and "### Simple Answer" not in answer and "### 📘" not in answer:
+        # Try to format as structured - split into sections
+        lines = [l.strip() for l in answer.split('\n') if l.strip()]
+        if lines:
+            formatted = "### ✅ Simple Answer\n\n"
+            # First 2-3 lines as simple answer
+            for line in lines[:3]:
+                if len(line) > 10:
+                    formatted += f"- {line}\n"
+            formatted += "\n### 📘 Regulation Requirement\n\n"
+            # Next lines as regulation
+            for line in lines[3:6]:
+                if len(line) > 10:
+                    formatted += f"- {line}\n"
+            if len(lines) > 6:
+                formatted += "\n### 🔗 References\n\n"
+                formatted += "- See sources below\n"
+            answer = formatted
+    
+    # Add disclaimer at the end (after formatting)
+    answer = SafetyGuardrails.add_disclaimer(answer)
     
     # Filter sources by quality - only show high-quality sources (similarity >= 0.65)
     high_quality_sources = [s for s in sources if s.get("similarity_score", 0.0) >= 0.65]

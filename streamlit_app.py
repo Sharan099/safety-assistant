@@ -45,11 +45,8 @@ from pathlib import Path
 import json
 from config import DOCUMENTS_DIR, VECTOR_STORE_DIR, DATA_DIR
 
-# Lazy import of app to delay torch import
-def get_app_lazy():
-    """Lazy import of app module to delay torch import"""
-    from app import SafetyCopilotApp
-    return SafetyCopilotApp()
+# Import core app (NO circular imports - core_app has no Streamlit)
+from core_app import SafetyCopilotCore
 
 # Custom CSS
 st.markdown("""
@@ -138,14 +135,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Initialize session state (NON-NEGOTIABLE - must use session_state)
-if "app" not in st.session_state:
-    st.session_state.app = None
+# Store ONLY references, NEVER FAISS/PyTorch objects directly
+if "core" not in st.session_state:
+    st.session_state.core = None
 if "initialized" not in st.session_state:
     st.session_state.initialized = False
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-if "vector_store" not in st.session_state:
-    st.session_state.vector_store = None
 
 # Header
 st.markdown('<h1 class="main-header">🛡️ Safety Copilot</h1>', unsafe_allow_html=True)
@@ -153,20 +149,16 @@ st.markdown('<p style="text-align: center; color: #666; font-size: 1.1rem;">AI-P
 st.markdown("---")
 
 # Cached function for loading vector store (SAFE PATTERN)
+# Cache ONLY the vector store - NOT the whole app
 @st.cache_resource(show_spinner=True)
 def load_vector_store(force_rebuild: bool = False):
     """
     Load or build vector store - cached to prevent re-running on every button click
+    Returns ONLY the vector store object - NOT the app
     This is the ONLY safe way to do heavy work in Streamlit
     """
-    try:
-        from app import SafetyCopilotApp
-        app = SafetyCopilotApp()
-        app.initialize(force_rebuild=force_rebuild)
-        return app
-    except Exception as e:
-        # Re-raise with context for better error messages
-        raise RuntimeError(f"Failed to initialize vector store: {str(e)}") from e
+    from vector_store_loader import load_or_build_vector_store
+    return load_or_build_vector_store(force_rebuild=force_rebuild)
 
 # Sidebar
 with st.sidebar:
@@ -176,14 +168,15 @@ with st.sidebar:
     if st.button("🔄 Initialize/Reload Vector Store", type="primary"):
         try:
             with st.spinner("Initializing Safety Copilot..."):
-                # Clear cache if needed
-                if st.session_state.vector_store is not None:
-                    load_vector_store.clear()
-                
                 # Load vector store (cached - won't re-run if already loaded)
-                app = load_vector_store(force_rebuild=False)
-                st.session_state.app = app
-                st.session_state.vector_store = app.vector_store
+                vector_store = load_vector_store(force_rebuild=False)
+                
+                # Create core app instance and set vector store
+                core = SafetyCopilotCore()
+                core.set_vector_store(vector_store)
+                
+                # Store ONLY the core reference - NOT FAISS objects
+                st.session_state.core = core
                 st.session_state.initialized = True
                 st.success("✅ Safety Copilot initialized!")
                 st.rerun()
@@ -199,9 +192,14 @@ with st.sidebar:
                 load_vector_store.clear()
                 
                 # Rebuild vector store
-                app = load_vector_store(force_rebuild=True)
-                st.session_state.app = app
-                st.session_state.vector_store = app.vector_store
+                vector_store = load_vector_store(force_rebuild=True)
+                
+                # Create core app instance and set vector store
+                core = SafetyCopilotCore()
+                core.set_vector_store(vector_store)
+                
+                # Store ONLY the core reference - NOT FAISS objects
+                st.session_state.core = core
                 st.session_state.initialized = True
                 st.success("✅ Vector store rebuilt!")
                 st.rerun()
@@ -212,8 +210,8 @@ with st.sidebar:
     st.markdown("---")
     
     # Stats
-    if st.session_state.initialized and st.session_state.app:
-        stats = st.session_state.app.get_stats()
+    if st.session_state.initialized and st.session_state.core:
+        stats = st.session_state.core.get_stats()
         st.header("📊 Statistics")
         st.write(f"**Documents:** {stats.get('num_documents', 0)}")
         st.write(f"**Chunks:** {stats.get('num_chunks', 0)}")
@@ -359,8 +357,8 @@ else:
         with st.chat_message("assistant"):
             with st.spinner("🔍 Searching safety documents and generating answer..."):
                 try:
-                    # Ensure app is initialized (defensive check)
-                    if st.session_state.app is None or not st.session_state.initialized:
+                    # Ensure core is initialized (defensive check)
+                    if st.session_state.core is None or not st.session_state.initialized:
                         st.warning("⚠️ App not initialized. Please initialize from sidebar first.")
                         st.session_state.chat_history[-1]["answer"] = "App not initialized. Please click 'Initialize/Reload Vector Store' in the sidebar."
                     else:
@@ -372,7 +370,7 @@ else:
                             if chat.get("answer"):
                                 conv_history.append({"role": "assistant", "content": chat["answer"]})
                         
-                        response = st.session_state.app.process_query(user_question, conversation_history=conv_history)
+                        response = st.session_state.core.process_query(user_question, conversation_history=conv_history)
                         
                         # Update last chat entry
                         st.session_state.chat_history[-1].update(response)

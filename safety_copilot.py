@@ -727,48 +727,85 @@ Step 2:
                     print(f"⚠️  OpenAI error with {model_name}: {e}")
                     break
     
-    # Fallback if no LLM available
+    # Fallback if no LLM available - Format in structured ChatGPT-style
     if not answer:
         print(f"⚠️  No LLM answer generated. Error details: {llm_error if llm_error else 'Unknown error'}")
-        # Simple extraction-based answer with heavy cleaning
+        # Simple extraction-based answer with heavy cleaning and structured format
         if retrieved_chunks and len(retrieved_chunks) > 0:
             top_chunk, top_similarity = retrieved_chunks[0]
-        # Aggressive text cleaning
-        clean_text = top_chunk.text
-        
-        # Remove excessive special characters and garbled patterns
-        clean_text = re.sub(r'[^\w\s\-.,;:()\[\]{}%°±×÷≤≥≠≈∞∑∏∫√αβγδεθλμπστφω]', ' ', clean_text)
-        # Fix merged words
-        clean_text = re.sub(r'([a-z])([A-Z])', r'\1 \2', clean_text)
-        # Remove excessive spaces
-        clean_text = re.sub(r'\s+', ' ', clean_text)
-        # Remove garbled patterns (repeated characters, weird spacing)
-        clean_text = re.sub(r'([a-zA-Z])\1{2,}', r'\1', clean_text)  # Remove repeated letters
-        clean_text = re.sub(r'([^\w\s])\1{2,}', ' ', clean_text)  # Remove repeated special chars
-        
-        # Extract meaningful sentences (at least 15 characters, mostly readable)
-        sentences = re.split(r'[.!?]\s+', clean_text)
-        meaningful_sentences = []
-        for s in sentences:
-            s = s.strip()
-            if len(s) >= 15:
-                # Check readability (at least 60% alphanumeric)
-                alnum_ratio = sum(1 for c in s if c.isalnum() or c.isspace()) / len(s) if s else 0
-                # Check for too many single-letter words (garbled pattern)
-                words_in_s = s.split()
-                single_letter_words = sum(1 for w in words_in_s if len(w) == 1 and w.isalpha())
-                if len(words_in_s) > 0 and single_letter_words / len(words_in_s) <= 0.2:  # Max 20% single letters
-                    if alnum_ratio >= 0.6:
-                        meaningful_sentences.append(s)
-        
-        if meaningful_sentences:
-            # Take first 3-5 meaningful sentences
-            answer = ' '.join(meaningful_sentences[:5])
+            # Aggressive text cleaning
+            clean_text = top_chunk.text
+            
+            # Remove patterns like "F z F z" (single letters separated by spaces)
+            clean_text = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', clean_text)
+            clean_text = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\b(?=\s+[A-Za-z])', r'\1\2', clean_text)  # Fix split words
+            
+            # Remove excessive special characters and garbled patterns
+            clean_text = re.sub(r'[^\w\s\-.,;:()\[\]{}%°±×÷≤≥≠≈∞∑∏∫√αβγδεθλμπστφω]', ' ', clean_text)
+            # Fix merged words
+            clean_text = re.sub(r'([a-z])([A-Z])', r'\1 \2', clean_text)
+            # Remove excessive spaces
+            clean_text = re.sub(r'\s+', ' ', clean_text)
+            # Remove garbled patterns (repeated characters, weird spacing)
+            clean_text = re.sub(r'([a-zA-Z])\1{2,}', r'\1', clean_text)  # Remove repeated letters
+            clean_text = re.sub(r'([^\w\s])\1{2,}', ' ', clean_text)  # Remove repeated special chars
+            
+            # Remove single-letter "words" that are likely garbled (but keep "a", "I" in context)
+            words = clean_text.split()
+            clean_words = []
+            for i, word in enumerate(words):
+                # Skip isolated single letters (likely garbled)
+                if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
+                    # Check if it's between two words (likely garbled)
+                    if i > 0 and i < len(words) - 1:
+                        continue
+                clean_words.append(word)
+            clean_text = ' '.join(clean_words)
+            
+            # Extract meaningful sentences (at least 15 characters, mostly readable)
+            sentences = re.split(r'[.!?]\s+', clean_text)
+            meaningful_sentences = []
+            for s in sentences:
+                s = s.strip()
+                if len(s) >= 15:
+                    # Check readability (at least 60% alphanumeric)
+                    alnum_ratio = sum(1 for c in s if c.isalnum() or c.isspace()) / len(s) if s else 0
+                    # Check for too many single-letter words (garbled pattern)
+                    words_in_s = s.split()
+                    single_letter_words = sum(1 for w in words_in_s if len(w) == 1 and w.isalpha() and w.lower() not in ['a', 'i'])
+                    if len(words_in_s) > 0 and single_letter_words / len(words_in_s) <= 0.2:  # Max 20% single letters
+                        if alnum_ratio >= 0.6:
+                            meaningful_sentences.append(s)
+            
+            if meaningful_sentences:
+                # Format in structured ChatGPT-style format
+                answer = "### ✅ Simple Answer\n\n"
+                answer += f"- {meaningful_sentences[0]}\n"
+                if len(meaningful_sentences) > 1:
+                    answer += f"- {meaningful_sentences[1]}\n"
+                
+                answer += "\n### 📘 Regulation Requirement\n\n"
+                # Try to extract key values/limits from the text
+                for sentence in meaningful_sentences[2:5]:
+                    # Look for numbers that might be limits
+                    if any(char.isdigit() for char in sentence):
+                        answer += f"- {sentence}\n"
+                        break
+                
+                answer += "\n### 🔗 References\n\n"
+                answer += f"- Regulation: {top_chunk.regulation or top_chunk.document_name}\n"
+                if top_chunk.clause:
+                    answer += f"- Clause: {top_chunk.clause}\n"
+                answer += f"- Page: {top_chunk.page_number}\n"
+            else:
+                # If no clean sentences, provide a refusal message in structured format
+                answer = "### ✅ Simple Answer\n\n"
+                answer += "- I found information in the documents, but it appears to be unclear or garbled.\n"
+                answer += "- Please try rephrasing your question or check if the documents contain clear information about this topic.\n"
         else:
-            # If no clean sentences, provide a refusal message
-            answer = "I found information in the documents, but it appears to be unclear or garbled. Please try rephrasing your question or check if the documents contain clear information about this topic."
-        
-        answer += "\n\nNote: This is extracted directly from the document. For a more complete answer, please ensure the LLM service is available."
+            answer = "### ✅ Simple Answer\n\n"
+            answer += "- I couldn't find relevant information in the available safety documents for your question.\n"
+            answer += "- Please try rephrasing your question or check if the specific document you're looking for is available.\n"
     
     # Add disclaimer
     answer = SafetyGuardrails.add_disclaimer(answer)
@@ -795,13 +832,18 @@ Step 2:
     # Fix merged words
     answer = re.sub(r'([a-z])([A-Z])', r'\1 \2', answer)
     
-    # Remove garbled patterns like "Ove In ra ju ll ry" (single letters separated by spaces)
+    # Remove garbled patterns like "F z F z" or "Ove In ra ju ll ry" (single letters separated by spaces)
+    # First, remove patterns like "F z F z" (repeated single letters)
+    answer = re.sub(r'\b([A-Za-z])\s+([A-Za-z])\s+\1\s+\2\b', '', answer)
+    # Remove isolated single letters that are likely garbled (but keep "a", "I")
     words = answer.split()
     clean_words = []
-    for word in words:
-        # Skip words that are mostly single letters (likely garbled)
-        if len(word) == 1 and word.isalpha():
-            continue
+    for i, word in enumerate(words):
+        # Skip isolated single letters (likely garbled) except common words
+        if len(word) == 1 and word.isalpha() and word.lower() not in ['a', 'i']:
+            # Check if it's between two words (likely garbled)
+            if i > 0 and i < len(words) - 1:
+                continue
         # Skip words with too many special chars
         if word and sum(1 for c in word if not c.isalnum()) > len(word) * 0.5:
             continue

@@ -43,7 +43,7 @@ st.set_page_config(
 # Now import other modules after page config (delays torch import)
 from pathlib import Path
 import json
-from config import DOCUMENTS_DIR, VECTOR_STORE_DIR, DATA_DIR
+from config import DOCUMENTS_DIR, VECTOR_STORE_DIR, DATA_DIR, EMBEDDING_MODEL
 
 # Import core app (NO circular imports - core_app has no Streamlit)
 from core_app import SafetyCopilotCore

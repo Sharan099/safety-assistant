@@ -636,6 +636,38 @@ with st.sidebar:
         st.markdown('<p class="status-ready">✅ Ready</p>', unsafe_allow_html=True)
     else:
         st.markdown('<p class="status-waiting">⏳ Not initialized</p>', unsafe_allow_html=True)
+    
+    # About RAG Section
+    st.markdown("---")
+    st.markdown("""
+    <div style='padding: 1rem 0;'>
+        <h3 style='color: #FFFFFF; font-size: 1.1rem; margin-bottom: 0.8rem; font-weight: 600;'>📚 About This RAG</h3>
+        <p style='color: #FFFFFF; opacity: 0.9; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;'>
+            This AI-powered Safety Assistant uses Retrieval-Augmented Generation (RAG) to answer questions based on verified automotive safety regulations and standards. It searches through a comprehensive database of safety documents to provide accurate, source-backed answers.
+        </p>
+        <h4 style='color: #FFFFFF; font-size: 0.95rem; margin-bottom: 0.6rem; font-weight: 600;'>📋 Regulations Included:</h4>
+        <div style='color: #FFFFFF; opacity: 0.9; font-size: 0.8rem; line-height: 1.6;'>
+            <p style='margin: 0.3rem 0;'><strong>UNECE Regulations:</strong></p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R16 (Seat Belts)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R17 (Seat Strength)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R29 (Head Restraints)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R94 (Frontal Impact)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R127 (Pedestrian Safety)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R137 (Side Impact)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R152 (Advanced Emergency Braking)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R155 (Cybersecurity)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• R156 (Software Updates)</p>
+            <p style='margin: 0.3rem 0; margin-top: 0.8rem;'><strong>EU Regulations:</strong></p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• General Safety Regulation (GSR)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• Type Approval Directives</p>
+            <p style='margin: 0.3rem 0; margin-top: 0.8rem;'><strong>Standards & Protocols:</strong></p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• Euro NCAP Protocols</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• Functional Safety (ISO 26262)</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• ADAS Guidelines</p>
+            <p style='margin: 0.2rem 0; padding-left: 0.5rem;'>• Passive Safety Standards</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Main Content Area
 st.title("💬 Safety Assistant")
@@ -643,6 +675,68 @@ st.title("💬 Safety Assistant")
 # Initialize if not done
 if not st.session_state.initialized:
     st.info("👈 Please initialize the Safety Copilot from the sidebar to get started.")
+    
+    # Instructions section
+    st.markdown("---")
+    st.markdown("""
+    <div style='padding: 1.5rem; background: #F8F9FA; border-radius: 10px; border-left: 4px solid #14B8A6; margin: 1.5rem 0;'>
+        <h2 style='color: #14B8A6; font-size: 1.5rem; margin-bottom: 1rem;'>🚀 Getting Started</h2>
+        
+        <h3 style='color: #1F2937; font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.8rem;'>Step 1: Initialize</h3>
+        <p style='color: #4B5563; font-size: 1rem; line-height: 1.6; margin-bottom: 1rem;'>
+            Click the <strong>"🚀 Initialize Safety Copilot"</strong> button in the left sidebar to load the safety regulations database. 
+            This may take a few moments on first use.
+        </p>
+        
+        <h3 style='color: #1F2937; font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.8rem;'>Step 2: Ask Your Question</h3>
+        <p style='color: #4B5563; font-size: 1rem; line-height: 1.6; margin-bottom: 1rem;'>
+            Type your safety-related question in the chat input at the bottom of the page. The AI will search through 
+            verified safety documents and provide you with accurate, source-backed answers.
+        </p>
+        
+        <h3 style='color: #1F2937; font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.8rem;'>💡 What You Can Ask</h3>
+        <div style='color: #4B5563; font-size: 1rem; line-height: 1.8;'>
+            <p style='margin: 0.5rem 0;'><strong>📋 Definition Questions:</strong></p>
+            <ul style='margin: 0.5rem 0; padding-left: 1.5rem;'>
+                <li>"What is the wrap-around distance (WAD) in UN R127?"</li>
+                <li>"Define HIC (Head Injury Criterion)"</li>
+                <li>"What does ASIL mean in functional safety?"</li>
+            </ul>
+            
+            <p style='margin: 0.5rem 0; margin-top: 1rem;'><strong>📊 Requirement Questions:</strong></p>
+            <ul style='margin: 0.5rem 0; padding-left: 1.5rem;'>
+                <li>"What is the maximum allowable HIC value for a 50th percentile male dummy in UN R94?"</li>
+                <li>"What are the injury criteria limits for frontal impact tests?"</li>
+                <li>"What are the requirements for cybersecurity in UN R155?"</li>
+            </ul>
+            
+            <p style='margin: 0.5rem 0; margin-top: 1rem;'><strong>🔍 Comparison Questions:</strong></p>
+            <ul style='margin: 0.5rem 0; padding-left: 1.5rem;'>
+                <li>"Compare UN R94 and Euro NCAP frontal impact requirements"</li>
+                <li>"What's the difference between R155 and R156?"</li>
+            </ul>
+            
+            <p style='margin: 0.5rem 0; margin-top: 1rem;'><strong>🧮 Calculation/Scenario Questions:</strong></p>
+            <ul style='margin: 0.5rem 0; padding-left: 1.5rem;'>
+                <li>"If a vehicle has a HIC value of 850, does it meet UN R94 requirements?"</li>
+                <li>"Calculate the wrap-around distance for a vehicle with bonnet length of 1200mm"</li>
+            </ul>
+            
+            <p style='margin: 0.5rem 0; margin-top: 1rem;'><strong>✅ Compliance Questions:</strong></p>
+            <ul style='margin: 0.5rem 0; padding-left: 1.5rem;'>
+                <li>"Does this test result meet UN R94 requirements?"</li>
+                <li>"Is this vehicle compliant with pedestrian safety regulations?"</li>
+            </ul>
+        </div>
+        
+        <div style='background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 1rem; border-radius: 5px; margin-top: 1.5rem;'>
+            <p style='color: #92400E; font-size: 0.9rem; margin: 0;'>
+                <strong>⚠️ Important:</strong> All answers are based on the documents in the database. The AI will clearly indicate 
+                when information is not available in the source documents. Always verify critical safety decisions with qualified engineers.
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 else:
     # Display chat history
     for message in st.session_state.messages:

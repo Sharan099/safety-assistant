@@ -43,7 +43,9 @@ data/regulations/*.pdf
 Thumbs.db
 
 # Markdown files (documentation - not needed for deployment)
+# But allow README.md for Hugging Face Spaces
 *.md
+!README.md
 
 # Temporary files
 *.tmp

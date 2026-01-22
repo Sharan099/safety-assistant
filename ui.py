@@ -352,7 +352,11 @@ def parse_and_display_sections(answer: str):
     
     i = 0
     while i < len(parts):
-        part = parts[i].strip()
+        part = parts[i]
+        if part is None:
+            i += 1
+            continue
+        part = part.strip()
         if not part:
             i += 1
             continue
@@ -397,6 +401,8 @@ def parse_and_display_sections(answer: str):
         current_text_line = []
         
         for line in answer.split('\n'):
+            if line is None:
+                continue
             line_stripped = line.strip()
             if not line_stripped:
                 if current_section_line:
@@ -446,7 +452,7 @@ def parse_and_display_sections(answer: str):
         for section_name in sections.keys():
             if section_key in section_name and section_name not in displayed_sections:
                 section_text = sections[section_name]
-                if section_text:
+                if section_text and section_text.strip():
                     st.markdown(f'<div class="answer-section {section_class}">', unsafe_allow_html=True)
                     st.markdown(f"**{section_name}**")
                     
@@ -461,6 +467,8 @@ def parse_and_display_sections(answer: str):
                         # Split by " - " but preserve context
                         parts = re.split(r'\s+-\s+', section_text)
                         for i, part in enumerate(parts):
+                            if part is None:
+                                continue
                             part = part.strip()
                             if not part:
                                 continue
@@ -483,6 +491,8 @@ def parse_and_display_sections(answer: str):
                         # Line-by-line format
                         lines = section_text.split('\n')
                         for line in lines:
+                            if line is None:
+                                continue
                             line = line.strip()
                             if not line:
                                 text_parts.append('')
@@ -499,6 +509,8 @@ def parse_and_display_sections(answer: str):
                                     sub_parts = re.split(r'(Keyword:|Limit:|Condition:|Regulation:|Clause:|Page:)', line)
                                     current_item = ""
                                     for j, sub_part in enumerate(sub_parts):
+                                        if sub_part is None:
+                                            continue
                                         sub_part = sub_part.strip()
                                         if not sub_part:
                                             continue
@@ -521,6 +533,8 @@ def parse_and_display_sections(answer: str):
                             elif len(line) > 80 and '. ' in line:
                                 sentences = re.split(r'(?<=\.)\s+', line)
                                 for sentence in sentences:
+                                    if sentence is None:
+                                        continue
                                     sentence = sentence.strip()
                                     if sentence:
                                         text_parts.append(f"- {sentence}")
@@ -529,7 +543,7 @@ def parse_and_display_sections(answer: str):
                     
                     # Render each part
                     for text_part in text_parts:
-                        if not text_part:
+                        if text_part is None or not text_part:
                             st.markdown("")  # Empty line
                             continue
                         
@@ -556,10 +570,12 @@ def parse_and_display_sections(answer: str):
     
     # Display any remaining sections
     for section_name, section_text in sections.items():
-        if section_name not in displayed_sections and section_text:
+        if section_name not in displayed_sections and section_text and section_text.strip():
             st.markdown(f'<div class="answer-section">', unsafe_allow_html=True)
             st.markdown(f"**{section_name}**")
             for text_line in section_text.split('\n'):
+                if text_line is None:
+                    continue
                 text_line = text_line.strip()
                 if text_line:
                     if text_line.startswith('-') or text_line.startswith('*'):

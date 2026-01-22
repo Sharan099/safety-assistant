@@ -16,10 +16,11 @@ ENV/
 # Streamlit
 .streamlit/secrets.toml
 
-# Vector store (commented out to allow pushing vector store)
-# vector_store/
-# *.faiss
-# *.bin
+# Vector store - build dynamically at runtime
+vector_store/
+*.faiss
+*.bin
+vector_store/**/*
 
 # Logs
 logs/

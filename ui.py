@@ -606,9 +606,17 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Initialize vector store
+    # Initialize vector store - downloads from Google Drive if available
     @st.cache_resource
     def load_vector_store():
+        # First, try to download from Google Drive (via initialize.py function)
+        try:
+            from initialize import download_vector_store_from_drive
+            download_vector_store_from_drive()
+        except Exception as e:
+            st.warning(f"⚠️ Could not download from Google Drive: {e}. Will build from PDFs if needed.")
+        
+        # Load or build vector store
         return SafetyVectorStore.load_or_build_store(
             force_rebuild=False,
             regulations_dir=REGULATIONS_DIR,

@@ -31,6 +31,9 @@ pandas>=2.1.0
 # Logging
 python-json-logger>=2.0.0
 
+# Google Drive download
+gdown>=4.7.0
+
 # Optional: Local LLM support
 # ollama>=0.1.7  # Uncomment if using local Llama 3
 

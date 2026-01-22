@@ -1,13 +1,25 @@
 """
 Hugging Face Spaces Entry Point
-This file is an alias for ui.py to work with Hugging Face Spaces
+This file imports and runs the Streamlit app from ui.py
 """
+# Fix for Streamlit + PyTorch conflict - MUST be first
+import os
 import sys
-from pathlib import Path
+import warnings
 
-# Add current directory to path
-sys.path.insert(0, str(Path(__file__).parent))
+os.environ['STREAMLIT_SERVER_FILE_WATCHER_TYPE'] = 'none'
+os.environ['STREAMLIT_BROWSER_GATHER_USAGE_STATS'] = 'false'
+os.environ['STREAMLIT_SERVER_HEADLESS'] = 'true'
+os.environ['STREAMLIT_LOGGER_LEVEL'] = 'error'
 
-# Import and run the Streamlit app
-from ui import *
+warnings.filterwarnings('ignore', message='.*torch.*')
+warnings.filterwarnings('ignore', message='.*RuntimeError.*')
+warnings.filterwarnings('ignore', category=RuntimeWarning)
+
+import logging
+logging.getLogger('streamlit.watcher.local_sources_watcher').setLevel(logging.ERROR)
+
+# Import the main UI module
+# This will execute all the Streamlit code in ui.py
+import ui
 

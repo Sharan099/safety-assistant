@@ -1,4 +1,4 @@
-=# AI Safety Copilot Requirements
+# AI Safety Copilot Requirements
 
 # Core AI/ML Libraries
 langchain>=0.1.0

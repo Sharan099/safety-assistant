@@ -48,8 +48,7 @@ logs/
 ui_backup.py
 verify_*.py
 
-# Docker
-Dockerfile
+# Docker (keep Dockerfile, ignore others)
 .dockerignore
 docker-compose.yml
 

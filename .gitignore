@@ -26,9 +26,10 @@ vector_store/**/*
 logs/
 *.log
 
-# Data files (PDFs - commented out to allow pushing PDFs)
-# data/**/*.pdf
-# documents/*.pdf
+# Data files (PDFs - too large for Hugging Face Spaces, use Google Drive instead)
+data/**/*.pdf
+documents/*.pdf
+data/regulations/*.pdf
 
 # IDE
 .vscode/

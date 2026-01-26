@@ -26,10 +26,10 @@ vector_store/**/*
 logs/
 *.log
 
-# Data files (PDFs - too large for Hugging Face Spaces, use Google Drive instead)
-data/**/*.pdf
-documents/*.pdf
-data/regulations/*.pdf
+# Data files - PDFs are now tracked with Git LFS
+# data/**/*.pdf  # Commented out - now using Git LFS
+# documents/*.pdf
+# data/regulations/*.pdf
 
 # IDE
 .vscode/

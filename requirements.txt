@@ -39,6 +39,21 @@ python-json-logger>=2.0.0
 # Google Drive download
 gdown>=4.7.0
 
-# Optional: Local LLM support
-# ollama>=0.1.7  # Uncomment if using local Llama 3
+# ============================================================================
+# IMPORTANT: Azure App Service CPU-only Installation Instructions
+# ============================================================================
+# 
+# Step 1: Install CPU-only PyTorch FIRST (before other packages)
+#   pip install torch==2.1.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+#
+# Step 2: Install all other requirements
+#   pip install -r requirements.txt
+#
+# Step 3: Verify NO NVIDIA packages are installed
+#   pip freeze | grep nvidia
+#   (Should return nothing. If you see nvidia-* packages, remove them)
+#
+# This ensures sentence-transformers uses the CPU-only torch version
+# and prevents any GPU/NVIDIA dependencies from being installed.
+# ============================================================================
 

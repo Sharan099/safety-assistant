@@ -17,10 +17,22 @@ LOGS_DIR = BASE_DIR / "logs"
 DATA_DIR = BASE_DIR / "data"  # Legacy - not used for RAG
 DOCUMENTS_DIR = BASE_DIR / "documents"  # Legacy - not used for RAG
 
-# Ensure directories exist
-REGULATIONS_DIR.mkdir(exist_ok=True)  # Primary folder for all regulations
-VECTOR_STORE_DIR.mkdir(exist_ok=True)
-LOGS_DIR.mkdir(exist_ok=True)
+# Ensure directories exist (with proper error handling for read-only filesystems)
+try:
+    REGULATIONS_DIR.mkdir(parents=True, exist_ok=True)  # Primary folder for all regulations
+except (OSError, PermissionError):
+    # In read-only filesystems (like Streamlit Cloud), this is OK - directories will be created when needed
+    pass
+
+try:
+    VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
+except (OSError, PermissionError):
+    pass
+
+try:
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+except (OSError, PermissionError):
+    pass
 
 # LLM Configuration
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "anthropic")  # "anthropic", "openai", or "local"

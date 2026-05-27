@@ -52,3 +52,13 @@ verify_*.py
 .dockerignore
 docker-compose.yml
 
+rag_env/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git/
+.cache/
+.env
+.vscode/

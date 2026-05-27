@@ -1,59 +1,13 @@
-# AI Safety Copilot Requirements
-# Azure App Service - CPU ONLY (No GPU/NVIDIA dependencies)
-
-# PyTorch CPU-only (MUST be installed first via pip install torch==2.1.0+cpu -f https://download.pytorch.org/whl/torch_stable.html)
-# Note: torch is a dependency of sentence-transformers, but we specify CPU-only version
-# Install torch separately: pip install torch==2.1.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
-
-# Core AI/ML Libraries
-langchain>=0.1.0
-langchain-community>=0.0.10
-langgraph>=0.0.20
-sentence-transformers>=2.2.0  # Will use CPU-only torch if installed first
-faiss-cpu>=1.7.4  # CPU-only FAISS (no GPU)
-openai>=1.10.0
-anthropic>=0.18.0
-
-# Document Processing
-PyPDF2>=3.0.0
-pdfplumber>=0.10.0
-pypdf>=3.17.0
-PyMuPDF>=1.23.0  # fitz for better PDF parsing with layout
-unstructured>=0.10.0  # Fallback parser
-rank-bm25>=0.2.2  # BM25 for keyword retrieval
-
-# Web Framework
-streamlit>=1.29.0
-fastapi>=0.109.0
-uvicorn>=0.27.0
-
-# Utilities
-python-dotenv>=1.0.0
-pydantic>=2.5.0
-numpy>=1.24.0
-pandas>=2.1.0
-
-# Logging
-python-json-logger>=2.0.0
-
-# Google Drive download
-gdown>=4.7.0
-
-# ============================================================================
-# IMPORTANT: Azure App Service CPU-only Installation Instructions
-# ============================================================================
-# 
-# Step 1: Install CPU-only PyTorch FIRST (before other packages)
-#   pip install torch==2.1.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
-#
-# Step 2: Install all other requirements
-#   pip install -r requirements.txt
-#
-# Step 3: Verify NO NVIDIA packages are installed
-#   pip freeze | grep nvidia
-#   (Should return nothing. If you see nvidia-* packages, remove them)
-#
-# This ensures sentence-transformers uses the CPU-only torch version
-# and prevents any GPU/NVIDIA dependencies from being installed.
-# ============================================================================
-
+streamlit
+groq
+sentence-transformers
+rank-bm25
+numpy
+pandas
+scikit-learn
+torch
+transformers
+neo4j
+loguru
+python-dotenv
+huggingface_hub

@@ -1,0 +1,2387 @@
+[
+  {
+    "id": "COMM-0318",
+    "size": 80,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection\" and specifically focuses on the crashworthiness of vehicles, covering areas such as seat belt anchorage, seat adjusting systems, and occupant restraint systems. The cluster covers various aspects of occupant protection, including angle requirements, belt anchorage, compliance requirements, and injury criteria, which are essential for ensuring the safety of vehicle occupants in the event of a crash. A homologation engineer responsible for ensuring compliance with regulatory requirements in the European Union would utilize this cluster, as it includes requirements from the UN R14 regulation. This cluster is particularly relevant for vehicles designed to meet the stringent safety standards of the European market.",
+    "member_ids": [
+      "TEST-6_4_1",
+      "REQ-5_4_2-ALPHA1",
+      "REQ-5_4_2-BETA1",
+      "REQ-5_4_2-GAMMA1",
+      "REQ-2_4_1",
+      "REQ-2_4_2",
+      "REQ-2_5",
+      "REQ-2_6",
+      "REQ-2_6_1",
+      "REQ-2_6_2",
+      "REQ-2_6_3",
+      "HOMO-UN_R14",
+      "COMPL-UN_R14",
+      "REQ-5_4_2-ALPHA2",
+      "REQ-5_4_2-DELTA1",
+      "REQ-5_4_2-ETA1",
+      "REQ-5_4_2-ZETA1",
+      "REQ-5_4_2-THETA1",
+      "REQ-5_4_2-OMEGA1",
+      "REQ-5_4_2-ANGLE",
+      "REQ-5_4_2-ANGLE-CONSTANT",
+      "REQ-5_4_2-SEAT-ADJUSTING-SYSTEM",
+      "REQ-5_4_2-SEAT-ADJUSTING-SYSTEM-ANGLE",
+      "REQ-6_3_5-1",
+      "COMPLIANCE-RULE-1",
+      "REQ-6_4_5",
+      "REQ-6_4_4",
+      "REQ-6_4-ALPHA1",
+      "REQ-9_1-ALPHA1",
+      "REQ-8_1_1-ALPHA1",
+      "REQ-5_4_3-ANCHORAGE-POINTS",
+      "RULE-5_4_3",
+      "REQ-5_2_3-APPROVAL",
+      "REQ-5_2_4-MARK",
+      "REQ-5_2_5-SYMBOL",
+      "REQ-6_2_2-1",
+      "REQ-6_2_2-2",
+      "REQ-6_2_2-3",
+      "REQ-6_2_2-4",
+      "REQ-6_2_2-5",
+      "REQ-6_2_2-6",
+      "REQ-6_2_2-7",
+      "TEST-7_5_3",
+      "REQ-6_2_2_3",
+      "REQ-6_3_1_2-ALPHA2",
+      "REQ-6_3_2-ALPHA3",
+      "REQ-6_2_6_3_1-ALPHA4",
+      "REQ-6_2_6_3_2-ALPHA5",
+      "REQ-6_3_1_1-ALPHA6",
+      "TEST-6_4_1-1",
+      "TEST-6_4_1-2",
+      "REQ-6_4_1_3_1",
+      "REQ-6_4_1_3_2",
+      "REQ-6_4_1-2",
+      "TEST-9_1-ALPHA1",
+      "CR-9_1-ALPHA1",
+      "REQ-5_4_3-BETA1",
+      "CR-15_1_1",
+      "CR-15_1_2",
+      "CR-15_1_3",
+      "REQ-5_4_2-GEOM",
+      "REQ-5_4_2-BELTANCHORAGE",
+      "REQ-6_4_1-LOAD",
+      "REQ-5_4_2-ANGLE1",
+      "REQ-5_4_2-DISTANCE1",
+      "REQ-6_2_2_4-ALPHA1",
+      "TP-2_1-ALPHA1",
+      "DT-2_2-LOAD1",
+      "ST-2_1-LOAD2",
+      "DT-TEST-6_4_1",
+      "ST-TEST-6_4_2",
+      "REQ-VALIDATE-6_4_1",
+      "REQ-VALIDATE-6_4_2",
+      "REQ-4_6_1-ENVELOPE",
+      "UNR-44",
+      "ISO-13216-1",
+      "CR-1_1_1-ALPHA1",
+      "DT-2_1_1-ALPHA1",
+      "ST-2_2_1-ALPHA1",
+      "GC-2_3_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0037",
+    "size": 70,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection\" and specifically focuses on the crashworthiness of vehicle occupant restraint systems, including seat belts and their anchorage points. The cluster covers the area of occupant protection in frontal and side impacts, as well as dynamic and static testing of safety belts and their components. A homologation engineer responsible for ensuring compliance with regulatory requirements for vehicle safety would utilize this cluster to assess and validate the occupant protection features of a vehicle. This includes evaluating the performance of safety belts, their anchorage points, and the overall crashworthiness of the vehicle in various impact scenarios.",
+    "member_ids": [
+      "LOAD-1350",
+      "TEST-3_2_1",
+      "TEST-3_2_2",
+      "TEST-3_2_4",
+      "TEST-3_2_4_1",
+      "TEST-3_2_4_2",
+      "REQ-4_4-ALPHA1",
+      "TEST-4_5",
+      "REQ-4_5",
+      "REQ-5_3_3-PASSAGE",
+      "REQ-5_3_4-ANCHORAGE",
+      "REQ-5_3_4-WINDSCREEN",
+      "REQ-5_3_4-REFERENCE_ZONE",
+      "TEST-5_3_3",
+      "TEST-5_3_4",
+      "REQ-5_3_3-SAFETYBELT",
+      "REQ-5_3_4-SAFETYBELT",
+      "TEST-6_4_5",
+      "TEST-6_4_5_1",
+      "TEST-6_4_5_2",
+      "INJURY-CRITERION",
+      "FAILURE-MODE",
+      "REQ-2_1-ALPHA1",
+      "TEST-3",
+      "REQ-3_2_1-1",
+      "TEST-6_2_3-1",
+      "REQ-6_2_5_3_2-ALPHA1",
+      "TEST-6_2_5_3_2",
+      "TEST-6_4_1_3",
+      "TEST-7_4_3-ALPHA2",
+      "TP-7_5_5-ALPHA1",
+      "DT-7_5_5-ALPHA1",
+      "TR-7_5_5-ALPHA1",
+      "REQ-7_5_5-ALPHA1",
+      "CR-7_5_5-ALPHA1",
+      "TP-7_7-ALPHA1",
+      "DT-7_7_1-ALPHA1",
+      "ST-7_6_4_2-ALPHA1",
+      "DR-7_7_1-ALPHA1",
+      "TEST-7_7_1_7",
+      "REQ-7_7_1_7-1",
+      "TEST-2",
+      "DT-7_7-ALPHA1",
+      "RL-REQ-7_7-ALPHA1",
+      "REQ-7_7-ALPHA1",
+      "TEST-8_1_4",
+      "TEST-8_2_2-1",
+      "REQ-4-ADJUSTMENT",
+      "TEST-3_4",
+      "REQ-3_4",
+      "TEST-4_3-ALPHA1",
+      "REQ-1_2_4-NECK",
+      "REQ-1_2_5-HEAD",
+      "REQ-1_2_6-KNEE",
+      "REQ-1_2_7-HIP",
+      "TEST-1_2_4-NECK",
+      "TEST-1_2_5-HEAD",
+      "TEST-1_2_6-KNEE",
+      "TEST-1_2_7-HIP",
+      "CR-1_2_4-NECK",
+      "REQ-4_5-LOAD10",
+      "TEST-4_4_1-LOAD",
+      "REQ-4_7_1-ENVELOPE",
+      "TEST-7_4_1",
+      "TP-2_2_2-TESTPROCEDURE",
+      "DT-2_2_2-DYNAMICTEST",
+      "ST-2_2_2-STATICTEST",
+      "LOAD-40KG",
+      "TEST-3_1-ALPHA1",
+      "TEST-3_1-ALPHA2"
+    ]
+  },
+  {
+    "id": "COMM-0009",
+    "size": 62,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of occupant protection in vehicles, specifically focusing on the restraint systems and their performance in various crash scenarios. The cluster covers the crashworthiness area, encompassing aspects such as airbag deployment, seatbelt functionality, and occupant kinematics. A homologation engineer would utilize this cluster to ensure compliance with regulatory requirements, such as those outlined in the European New Car Assessment Programme (Euro NCAP) or the Federal Motor Vehicle Safety Standards (FMVSS) in the United States. This cluster provides a comprehensive framework for evaluating the passive safety features of vehicles, enabling engineers to design and test vehicles that meet stringent safety standards.",
+    "member_ids": [
+      "RESTRAINT-1",
+      "ANCH-1",
+      "SEAT-1",
+      "BELT-1",
+      "VEHICLE-1",
+      "ANGLE-1",
+      "ANGLE-2",
+      "GROUP-1",
+      "BENCH-1",
+      "SEAT-TYPE-1",
+      "ADULT-1",
+      "SEAT-STRUCTURE-1",
+      "ADJUSTMENT-SYSTEM-1",
+      "LOCKING-SYSTEM-1",
+      "DISPLACEMENT-SYSTEM-1",
+      "REFERENCE-ZONE-1",
+      "VEHICLE-STRUCTURE-1",
+      "HEAD-FORM-APPARATUS-1",
+      "H-POINT-1",
+      "HOMO-14R092439",
+      "COMPL-14R092439",
+      "REQ-7_2-ALPHA1",
+      "TEST-7_2",
+      "BELT-ANCHORAGE-LOWER",
+      "REQ-1_1_1-ALPHA",
+      "REQ-1_1_2-DISTANCE",
+      "GEOM-1",
+      "DISTANCE-REQ-1",
+      "REQ-3_2_3-2",
+      "CRIT-1",
+      "DIST-1",
+      "BELT-2",
+      "REQ-2_18_2-ANGLE",
+      "REQ-2_18_3-ANGLE",
+      "TEST-6_2_5-1",
+      "REQ-6_2_5-1",
+      "REQ-6_2_5_3_5-ALPHA1",
+      "TEST-7_6_1",
+      "REQ-6_2_5_3_5-ALPHA2",
+      "TEST-1",
+      "REQ-1-ALPHA",
+      "REQ-2-BUCKLE",
+      "REQ-2-MIN",
+      "AIRBAG-1",
+      "REQ-1_1_1-LOAD",
+      "CR-1_1_1",
+      "TP-1_1_1",
+      "DT-1_1_1",
+      "ST-1_1_1",
+      "IC-1_1_1",
+      "BA-1_1_1",
+      "SB-1_1_1",
+      "TEST-7_6_2",
+      "TEST-7_4_2",
+      "TEST-7_4_1_6",
+      "CR-6_2_5_3_5",
+      "TEST-7_6_3",
+      "REQ-7_7-VALIDATION",
+      "REQ-7_8-VALIDATION",
+      "REQ-1_1_1",
+      "CR-1-ALPHA",
+      "DR-1-MM"
+    ]
+  },
+  {
+    "id": "COMM-0002",
+    "size": 61,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically focuses on the crashworthiness and occupant protection area of \"Seat Belts and Anchorages.\" The cluster covers various aspects of seat belt design, installation, and performance, including anchorage, geometry, and dynamic testing requirements. A homologation engineer responsible for ensuring compliance with regulatory standards for passenger vehicles would utilize this cluster to verify the safety features of seat belt systems. This cluster is particularly relevant for engineers working on passenger vehicle safety, particularly those involved in the development and validation of seat belt systems.",
+    "member_ids": [
+      "BELT-ANCHORAGE-1",
+      "SAFETY-BELT-1",
+      "GEOMETRY-CONSTRAINT-1",
+      "REQUIREMENT-5_4_2",
+      "RESTRAINT-SYSTEM-1",
+      "INJURY-CRITERIA-1",
+      "COMPLIANCE-REQUIREMENT-1",
+      "HOMOLOGATION-RULE-1",
+      "TEST-PROCEDURE-1",
+      "VALIDATION-1",
+      "COMPLIANCE-REQ-1",
+      "GEOM-CONSTRAINT-1",
+      "SEAT-ANCHORAGE-1",
+      "REQ-3_2_2",
+      "REQ-3_2_3",
+      "REQ-3_2_4",
+      "REQ-3_2_4_1",
+      "REQ-3_2_4_2",
+      "REQ-3_2_5",
+      "REQ-3_3",
+      "TEST-6_4_3",
+      "TEST-6_4_4",
+      "DYN-TEST-6_4_1",
+      "DYN-TEST-6_4_2",
+      "STA-TEST-6_4_3",
+      "BELT-ANCHORAGE-2",
+      "SAFETY-BELT-2",
+      "DIST-REQ-1",
+      "REQ-11.2-ALPHA1",
+      "REQ-2",
+      "BELT-ANCH-1",
+      "REQ-5_4_3_7_2-DR",
+      "REQ-5_1_4-DR",
+      "REQ-6_1_2-ALPHA1",
+      "REQ-2_1-1",
+      "REQ-2_1-2",
+      "RESTRAINTS-RELATION-3",
+      "TEST-2.14.4.1",
+      "TEST-2.14.4.2",
+      "SAF-BELT-1",
+      "RESTRAINT-REL-1",
+      "CRITERION-6_4_1",
+      "REQ-7_7_1_2-ALPHA1",
+      "REQ-7_7_1_4-DISTANCE",
+      "REQ-6_4_1_4_1-ANGLE",
+      "REQ-6_4_1_4_1_2-ANGLE",
+      "REQ-7_7_1_5-POSITION",
+      "REQ-7_7_1_6-ADJUSTMENT",
+      "REQ-REQ-1",
+      "CR-COMPLIANCE-RULE-1",
+      "REQ-1_6_1_3-VALIDATION",
+      "REQ-2_2_2_1-ALPHA1",
+      "TEST-1_6_1_2",
+      "TEST-1_6_2",
+      "DYN-TEST-1_6_1_2",
+      "STA-TEST-1_6_2",
+      "GEOM-CONST-1",
+      "BAR-1",
+      "REQ-3_1-RESTRAINT",
+      "TEST-2_10-GEOMETRY",
+      "DIST-REQ-2_10"
+    ]
+  },
+  {
+    "id": "COMM-0004",
+    "size": 51,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area of vehicle seats and seat belts, specifically focusing on the design and testing requirements for seat belt anchorage and restraint systems to ensure occupant safety in the event of a crash. A homologation engineer responsible for ensuring compliance with regulatory requirements for vehicle safety would utilize this cluster to verify that a vehicle's seat belt anchorage and restraint systems meet the necessary standards. This cluster is relevant to regulatory bodies such as the National Highway Traffic Safety Administration (NHTSA) and the European New Car Assessment Programme (Euro NCAP).",
+    "member_ids": [
+      "LOAD-2000",
+      "TEST-6_4_2",
+      "REQ-6_4_2-ALPHA2",
+      "REQ-6_4_2-BETA2",
+      "REQ-6_4_2-GAMMA2",
+      "DIST-200-MM",
+      "DIST-300-MM",
+      "REQ-5_2_1-1",
+      "REQ-5_2_1-2",
+      "REQ-5_2_1-3",
+      "REQ-5_2_1-4",
+      "REQ-5_2_1-5",
+      "BELT-ANCHORAGE",
+      "SAFETY-BELT",
+      "PLANE-FN",
+      "PLANE-FK",
+      "TORSO-LINE",
+      "VERTICAL-PLANE",
+      "HORIZONTAL-PLANE",
+      "REQ-5_5_1",
+      "RESTRAINT-SYSTEM",
+      "REQ-5_4_3_7_3",
+      "REQ-5_5_3",
+      "TEST-PROC-GENERAL-ANCHORAGE",
+      "DIST-FRONT-BLOCK-500MM",
+      "DIST-REAR-FIX-300MM",
+      "COMPL-ALT-SECURE-EQUIV",
+      "TEST-PROC-SIMULTANEOUS",
+      "TEST-PROC-NON-SYMMETRICAL",
+      "ANGLE-TRACTIVE-FORCE",
+      "LOAD-PRELOAD-10PCT",
+      "LOAD-TARGET-100PCT",
+      "TEST-PROC-LOAD-APPLICATION",
+      "LOAD-TOLERANCE-30PCT",
+      "TEST-MAX-LOAD-APPLICATION-TIME-60S",
+      "TEST-MANUFACTURER-LOAD-APPLICATION-TIME-4S",
+      "REQ-MIN-LOAD-WITHSTAND-DURATION-0_2S",
+      "ANCHORAGE-BELT-GENERAL",
+      "TEST-TRACTION-DEVICE-GENERAL",
+      "RULE-PRELOAD-RESTRICTION-NOEXCESS",
+      "REQ-LOWER-ANCHORAGE-DISTANCE-GENERAL",
+      "TEST-TRACTION-DEVICE-POSITIONING-RULE-AVOID-MUTUAL",
+      "ANCHORAGE-UPPER-BELT-GENERAL",
+      "RESTRAINT-SAFETY-BELT-GENERAL",
+      "REQ-9_2-ALPHA1",
+      "REQ-9_3-ALPHA1",
+      "TEST-9_2-ALPHA1",
+      "CR-9_2-ALPHA1",
+      "REQ-5_4_1-GAMMA1",
+      "LOAD-750",
+      "REQ-5_4_4-DELTA1"
+    ]
+  },
+  {
+    "id": "COMM-0361",
+    "size": 46,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area related to seat belt performance, specifically focusing on the anchorage points, load requirements, and testing procedures. The cluster is relevant to the homologation of vehicles, particularly in the context of regulatory compliance for seat belt systems, and would be utilized by a homologation engineer responsible for ensuring vehicle safety meets regulatory standards. This cluster is likely applicable to passenger vehicles, with a focus on occupant protection in the event of a crash.",
+    "member_ids": [
+      "REQ-6_4_1",
+      "TP-6_4_1",
+      "DT-6_4_1_1",
+      "ST-6_4_1_2",
+      "TL-1350",
+      "BA-6_3_6",
+      "SB-6_3_7",
+      "CR-6_4_1",
+      "DT-6_4_1",
+      "ST-6_4_1",
+      "TL-675",
+      "TL-450",
+      "BA-UPPER",
+      "BA-LOWER",
+      "SB-THREE-POINT",
+      "TP-6_4_2",
+      "DT-6_4_2_1",
+      "ST-6_4_2_2",
+      "TP-6_4_6",
+      "DT-6_4_6_1",
+      "TP-7_5_3",
+      "DT-7_7",
+      "ST-7_8",
+      "RL-6_2_2_5",
+      "CR-6_2_2_4",
+      "TP-7_6_1",
+      "DT-7_6_2",
+      "RL-REQ-6_2_5_2_1",
+      "RL-REQ-6_2_5_2_2",
+      "BA-6_2_5_3_1",
+      "SB-6_2_5_3_1",
+      "DT-7_5_4",
+      "GC-7_5_4",
+      "DR-7_5_4",
+      "REQ-7_5_4",
+      "CR-7_5_4",
+      "DT-7_6_1_1",
+      "TR-7_6_1",
+      "DR-900",
+      "BA-7_6_1",
+      "TP-7_6_4_1",
+      "ST-7_6_4_2",
+      "REQ-7_6_4_1",
+      "TP-1_1-ALPHA1",
+      "DT-1_1-ALPHA1",
+      "ST-1_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0521",
+    "size": 38,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area related to seat belt performance, specifically focusing on the anchorage, geometry, and testing requirements for seat belts. The cluster is relevant to the homologation of vehicles, particularly in the context of regulatory compliance for seat belt systems. A homologation engineer would use this cluster to ensure that seat belt systems meet the necessary safety standards and regulations.",
+    "member_ids": [
+      "REQ-5_4_2",
+      "REQ-3_2_1",
+      "DIST-350",
+      "CR-240",
+      "BA-1",
+      "SB-1",
+      "RESTRAINTS-1",
+      "TP-6_4_3",
+      "DT-6_4_3",
+      "ST-6_4_4",
+      "RL-1",
+      "CR-1",
+      "TL-1",
+      "ST-6_4_7_1",
+      "REQ-1",
+      "REST-1",
+      "RULE-1",
+      "REQ-3",
+      "TP-1",
+      "DT-1",
+      "ST-1",
+      "RC-1",
+      "REQ-3_3-ALPHA1",
+      "REQ-3_3-BETA1",
+      "REQ-3_3-DELTA1",
+      "IC-1",
+      "GC-1",
+      "DR-1",
+      "R-1",
+      "SA-1",
+      "GE-1",
+      "BR-1",
+      "BC-1",
+      "CR-3_3-ALPHA1",
+      "CRF-1",
+      "SB-2",
+      "REQ-4",
+      "REQ-5"
+    ]
+  },
+  {
+    "id": "COMM-0250",
+    "size": 22,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of seat belt anchorage systems. It covers the crashworthiness and occupant protection area of seat belt anchorage systems, specifically focusing on the structural integrity and attachment points of seat belts in vehicles. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this information to ensure compliance with regulatory requirements for seat belt anchorage systems. This cluster is particularly relevant for vehicles with three-point seat belts, as indicated by the naming conventions of the entities within the cluster.",
+    "member_ids": [
+      "TEST-3_2_3",
+      "BELTANCH-1",
+      "SAFETYBELT-1",
+      "REQ-5_4_3_6",
+      "REQ-5_4_3_6-ALPHA1",
+      "REQ-5_4_3_6-BETA1",
+      "REQ-5_4_3_6-GAMMA1",
+      "REQ-5_4_3_6-DELTA1",
+      "REQ-5_4_3_6-ETA1",
+      "REQ-5_4_3_6-THETA1",
+      "REQ-5_4_3_6-ZETA1",
+      "REQ-5_4_3_6-OMEGA1",
+      "REQ-3_2_3-1",
+      "TP-3_2_3-1",
+      "DT-3_2_3-1",
+      "ST-3_2_3-1",
+      "BA-3_2_3-1",
+      "SB-3_2_3-1",
+      "RC-3_2_3-1",
+      "TEST-3_2_3-1",
+      "TEST-3_2_3-2",
+      "TEST-3_2_3-3"
+    ]
+  },
+  {
+    "id": "COMM-0008",
+    "size": 18,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area related to seat belt performance, specifically focusing on the anchorage points, restraint systems, and testing procedures to ensure occupant safety in the event of a crash. The cluster is relevant to the homologation of vehicles, particularly in the areas of seat belt design, installation, and testing, which would be of interest to a homologation engineer responsible for ensuring compliance with regulatory requirements. This cluster would be particularly relevant to engineers working on passenger vehicles, buses, or other road-going vehicles.",
+    "member_ids": [
+      "REQ-10_1-ALPHA1",
+      "CR-10_1-ALPHA1",
+      "BA-1-ALPHA1",
+      "SB-1-ALPHA1",
+      "TEST-10_1-ALPHA1",
+      "REQ-8_1_2_1-ALPHA1",
+      "CR-8_1_7-ALPHA1",
+      "RESTRAINTS-1-ALPHA1",
+      "REQ-3_1-ALPHA1",
+      "REQ-2_9-ALPHA1",
+      "TP-3_1-ALPHA1",
+      "DT-3_2-ALPHA1",
+      "ST-3_3-ALPHA1",
+      "TL-100-ALPHA1",
+      "DT-3_1-ALPHA1",
+      "ST-3_2-ALPHA1",
+      "BR-3_1-ALPHA1",
+      "SB-3_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0317",
+    "size": 17,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of safety-belt installation and restraint systems. It covers the crashworthiness and occupant protection area of vehicle safety-belts, specifically focusing on their installation, testing, and compliance requirements. The cluster is relevant to the homologation engineer responsible for ensuring that vehicles meet regulatory standards for safety-belt systems, including installation, testing, and certification. This engineer would use this cluster to verify compliance with regulations such as CR-6_2_2-ALPHA1 and DR-5_4_3-ALPHA1.",
+    "member_ids": [
+      "TP-10-ALPHA",
+      "DT-11-ALPHA",
+      "ST-12-ALPHA",
+      "BA-16-ALPHA",
+      "SB-17-ALPHA",
+      "GC-5_4_2-ALPHA1",
+      "DR-17-ALPHA",
+      "TP-6_2_1-ALPHA1",
+      "DT-6_2_2-ALPHA1",
+      "ST-6_2_3-ALPHA1",
+      "DR-5_4_3-ALPHA1",
+      "RL-1350",
+      "REQ-6_2_1-ALPHA1",
+      "CR-6_2_2-ALPHA1",
+      "TP-1_1_1-ALPHA1",
+      "DT-1_1_1-ALPHA1",
+      "ST-1_1_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0428",
+    "size": 15,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area related to seat belt performance, specifically focusing on anchorage, testing, and compliance requirements. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this information to ensure that seat belt systems meet regulatory standards and are safe for occupants in the event of a crash. This cluster is particularly applicable to the European Union's (EU) regulatory framework, specifically UN R17 and ECE R16.",
+    "member_ids": [
+      "REQ-7_6_3-ALPHA1",
+      "TP-7_6_2-ALPHA1",
+      "DT-7_6_2-ALPHA1",
+      "ST-7_6_3-ALPHA1",
+      "DR-500-MM",
+      "CR-7_6_3-ALPHA1",
+      "BA-5-MM",
+      "SB-500-MM",
+      "TP-7_7_1_2",
+      "DT-TEST-7_7_1_3",
+      "ST-TEST-7_7_1_4",
+      "REQ-7_7_1_2",
+      "CR-REQ-7_7_1_2",
+      "BA-ANCHORAGE",
+      "SB-RESTRAINT"
+    ]
+  },
+  {
+    "id": "COMM-0091",
+    "size": 14,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt requirements. It covers the crashworthiness and occupant protection area of seat belt systems, specifically focusing on the anchorage points and safety belt components. The requirements outlined in this cluster would be relevant to the homologation of vehicles, with the homologation engineer responsible for ensuring compliance with these regulations to ensure the safety of vehicle occupants in the event of a crash. This cluster is particularly relevant to the homologation of passenger vehicles, where seat belt systems are a critical component of occupant protection.",
+    "member_ids": [
+      "REQ-5_3_1-ANCHORAGE",
+      "REQ-5_3_2-ANCHORAGE",
+      "REQ-5_3_3-ANCHORAGE",
+      "REQ-5_3_1-1",
+      "REQ-5_3_2-1",
+      "REQ-5_3_3-1",
+      "REQ-5_3_1-2",
+      "REQ-5_3_2-2",
+      "REQ-5_3_3-2",
+      "REQ-5_3_1-3",
+      "REQ-5_3_2-3",
+      "REQ-5_3_3-3",
+      "TEST-5_3_2",
+      "REQ-5_3_2-SAFETYBELT"
+    ]
+  },
+  {
+    "id": "COMM-0392",
+    "size": 13,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area of seat belt anchorage and restraint systems, specifically focusing on the performance and compliance of these systems in the event of a crash. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this information to ensure that the seat belt anchorage and restraint systems of a vehicle meet the required regulatory standards. This cluster is particularly relevant to the European Union's (EU) General Safety Regulation (GSR) and the United Nations Economic Commission for Europe (UNECE) regulations, such as Regulation 95 (R95) and Regulation 16 (R16).",
+    "member_ids": [
+      "TP-7_4_2",
+      "DT-7_5",
+      "ST-7_4_2",
+      "REQ-7_1_1",
+      "BR-7_1_1",
+      "BA-7_1_1",
+      "SB-7_1_1",
+      "RT-7_1_1",
+      "CR-7_4_2",
+      "DT-1_6_1_1",
+      "ST-1_6_1_3",
+      "BA-7_7",
+      "SB-7_8"
+    ]
+  },
+  {
+    "id": "COMM-0399",
+    "size": 12,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Structural Integrity and Occupant Protection\" in the context of vehicle crashworthiness. Specifically, it covers the area of \"Frontal Impact Protection\" and addresses the structural integrity of the vehicle's front end to protect occupants in the event of a frontal collision. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulatory requirements for vehicle safety, particularly in the development and validation of vehicle designs for frontal impact testing. This engineer would utilize the cluster's components to assess and verify the vehicle's compliance with regulatory standards such as FMVSS 208 or ECE R94.",
+    "member_ids": [
+      "TEST-7_4_1-STATIC",
+      "TEST-7_4_1-DYNAMIC",
+      "TEST-7_4_1-CONDITIONING",
+      "GEOM-ALPHA1",
+      "REQ-7_4_1-1",
+      "REQ-7_4_1-2",
+      "REQ-7_4_1-3",
+      "CR-7_4_1",
+      "TEST-7_4_1-1",
+      "TEST-7_4_1-2",
+      "REQ-7_4_1-4",
+      "REQ-7_4_1-5"
+    ]
+  },
+  {
+    "id": "COMM-0006",
+    "size": 11,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically focuses on the crashworthiness and occupant protection area of \"Seat Belts and Anchorages.\" The cluster covers the design and performance requirements for seat belt anchorages, safety belts, and associated components. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to ensure that the vehicle's seat belt system meets regulatory standards, such as those outlined in FMVSS 209 or ECE R16. This cluster is essential for verifying the safety of occupants in the event of a crash.",
+    "member_ids": [
+      "BeltAnchorage-1",
+      "SafetyBelt-1",
+      "SafetyBelt-2",
+      "Plane-P-3",
+      "MedianPlane-4",
+      "R-Point-5",
+      "L1-6",
+      "L2-7",
+      "H-Point-8",
+      "Distance-A-9",
+      "SteeringWheel-10"
+    ]
+  },
+  {
+    "id": "COMM-0218",
+    "size": 11,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster, DistanceRequirement (11), represents the regulation topic of \"Occupant Protection in the Event of a Rear Impact\" and specifically addresses the \"Rear Impact Protection\" area. It covers the requirements for the distance between the rear of the vehicle and the most rearward part of the occupant compartment to ensure adequate protection in the event of a rear collision. The homologation engineer responsible for passive safety would utilize this cluster to ensure compliance with regulatory standards, such as those set by the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA). This cluster would be particularly relevant for vehicles with a fixed rear impact protection system or a deformable rear structure.",
+    "member_ids": [
+      "REQ-5_4_2-5",
+      "REQ-5_4_2-6",
+      "REQ-5_4_2-7",
+      "REQ-5_4_2-8",
+      "REQ-5_4_2-9",
+      "REQ-5_4_2-10",
+      "REQ-5_4_2-11",
+      "REQ-5_4_2-12",
+      "REQ-5_4_2-13",
+      "REQ-5_4_2-14",
+      "REQ-5_4_2-15"
+    ]
+  },
+  {
+    "id": "COMM-0408",
+    "size": 11,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area related to seat belt performance and anchorage, specifically focusing on the structural integrity and load-bearing capacity of seat belt components. The cluster is relevant to the homologation of vehicles, particularly in the context of regulatory compliance for seat belt systems, and would be utilized by a homologation engineer responsible for ensuring vehicle safety and regulatory compliance. This cluster is likely applicable to passenger vehicles, particularly those with rear seat configurations.",
+    "member_ids": [
+      "TEST-7_4_3-ALPHA1",
+      "TEST-7_5_1-ALPHA1",
+      "LOAD-980",
+      "DIST-10",
+      "LOAD-50",
+      "REQ-8_2_2_5-ALPHA1",
+      "CRT-8_2_2_5-ALPHA1",
+      "TEST-8_2_2_5_2-ALPHA1",
+      "BTA-8_2_2_5_2-ALPHA1",
+      "SBS-8_2_2_5_2-ALPHA1",
+      "GEO-8_2_2_5_2-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0061",
+    "size": 10,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in Frontal Crashes\" and specifically addresses the area of \"Frontal Impact Protection\" as per the regulation topic. The cluster covers the requirements for the protection of occupants in the event of a frontal crash, including the structural integrity of the vehicle's front end. A homologation engineer responsible for ensuring compliance with regulatory requirements in the European Union would utilize this cluster to verify that a vehicle meets the necessary standards for frontal impact protection. This cluster is particularly relevant to vehicles designed for the European market, where regulations such as the General Safety Regulation (GSR) and the Euro NCAP rating system are enforced.",
+    "member_ids": [
+      "LOAD-1351",
+      "LOAD-1353",
+      "TEST-8_1_5",
+      "TEST-8_1_7",
+      "REQ-8_1_7-ALPHA1",
+      "REQ-8_1_7-2",
+      "TEST-4_3-ALPHA2",
+      "TEST-4_2-ALPHA2",
+      "TEST-8_1_7-1",
+      "TEST-8_1_7-2"
+    ]
+  },
+  {
+    "id": "COMM-0482",
+    "size": 10,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage systems. It covers the crashworthiness and occupant protection area of seat belt anchorage systems, specifically focusing on the structural integrity and performance of these systems in the event of a crash. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this information to ensure compliance with regulatory requirements for seat belt anchorage systems, such as those specified in regulations like FMVSS 208 or ECE R17. This cluster provides a comprehensive set of requirements and tests for evaluating the safety of seat belt anchorage systems.",
+    "member_ids": [
+      "REQ-8_4_4-1",
+      "CR-8_4_4-1",
+      "TP-8_4_4-1",
+      "DT-8_4_4-1",
+      "ST-8_4_4-1",
+      "IC-8_4_4-1",
+      "BA-8_4_4-1",
+      "SB-8_4_4-1",
+      "GC-8_4_4-1",
+      "DR-8_4_4-1"
+    ]
+  },
+  {
+    "id": "COMM-0484",
+    "size": 10,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage systems. It covers the crashworthiness and occupant protection area of seat belt anchorage systems, specifically focusing on the structural integrity and performance of the anchorage points in the event of a crash. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this information to ensure compliance with regulatory requirements for seat belt anchorage systems. This cluster is particularly applicable to the homologation of passenger vehicles, where seat belt anchorage systems are a critical component of occupant protection.",
+    "member_ids": [
+      "REQ-8_4_5_1-ALPHA1",
+      "CR-8_4_5_1",
+      "TP-8_4_5_1",
+      "DT-8_4_5_1",
+      "ST-8_4_5_1",
+      "IC-8_4_5_1",
+      "BA-8_4_5_1",
+      "SB-8_4_5_1",
+      "GC-8_4_5_1",
+      "DR-8_4_5_1"
+    ]
+  },
+  {
+    "id": "COMM-0520",
+    "size": 10,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area related to seat belt performance and anchorage, specifically focusing on the structural integrity and functionality of the belt anchorage system. The cluster is relevant to the homologation of vehicles, and a homologation engineer would utilize this information to ensure compliance with regulatory requirements for seat belt anchorage systems. This cluster is particularly applicable to the European Union's (EU) General Safety Regulation (GSR) and the United Nations Economic Commission for Europe (UNECE) regulations.",
+    "member_ids": [
+      "REQ-1_2_1-1",
+      "CR-1_2_1-1",
+      "TP-1_2_1-1",
+      "DT-1_2_1-1",
+      "ST-1_2_1-1",
+      "IC-1_2_1-1",
+      "BA-1_2_1-1",
+      "SB-1_2_1-1",
+      "GC-1_2_1-1",
+      "DR-1_2_1-1"
+    ]
+  },
+  {
+    "id": "COMM-0281",
+    "size": 9,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage\" and is part of the broader area of occupant protection in vehicle crashes. Specifically, it covers the crashworthiness of vehicle structures and their interaction with seat belts, ensuring that they can withstand various crash scenarios and protect occupants. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to verify that the vehicle's seat belt anchorage meets regulatory requirements, including proper securing methods and structure deformation limits. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "ENT-VEHICLE_STRUCTURE",
+      "ENT-SEAT",
+      "ENT-SEAT_POSITION",
+      "TP-BELT_ANCHORAGE_TEST",
+      "TP-SECURING_METHOD",
+      "ENT-BELT_ANCHORAGE",
+      "ENT-STRUCTURE_DEFORMATION",
+      "ENT-SECURING_DEVICE",
+      "ENT-STRUCTURE_SUPPORT"
+    ]
+  },
+  {
+    "id": "COMM-0304",
+    "size": 9,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Protection in the Event of a Side Impact\" and specifically focuses on the protection of the driver's head and thorax. The cluster covers the crashworthiness and occupant protection area of the vehicle's side structure and interior components. A homologation engineer responsible for side impact testing and certification would utilize this cluster to ensure compliance with regulatory requirements. The cluster's requirements and constraints are essential for evaluating a vehicle's ability to mitigate injury in the event of a side collision.",
+    "member_ids": [
+      "REQ-14.19-ALPHA1",
+      "REQ-14.20-ALPHA1",
+      "REQ-14.21-ALPHA1",
+      "REQ-14.22-ALPHA1",
+      "REQ-14.23-ALPHA1",
+      "REQ-14.24-ALPHA1",
+      "REQ-14.25-ALPHA1",
+      "REQ-5.4.2.1-ALPHA1",
+      "REQ-14.24-ALPHA2"
+    ]
+  },
+  {
+    "id": "COMM-0378",
+    "size": 9,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area related to seat belt performance and anchorage, specifically focusing on the structural integrity and attachment points of seat belts in vehicles. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulatory requirements for seat belt systems, particularly in the context of frontal impacts. This engineer would use this cluster to verify that seat belt anchorage systems meet the necessary standards for occupant protection and safety.",
+    "member_ids": [
+      "TP-7_2-ALPHA1",
+      "DT-7_6_3-ALPHA1",
+      "ST-6_2_5_3_5-ALPHA1",
+      "REQ-6_2_5_4_1-ALPHA1",
+      "CR-6_2_5_4_1-ALPHA1",
+      "BA-6_2_5_3_4-ALPHA1",
+      "SB-6_2_5_3_4-ALPHA1",
+      "GC-6_2_5_3_4-ALPHA1",
+      "DR-6_2_5_3_4-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0383",
+    "size": 9,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and installation, specifically focusing on the requirements for the anchorage points of seat belts in vehicles. The cluster covers the crashworthiness and occupant protection area related to seat belt anchorage, ensuring the secure and reliable attachment of seat belts to the vehicle's structure. The homologation engineer responsible for vehicle certification in regions adhering to the Alpha1 regulatory framework would utilize this cluster to ensure compliance with the specified regulations. This cluster is particularly relevant for vehicles designed to meet the regulatory requirements of the Alpha1 region, particularly in the context of frontal impact protection.",
+    "member_ids": [
+      "TP-6_4_1-ALPHA1",
+      "DT-6_4_1-ALPHA1",
+      "ST-6_4_1-ALPHA1",
+      "REQ-6_4_1-ALPHA1",
+      "CR-6_4_1-ALPHA1",
+      "BA-1350-N-ALPHA1",
+      "SB-1350-N-ALPHA1",
+      "TP-2_2_3-ALPHA1",
+      "DR-300-MM-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0356",
+    "size": 9,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the crashworthiness and occupant protection requirements for the frontal area of a vehicle. The cluster covers the requirements for the vehicle's structure and components to withstand and mitigate the effects of a frontal impact, ensuring the safety of occupants. A homologation engineer responsible for obtaining regulatory approvals for a vehicle's frontal impact performance would utilize this cluster to ensure compliance with relevant regulations. This cluster is particularly relevant for vehicles designed to meet the requirements of regulations such as FMVSS 208 or ECE R94.",
+    "member_ids": [
+      "TP-2_1_1",
+      "DT-2_1_1_1",
+      "ST-2_1_1_2",
+      "DR-500",
+      "REQ-2_1_1",
+      "CR-2_1_1",
+      "DT-2_1_2",
+      "ST-2_2_1",
+      "DR-139.7"
+    ]
+  },
+  {
+    "id": "COMM-0322",
+    "size": 8,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically focuses on the crashworthiness and occupant protection area of \"Seat Belts and Child Restraints.\" The cluster covers the design and testing requirements for various components, including belt anchorage, energy absorbers, and safety belts, to ensure occupant safety in the event of a crash. A homologation engineer responsible for ensuring compliance with regulatory requirements would utilize this cluster to verify that a vehicle's occupant restraint system meets the specified standards. This cluster is particularly relevant for vehicles subject to regulations such as FMVSS 208 in the United States or ECE R16 in Europe.",
+    "member_ids": [
+      "REQ-2.7-ALPHA1",
+      "REQ-2.8-LOAD",
+      "REQ-2.9-RESTRAINT",
+      "REQ-2.10-CHILD_RESTRANT",
+      "REQ-2.12-ANCHORAGE",
+      "REQ-2.13-ENERGY_ABSORBER",
+      "REQ-2.11-REARWARD_FACING",
+      "REQ-2.10-RESTRAINT"
+    ]
+  },
+  {
+    "id": "COMM-0343",
+    "size": 8,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the geometric requirements for crashworthiness, specifically focusing on the structural integrity of vehicles during frontal impacts. It covers the area of occupant protection, ensuring that the vehicle's geometry can withstand and distribute crash forces effectively to minimize injury risk. The homologation engineer responsible for vehicle certification would utilize this cluster to verify compliance with regulatory requirements, such as those outlined in the Euro NCAP or FMVSS standards. This cluster is particularly relevant for engineers working on vehicle design and development, particularly in the areas of body and chassis engineering.",
+    "member_ids": [
+      "REQ-5_3_1-GEOM",
+      "REQ-5_3_1-LOAD",
+      "REQ-5_3_1-TEST",
+      "REQ-5_3_1-CRITERION",
+      "REQ-5_3_1-GEOM-REQ",
+      "REQ-5_3_1-LOAD-REQ",
+      "REQ-5_3_1-TEST-REQ",
+      "REQ-5_3_1-CRITERION-REQ"
+    ]
+  },
+  {
+    "id": "COMM-0395",
+    "size": 8,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Pedal and Brake Clutch System\" in the context of vehicle safety. It covers the crashworthiness and occupant protection area of the driver's footwell and pedal system, specifically focusing on the protection of the driver's feet and legs during a crash. The homologation engineer responsible for ensuring compliance with this regulation would use this cluster to verify the design and performance of pedal and brake clutch systems in vehicles. This includes testing and validation of the system's ability to withstand various loads and impacts.",
+    "member_ids": [
+      "TP-7_3-ALPHA1",
+      "DT-7_3_3-ALPHA1",
+      "ST-7_3_2-ALPHA1",
+      "REQ-7_3_3-ALPHA1",
+      "CR-7_3_3-ALPHA1",
+      "TL-5-ALPHA1",
+      "GC-7_3_2-ALPHA1",
+      "DR-7_3_3-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0406",
+    "size": 8,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Frontal Impact\" regulations. It covers the crashworthiness and occupant protection area of the vehicle's front structure, specifically focusing on the performance of the vehicle's front end in a frontal collision. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulatory requirements for frontal impact testing, such as the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA) in the United States. This engineer would use this cluster to validate the vehicle's compliance with regulations like the DR-300 distance requirement and the TP-7_6_2-1 test procedure.",
+    "member_ids": [
+      "TP-7_4_1",
+      "DT-7_4_2",
+      "TR-300",
+      "DR-300",
+      "REQ-7_4_1",
+      "TP-7_6_2-1",
+      "DT-7_6_2-1",
+      "ST-7_6_2-1"
+    ]
+  },
+  {
+    "id": "COMM-0445",
+    "size": 8,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area of seat belt systems, specifically focusing on the anchorage points and the overall restraint system performance. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this to ensure compliance with regulatory requirements for seat belt anchorage and restraint systems, typically in the context of frontal impact testing. This cluster is particularly relevant for vehicles subject to regulatory standards such as FMVSS 209 or ECE R16.",
+    "member_ids": [
+      "TP-8_1_1-ALPHA1",
+      "DT-8_1_1-ALPHA1",
+      "ST-8_1_1-ALPHA1",
+      "BA-8_1_1-ALPHA1",
+      "SB-8_1_1-ALPHA1",
+      "IC-8_1_1-ALPHA1",
+      "DC-8_1_1-ALPHA1",
+      "DR-8_1_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0471",
+    "size": 8,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt systems. It covers the crashworthiness and occupant protection area related to seat belt performance and anchorage, specifically focusing on the structural integrity and functionality of the belt anchorage system. The cluster is relevant to the homologation of vehicles, and a homologation engineer would utilize this information to ensure compliance with regulatory requirements for seat belt anchorage and safety belt systems. This cluster is particularly applicable to the European regulatory framework, as indicated by the \"ALPHA1\" designation.",
+    "member_ids": [
+      "REQ-8_4_1-ALPHA1",
+      "CR-8_4_1-ALPHA1",
+      "TP-8_4_2-ALPHA1",
+      "DT-8_4_2-ALPHA1",
+      "ST-8_4_2-ALPHA1",
+      "IC-8_4_2-ALPHA1",
+      "BA-8_4_1-ALPHA1",
+      "SB-8_4_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0508",
+    "size": 8,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and adjustment, specifically focusing on the geometric and kinematic constraints of seat belts in vehicles. The cluster covers the crashworthiness and occupant protection area of seat belt systems, ensuring they can effectively restrain occupants during a crash. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to verify that seat belt anchorage and adjustment meet regulatory requirements, such as those outlined in the European New Car Assessment Programme (Euro NCAP) or the Federal Motor Vehicle Safety Standards (FMVSS) in the United States. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "REQ-3_1_3_1-ANCHORAGE",
+      "REQ-3_1_3_2-ADJUSTMENT",
+      "REQ-3_1_3_3-DISPLACEMENT",
+      "REQ-3_1_1-SEATS",
+      "REQ-3_1_2-POSITION",
+      "REQ-3_1_2_1-SEATING",
+      "REQ-3_1_3-CHARACTERISTICS",
+      "REQ-3_1_3_1-SEATS"
+    ]
+  },
+  {
+    "id": "COMM-0087",
+    "size": 7,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the \"Occupant Protection in Frontal Crashes\" topic, specifically focusing on the protection of the driver and passenger in the event of a frontal impact. The cluster covers the crashworthiness and occupant protection area of the vehicle's front section, including the distance between the vehicle's front end and the occupant's body. The homologation engineer would use this cluster to ensure compliance with regulations such as FMVSS 208 or ECE R94, which dictate the minimum requirements for occupant protection in frontal crashes. This cluster is particularly relevant for vehicles with a high front-end mass, such as trucks or buses.",
+    "member_ids": [
+      "HPOINT",
+      "HPRIME",
+      "RPOINT",
+      "CPOINT",
+      "SEAT",
+      "DISTANCE-S",
+      "BR"
+    ]
+  },
+  {
+    "id": "COMM-0301",
+    "size": 7,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt systems. It covers the crashworthiness and occupant protection area related to seat belt anchorage and safety belt systems, specifically focusing on the design and installation requirements for these components. The cluster is relevant to the homologation of vehicles, particularly in the context of regulatory compliance for seat belt anchorage and safety belt systems. A homologation engineer would use this cluster to ensure that a vehicle meets the necessary regulatory requirements for seat belt anchorage and safety belt systems.",
+    "member_ids": [
+      "REQ-14.13-ALPHA1",
+      "REQ-14.14-ALPHA1",
+      "REQ-14.15-ALPHA1",
+      "REQ-14.16-ALPHA1",
+      "CR-14.16-ALPHA1",
+      "BA-14.16-ALPHA1",
+      "SB-14.16-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0393",
+    "size": 7,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage systems. It covers the crashworthiness and occupant protection area of seat belt anchorage systems, specifically focusing on the structural integrity and performance of these systems in the event of a crash. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this information to ensure compliance with regulatory requirements for seat belt anchorage systems. This cluster is particularly relevant to the European regulatory framework, specifically UN R17, which governs the approval of seat belt anchorage systems.",
+    "member_ids": [
+      "TP-7_1_2-BETA1",
+      "DT-7_1_2-ALPHA1",
+      "ST-7_1_2-BETA2",
+      "GC-7_2_1-ALPHA1",
+      "REQ-7_1_2-ALPHA1",
+      "BR-7_1_2-BETA1",
+      "SB-7_1_2-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0400",
+    "size": 7,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact Protection\" and specifically addresses the requirements for the driver's side of the vehicle. It covers the crashworthiness and occupant protection area of the driver's compartment during a frontal impact, focusing on the structural integrity and safety features of the vehicle's front end. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulatory standards for frontal impact protection, such as FMVSS 208 in the United States. This engineer would use this cluster to verify that the vehicle meets the necessary requirements for frontal impact protection, including compliance with regulations like CR-7_4_1_3_2.",
+    "member_ids": [
+      "TP-7_4_1_3",
+      "DT-7_4_1_3_2",
+      "ST-7_4_1_4",
+      "GC-7_4_1_3_2",
+      "REQ-7_4_1_3_2",
+      "CR-7_4_1_3_2",
+      "SR-7_4_1_3_2"
+    ]
+  },
+  {
+    "id": "COMM-0362",
+    "size": 7,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage and Geometry\" in the context of vehicle safety. It covers the crashworthiness and occupant protection area of seat belt anchorage and geometry, specifically focusing on the restraint system's ability to properly secure occupants in the event of a crash. The cluster is relevant to the homologation of vehicles, particularly in the areas of seat belt design, installation, and performance. A homologation engineer would use this cluster to ensure compliance with regulatory requirements for seat belt anchorage and geometry.",
+    "member_ids": [
+      "TP-2_2_1",
+      "DT-40KG",
+      "ST-5THFEMALE",
+      "SB-UNFASTENED",
+      "BC-UNFASTENED",
+      "GC-SEATROW",
+      "DR-SEATROW"
+    ]
+  },
+  {
+    "id": "COMM-0279",
+    "size": 6,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster focuses on the structural integrity and anchorage conditions of vehicles, specifically addressing the crashworthiness and occupant protection in the event of a frontal impact. The cluster covers the structural characteristics of the vehicle, including seat conditions and anchorages, which are crucial for ensuring the safety of occupants during a crash. A homologation engineer responsible for vehicle safety would utilize this cluster to verify compliance with regulatory requirements, ensuring that the vehicle's structure meets the necessary standards for occupant protection. This cluster is particularly relevant for vehicles subject to frontal impact testing, such as passenger cars and light trucks.",
+    "member_ids": [
+      "TEST-GENERAL-ANCHORAGES",
+      "TEST-ON-VEHICLE-STRUCTURE",
+      "TEST-ON-FINISHED-VEHICLE",
+      "TEST-RESTRICTED-SEAT-GROUP",
+      "STRUCT-CHAR-ANCHORAGE-CONDITION",
+      "STRUCT-CHAR-SEAT-CONDITION"
+    ]
+  },
+  {
+    "id": "COMM-0339",
+    "size": 6,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Protection in the Event of a Side Impact\" as per the regulation. Specifically, it covers the requirements for the protection of occupants in the event of a side impact, focusing on the structural integrity and deformation characteristics of the vehicle's body. The homologation engineer responsible for crashworthiness and occupant protection would utilize this cluster to ensure compliance with the relevant regulatory standards, particularly BR-3.2.2.2. This cluster is essential for verifying the vehicle's ability to absorb and distribute the forces generated during a side impact, thereby protecting the occupants.",
+    "member_ids": [
+      "TP-3.2.2.2",
+      "DT-3.2.2.2",
+      "ST-3.2.2.3",
+      "REQ-3.2.2.2",
+      "BR-3.2.2.2",
+      "REQ-3.2.3"
+    ]
+  },
+  {
+    "id": "COMM-0348",
+    "size": 6,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection\" and specifically focuses on the crashworthiness of the vehicle's interior. The cluster covers the areas of occupant restraint systems, including geometry constraints and safety belts, to ensure the protection of occupants in the event of a crash. The homologation engineer responsible for passive safety would utilize this cluster to ensure compliance with regulatory requirements, such as those outlined in the Euro NCAP or FMVSS standards. This cluster would be particularly relevant for engineers working on vehicle interior design and safety features.",
+    "member_ids": [
+      "REQ-5_3_4_2_3",
+      "REQ-5_3_4_2_1",
+      "REQ-6_1_2",
+      "REQ-6_1_3",
+      "REQ-6_1_4",
+      "REQ-5_3_4"
+    ]
+  },
+  {
+    "id": "COMM-0425",
+    "size": 6,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the requirements for the occupant protection area in the event of a frontal collision. The cluster covers the crashworthiness aspects of the vehicle's front structure, including the driver's and passenger's compartment. The homologation engineer responsible for ensuring compliance with this regulation would use this cluster to verify that the vehicle meets the specified requirements for frontal impact protection, as outlined in the CR-7_7_5 compliance rule and supported by the DR-50 distance requirement, DT-7_7_5 dynamic test, REQ-7_7_5 requirement, ST-7_7_6 static test, and TP-7_7_5 test procedure. This cluster is essential for ensuring the safety of vehicle occupants in the event of a frontal collision.",
+    "member_ids": [
+      "DR-50",
+      "TP-7_7_5",
+      "DT-7_7_5",
+      "ST-7_7_6",
+      "REQ-7_7_5",
+      "CR-7_7_5"
+    ]
+  },
+  {
+    "id": "COMM-0461",
+    "size": 6,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage and Geometry\" as per the Alpha1 standard. It covers the crashworthiness and occupant protection area related to seat belt anchorage and restraint system geometry, ensuring proper positioning and attachment of seat belts to minimize injury risk in the event of a crash. The cluster is relevant to the homologation of vehicles, specifically for engineers responsible for passive safety and restraint system compliance, who would use this information to verify the design and installation of seat belt anchorage and restraint systems. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "BA-8_2_1-ALPHA1",
+      "SB-8_2_1-ALPHA1",
+      "RESTRAINTS-8_2_1-ALPHA1",
+      "GC-8_2_2_1-ALPHA1",
+      "GC-8_2_2_2-ALPHA1",
+      "GC-8_2_2_3-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0469",
+    "size": 6,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in Frontal Crashes.\" It covers the crashworthiness and occupant protection area of the vehicle's front structure, specifically focusing on the interaction between the vehicle's front end and the occupant compartment. The cluster includes rules and constraints related to the adjustment and booster systems, as well as geometric requirements for the front structure. A homologation engineer responsible for frontal crashworthiness would use this cluster to ensure compliance with regulatory requirements and ensure the vehicle's safety in the event of a frontal impact.",
+    "member_ids": [
+      "DIST-440-MM",
+      "REQ-3_2-ANGLE1",
+      "REQ-3_3-CONTACT1",
+      "REQ-3_4-ADJUSTMENT1",
+      "REQ-4-BOOSTER1",
+      "DIST-520-MM"
+    ]
+  },
+  {
+    "id": "COMM-0475",
+    "size": 6,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact Protection\" and specifically addresses the crashworthiness and occupant protection area of the vehicle's front structure. The cluster covers requirements for the vehicle's ability to absorb and distribute crash forces during a frontal impact, ensuring the safety of occupants. The ComplianceRule CR-8_4_2_4_2, DistanceRequirement DIST-500, and Requirement REQ-8_4_2_4_1_3 are relevant to the assessment of the vehicle's front structure's ability to meet regulatory standards. A homologation engineer would use this cluster to ensure compliance with regulatory requirements for frontal impact protection, particularly in the development and validation of vehicle designs.",
+    "member_ids": [
+      "TEST-8_4_2_4_1",
+      "DIST-500",
+      "REQ-8_4_2_4_1",
+      "REQ-8_4_2_4_1_2",
+      "REQ-8_4_2_4_1_3",
+      "CR-8_4_2_4_2"
+    ]
+  },
+  {
+    "id": "COMM-0036",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Structural Integrity and Impact Resistance\" in vehicle safety regulations. It specifically covers the crashworthiness and occupant protection area of the vehicle's body structure, focusing on the ability of the vehicle to withstand and absorb impacts without compromising occupant safety. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulations related to frontal and side impact testing, as well as pressure testing of vehicle components. This engineer would use this cluster to verify the structural integrity of the vehicle's body and ensure it meets regulatory requirements for crashworthiness and occupant protection.",
+    "member_ids": [
+      "REQ-4_1",
+      "REQ-4_2",
+      "TEST-4_1",
+      "TEST-4_2",
+      "REQ-4_1-PRESSURE1"
+    ]
+  },
+  {
+    "id": "COMM-0090",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the \"Structural Integrity\" topic, specifically focusing on the \"Frontal Impact\" regulation area. It covers the geometric constraints of the vehicle's structure to ensure adequate crush space and crush energy absorption in the event of a frontal collision. The GeometryConstraint cluster would be utilized by a homologation engineer responsible for assessing and verifying the vehicle's compliance with regulatory requirements for frontal impact protection, such as those outlined in the Euro NCAP or FMVSS standards. This cluster would be particularly relevant for engineers working on vehicle development, homologation, and certification.",
+    "member_ids": [
+      "REQ-5_2_1-ALPHA1",
+      "REQ-5_2_1-BETA1",
+      "REQ-5_2_1-GAMMA1",
+      "REQ-5_2_1-DELTA1",
+      "REQ-5_2_1-ETA1"
+    ]
+  },
+  {
+    "id": "COMM-0316",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and restraint systems. It covers the crashworthiness and occupant protection area of seat belt anchorage and restraint systems, specifically focusing on the geometric and load characteristics of these systems. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this data to assess the compliance of seat belt anchorage and restraint systems with regulatory requirements. This information is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "TP-7_1-ALPHA1",
+      "DT-7_2-LOAD-1350",
+      "ST-7_3-GEOM-30-80",
+      "BA-8_1-RESTRAINT-1",
+      "SB-8_2-RESTRAINT-2"
+    ]
+  },
+  {
+    "id": "COMM-0328",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage and Installation\" as per the standard 2.27-ALPHA1. It covers the crashworthiness and occupant protection area related to seat belt anchorage and installation, ensuring the secure attachment and proper functioning of seat belts in the event of a crash. The homologation engineer responsible for vehicle certification would utilize this cluster to verify compliance with the specified requirements, ensuring the vehicle meets the necessary safety standards. This cluster is essential for ensuring the safety of vehicle occupants by preventing seat belt-related injuries and fatalities.",
+    "member_ids": [
+      "TB-2.27-ALPHA1",
+      "DT-2.27-ALPHA1",
+      "SR-2.27-ALPHA1",
+      "BA-2.27-ALPHA1",
+      "DR-2.27-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0346",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Side Impact\" and specifically focuses on the crashworthiness of the vehicle's side structure. The cluster covers the area of side impact protection, ensuring the vehicle's design and construction can withstand and mitigate the effects of a side collision. A homologation engineer responsible for passive safety would utilize this cluster to ensure compliance with regulatory requirements, such as those outlined in the Euro NCAP or FMVSS standards. This cluster is particularly relevant for vehicles designed to meet the requirements of the 5-star Euro NCAP rating.",
+    "member_ids": [
+      "REQ-5_3_4-1",
+      "REQ-5_3_4-2",
+      "REQ-5_3_4-3",
+      "REQ-5_3_4-4",
+      "REQ-5_2_4-1"
+    ]
+  },
+  {
+    "id": "COMM-0375",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Side Impact\" and specifically focuses on the protection of the driver and passenger in the event of a side collision. The cluster covers the crashworthiness and occupant protection area of the vehicle's side structure and interior components. The homologation engineer responsible for ensuring compliance with this regulation would use this cluster to verify the vehicle's ability to absorb and distribute the forces of a side impact, thereby protecting the occupants. This engineer would utilize the requirements and test procedures outlined in the cluster to assess the vehicle's side impact performance.",
+    "member_ids": [
+      "REQ-6_2_5_3_3-ALPHA1",
+      "TEST-6_2_5_3_3",
+      "REQ-6_2_5_3_4-ALPHA1",
+      "TEST-6_2_5_3_4",
+      "REQ-7_6_2_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0385",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of seat belt anchorage and safety belt testing. It covers the crashworthiness and occupant protection area of seat belt systems, specifically focusing on the anchorage and restraint performance. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this data to ensure compliance with regulatory requirements for seat belt safety. This cluster is particularly applicable to the European Union's (EU) regulatory framework, specifically UN Regulation No. 14.",
+    "member_ids": [
+      "TP-6_2_5_2",
+      "DT-6_2_5_2",
+      "ST-6_2_5_3",
+      "BA-UN14",
+      "SB-6_4_1_2_3"
+    ]
+  },
+  {
+    "id": "COMM-0397",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Frontal Impact Protection\" and specifically addresses the regulation of occupant protection in the event of a frontal collision. The cluster covers the area of the vehicle's occupant compartment, focusing on the protection of the driver and passengers in the event of a frontal impact. The homologation engineer responsible for ensuring compliance with this regulation would utilize this cluster to verify that the vehicle meets the required standards for frontal impact protection, as specified in the regulation CR-7_3_5-ALPHA1. This includes evaluating the vehicle's performance in accordance with the test procedures outlined in TP-7_3_7-ALPHA1 and the dynamic test DT-7_3_7-ALPHA1.",
+    "member_ids": [
+      "TP-7_3_7-ALPHA1",
+      "DT-7_3_7-ALPHA1",
+      "TR-7_3_5-ALPHA1",
+      "DR-7_3_5-ALPHA1",
+      "CR-7_3_5-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0411",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of seat belt anchorage and installation. It covers the crashworthiness and occupant protection area of seat belt anchorage and restraint systems. The cluster is relevant to the homologation of vehicles, specifically for engineers responsible for ensuring compliance with regulatory requirements related to seat belt anchorage and installation. This cluster would be used by a homologation engineer specializing in passive safety and restraint systems.",
+    "member_ids": [
+      "TP-7_5_1",
+      "DT-7_5_1",
+      "TL-980",
+      "BR-450",
+      "DR-450"
+    ]
+  },
+  {
+    "id": "COMM-0424",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt testing. It covers the crashworthiness and occupant protection area of seat belt systems, specifically focusing on the anchorage and restraint performance. The cluster is relevant to the homologation of vehicles, and a homologation engineer would use this information to ensure compliance with regulatory requirements for seat belt safety. This cluster is particularly applicable to the European Union's (EU) General Safety Regulation (GSR) and the United Nations Economic Commission for Europe (UNECE) regulations.",
+    "member_ids": [
+      "TP-7_7_1",
+      "DT-7_7_1",
+      "ST-7_7_1",
+      "BA-7_7_1",
+      "SB-7_7_1"
+    ]
+  },
+  {
+    "id": "COMM-0437",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the requirements for the \"Driver's Head and Neck Protection\" area. The cluster covers the crashworthiness and occupant protection aspects of the vehicle's front structure and restraint systems in the event of a frontal impact. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to ensure that the vehicle meets the regulatory requirements for frontal impact protection, particularly for the driver's head and neck. This cluster is likely applicable to passenger vehicles, such as cars and light trucks.",
+    "member_ids": [
+      "TP-7_8_3",
+      "DT-7_8_3",
+      "DR-7_8_3",
+      "REQ-7_8_3",
+      "CR-7_8_3"
+    ]
+  },
+  {
+    "id": "COMM-0439",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the crashworthiness and occupant protection requirements for the occupant compartment during a frontal collision. The cluster covers the area of the vehicle's occupant compartment, focusing on the protection of the driver and passengers in the event of a frontal impact. A homologation engineer would utilize this cluster to ensure compliance with regulatory requirements for frontal impact testing and validation, particularly for the deployment and performance of airbags and other passive safety systems. This cluster is relevant for vehicles subject to regulations such as FMVSS 208 or ECE R94.",
+    "member_ids": [
+      "TP-7_9_1",
+      "DT-7_9_1",
+      "ST-7_10_1",
+      "GC-ANGLE-REQ",
+      "REQ-7_10_1"
+    ]
+  },
+  {
+    "id": "COMM-0489",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Entry and Exit Requirements\" for vehicles, specifically focusing on the rules governing the entry and exit of vehicles onto the market. It covers the crashworthiness and occupant protection area related to the entry and exit process, including the dates and periods associated with compliance and recognition. A homologation engineer responsible for ensuring vehicle compliance with regulatory requirements would utilize this cluster to verify that vehicles meet the necessary entry and exit criteria. This cluster is particularly relevant for vehicles entering the European market, where strict regulations govern the entry and exit process.",
+    "member_ids": [
+      "REQ-15_2_1-ENTRY_DATE",
+      "REQ-15_2_2-APPROVAL_PERIOD",
+      "REQ-15_2_3-RECOGNITION_PERIOD",
+      "REQ-15_2_4-ENTRY_DATE",
+      "REQ-15_2_5-ENTRY_DATE"
+    ]
+  },
+  {
+    "id": "COMM-0515",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage\" and is part of the broader area of occupant protection in the event of a crash. Specifically, it covers the crashworthiness of seat belt anchorage systems, ensuring they can withstand various loads and deformations without compromising occupant safety. A homologation engineer responsible for vehicle safety certification would utilize this cluster to assess compliance with regulatory requirements, such as those outlined in the European New Car Assessment Programme (Euro NCAP) or the Federal Motor Vehicle Safety Standards (FMVSS) in the United States. This cluster would be particularly relevant for vehicles equipped with three-point seat belts.",
+    "member_ids": [
+      "REQ-3_2-ANCHORAGE",
+      "REQ-3_3-STRUCTURE",
+      "REQ-3_3-LOAD",
+      "REQ-3_3-DEFORMATION",
+      "REQ-3_3-GEOMETRY"
+    ]
+  },
+  {
+    "id": "COMM-0531",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the crashworthiness and occupant protection requirements for the frontal area of a vehicle. The cluster covers the requirements for the vehicle's structure and components to absorb and distribute crash forces, protecting occupants in the event of a frontal collision. A homologation engineer responsible for obtaining regulatory approvals for a vehicle's frontal impact performance would utilize this cluster to ensure compliance with the relevant regulations. This cluster is particularly relevant for vehicles designed to meet the requirements of regulations such as FMVSS 208 or ECE R94.",
+    "member_ids": [
+      "TP-1_6",
+      "DT-1_6_1",
+      "ST-1_6_2",
+      "REQ-2_2_1",
+      "CR-1_6"
+    ]
+  },
+  {
+    "id": "COMM-0396",
+    "size": 5,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the crashworthiness and occupant protection requirements for the frontal area of a vehicle. The cluster covers the geometric and load requirements for the frontal impact test, ensuring the vehicle's structure and components can withstand and absorb the forces generated during a frontal collision. A homologation engineer would utilize this cluster to ensure compliance with regulatory standards, such as those set by the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA), for the frontal impact test. This cluster is particularly relevant for vehicles with a frontal impact rating, where the vehicle's ability to protect occupants and maintain structural integrity is critical.",
+    "member_ids": [
+      "REQ-4_1-LOAD",
+      "DIST-720-MM",
+      "REQ-4_1-GEOM",
+      "REQ-4_2-LOAD",
+      "REQ-4_2-GEOM"
+    ]
+  },
+  {
+    "id": "COMM-0280",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster focuses on the regulation topic of \"Occupant Protection\" and specifically addresses crashworthiness aspects related to \"Adverse Conditions\" and \"Seat Position Selection\". The cluster covers the area of occupant protection in vehicles, ensuring that occupants are safeguarded in various scenarios, including adverse conditions and during approval tests. A homologation engineer responsible for passive safety would utilize this cluster to ensure compliance with regulatory requirements, such as the TECHNICAL-SERVICE-ROLE and ADVERSE-CONDITIONS-CRITERIA rules, and to validate the effectiveness of seat position selection and approval tests. This cluster is essential for ensuring the safety of vehicle occupants in various crash scenarios.",
+    "member_ids": [
+      "SEAT-POSITION-SELECTION",
+      "TECHNICAL-SERVICE-ROLE",
+      "APPROVAL-TESTS",
+      "ADVERSE-CONDITIONS-CRITERIA"
+    ]
+  },
+  {
+    "id": "COMM-0292",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage\" and covers the crashworthiness or occupant protection area of \"Seat Belt System\". The cluster includes requirements for the dynamic and static testing of seat belt anchorage systems, ensuring their ability to withstand various crash scenarios. The homologation engineer responsible for vehicle certification would utilize this cluster to verify compliance with regulatory standards, specifically focusing on the anchorage points of seat belts. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "TP-7_1",
+      "DT-7_2",
+      "ST-7_3",
+      "BA-7_4"
+    ]
+  },
+  {
+    "id": "COMM-0302",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Protection in the Event of a Frontal Impact\" and specifically addresses the requirements for the protection of the driver's head and thorax in the event of a frontal collision. The cluster covers the crashworthiness and occupant protection area of the vehicle's front structure, including the steering column, dashboard, and airbag system. A homologation engineer responsible for passive safety would use this cluster to ensure compliance with regulatory requirements for frontal impact protection, particularly in the alpha-2 phase of vehicle development. This cluster is essential for ensuring the safety of drivers in the event of a frontal collision.",
+    "member_ids": [
+      "REQ-14.13-ALPHA2",
+      "REQ-14.14-ALPHA2",
+      "REQ-14.15-ALPHA2",
+      "REQ-14.16-ALPHA2"
+    ]
+  },
+  {
+    "id": "COMM-0313",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the \"Occupant Restraint System\" regulation topic, specifically focusing on the geometric and anchorage requirements of safety belts. It covers the crashworthiness and occupant protection area related to the installation and positioning of safety belts within a vehicle. The homologation engineer responsible for ensuring compliance with these regulations would utilize this cluster to verify that the vehicle's safety belt system meets the specified requirements, including proper anchorage and geometric constraints. This cluster is essential for ensuring the effective restraint of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "REQ-5_3_3-LOWERANCHORAGE",
+      "REQ-5_3_4-UPPERANCHORAGE",
+      "REQ-5_3_5-SAFETYBELT",
+      "REQ-5_4_2-GEOMETRYCONSTRAINT"
+    ]
+  },
+  {
+    "id": "COMM-0320",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Systems\" and specifically focuses on the crashworthiness and occupant protection area of \"Seat Belt Restraint Systems\". The cluster covers the requirements for the anchorage of seat belts, as well as the design and functionality of the seat belt itself, including its strap, adjusting device, and pre-loading device. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to ensure that the seat belt system meets the necessary regulatory standards, such as those outlined in REQ-2_4-BUCKLE, REQ-2_3-STRAP, REQ-2_5-ADJUSTING_DEVICE, and REQ-2_6-PRE_LOADING_DEVICE. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "REQ-2_3-STRAP",
+      "REQ-2_4-BUCKLE",
+      "REQ-2_5-ADJUSTING_DEVICE",
+      "REQ-2_6-PRE_LOADING_DEVICE"
+    ]
+  },
+  {
+    "id": "COMM-0323",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster focuses on the restraint system of a vehicle, specifically addressing the anchorage and geometry of safety belts. The cluster covers the crashworthiness and occupant protection area related to seat belt systems, ensuring proper restraint and protection of occupants in the event of a crash. The homologation engineer responsible for vehicle safety compliance would utilize this cluster to verify that the vehicle's safety belt system meets regulatory requirements, including those outlined in the mentioned requirements (REQ-2.22-ALPHA1, REQ-2.22-BETA1, REQ-2.23.3-ALPHA1, and REQ-2.25-ALPHA1). Compliance with these regulations is crucial for ensuring the safety of vehicle occupants.",
+    "member_ids": [
+      "REQ-2.23.3-ALPHA1",
+      "REQ-2.22-ALPHA1",
+      "REQ-2.22-BETA1",
+      "REQ-2.25-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0326",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of occupant protection in the event of a frontal impact. Specifically, it covers the area of head and thorax protection, as indicated by the presence of InjuryCriteria related to injury thresholds. The ComplianceRule (CR-2.27-ALPHA1) and InjuryCriteria (REQ-2.26-ALPHA1, REQ-2.27-ALPHA1, REQ-2.28-ALPHA1) in this cluster would be relevant to a homologation engineer responsible for ensuring compliance with frontal impact regulations, such as those outlined in the New Car Assessment Programme (NCAP) or the European New Car Assessment Programme (Euro NCAP). This engineer would use this cluster to assess the crashworthiness of a vehicle in a frontal impact scenario.",
+    "member_ids": [
+      "REQ-2.26-ALPHA1",
+      "REQ-2.27-ALPHA1",
+      "REQ-2.28-ALPHA1",
+      "CR-2.27-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0327",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection\" and specifically focuses on \"Crashworthiness\" aspects. The cluster covers the area of \"Frontal Impact Protection\" as it includes requirements related to the distance between the steering wheel and the airbag (DistanceRequirement) and the safety belt system (SafetyBelt). A homologation engineer responsible for passive safety would utilize this cluster to ensure compliance with regulatory requirements for occupant protection in the event of a frontal impact. This cluster is particularly relevant for vehicles designed to meet regulatory standards for frontal crashworthiness.",
+    "member_ids": [
+      "REQ-2.21.1-ALPHA1",
+      "REQ-2.21.2-ALPHA1",
+      "REQ-2.21.3-ALPHA1",
+      "REQ-2.24-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0333",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Warning Systems\" as per regulation requirements. It covers the area of crashworthiness and occupant protection, specifically focusing on the provision of audible and visual warnings to alert occupants of potential hazards. The cluster is relevant to the homologation of vehicles, with engineers responsible for ensuring compliance with regulatory requirements such as REQ-2.42-ALPHA1 to REQ-2.45-ALPHA1. This cluster is particularly relevant to engineers working on vehicle safety and regulatory compliance, such as those specializing in passive safety and crashworthiness.",
+    "member_ids": [
+      "REQ-2.43-ALPHA1",
+      "REQ-2.42-ALPHA1",
+      "REQ-2.44-ALPHA1",
+      "REQ-2.45-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0334",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in Frontal Collisions\" and specifically covers the area of \"Frontal Impact Protection\" within the crashworthiness domain. The ComplianceRule entities in this cluster are related to the requirements for frontal impact protection, including the protection of the driver and passenger in the event of a frontal collision. A homologation engineer responsible for ensuring compliance with regulatory requirements for passenger vehicles would utilize this cluster to verify that the vehicle meets the necessary standards for frontal impact protection. This includes requirements such as airbag deployment, seatbelt performance, and structural integrity of the vehicle's front end.",
+    "member_ids": [
+      "REQ-3_1_2-1",
+      "REQ-3_1_2-2",
+      "REQ-3_1_2-3",
+      "REQ-3_1_1-1"
+    ]
+  },
+  {
+    "id": "COMM-0357",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically addresses the requirements for seat belt anchorage systems. The cluster covers the crashworthiness and occupant protection area of seat belt anchorage systems, ensuring their proper installation and functionality to prevent injuries. The homologation engineer responsible for vehicle safety compliance would utilize this cluster to verify that seat belt anchorage systems meet the specified requirements, including geometric constraints and injury criteria. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "REQ-7_8_2-1",
+      "REQ-7_8_2-2",
+      "REQ-7_8_2-3",
+      "REQ-7_8_2-4"
+    ]
+  },
+  {
+    "id": "COMM-0365",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Side Impact\" (UN R6.2). It specifically covers the crashworthiness and occupant protection area of the vehicle's side structure and occupant compartment. The cluster is relevant to the homologation engineer responsible for ensuring compliance with side impact regulations, particularly in the areas of door intrusion and occupant protection. This engineer would use the cluster to verify the vehicle's design and testing meet the specified requirements.",
+    "member_ids": [
+      "REQ-6_2_3-3",
+      "LOAD-UNSPECIFIED",
+      "REQ-6_2_4-1",
+      "TEST-6_2_4-1"
+    ]
+  },
+  {
+    "id": "COMM-0366",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Side Impact\" and specifically focuses on the area of \"Side Impact Protection of the Driver's Head and Torso.\" The cluster covers the requirements for dynamic testing, static testing, and test procedures to ensure the vehicle's ability to absorb and distribute crash forces in a side impact scenario. The homologation engineer responsible for crashworthiness and occupant protection would utilize this cluster to verify compliance with regulatory standards, such as FMVSS 214 or ECE R95. This cluster is essential for ensuring the safety of vehicle occupants in the event of a side impact collision.",
+    "member_ids": [
+      "TP-6_2_5_1_3",
+      "DT-7_6_1",
+      "ST-7_6_3",
+      "TR-6_2_5_1_1"
+    ]
+  },
+  {
+    "id": "COMM-0367",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt systems. It covers the crashworthiness and occupant protection area related to seat belt performance and anchorage, specifically focusing on the structural integrity and load-bearing capacity of the vehicle's seat belt system. The cluster is relevant to the homologation of vehicles, particularly in the context of regulatory compliance with international standards such as FMVSS 209 (Federal Motor Vehicle Safety Standard 209) or ECE R16 (Economic Commission for Europe Regulation 16). A homologation engineer would use this cluster to ensure that the vehicle's seat belt system meets the required safety standards and regulations.",
+    "member_ids": [
+      "BA-6_2_5_2_1",
+      "SB-6_2_5_2_2",
+      "DR-6_2_5_2_3",
+      "TL-7_6_4"
+    ]
+  },
+  {
+    "id": "COMM-0415",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Static Testing\" for vehicle crashworthiness. It covers the area of occupant protection in frontal impacts, specifically focusing on the crush resistance and deformation characteristics of vehicle structures. The StaticTest (ST-7_5_6-ALPHA1) and TestProcedure (TEST-2_9-ALPHA1, TEST-2_10-ALPHA1) entities are used to evaluate the vehicle's ability to absorb and distribute crash forces, while the TestLoad (LOAD-100) entity specifies the load conditions applied during the test. A homologation engineer would utilize this cluster to assess the vehicle's compliance with regulatory requirements for frontal crashworthiness.",
+    "member_ids": [
+      "ST-7_5_6-ALPHA1",
+      "LOAD-100",
+      "TEST-2_9-ALPHA1",
+      "TEST-2_10-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0419",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and mounting requirements. It covers the crashworthiness and occupant protection area of seat belt anchorage and mounting systems, specifically focusing on the secure attachment of seat belts to the vehicle structure. The Compliance Rule (CR-7_6_2-1) and Requirement (REQ-7_6_2-1) would be used by a homologation engineer to ensure compliance with regulatory standards for seat belt anchorage and mounting systems, such as those specified in the Belt Anchorage (BA-7_6_2-1) and Safety Belt (SB-7_6_2-1) entities. This cluster is relevant to the homologation of passenger vehicles, particularly in regions with strict regulatory requirements for seat belt anchorage and mounting systems.",
+    "member_ids": [
+      "REQ-7_6_2-1",
+      "CR-7_6_2-1",
+      "BA-7_6_2-1",
+      "SB-7_6_2-1"
+    ]
+  },
+  {
+    "id": "COMM-0423",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt systems. It covers the crashworthiness and occupant protection area related to seat belt anchorage and safety belt systems, specifically focusing on the design and installation requirements for seat belt anchorage points. The ComplianceRule, Requirement, and BeltAnchorage entities within this cluster would be relevant to a homologation engineer responsible for ensuring compliance with regulatory standards for seat belt anchorage and safety belt systems in vehicles. This engineer would use this cluster to verify that vehicles meet the necessary regulatory requirements for seat belt anchorage and safety belt systems.",
+    "member_ids": [
+      "REQ-7_7_1-ALPHA1",
+      "CR-7_7_1-ALPHA1",
+      "BA-7_7_1-ALPHA1",
+      "SB-7_7_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0434",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the crashworthiness and occupant protection requirements for the frontal area of a vehicle. The cluster covers the requirements for the vehicle's structure and components to withstand and mitigate the effects of a frontal impact, ensuring the safety of occupants. A homologation engineer would use this cluster to verify compliance with regulatory standards for frontal impact testing, including dynamic and static tests, and to ensure that the vehicle meets the specified distance requirements. This cluster is relevant for vehicles subject to regulatory requirements such as FMVSS 208 or ECE R94.",
+    "member_ids": [
+      "TP-7_7_4_1",
+      "DT-50",
+      "ST-40",
+      "DR-40"
+    ]
+  },
+  {
+    "id": "COMM-0436",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of frontal impact regulations, specifically addressing the requirements for the alpha structure of a vehicle in a 64 km/h (40 mph) frontal impact test. The cluster covers the crashworthiness and occupant protection aspects of the vehicle's structure, focusing on the deformation and energy absorption characteristics of the alpha structure. A homologation engineer responsible for obtaining regulatory approvals in regions adhering to the ECE R94 or FMVSS 208 regulations would utilize this cluster to ensure compliance with the specified requirements. This cluster is essential for demonstrating the vehicle's ability to protect occupants in the event of a frontal impact.",
+    "member_ids": [
+      "ST-7_8-ALPHA1",
+      "RL-REQ-7_8-ALPHA1",
+      "REQ-7_8-ALPHA1",
+      "LOAD-60"
+    ]
+  },
+  {
+    "id": "COMM-0479",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt performance. It covers the crashworthiness and occupant protection area related to seat belt systems, specifically focusing on the anchorage and restraint of occupants during a crash. The cluster is relevant to the homologation of vehicles, with engineers responsible for ensuring compliance with regulatory requirements for seat belt systems. This cluster would be used by a homologation engineer specializing in passive safety and occupant protection.",
+    "member_ids": [
+      "TEST-8_4_3-2ND_LEVEL_WARNING",
+      "IC-UNFASTENED_BELT",
+      "BA-8_4_3-BELT_ANCHORAGE",
+      "SB-8_4_3-SAFETY_BELT"
+    ]
+  },
+  {
+    "id": "COMM-0487",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Frontal Impact.\" It specifically covers the crashworthiness and occupant protection area of the vehicle's front structure and occupant compartment. The ComplianceRule entities in this cluster are relevant to the homologation engineer responsible for ensuring compliance with regulatory requirements for frontal impact protection, such as the frontal offset crash test. This engineer would use these rules to verify that the vehicle meets the necessary safety standards for occupant protection in the event of a frontal impact.",
+    "member_ids": [
+      "REQ-15_1_3-ALPHA1",
+      "REQ-15_1_3_1-ALPHA1",
+      "REQ-8_3_5-ALPHA1",
+      "REQ-17-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0491",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster focuses on the regulation topic of \"Occupant Protection\" and specifically addresses crashworthiness requirements. The cluster covers the area of \"Head and Neck Protection\" as it pertains to the prevention of head and neck injuries in the event of a crash. The ComplianceRule entities (REQ-15.2.14, REQ-15.2.16, and REQ-15.3) and the Requirement entity (REQ-5.4.2.1) would be utilized by a homologation engineer responsible for ensuring compliance with regulatory standards for occupant protection in the automotive industry. This engineer would use this cluster to verify that vehicles meet the necessary requirements for head and neck protection.",
+    "member_ids": [
+      "REQ-15.2.14",
+      "REQ-15.2.16",
+      "REQ-15.3",
+      "REQ-5.4.2.1"
+    ]
+  },
+  {
+    "id": "COMM-0513",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Dynamic Testing\" for vehicle crashworthiness. It covers the area of occupant protection in frontal impacts, specifically focusing on the vehicle's ability to absorb and distribute crash forces. The DynamicTest, StaticTest, TestLoad, and TestProcedure entities would be utilized by a homologation engineer responsible for ensuring compliance with regulations related to frontal crashworthiness, such as those outlined in FMVSS 208 or ECE R94. This cluster would be particularly relevant for engineers working on vehicles designed to meet stringent safety standards in regions like North America or Europe.",
+    "member_ids": [
+      "TP-TEST-1",
+      "DT-DYNAMIC-TEST-1",
+      "ST-STATIC-TEST-1",
+      "TL-TEST-LOAD-1"
+    ]
+  },
+  {
+    "id": "COMM-0523",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and safety belt compliance. It covers the crashworthiness and occupant protection area related to seat belt anchorage and safety belt performance. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulations governing seat belt anchorage and safety belt systems in vehicles. Specifically, this cluster would be used by an engineer responsible for passive safety and occupant protection in the homologation process.",
+    "member_ids": [
+      "RL-5_4_2-ALPHA1",
+      "CR-5_4_2-ALPHA1",
+      "BA-1_1-ALPHA1",
+      "SB-1_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0527",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Structural Integrity and Occupant Protection\" in the context of vehicle crashworthiness. Specifically, it covers the area of \"Frontal Impact\" and \"Side Impact\" protection, focusing on the structural integrity of the vehicle's body and its ability to absorb and distribute crash forces. The homologation engineer responsible for ensuring compliance with these regulations would utilize this cluster to assess and validate the vehicle's design and performance in various crash scenarios. This includes evaluating the vehicle's ability to maintain its structural integrity and protect occupants in the event of a frontal or side impact.",
+    "member_ids": [
+      "TEST-6_2_3_1",
+      "REQ-6_2_5_2_1",
+      "REQ-6_3_1_2",
+      "REQ-6_3_2"
+    ]
+  },
+  {
+    "id": "COMM-0537",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Structural Integrity\" and specifically addresses the crashworthiness and occupant protection area of \"Frontal Impact\". The cluster consists of a geometry constraint (GC-25) to define the vehicle's structural dimensions, a static test (ST-2_2) to evaluate the vehicle's structural integrity under load, and a test procedure (TP-2_1) to guide the testing process. A homologation engineer responsible for frontal impact testing would utilize this cluster to ensure compliance with regulatory requirements. This cluster is likely applicable to passenger vehicles, particularly those with a monocoque or unibody structure.",
+    "member_ids": [
+      "TP-2_1",
+      "ST-2_2",
+      "GC-25",
+      "SR-1_1"
+    ]
+  },
+  {
+    "id": "COMM-0422",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of seat belt anchorage and mounting requirements. It covers the crashworthiness and occupant protection area related to seat belt installation and restraint systems. The cluster's regulations, including BeltAnchorage, DistanceRequirement, GeometryConstraint, and SafetyBelt, are essential for ensuring the secure and effective deployment of seat belts in the event of a crash. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to verify that a vehicle meets the necessary standards for seat belt anchorage and mounting.",
+    "member_ids": [
+      "BA-1-ALPHA",
+      "SB-1-ALPHA",
+      "GEO-1-ALPHA",
+      "DR-1-ALPHA"
+    ]
+  },
+  {
+    "id": "COMM-0295",
+    "size": 4,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Dynamic Testing for Frontal Impact\" and covers the crashworthiness and occupant protection area of the vehicle's frontal structure. The cluster includes tests to evaluate the vehicle's ability to absorb and distribute crash forces, thereby protecting occupants in the event of a frontal collision. A homologation engineer would utilize this cluster to assess compliance with regulatory requirements for frontal impact testing, such as those specified in FMVSS 208 or ECE R94. This cluster is particularly relevant for vehicles with a high risk of frontal impact, such as passenger cars and light trucks.",
+    "member_ids": [
+      "TEST-1-ALPHA",
+      "DT-1-ALPHA",
+      "ST-1-ALPHA",
+      "IC-1-ALPHA"
+    ]
+  },
+  {
+    "id": "COMM-0062",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the crashworthiness and occupant protection requirements for the frontal area of a vehicle. The cluster covers the load requirements for the frontal impact test and the test procedures to validate the vehicle's performance in a frontal collision. The LoadRequirement (LOAD-1352) and TestProcedure (TEST-8_1_6, TEST-4_2-ALPHA1) would be used by a homologation engineer responsible for ensuring compliance with frontal impact regulations, such as ECE R94 or FMVSS 208.",
+    "member_ids": [
+      "LOAD-1352",
+      "TEST-8_1_6",
+      "TEST-4_2-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0069",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Temperature Resistance\" for vehicle components. It covers the crashworthiness and occupant protection area of thermal stability and resistance to extreme temperatures. The cluster is relevant to the homologation engineer responsible for ensuring compliance with temperature-related requirements for vehicle components, such as seat belts, airbags, and other safety-critical systems. This engineer would use the cluster to verify that vehicle components meet the specified temperature resistance requirements, as outlined in the requirement REQ-5_1.",
+    "member_ids": [
+      "TEST-5_1",
+      "REQ-5_1",
+      "REQ-5_1-TEMPERATURE1"
+    ]
+  },
+  {
+    "id": "COMM-0088",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage\" and is related to the crashworthiness or occupant protection area of \"Seat Belt System\". The cluster covers the requirements for the anchorage points of seat belts in vehicles, ensuring they can withstand various crash scenarios. A homologation engineer responsible for passive safety would use this cluster to verify compliance with regulatory standards, such as those set by the United Nations Economic Commission for Europe (UNECE) or the National Highway Traffic Safety Administration (NHTSA). This cluster is particularly relevant for vehicles with seat belt systems, including passenger cars and light commercial vehicles.",
+    "member_ids": [
+      "L1",
+      "L2",
+      "BELT"
+    ]
+  },
+  {
+    "id": "COMM-0089",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Head Restraints\" and specifically addresses the requirements for head restraints in vehicles. The cluster covers the crashworthiness and occupant protection area related to head restraints, ensuring that they provide adequate protection to occupants in the event of a rear-end collision. The homologation engineer responsible for vehicle safety compliance would use this cluster to ensure that the head restraints in a vehicle meet the specified regulatory requirements, as outlined in Annex 3, Section 13 of the United Nations Economic Commission for Europe (UNECE) Regulation No. 78, as amended by Document ECE/TRANS/WP.29/78/Rev.6/12.",
+    "member_ids": [
+      "ContractingParty-11",
+      "Document-ECE-TRANS-WP-29-78-Rev-6-12",
+      "Annex-3-13"
+    ]
+  },
+  {
+    "id": "COMM-0282",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Rear Seat Occupant Protection\" and specifically focuses on the crashworthiness of the rear seat back. The cluster covers the area of occupant protection in the event of a rear impact, ensuring the seat back maintains its structural integrity to prevent injury to rear seat occupants. The homologation engineer responsible for passive safety would utilize this cluster to assess compliance with regulations such as FMVSS 207 or ECE R17, which dictate the safety standards for rear seat occupant protection. This cluster would be particularly relevant for vehicles with rear seats, including passenger cars, buses, and trucks.",
+    "member_ids": [
+      "ENT-SEAT_BACK",
+      "GC-SEAT_BACK_ANGLE_M1N1",
+      "GC-SEAT_BACK_ANGLE_OTHER"
+    ]
+  },
+  {
+    "id": "COMM-0283",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster pertains to the regulation topic of seat belt anchorage and fixation points. It covers the crashworthiness and occupant protection area related to seat belt anchorage and fixation points, specifically focusing on the secure attachment of seat belts to the vehicle structure. The homologation engineer responsible for ensuring compliance with this regulation would utilize this cluster to verify that the vehicle's seat belt anchorage and fixation points meet the required standards, such as ENT-TESTED_ANCHORAGE and DR-FRONT_FIXATION_DISTANCE. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "DR-FRONT_FIXATION_DISTANCE",
+      "DR-REAR_FIXATION_DISTANCE",
+      "ENT-TESTED_ANCHORAGE"
+    ]
+  },
+  {
+    "id": "COMM-0290",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster pertains to the regulation topic of seat belt anchorage systems. It specifically addresses the crashworthiness and occupant protection area of seat belt anchorage systems, focusing on the upper anchorage point. The cluster's content, including the belt anchorage, geometry constraint, and test procedure, would be relevant to a homologation engineer responsible for ensuring compliance with regulatory requirements for seat belt anchorage systems in vehicles. This engineer would use this cluster to verify the design and performance of seat belt anchorage systems in accordance with regulatory standards.",
+    "member_ids": [
+      "TEST-7_1_1",
+      "BELT-ANCHORAGE-UPPER",
+      "GEOM-7_1_1-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0314",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Dynamic and Static Testing\" for vehicle crashworthiness. It covers the area of occupant protection in frontal impacts, specifically focusing on the structural integrity and deformation of the vehicle's front end. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulations related to frontal crashworthiness, such as FMVSS 208 in the United States or ECE R95 in Europe. This engineer would use the TEST-3_3_1, TEST-3_3_2, and REQ-3_3_1 entities to validate the vehicle's performance in dynamic and static testing scenarios.",
+    "member_ids": [
+      "REQ-3_3_1",
+      "TEST-3_3_1",
+      "TEST-3_3_2"
+    ]
+  },
+  {
+    "id": "COMM-0319",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster, comprising REQ-2_2_1-GEOM, REQ-2_2_2-MATERIAL, and REQ-2_2_3-DIMENSIONS, represents the regulation topic of \"Structural Integrity\" within the broader context of vehicle safety. Specifically, it covers the crashworthiness area, focusing on the geometric and dimensional aspects of a vehicle's structure to ensure occupant protection in the event of a collision. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to verify that a vehicle's design meets the specified geometric, material, and dimensional requirements. This ensures the vehicle's structure can withstand crash forces and protect occupants from injury.",
+    "member_ids": [
+      "REQ-2_2_1-GEOM",
+      "REQ-2_2_2-MATERIAL",
+      "REQ-2_2_3-DIMENSIONS"
+    ]
+  },
+  {
+    "id": "COMM-0321",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the \"Reference Zone\" topic, which is a critical aspect of crashworthiness and occupant protection in vehicle design. Specifically, it covers the geometric requirements for the reference zone, including distance and plane constraints, to ensure adequate protection for occupants in the event of a crash. The homologation engineer responsible for passive safety would utilize this cluster to verify compliance with regulatory standards, ensuring that the vehicle's design meets the necessary safety criteria. This cluster is particularly relevant for engineers working on vehicle certification and homologation processes.",
+    "member_ids": [
+      "REQ-2_7-REFERENCE_ZONE",
+      "REQ-2_7_1-REFERENCE_ZONE_PLANES",
+      "REQ-2_7_2-REFERENCE_ZONE_DISTANCE"
+    ]
+  },
+  {
+    "id": "COMM-0330",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically focuses on the crashworthiness and occupant protection area of \"Seat Belts and Anchorages.\" The cluster includes BeltAnchorage (BAN-1), RESTRAINS (RST-1), and SafetyBelt (SBL-1) entities, which are critical components in ensuring the effective restraint of vehicle occupants during a crash. A homologation engineer responsible for passive safety would utilize this cluster to assess and validate the compliance of seat belt systems with relevant regulatory standards. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "BAN-1",
+      "SBL-1",
+      "RST-1"
+    ]
+  },
+  {
+    "id": "COMM-0331",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in Frontal Collisions\" as per the standard. The cluster covers the crashworthiness and occupant protection area of the vehicle's front compartment, specifically focusing on the protection of the driver and passenger in the event of a frontal impact. The homologation engineer responsible for vehicle certification would utilize this cluster to ensure compliance with the regulatory requirements, particularly in relation to the vehicle's design and construction. This cluster is likely derived from a specific regulatory standard, such as UN R94 or FMVSS 208.",
+    "member_ids": [
+      "REQ-2.40-ALPHA1",
+      "REQ-2.40-GEOM1",
+      "REQ-2.40-DIST1"
+    ]
+  },
+  {
+    "id": "COMM-0364",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Frontal Impact\" regulations. It covers the crashworthiness and occupant protection area of the vehicle's front structure, specifically focusing on the distance between the vehicle's front end and the occupant compartment. The cluster's requirements, including DIST-25 and DIST-40, are relevant to the homologation engineer responsible for ensuring compliance with frontal impact regulations, such as ECE R94 or FMVSS 208.",
+    "member_ids": [
+      "REQ-6_2_3-2",
+      "DIST-25",
+      "DIST-40"
+    ]
+  },
+  {
+    "id": "COMM-0382",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Side Impact\" and specifically addresses the crashworthiness of the vehicle's B-pillar area. The cluster covers the requirements for the B-pillar's ability to absorb and distribute crash forces, thereby protecting the occupant in the event of a side impact. A homologation engineer would use this cluster to ensure compliance with the relevant regulatory standards, such as FMVSS 214 or ECE R95, which mandate specific performance criteria for side impact protection. This cluster would be particularly relevant for vehicles designed to meet the requirements of the Euro NCAP side impact test.",
+    "member_ids": [
+      "TEST-6_3_2",
+      "REQ-6_3_3-BETA1",
+      "LOAD-1470"
+    ]
+  },
+  {
+    "id": "COMM-0386",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Protection in the Event of a Side Impact.\" It specifically covers the area of side impact crashworthiness, focusing on the protection of occupants in the event of a lateral collision. The cluster includes a requirement for side impact protection (REQ-6_4_1-1) and a requirement for side impact testing (REQ-7_4-1), which is verified through the TestProcedure (TEST-7_4). A homologation engineer responsible for ensuring compliance with side impact regulations would utilize this cluster to assess the safety of a vehicle in the event of a side impact.",
+    "member_ids": [
+      "REQ-6_4_1-1",
+      "REQ-7_4-1",
+      "TEST-7_4"
+    ]
+  },
+  {
+    "id": "COMM-0402",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Frontal Impact Protection\" and specifically addresses the regulation requirements for the \"Driver's Head and Neck Protection\" area. The cluster covers the dynamic testing, requirements, and test procedures for the frontal impact protection of vehicles, ensuring the safety of drivers in the event of a crash. The homologation engineer responsible for vehicle certification would utilize this cluster to ensure compliance with regulatory standards, such as those set by the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA). This cluster is particularly relevant for vehicles designed to meet the regulatory requirements of the European Union or the United States.",
+    "member_ids": [
+      "TP-7_4_1_6_4_1",
+      "DT-7_4_1_6_4_1",
+      "REQ-7_4_1_6_4_1"
+    ]
+  },
+  {
+    "id": "COMM-0412",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Static Testing of Occupant Restraint Systems\" and specifically focuses on the crashworthiness and occupant protection area of seat belts. The cluster includes a safety belt (SB-3PT), a static test (ST-7_5_2), and a test load (TL-1470), which are used to evaluate the performance of seat belts under various static conditions. A homologation engineer would utilize this cluster to assess the compliance of seat belt systems with regulatory requirements, ensuring they meet the necessary standards for occupant protection in the event of a crash. This cluster is particularly relevant for vehicles designed to meet regulatory requirements in regions with strict safety standards.",
+    "member_ids": [
+      "ST-7_5_2",
+      "TL-1470",
+      "SB-3PT"
+    ]
+  },
+  {
+    "id": "COMM-0432",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Frontal Impact\" and specifically addresses the requirements for the \"Frontal Impact Test\" (also known as the \"Full Frontal Impact Test\"). The cluster covers the crashworthiness and occupant protection area of the vehicle's front structure, including the engine compartment and occupant compartment. The homologation engineer responsible for ensuring compliance with this regulation would use this cluster to verify that the vehicle meets the specified requirements for frontal impact protection, including the distance between the vehicle's front end and the occupant compartment. This cluster is likely used for vehicles subject to the European New Car Assessment Programme (Euro NCAP) or the United Nations Economic Commission for Europe (UNECE) regulations.",
+    "member_ids": [
+      "DT-7_7_1_9",
+      "ST-7_7_2",
+      "DR-7_7_3"
+    ]
+  },
+  {
+    "id": "COMM-0446",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Frontal Impact Protection\" and specifically addresses the regulation of the \"Driver's Airbag\" system. The cluster covers the crashworthiness and occupant protection area of the driver's compartment during a frontal impact. The ComplianceRule (CR-8_1_2_1-1), DistanceRequirement (DR-8_1_2_1-1), and Requirement (REQ-8_1_2_1-1) are relevant to the homologation engineer responsible for ensuring the airbag system meets the regulatory requirements for driver protection in the event of a frontal collision. This engineer would use this cluster to verify compliance with the regulatory standards for driver airbag systems.",
+    "member_ids": [
+      "DR-8_1_2_1-1",
+      "REQ-8_1_2_1-1",
+      "CR-8_1_2_1-1"
+    ]
+  },
+  {
+    "id": "COMM-0451",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Frontal Impact\" and specifically addresses the area of \"Driver and Passenger Protection in the Event of a Frontal Impact.\" The cluster covers the requirements for the protection of occupants in the event of a frontal crash, including the performance of the vehicle's structure and restraint systems. The homologation engineer would use this cluster to ensure compliance with the relevant regulatory requirements, such as those specified in the UN R94 or FMVSS 208 standards. This cluster would be particularly relevant for vehicles with a frontal impact rating, such as passenger cars and light trucks.",
+    "member_ids": [
+      "TEST-8_1_8",
+      "REQ-8_1_8-1",
+      "REQ-8_1_8-2"
+    ]
+  },
+  {
+    "id": "COMM-0454",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Frontal Impact Protection\" and specifically addresses the regulation of the vehicle's structure and components in the event of a frontal collision. The cluster covers the crashworthiness and occupant protection area of the vehicle's front section, including the engine compartment and surrounding structures. The ComplianceRule (CR-8_1_8_3-1) and DistanceRequirement (REQ-8_1_8_3-1, DR-8_1_8_3-1) entities would be used by a homologation engineer responsible for ensuring compliance with regulatory requirements for frontal impact protection, typically during the vehicle development and certification process. This engineer would utilize these entities to verify that the vehicle meets the specified requirements for crashworthiness and occupant protection in the event of a frontal collision.",
+    "member_ids": [
+      "REQ-8_1_8_3-1",
+      "DR-8_1_8_3-1",
+      "CR-8_1_8_3-1"
+    ]
+  },
+  {
+    "id": "COMM-0468",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage and Safety Belt Requirements.\" It covers the crashworthiness and occupant protection area of seat belt anchorage and safety belt systems. The cluster includes requirements for belt anchorage (REQ-8_3_4-ALPHA1), information requirements (REQ-8_3_5-INFO1), and safety belt specifications (REQ-8_3_4-BETA1). A homologation engineer responsible for vehicle safety compliance would utilize this cluster to ensure that a vehicle meets the necessary regulatory standards for seat belt anchorage and safety belt systems.",
+    "member_ids": [
+      "REQ-8_3_4-ALPHA1",
+      "REQ-8_3_4-BETA1",
+      "REQ-8_3_5-INFO1"
+    ]
+  },
+  {
+    "id": "COMM-0477",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Protection in Frontal Impact\" and specifically addresses the validation of the alpha structure in frontal crashes. It falls under the crashworthiness area, focusing on the protection of occupants in the event of a frontal collision. The ComplianceRule CR-8_4_2-VALIDATION, Requirement REQ-8_4_2-ALPHA1, and TestProcedure TEST-8_4_2-PROCEDURE are relevant to homologation engineers responsible for ensuring compliance with regulatory standards for passenger vehicles, particularly those involved in frontal impact testing and validation. This cluster is applicable to passenger vehicles, including cars and light trucks.",
+    "member_ids": [
+      "REQ-8_4_2-ALPHA1",
+      "TEST-8_4_2-PROCEDURE",
+      "CR-8_4_2-VALIDATION"
+    ]
+  },
+  {
+    "id": "COMM-0486",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Protection in the Event of a Frontal Impact\" and specifically addresses the requirements for the frontal impact crash test. It covers the crashworthiness and occupant protection area of the vehicle's front structure, including the steering column, dashboard, and airbag systems. The ComplianceRule cluster, consisting of REQ-11_2, REQ-11_3, and REQ-11_4, would be used by a homologation engineer responsible for ensuring compliance with regulatory standards for frontal impact protection, such as those set by the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA). This engineer would use these rules to verify that the vehicle meets the necessary safety standards before obtaining homologation certification.",
+    "member_ids": [
+      "REQ-11_2",
+      "REQ-11_3",
+      "REQ-11_4"
+    ]
+  },
+  {
+    "id": "COMM-0488",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in Frontal Collisions\" and specifically covers the area of \"Frontal Impact Protection\". The cluster consists of three compliance rules (REQ-15_2_1-ALPHA1, REQ-15_2_2-ALPHA1, and REQ-15_2-ALPHA1) that outline requirements for the protection of occupants in the event of a frontal collision. A homologation engineer responsible for passive safety would utilize this cluster to ensure compliance with regulatory requirements for vehicles designed to withstand frontal impacts. This cluster is particularly relevant for vehicles with a mass of over 3,500 kg.",
+    "member_ids": [
+      "REQ-15_2_1-ALPHA1",
+      "REQ-15_2_2-ALPHA1",
+      "REQ-15_2-ALPHA1"
+    ]
+  },
+  {
+    "id": "COMM-0500",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the topic of \"Occupant Protection in the Event of a Frontal Impact\" and specifically focuses on the crashworthiness of the vehicle's front structure. The cluster covers the area of frontal impact protection, ensuring the vehicle's design can withstand and absorb the forces of a collision to minimize injury to occupants. A homologation engineer responsible for vehicle safety would utilize this cluster to ensure compliance with regulatory requirements, such as those set by the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA). This cluster would be particularly relevant for vehicles undergoing homologation in regions with strict frontal impact regulations, such as the European Union or the United States.",
+    "member_ids": [
+      "REQ-15_4_2-ALPHA1",
+      "REQ-15_4_2_1-ALPHA1",
+      "REQ-15_4_2-LOAD-1350"
+    ]
+  },
+  {
+    "id": "COMM-0510",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically focuses on the crashworthiness and occupant protection area of \"Seat Belts and Anchorage\". The cluster covers the requirements for the design, installation, and performance of seat belts and their anchorage points in vehicles. A homologation engineer responsible for passive safety would utilize this cluster to ensure compliance with regulatory standards, such as those set by the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA). This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "REQ-12_1-ANCHORAGE",
+      "REQ-12_1-BELT",
+      "REQ-12_1-RESTRAINT"
+    ]
+  },
+  {
+    "id": "COMM-0512",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the \"Seat Belt Anchorage and Geometry\" topic, which falls under the broader category of occupant protection in vehicles. Specifically, it covers the crashworthiness requirements for seat belt anchorage and geometry, ensuring the safe and effective restraint of occupants in the event of a crash. The homologation engineer responsible for vehicle certification would utilize this cluster to verify compliance with regulatory standards, such as those set by the United Nations Economic Commission for Europe (UNECE) or the National Highway Traffic Safety Administration (NHTSA). This cluster would be particularly relevant for vehicles subject to regulatory requirements for frontal and side impact crashes.",
+    "member_ids": [
+      "REQ-1_1_4-RESTRAINT",
+      "REQ-1_1_5-ANCHORAGE",
+      "REQ-1_1_6-GEOMETRY"
+    ]
+  },
+  {
+    "id": "COMM-0516",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of seat belt anchorage strength. It covers the crashworthiness and occupant protection area of seat belt anchorage systems, specifically focusing on the structural integrity of the anchorage points in the event of a crash. The homologation engineer responsible for ensuring compliance with this regulation would use this cluster to verify that seat belt anchorage systems meet the specified requirements, as outlined in the regulation REQ-3_4-ANCHORAGE. This includes testing the anchorage's ability to withstand deformation and load forces, as defined by REQ-3_4-DEFORMATION and REQ-3_4-LOAD, respectively.",
+    "member_ids": [
+      "REQ-3_4-ANCHORAGE",
+      "REQ-3_4-LOAD",
+      "REQ-3_4-DEFORMATION"
+    ]
+  },
+  {
+    "id": "COMM-0528",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the \"Structural Integrity\" topic, specifically focusing on the crashworthiness of the vehicle's structure during a frontal impact. It covers the area of \"Frontal Impact\" and is concerned with the vehicle's ability to maintain its shape and protect occupants from injury. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulations related to vehicle crashworthiness, particularly in the context of frontal impact testing. This engineer would use this cluster to evaluate the vehicle's performance in accordance with requirements such as REQ-6_2_5_3_1 and TEST-6_2_4.",
+    "member_ids": [
+      "TEST-6_2_4",
+      "REQ-6_2_5_3_1",
+      "REQ-6_2_5_3_3"
+    ]
+  },
+  {
+    "id": "COMM-0533",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in the Event of a Frontal Impact\" (Regulation 8.1.7). The cluster covers the crashworthiness and occupant protection area of the vehicle's front section, specifically focusing on the distance between the vehicle's front end and the occupant compartment. The homologation engineer responsible for frontal impact occupant protection would utilize this cluster to ensure compliance with regulatory requirements, such as the distance requirement, geometry constraint, and safety belt specifications. This cluster is essential for ensuring the safety of vehicle occupants in the event of a frontal collision.",
+    "member_ids": [
+      "REQ-8_1_7-SAFETYBELT",
+      "REQ-8_1_7-DISTANCEREQUIREMENT",
+      "REQ-8_1_7-GEOMETRYCONSTRAINT"
+    ]
+  },
+  {
+    "id": "COMM-0536",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster focuses on the topic of \"Structural Integrity and Occupant Protection\" in the event of a frontal impact. Specifically, it covers the crashworthiness and occupant protection requirements for the vehicle's front structure, including the engine compartment and associated components. The ComplianceRule entities (REQ-1.4-ALPHA1, REQ-1.4-APP2, and REQ-1.4-APP5) would be used by a homologation engineer responsible for ensuring compliance with regulatory standards for vehicle safety, such as those set by the European New Car Assessment Programme (Euro NCAP) or the National Highway Traffic Safety Administration (NHTSA).",
+    "member_ids": [
+      "REQ-1.4-ALPHA1",
+      "REQ-1.4-APP2",
+      "REQ-1.4-APP5"
+    ]
+  },
+  {
+    "id": "COMM-0538",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Seat Belt Anchorage\" and falls under the broader category of occupant protection. Specifically, it covers the crashworthiness area of seat belt anchorage systems, ensuring secure and reliable attachment points for seat belts. The homologation engineer responsible for vehicle certification would utilize this cluster to verify compliance with regulatory requirements for seat belt anchorage systems, such as those outlined in FMVSS 209 or ECE R17. This cluster would be particularly relevant for vehicles equipped with three-point seat belts.",
+    "member_ids": [
+      "DT-2_6_1",
+      "BR-1_1",
+      "SB-1_1"
+    ]
+  },
+  {
+    "id": "COMM-0001",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically focuses on the \"Seat Belt Anchorage\" area. It covers the crashworthiness and occupant protection aspects related to the secure anchorage of safety belts in vehicles. The cluster is relevant to the homologation engineer responsible for ensuring compliance with regulatory requirements for seat belt systems, particularly in the context of frontal impact testing. This engineer would use the cluster to verify that the vehicle's seat belt anchorage meets the specified requirements, such as REQ-2.5-ANCHORAGE.",
+    "member_ids": [
+      "TEST-2.5-LOAD",
+      "REQ-2.5-RESTRAINT",
+      "REQ-2.5-ANCHORAGE"
+    ]
+  },
+  {
+    "id": "COMM-0005",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically addresses the requirements for the anchorage and safety belts of vehicles. The cluster covers the crashworthiness and occupant protection area of occupant restraint systems, ensuring the safe and secure positioning of occupants in the event of a crash. The homologation engineer responsible for vehicle certification would utilize this cluster to verify compliance with the regulatory requirements for occupant restraint systems, as outlined in the relevant regulatory standards. This includes ensuring that the belt anchorage and safety belts meet the specified performance criteria for load-bearing capacity and structural integrity.",
+    "member_ids": [
+      "TEST-2.7-LOAD",
+      "REQ-2.7-RESTRAINT",
+      "REQ-2.7-ANCHORAGE"
+    ]
+  },
+  {
+    "id": "COMM-0407",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Structural Integrity\" and specifically addresses the crashworthiness of the vehicle's structure in the event of a frontal impact. The cluster covers the area of occupant protection in the driver's compartment, focusing on the geometric constraints and dynamic testing requirements to ensure the vehicle's structure can withstand and absorb the forces of a crash. A homologation engineer responsible for frontal impact testing would utilize this cluster to ensure compliance with regulatory requirements, such as those outlined in the Euro NCAP or FMVSS standards. This cluster is particularly relevant for vehicles undergoing homologation in regions with strict frontal impact regulations.",
+    "member_ids": [
+      "REQ-4_4_1-ALPHA1",
+      "REQ-4_4_1-BETA1",
+      "TEST-4_4_1-GEOM"
+    ]
+  },
+  {
+    "id": "COMM-0539",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Structural Integrity\" and specifically addresses the crashworthiness and occupant protection area of \"Frontal Impact\" with a focus on the vehicle's geometric and structural properties.\n\nThe cluster covers the requirements for the vehicle's front structure to withstand and absorb the forces generated during a frontal impact, ensuring the protection of occupants and preventing damage to the vehicle.\n\nA homologation engineer would use this cluster to verify compliance with the relevant regulatory requirements, such as those outlined in the Euro NCAP or FMVSS standards, to ensure the vehicle meets the necessary safety standards for market approval.",
+    "member_ids": [
+      "REQ-4_5_1-ALPHA1",
+      "REQ-4_5_1-BETA1",
+      "TEST-4_5_1-GEOM"
+    ]
+  },
+  {
+    "id": "COMM-0092",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the \"Occupant Restraint Systems\" regulation topic, specifically focusing on the requirements for seat belts and their anchorage points. The cluster covers the crashworthiness and occupant protection area related to seat belt systems, ensuring the safe restraint of vehicle occupants in the event of a crash. A homologation engineer responsible for vehicle safety compliance would utilize this cluster to verify that the vehicle's seat belt system meets the regulatory requirements, including angle requirements, belt anchorage points, and safety belt performance. This cluster is essential for ensuring the safety of vehicle occupants and compliance with regulatory standards.",
+    "member_ids": [
+      "REQ-2_3-ANGLE1",
+      "REQ-2_5-ANCHORAGE1",
+      "REQ-2_9-BELT1"
+    ]
+  },
+  {
+    "id": "COMM-0483",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Protection in Frontal Crashes\" and specifically focuses on the area of \"Frontal Impact Protection\". The cluster covers the geometric constraints for contact between the vehicle and occupant, injury criteria for assessing occupant protection, and test loads for simulating frontal crash scenarios. A homologation engineer responsible for frontal impact protection would utilize this cluster to ensure compliance with regulatory requirements, such as those outlined in the New Car Assessment Programme (NCAP) or the European New Car Assessment Programme (Euro NCAP). This cluster is essential for evaluating the safety performance of vehicles in frontal crash scenarios.",
+    "member_ids": [
+      "REQ-3_2-ALPHA",
+      "TEST-2_11-LOAD",
+      "REQ-3_3-CONTACT"
+    ]
+  },
+  {
+    "id": "COMM-0376",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of occupant protection in the event of a crash. Specifically, it covers the crashworthiness and occupant protection area of injury criteria and safety belts. The cluster includes the Injury Criterion (IC-5THPERCENTILE) for evaluating occupant injury risk and the Safety Belt (SB-DRIVERSEAT, SB-OTHERSEATS) for ensuring proper restraint system performance. A homologation engineer would use this cluster to assess the compliance of a vehicle with relevant regulatory requirements for occupant protection.",
+    "member_ids": [
+      "IC-5THPERCENTILE",
+      "SB-DRIVERSEAT",
+      "SB-OTHERSEATS"
+    ]
+  },
+  {
+    "id": "COMM-0377",
+    "size": 3,
+    "regulations": [
+      "UNKNOWN"
+    ],
+    "summary": "This passive safety regulation cluster represents the regulation topic of \"Occupant Restraint Systems\" and specifically focuses on the area of \"Seat Belt Systems\". The cluster covers the dynamic and static testing of seat belt systems, including unbuckled and fastened conditions, to assess their performance in various crash scenarios. The homologation engineer responsible for vehicle certification would utilize this cluster to evaluate the compliance of seat belt systems with relevant regulatory standards, such as FMVSS 208 in the United States. This cluster is essential for ensuring the safety of vehicle occupants in the event of a crash.",
+    "member_ids": [
+      "TP-2_2-ALPHA",
+      "DT-2_2_1-UNBUCKLED",
+      "ST-2_2_2-FASTENED"
+    ]
+  }
+]

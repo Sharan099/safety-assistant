@@ -48,9 +48,18 @@ logs/
 ui_backup.py
 verify_*.py
 
-# Docker (keep Dockerfile, ignore others)
+# Docker
 .dockerignore
-docker-compose.yml
+
+# Frontend build context not needed in backend image
+frontend/node_modules/
+frontend/.next/
+
+# Large / unused
+chroma_db/
+data/regulations/
+rag_env/
+venv/
 
 rag_env/
 venv/

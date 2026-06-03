@@ -1,13 +1,23 @@
-streamlit
-groq
-sentence-transformers
-rank-bm25
-numpy
-pandas
-scikit-learn
-torch
-transformers
-neo4j
-loguru
-python-dotenv
-huggingface_hub
+# Root requirements — offline chunk/embed pipeline + evaluation
+python-dotenv>=1.0.0
+loguru>=0.7.0
+groq>=0.4.0
+sentence-transformers>=2.3.0
+rank-bm25>=0.2.2
+numpy>=1.26.0
+pandas>=2.2.0
+torch>=2.1.0
+transformers>=4.38.0
+huggingface_hub>=0.21.0
+pymupdf>=1.23.0
+docling>=2.0.0
+# Paddle stack (Linux/Docker); on Windows use OCR_BACKEND=rapidocr if native Paddle crashes
+paddleocr>=2.7.0
+paddlepaddle>=3.0.0
+rapidocr-onnxruntime>=1.3.0
+matplotlib>=3.8.0
+ragas>=0.1.0
+datasets>=2.18.0
+
+# Backend (also: pip install -r backend/requirements.txt)
+-r backend/requirements.txt

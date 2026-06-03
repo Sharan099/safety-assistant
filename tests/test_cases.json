@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What are the UN R14 requirements for seat belt anchorage strength?",
+    "ground_truth": "UN R14 specifies strength requirements for safety belt anchorages including static and dynamic tests on anchorages."
+  },
+  {
+    "question": "What tests apply to safety belts under UN R16?",
+    "ground_truth": "UN R16 covers safety belts and restraint systems including approval tests, geometry, and performance requirements."
+  },
+  {
+    "question": "Explain dynamic test requirements for belt anchorages.",
+    "ground_truth": "Dynamic tests evaluate anchorage strength under crash-like loading with defined forces and acceptance criteria."
+  },
+  {
+    "question": "What injury criteria are referenced in occupant protection regulations?",
+    "ground_truth": "Occupant protection regulations reference injury criteria such as head, chest, and femur limits during impact tests."
+  },
+  {
+    "question": "What is the purpose of geometry requirements for seat belt anchorages?",
+    "ground_truth": "Geometry requirements ensure correct anchorage location and angles for effective restraint and compliance."
+  }
+]

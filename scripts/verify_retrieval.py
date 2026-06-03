@@ -56,19 +56,28 @@ def main() -> None:
 
     reranker = CrossEncoderReranker()
 
+    from backend.app.retrieval.query_expansion import expand_query, generate_multi_queries
+
     for query in QUERIES:
         banner(f"Query: {query}")
 
-        # Stage isolation
-        allowed = retriever._filter_chunk_ids(retriever._detect_regs(query))
-        bm25 = retriever._bm25_search(query, allowed)
-        semantic = retriever._semantic_search(query, allowed)
-        fused = retriever._rrf_fusion(semantic, bm25, k=60)
+        # Show query expansion + multi-query stages
+        exp = expand_query(query)
+        variants = generate_multi_queries(query, exp)
+        print(f"  Intent flags   : {exp.intent_flags}")
+        print(f"  Multi-queries  : {len(variants)}")
+        for v in variants:
+            print(f"     - {v[:90]}")
 
-        print(f"  BM25 hits      : {len(bm25)}")
-        print(f"  Semantic hits  : {len(semantic)}  "
+        # Full enhanced pipeline (expansion -> multi-query -> hybrid -> metadata -> parent-child)
+        result = retriever.retrieve(query)
+        fused = result["documents"]
+        print(f"\n  Semantic hits  : {result['semantic_count']}  "
               f"(disabled={retriever._semantic_disabled})")
-        print(f"  RRF fused      : {len(fused)}")
+        print(f"  BM25 hits      : {result['bm25_count']}")
+        print(f"  Fused (dedup)  : {len(fused)}")
+        with_parent = sum(1 for d in fused if d.get("parent_context"))
+        print(f"  With parent ctx: {with_parent}")
 
         reranked = reranker.rerank(query, fused)
         print(f"  Reranker used  : {reranked['reranker_used']} "
@@ -79,7 +88,8 @@ def main() -> None:
             score = d.get("rerank_score", d.get("score", 0))
             head = (d.get("heading_path") or d.get("title") or "")[:70]
             src = d.get("source", "?")
-            print(f"   {i}. [{src:8s} score={score:.3f}] {head}")
+            mult = d.get("metadata_mult", 1.0)
+            print(f"   {i}. [{src:8s} score={score:.3f} meta_x{mult}] {head}")
             snippet = d.get("text", "").replace("\n", " ")[:120]
             print(f"      {snippet}")
 

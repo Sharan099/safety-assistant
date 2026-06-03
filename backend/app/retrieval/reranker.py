@@ -61,7 +61,12 @@ class CrossEncoderReranker:
             }
 
         pairs = [
-            (query, f"{d.get('title', '')} {d.get('text', '')[:800]}")
+            (
+                query,
+                f"{d.get('heading_path') or d.get('title', '')} "
+                f"{d.get('parent_context', '')[:200]} "
+                f"{d.get('text', '')[:800]}".strip(),
+            )
             for d in documents
         ]
         scores = self._model.predict(pairs, show_progress_bar=False)

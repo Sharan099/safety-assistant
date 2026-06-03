@@ -18,12 +18,21 @@ from backend.app.core.settings import (
     CHUNKS_FILE,
     EMBEDDINGS_FILE,
     EMBEDDING_MODEL,
+    ENABLE_METADATA_FILTER,
+    ENABLE_MULTI_QUERY,
+    ENABLE_PARENT_CHILD,
+    ENABLE_QUERY_EXPANSION,
+    METADATA_BOOST,
     RRF_K,
     SEMANTIC_WEIGHT,
     TOP_K_CHUNKS,
     TOP_K_RETRIEVE,
     TOP_K_VECTOR,
     VECTOR_SCORE_THRESHOLD,
+)
+from backend.app.retrieval.query_expansion import (
+    expand_query,
+    generate_multi_queries,
 )
 
 REG_MAP = {
@@ -180,6 +189,7 @@ class HybridRetriever:
                         "heading_path": c.get("heading_path", ""),
                         "regulation": c.get("regulation", ""),
                         "chunk_type": c.get("chunk_type", ""),
+                        "parent_id": c.get("parent_id"),
                         "source": "semantic",
                     }
                 )
@@ -247,6 +257,7 @@ class HybridRetriever:
                 "heading_path": self._bm25_chunks[i].get("heading_path", ""),
                 "regulation": self._bm25_chunks[i].get("regulation", ""),
                 "chunk_type": self._bm25_chunks[i].get("chunk_type", ""),
+                "parent_id": self._bm25_chunks[i].get("parent_id"),
                 "source": "bm25",
             }
             for s, i in ranked
@@ -279,24 +290,137 @@ class HybridRetriever:
             merged.append(d)
         return merged[:TOP_K_RETRIEVE]
 
+    @staticmethod
+    def _multi_query_fusion(result_lists: list[list[dict]], k: int = RRF_K) -> list[dict]:
+        """Fuse ranked lists from several query variants with RRF."""
+        scores: dict[str, float] = {}
+        docs: dict[str, dict] = {}
+        for ranked in result_lists:
+            for rank, doc in enumerate(ranked):
+                did = doc["id"]
+                scores[did] = scores.get(did, 0.0) + 1.0 / (k + rank + 1)
+                docs.setdefault(did, doc)
+        merged = []
+        for did, sc in sorted(scores.items(), key=lambda x: -x[1]):
+            d = docs[did].copy()
+            d["mq_score"] = sc
+            d["score"] = sc
+            merged.append(d)
+        return merged
+
+    def _apply_metadata_boost(self, docs: list[dict], intent_flags: list[str]) -> list[dict]:
+        """
+        Metadata filtering stage: boost chunks whose metadata flags match the
+        query intent and de-prioritize admin / contents / section-preview chunks.
+        Soft boost (not a hard filter) so we never zero-out the candidate set.
+        """
+        if not ENABLE_METADATA_FILTER:
+            return docs
+        for d in docs:
+            chunk = self._chunk_by_id.get(d["id"], {})
+            mult = 1.0
+            for flag in intent_flags:
+                if chunk.get(flag):
+                    mult += METADATA_BOOST
+            # Prefer concrete paragraph content over section previews.
+            if chunk.get("chunk_type") == "section":
+                mult *= 0.85
+            text_low = (chunk.get("text", "") or "").lower()
+            if "contents page" in text_low or "application for approval" in text_low:
+                mult *= 0.5
+            d["score"] = d.get("score", 0.0) * mult
+            d["metadata_mult"] = round(mult, 3)
+        docs.sort(key=lambda x: -x.get("score", 0.0))
+        return docs
+
+    def _expand_parent_child(self, docs: list[dict]) -> list[dict]:
+        """
+        Parent-Child retrieval: precise child (paragraph) chunks are matched, then
+        enriched with their parent section context. Near-duplicate section/paragraph
+        variants of the same content are de-duplicated.
+        """
+        if not ENABLE_PARENT_CHILD:
+            return docs
+
+        seen_hashes: set[str] = set()
+        deduped: list[dict] = []
+        for d in docs:
+            chunk = self._chunk_by_id.get(d["id"], {})
+            # Normalize body (drop "# heading" / "[heading]" markers) so a section
+            # preview and its child paragraph of the same clause collapse to one.
+            body = re.sub(r"^[#\[].*?\]?\n+", "", (d.get("text", "") or ""), count=1)
+            body_key = re.sub(r"[^a-z0-9]", "", body.lower())[:160]
+            h = body_key or chunk.get("chunk_hash") or d.get("id", "")
+            if h in seen_hashes:
+                continue
+            seen_hashes.add(h)
+
+            parent_id = chunk.get("parent_id")
+            if parent_id and parent_id in self._chunk_by_id:
+                parent = self._chunk_by_id[parent_id]
+                d["parent_id"] = parent_id
+                d["parent_heading"] = parent.get("heading_path", "")
+                # Attach concise parent context for the reranker/LLM.
+                parent_text = (parent.get("text", "") or "").strip()
+                if parent_text:
+                    d["parent_context"] = parent_text[:600]
+            deduped.append(d)
+        return deduped
+
     def retrieve(self, query: str) -> dict[str, Any]:
         t0 = time.perf_counter()
+
+        # 1. Query Expansion
+        exp = expand_query(query) if ENABLE_QUERY_EXPANSION else None
+        intent_flags = exp.intent_flags if exp else []
+
+        # 2. Multi-Query Generation
+        if ENABLE_MULTI_QUERY:
+            queries = generate_multi_queries(query, exp)
+        elif exp is not None:
+            queries = [exp.expanded]
+        else:
+            queries = [query]
+
+        # Metadata filter (regulation scope) applied to all variants.
         regs = self._detect_regs(query)
         allowed = self._filter_chunk_ids(regs)
 
-        semantic = self._semantic_search(query, allowed)
-        bm25 = self._bm25_search(query, allowed)
-        fused = self._rrf_fusion(semantic, bm25, k=RRF_K)
+        # 3. Hybrid Retrieval (Dense + BM25 + RRF) per query variant
+        per_query: list[list[dict]] = []
+        semantic_total = 0
+        bm25_total = 0
+        for q in queries:
+            semantic = self._semantic_search(q, allowed)
+            bm25 = self._bm25_search(q, allowed)
+            semantic_total += len(semantic)
+            bm25_total += len(bm25)
+            per_query.append(self._rrf_fusion(semantic, bm25, k=RRF_K))
+
+        fused = (
+            self._multi_query_fusion(per_query, k=RRF_K)
+            if len(per_query) > 1
+            else per_query[0]
+        )
+
+        # 4. Metadata Filtering / boosting by intent
+        fused = self._apply_metadata_boost(fused, intent_flags)
+        fused = fused[:TOP_K_RETRIEVE]
+
+        # 5. Parent-Child Retrieval (dedupe + attach parent context)
+        fused = self._expand_parent_child(fused)
 
         latency_ms = round((time.perf_counter() - t0) * 1000, 2)
         logger.info(
-            f"Retrieve done: semantic={len(semantic)} bm25={len(bm25)} "
-            f"fused={len(fused)} in {latency_ms}ms"
+            f"Retrieve done: queries={len(queries)} semantic={semantic_total} "
+            f"bm25={bm25_total} fused={len(fused)} intent={intent_flags} in {latency_ms}ms"
         )
         return {
             "query": query,
+            "queries": queries,
             "documents": fused,
-            "semantic_count": len(semantic),
-            "bm25_count": len(bm25),
+            "semantic_count": semantic_total,
+            "bm25_count": bm25_total,
+            "intent_flags": intent_flags,
             "latency_ms": latency_ms,
         }

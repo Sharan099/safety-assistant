@@ -80,7 +80,7 @@ MIN_CHUNK_LEN = 50
 # MODELS (unchanged)
 # ─────────────────────────────────────────────
 
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "llama-3.1-8b-instant"
 EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
 
 EMBEDDING_BATCH = int(os.getenv("EMBEDDING_BATCH", "2"))

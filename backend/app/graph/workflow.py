@@ -38,7 +38,12 @@ def _compress_context(documents: list[dict]) -> str:
         heading = d.get("heading_path", "")
         text = (d.get("text", "") or "")[:700]
         header = f"{heading}\n{title}".strip() if heading else title
-        lines.append(f"\n=== {reg} ===\n{header}\n\n{text}")
+        block = f"\n=== {reg} ===\n{header}\n\n{text}"
+        # Parent-child: include parent section context when available.
+        parent = (d.get("parent_context", "") or "").strip()
+        if parent and parent[:60] not in text:
+            block += f"\n\n[section context] {parent[:400]}"
+        lines.append(block)
     return "\n".join(lines)
 
 
@@ -101,6 +106,8 @@ class RAGWorkflow:
                 "doc_count": len(result["documents"]),
                 "semantic": result["semantic_count"],
                 "bm25": result["bm25_count"],
+                "queries": result.get("queries", []),
+                "intent_flags": result.get("intent_flags", []),
             }
             timing = {**state.get("timing", {}), "retrieval_ms": result["latency_ms"]}
             return {**state, "documents": result["documents"], "timing": timing}

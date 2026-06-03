@@ -1,6 +1,6 @@
 # PSA AI — Passive Safety RAG (v2)
 
-Production RAG stack for passive safety regulations with **hybrid search** (semantic + BM25 + RRF), **BGE cross-encoder reranking**, **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
+Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → BGE rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
 
 ## Architecture
 
@@ -13,8 +13,14 @@ React/Next.js Frontend
         ↓
    LangGraph Workflow
    ├── Guardrails (input)
-   ├── Hybrid Retriever (semantic + BM25 + RRF)
-   ├── Cross-Encoder Reranker
+   ├── Advanced Retriever
+   │     User Query
+   │       ↓ Query Expansion        (domain synonyms + intent detection)
+   │       ↓ Multi-Query Generation (N query variants)
+   │       ↓ Hybrid Retrieval       (Dense + BM25 + RRF, per variant + multi-query fusion)
+   │       ↓ Metadata Filtering     (boost chunks matching query intent flags)
+   │       ↓ Parent-Child Retrieval (precise child chunks + parent section context)
+   ├── Cross-Encoder Reranker        (BAAI/bge-reranker-base)
    ├── Prompt builder
    ├── Groq LLM
    └── Guardrails (output: PII / unsafe warnings)
@@ -28,9 +34,13 @@ React/Next.js Frontend
 | API Gateway | nginx |
 | Backend | FastAPI |
 | Orchestration | LangGraph |
+| Query expansion | domain synonyms + intent detection (`query_expansion.py`) |
+| Multi-query | rule-based variants (optional Groq paraphrases) |
 | Embeddings (semantic) | `BAAI/bge-base-en-v1.5` (768-dim) |
 | Sparse retrieval | BM25 (`rank_bm25`) |
-| Fusion | Reciprocal Rank Fusion (RRF) |
+| Fusion | Reciprocal Rank Fusion (RRF) + multi-query RRF |
+| Metadata filtering | chunk feature flags (`has_loads`, `has_test_procedure`, …) |
+| Parent-child | child paragraph match + parent section context |
 | Reranker | `BAAI/bge-reranker-base` (cross-encoder) |
 | LLM | Groq `llama-3.3-70b-versatile` |
 | OCR ingestion | PaddleOCR / PP-OCR (RapidOCR ONNX fallback) |
@@ -38,11 +48,20 @@ React/Next.js Frontend
 | Monitoring | Prometheus + Grafana (cost, latency, tokens, errors) |
 | Evaluation | RAGAS + `tests/test_ragas_evaluation.py` |
 
-> Retrieval is pure hybrid: dense (MiniLM) + sparse (BM25) fused with RRF, then
-> cross-encoder reranking. The earlier GraphRAG path (Neo4j knowledge graph, KG
-> extraction, community detection) was unused and has been removed.
 > Note: `backend/app/graph/workflow.py` is the **LangGraph** orchestration graph,
-> not GraphRAG.
+> not GraphRAG. GraphRAG (Neo4j KG) was removed.
+
+### Retrieval tuning (`.env`)
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ENABLE_QUERY_EXPANSION` | `true` | Add domain synonyms (daN, traction, test load, …) |
+| `ENABLE_MULTI_QUERY` | `true` | Run 3–4 query variants, fuse with RRF |
+| `MULTI_QUERY_COUNT` | `3` | Max extra variants |
+| `ENABLE_METADATA_FILTER` | `true` | Boost chunks matching intent flags |
+| `METADATA_BOOST` | `0.5` | Score multiplier per matching flag |
+| `ENABLE_PARENT_CHILD` | `true` | Attach parent section context to child hits |
+| `ENABLE_LLM_MULTI_QUERY` | `false` | Groq paraphrases (uses API tokens) |
 
 ## Quick start
 
@@ -119,18 +138,35 @@ For OCR, also use `OCR_BACKEND=rapidocr` (PP-OCR via ONNX) instead of native Pad
 
 ### 4. Verify retrieval & run evaluation
 
-```bash
-# Smoke-test the full chain (BM25 + semantic -> RRF -> BGE rerank)
-conda run -n rag python scripts/verify_retrieval.py
+**20 questions (recommended, with Groq LLM):**
 
-# RAGAS-style evaluation: baseline (semantic-only) vs hybrid + rerank
-conda run -n rag python tests/test_ragas_evaluation.py
+```powershell
+.\scripts\run_evaluation_20.ps1
 ```
 
-Outputs:
+**70 questions (full benchmark):**
 
-- `output/rag_evaluation_results.json`
-- `output/rag_evaluation_comparison.png`
+```bash
+conda run -n rag python tests/generate_test_cases_70.py
+conda run -n rag python tests/run_full_evaluation.py
+# or: .\scripts\run_evaluation.ps1
+```
+
+If Groq daily token limit is hit, use retrieval-only proxies:
+
+```powershell
+$env:EVAL_SKIP_LLM='true'
+conda run -n rag python tests/run_full_evaluation.py
+```
+
+Outputs under `output/evaluation/`:
+
+| File | Description |
+|------|-------------|
+| `rag_eval_20_results.json` | **20-Q run** (Groq answers) |
+| `eval_*_20.png` | Charts for 20-Q run |
+| `rag_full_evaluation_results.json` | 70-Q run |
+| `eval_ragas_metrics.png` | 70-Q charts (no `_20` suffix) |
 
 ## Project layout
 
@@ -196,21 +232,99 @@ Set `EMBEDDING_BATCH=4` in `.env` if embedding still runs out of memory on CPU.
 
 ## Evaluation results
 
-Latest run (`output/rag_evaluation_comparison.png`), 5 passive-safety test cases,
-**baseline (semantic-only)** vs **hybrid + RRF + BGE rerank**:
+### Latest: 20-question run (RAGAS, Groq-judged)
 
-| Metric | Semantic only | Hybrid + RRF + Rerank |
-|--------|---------------|------------------------|
-| Context recall (proxy) | 0.44 | **0.61** |
-| Answer relevance (proxy) | 0.018 | 0.018 |
-| Avg latency | ~9.3 s | ~17.9 s (BGE rerank on CPU) |
+`output/evaluation/rag_eval_20_results.json` — **15 regulation + 5 guardrail**.
+RAGAS metrics below are **LLM-judged by Groq** (all 60 judge jobs completed).
 
-Hybrid retrieval + reranking improves **context recall by ~38%** over dense-only.
-Full RAGAS metrics (faithfulness, answer_relevancy, context_precision) run when
-`GROQ_API_KEY` is set and `ragas` + a LangChain LLM provider are installed; otherwise
-offline proxy metrics are used. Raw numbers are in `output/rag_evaluation_results.json`.
+| Metric | Score |
+|--------|-------|
+| **Faithfulness** | **0.800** |
+| **Answer relevancy** | **0.664** |
+| **Context precision** | **0.674** |
+| **Context recall** | **0.733** |
+| **Overall score** (mean of four) | **0.718** |
 
-![RAG evaluation](output/rag_evaluation_comparison.png)
+**Ablation:** hybrid context recall **+32.3%** vs semantic-only (0.357 → 0.472).  
+**Guardrails:** 100% injection blocked; 100% out-of-scope safe; **0%** hallucination proxy (hybrid).  
+**Latency:** retrieval p95 **8.8 s**, pipeline p95 **12.4 s**; ~872 prompt + 227 completion tokens/query; **$0.00069**/query.
+
+> Note: during answer generation the Groq free-tier rate limit was reached after
+> the first few questions, so the remaining answers fell back to retrieval proxies.
+> The RAGAS scoring above still ran fully on Groq. Re-run when the quota resets for
+> all-LLM answers: `conda run -n rag python tests/run_full_evaluation.py`.
+
+#### 20-question charts
+
+![RAGAS metrics (20Q)](output/evaluation/eval_ragas_metrics_20.png)
+
+![Ablation (20Q)](output/evaluation/eval_ablation_comparison_20.png)
+
+![Overall scorecard (20Q)](output/evaluation/eval_overall_scorecard_20.png)
+
+![Guardrails (20Q)](output/evaluation/eval_guardrails_20.png)
+
+![Latency distribution (20Q)](output/evaluation/eval_latency_distribution_20.png)
+
+### Prior: 70-question run (retrieval proxy, no Groq quota)
+
+`output/evaluation/rag_full_evaluation_results.json` — **60 regulation + 10 guardrail**  
+Mode: `EVAL_SKIP_LLM=true` (proxy answers). Overall score **0.401**; hybrid recall **+22%**.
+
+### Corpus scale (indexed today)
+
+| Stat | Value |
+|------|-------|
+| Regulation PDFs in repo | **37** |
+| PDFs indexed (OCR markdown) | **2** (UN R14, UN R16) |
+| Pages in markdown | **148** |
+| Chunks indexed | **1,572** |
+| Embedding vectors | **1,572** (`BAAI/bge-base-en-v1.5`) |
+
+### RAGAS-style metrics (hybrid + RRF + BGE rerank)
+
+| Metric | Score |
+|--------|-------|
+| **Faithfulness** | **0.823** |
+| **Answer relevancy** | **0.177** |
+| **Context precision** | **0.207** |
+| **Context recall** | **0.397** |
+| **Overall score** (mean of four) | **0.401** |
+
+### Ablation: hybrid beats semantic-only
+
+| Retrieval | Context recall | Context precision | Avg latency |
+|-----------|----------------|-------------------|-------------|
+| Semantic only | 0.326 | 0.160 | 632 ms |
+| **Hybrid + RRF + rerank** | **0.397** | **0.207** | 10.1 s |
+
+**Hybrid search improved context recall by +22.0%** over semantic-only retrieval by adding BM25 + RRF + cross-encoder reranking.
+
+### Guardrails (measured)
+
+| Effect | Result |
+|--------|--------|
+| Injection/jailbreak input blocked | **100%** (6/6) |
+| Out-of-scope safe handling | **75%** (3/4) |
+| Hallucination proxy (semantic → hybrid) | **5.0% → 1.7%** on regulation set |
+
+### Latency / cost (observability-style)
+
+| Metric | Value |
+|--------|-------|
+| Retrieval **p95** | **333 ms** |
+| Full pipeline **p95** (incl. BGE rerank) | **19.3 s** |
+| Est. cost / query (Groq proxy rates) | **$0.00045** |
+
+### Charts
+
+![RAGAS metrics](output/evaluation/eval_ragas_metrics.png)
+
+![Ablation](output/evaluation/eval_ablation_comparison.png)
+
+![Overall scorecard](output/evaluation/eval_overall_scorecard.png)
+
+Re-run with live Groq answers for LLM-judged RAGAS: clear `EVAL_SKIP_LLM`, ensure API quota, then `conda run -n rag python tests/run_full_evaluation.py`.
 
 ## Observability & monitoring
 
@@ -290,6 +404,50 @@ sum(rate(rag_errors_total[5m]))
 
 - Blocks prompt injection & jailbreak patterns on input
 - Warns on possible PII or unsafe content in responses
+
+## Screenshots
+
+Live screenshots of the running system (chat UI, guardrails, and observability).
+All images live in `output/screenshots/`.
+
+### Chat interface (PSA AI — Next.js)
+
+UN R14 regulation answer with grounded sources and per-stage latency:
+
+![Chat — What is UN R14](output/screenshots/PSA_1.png)
+
+UN R16 specification answer:
+
+![Chat — What does UN R16 specify](output/screenshots/PSA_2.png)
+
+Seat belt anchorage requirements (parent-child + reranked context):
+
+![Chat — Seat belt anchorage requirements](output/screenshots/PSA_3.png)
+
+### Guardrails in action
+
+Prompt-injection attempt ("Ignore all previous instructions…") blocked at input:
+
+![Guardrail — prompt injection blocked](output/screenshots/Test_prompt_injection.png)
+
+Out-of-scope question ("Who won the FIFA World Cup 2022?") correctly answered
+with *"Information not found in regulations"* — grounding / scope boundary:
+
+![Scope boundary — out-of-scope question](output/screenshots/Text_boundry.png)
+
+### Observability — Grafana & Prometheus
+
+Operations dashboard (request/LLM latency, cost, token usage, error rate, active requests):
+
+![Grafana dashboard](output/screenshots/Dashboard_1.png)
+
+Guardrail blocks spiking on the dashboard during prompt-injection tests:
+
+![Grafana — guardrail blocks](output/screenshots/Prompt_Injection.png)
+
+Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
+
+![Prometheus targets](output/screenshots/Prometheus.png)
 
 ## License
 

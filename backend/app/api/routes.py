@@ -22,6 +22,9 @@ class ChatResponse(BaseModel):
     query: str
     answer: str
     documents: list[dict[str, Any]] = []
+    citations: list[dict[str, Any]] = []
+    flags: list[dict[str, Any]] = []
+    grounding: dict[str, Any] = {}
     guardrails: dict[str, Any] = {}
     timing: dict[str, Any] = {}
     warnings: list[str] = []
@@ -88,6 +91,9 @@ async def chat(req: ChatRequest) -> ChatResponse:
                 }
                 for d in result.get("documents", [])
             ],
+            citations=result.get("citations", []),
+            flags=result.get("flags", []),
+            grounding=result.get("grounding", {}),
             guardrails=result.get("guardrails", {}),
             timing=result.get("timing", {}),
             warnings=warnings,

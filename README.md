@@ -1,6 +1,13 @@
-# PSA AI — Passive Safety RAG (v2)
+# PSA AI — Passive Safety RAG (v2.1)
 
 Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → BGE rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
+
+> **v2.1 — Grounding & citations** (see [Grounding & citations](#grounding--citations-v21)):
+> every answer now carries structured source citations (document, page/section,
+> revision), abstains with *"I don't know"* when retrieval confidence is below a
+> threshold, separates **legal regulations** from **rating protocols**, and flags
+> regulations that have multiple revisions. This is the foundation for the wider
+> roadmap (two-tier knowledge base, comparison tables, audit trail, SSO/RBAC).
 
 ## Architecture
 
@@ -62,6 +69,60 @@ React/Next.js Frontend
 | `METADATA_BOOST` | `0.5` | Score multiplier per matching flag |
 | `ENABLE_PARENT_CHILD` | `true` | Attach parent section context to child hits |
 | `ENABLE_LLM_MULTI_QUERY` | `false` | Groq paraphrases (uses API tokens) |
+
+## Grounding & citations (v2.1)
+
+The highest-priority requirement: **no source → no claim.** This release adds a
+grounding layer on top of retrieval.
+
+**What it does**
+
+- **Structured citations.** Every retrieved passage becomes a citation carrying
+  `document`, `page`/`section` (clause number when available, e.g. `§6.4.2`),
+  `revision/amendment`, and `doc_type`. Markers `[S1] [S2] …` are injected into
+  the LLM context and the prompt requires an inline citation after every claim.
+- **Confidence gate / abstention.** If the top retrieval confidence is below a
+  threshold, the bot replies *"I don't know — not found in the corpus"* instead
+  of generating. Confidence uses the raw semantic cosine (and the cross-encoder
+  probability when the reranker is on).
+- **Legal vs rating separation.** A document registry tags each source as a
+  **legal regulation** (binding — UN/ECE, FMVSS), a **rating protocol**
+  (Euro NCAP — not legally binding), or an engineering reference. Context is
+  grouped by type and the prompt forbids blurring them. The UI shows a
+  `Legal` / `Rating` badge per source.
+- **Multi-revision flag.** When a cited legal regulation has multiple revisions
+  (e.g. UN R14 Rev.7, UN R16 Rev.10), the answer carries a flag prompting the
+  user to confirm the applicable version.
+
+**Where it lives**
+
+| File | Responsibility |
+|------|----------------|
+| `backend/app/core/document_registry.py` | Source of truth: doc type, authority, indexed revision, known revisions |
+| `backend/app/retrieval/citations.py` | Page/section parsing, citation building, grounding assessment, answer flags |
+| `backend/app/graph/workflow.py` | Grounded context, grounding gate, citation-aware prompt |
+| `backend/app/api/routes.py` | Returns `citations`, `flags`, `grounding` |
+| `frontend/src/app/page.tsx` | Citation cards, Legal/Rating badges, revision/abstain banners, export |
+
+**Config (`.env`)**
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ENABLE_GROUNDING_GATE` | `true` | Abstain when retrieval confidence is low |
+| `GROUNDING_MIN_SEMANTIC` | `0.45` | Min top semantic cosine to answer |
+| `GROUNDING_MIN_RERANK_PROB` | `0.5` | Min rerank probability (when reranker on) |
+| `REQUIRE_CITATIONS` | `true` | Require inline `[S#]` citations in answers |
+
+**Verify**
+
+```powershell
+# Retrieval + citation + grounding, no LLM tokens needed:
+conda run -n rag python -c "from backend.app.retrieval.hybrid import HybridRetriever; from backend.app.retrieval.citations import build_citations, assess_grounding; r=HybridRetriever(); res=r.retrieve('UN R14 seat belt anchorage strength'); print(assess_grounding(res['documents'], reranker_used=False, min_semantic=0.45, min_rerank_prob=0.5)); print(build_citations(res['documents'])[0]['label'])"
+```
+
+Expected: a grounded query returns `should_abstain: False` with a citation like
+`UN R14 (Revision 7 (09 series of amendments)), §6.4.2`; an out-of-scope query
+(e.g. *"best pizza topping"*) returns `should_abstain: True`.
 
 ## Quick start
 

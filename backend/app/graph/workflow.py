@@ -11,8 +11,20 @@ from langgraph.graph import END, StateGraph
 from loguru import logger
 
 from backend.app.core.observability import trace_run, trace_span
+from backend.app.core.settings import (
+    ABSTAIN_MESSAGE,
+    ENABLE_GROUNDING_GATE,
+    GROUNDING_MIN_RERANK_PROB,
+    GROUNDING_MIN_SEMANTIC,
+    REQUIRE_CITATIONS,
+)
 from backend.app.guardrails.validator import SafetyGuardrails
 from backend.app.llm.groq_client import GroqLLM
+from backend.app.retrieval.citations import (
+    assess_grounding,
+    build_citations,
+    derive_answer_flags,
+)
 from backend.app.retrieval.hybrid import HybridRetriever
 from backend.app.retrieval.reranker import CrossEncoderReranker
 
@@ -20,6 +32,9 @@ from backend.app.retrieval.reranker import CrossEncoderReranker
 class RAGState(TypedDict, total=False):
     query: str
     documents: list[dict]
+    citations: list[dict]
+    flags: list[dict]
+    grounding: dict
     context: str
     prompt: str
     answer: str
@@ -30,35 +45,75 @@ class RAGState(TypedDict, total=False):
     error: str
 
 
-def _compress_context(documents: list[dict]) -> str:
-    lines = []
-    for d in documents:
-        reg = d.get("regulation", "REG")
-        title = d.get("title", "") or d.get("section_title", "")
-        heading = d.get("heading_path", "")
+def _build_grounded_context(documents: list[dict], citations: list[dict]) -> str:
+    """
+    Build context where every passage is prefixed with a citation marker [S#]
+    and its provenance, grouped so the LLM never blurs legal regulations with
+    rating protocols.
+    """
+    legal: list[str] = []
+    rating: list[str] = []
+    reference: list[str] = []
+
+    for d, c in zip(documents, citations):
         text = (d.get("text", "") or "")[:700]
-        header = f"{heading}\n{title}".strip() if heading else title
-        block = f"\n=== {reg} ===\n{header}\n\n{text}"
-        # Parent-child: include parent section context when available.
         parent = (d.get("parent_context", "") or "").strip()
+        block = (
+            f"[{c['marker']}] {c['label']}\n"
+            f"(type: {c['doc_type_label']})\n"
+            f"{text}"
+        )
         if parent and parent[:60] not in text:
-            block += f"\n\n[section context] {parent[:400]}"
-        lines.append(block)
-    return "\n".join(lines)
+            block += f"\n[section context] {parent[:400]}"
+
+        if c["doc_type"] == "legal_regulation":
+            legal.append(block)
+        elif c["doc_type"] == "rating_protocol":
+            rating.append(block)
+        else:
+            reference.append(block)
+
+    parts: list[str] = []
+    if legal:
+        parts.append("=== LEGAL REGULATIONS (binding) ===\n" + "\n\n".join(legal))
+    if rating:
+        parts.append(
+            "=== RATING PROTOCOLS (consumer assessment, NOT legally binding) ===\n"
+            + "\n\n".join(rating)
+        )
+    if reference:
+        parts.append(
+            "=== ENGINEERING REFERENCES (non-binding) ===\n" + "\n\n".join(reference)
+        )
+    return "\n\n".join(parts)
 
 
 def _build_prompt(query: str, context: str) -> str:
+    citation_rule = (
+        "After EVERY factual statement, cite the exact source marker(s) in "
+        "square brackets, e.g. [S1] or [S2][S3]. A claim without a citation is "
+        "not allowed."
+        if REQUIRE_CITATIONS
+        else "Cite source markers like [S1] where possible."
+    )
     return f"""
 You are PSA AI, an expert passive safety and homologation engineering assistant.
+You provide DECISION SUPPORT only; the responsible engineer remains accountable.
 
 USER QUESTION
 {query}
 
-RETRIEVED REGULATION CONTEXT
+RETRIEVED CONTEXT (each passage has a marker [S#] and a type)
 {context}
 
-Answer using ONLY the context above. Use clear markdown sections.
-If information is missing, say: Information not found in regulations.
+RULES
+- Answer using ONLY the context above. Do not use outside knowledge.
+- {citation_rule}
+- Never present a rating protocol (e.g. Euro NCAP) as a legal requirement, and
+  never present a legal regulation as a consumer rating. Keep them distinct.
+- If the context does not contain the answer, reply exactly:
+  "I don't know — not found in the provided regulation context."
+- Use clear markdown sections. Be precise with numbers, units, and clause numbers.
 """
 
 
@@ -120,17 +175,60 @@ class RAGWorkflow:
             result = self.reranker.rerank(state["query"], state.get("documents", []))
             span["outputs"] = {"top_k": len(result["documents"])}
             timing = {**state.get("timing", {}), "rerank_ms": result["latency_ms"]}
-            return {**state, "documents": result["documents"], "timing": timing}
+            meta = {
+                **(state.get("metadata") or {}),
+                "reranker_used": result.get("reranker_used", False),
+            }
+            return {
+                **state,
+                "documents": result["documents"],
+                "timing": timing,
+                "metadata": meta,
+            }
 
     def _node_build_prompt(self, state: RAGState) -> RAGState:
         if state.get("metadata", {}).get("input_blocked"):
             return state
         docs = state.get("documents", [])
-        context = _compress_context(docs) if docs else ""
-        prompt = _build_prompt(state["query"], context) if context else ""
+        meta = state.get("metadata") or {}
+
+        # Build structured citations for every retrieved passage.
+        citations = build_citations(docs) if docs else []
+        flags = derive_answer_flags(citations) if citations else []
+
+        # Grounding gate: abstain if retrieval confidence is too low.
+        grounding = assess_grounding(
+            docs,
+            reranker_used=bool(meta.get("reranker_used")),
+            min_semantic=GROUNDING_MIN_SEMANTIC,
+            min_rerank_prob=GROUNDING_MIN_RERANK_PROB,
+        )
+        abstain = ENABLE_GROUNDING_GATE and grounding.get("should_abstain", False)
+        if abstain:
+            logger.warning(
+                f"Grounding gate abstaining: reason={grounding.get('reason')} "
+                f"confidence={grounding.get('confidence')}"
+            )
+            # No answer will be generated, so revision/type flags do not apply.
+            flags = []
+
+        context = _build_grounded_context(docs, citations) if docs else ""
+        prompt = (
+            _build_prompt(state["query"], context)
+            if context and not abstain
+            else ""
+        )
         if not context:
             logger.warning("No documents after retrieval/rerank")
-        return {**state, "context": context, "prompt": prompt}
+        return {
+            **state,
+            "context": context,
+            "prompt": prompt,
+            "citations": citations,
+            "flags": flags,
+            "grounding": grounding,
+            "metadata": {**meta, "abstain": abstain},
+        }
 
     def _node_generate(self, state: RAGState) -> RAGState:
         meta = state.get("metadata") or {}
@@ -143,11 +241,10 @@ class RAGWorkflow:
                     f"({reason}). Please rephrase your question."
                 ),
             }
+        if meta.get("abstain"):
+            return {**state, "answer": ABSTAIN_MESSAGE}
         if not state.get("context"):
-            return {
-                **state,
-                "answer": "No relevant passive safety regulation information found.",
-            }
+            return {**state, "answer": ABSTAIN_MESSAGE}
         logger.info("Calling Groq LLM...")
         with trace_span("generate", {"prompt_len": len(state.get("prompt", ""))}) as span:
             try:
@@ -207,10 +304,22 @@ class RAGWorkflow:
             total_ms = round((time.perf_counter() - t0) * 1000, 2)
             timing = {**final.get("timing", {}), "total_ms": total_ms}
             logger.info(f"Chat workflow done in {total_ms}ms")
+
+            answer = final.get("answer", "")
+            flags = final.get("flags", [])
+            grounding = final.get("grounding", {})
+            # Surface answer-level flags inline for plain-text / export consumers.
+            if flags and not final.get("metadata", {}).get("abstain"):
+                notes = "\n".join(f"> ⚠ {f['message']}" for f in flags)
+                answer = f"{answer}\n\n{notes}"
+
             return {
                 "query": query,
-                "answer": final.get("answer", ""),
+                "answer": answer,
                 "documents": final.get("documents", []),
+                "citations": final.get("citations", []),
+                "flags": flags,
+                "grounding": grounding,
                 "context": final.get("context", ""),
                 "prompt": final.get("prompt", ""),
                 "guardrails": {

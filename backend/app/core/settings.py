@@ -46,6 +46,24 @@ ENABLE_METADATA_FILTER = os.getenv("ENABLE_METADATA_FILTER", "true").lower() == 
 METADATA_BOOST = float(os.getenv("METADATA_BOOST", "0.5"))
 ENABLE_PARENT_CHILD = os.getenv("ENABLE_PARENT_CHILD", "true").lower() == "true"
 
+# Grounding & anti-hallucination (Item 1)
+#   If retrieval confidence is below threshold the bot abstains
+#   ("not found in the corpus") instead of generating an answer.
+ENABLE_GROUNDING_GATE = os.getenv("ENABLE_GROUNDING_GATE", "true").lower() == "true"
+#   Min top semantic cosine similarity (0..1) to consider retrieval confident.
+GROUNDING_MIN_SEMANTIC = float(os.getenv("GROUNDING_MIN_SEMANTIC", "0.45"))
+#   Min cross-encoder rerank probability (sigmoid of logit) when reranker is on.
+GROUNDING_MIN_RERANK_PROB = float(os.getenv("GROUNDING_MIN_RERANK_PROB", "0.5"))
+#   Require inline [S#] citations in answers.
+REQUIRE_CITATIONS = os.getenv("REQUIRE_CITATIONS", "true").lower() == "true"
+
+ABSTAIN_MESSAGE = os.getenv(
+    "ABSTAIN_MESSAGE",
+    "I don't know — I could not find this in the indexed regulation corpus. "
+    "Try rephrasing, naming a specific regulation (e.g. UN R14, UN R16), or "
+    "upload the relevant document to this chat.",
+)
+
 # Observability
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY", "")
 LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "autosafety-rag")

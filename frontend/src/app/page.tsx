@@ -11,10 +11,41 @@ type Doc = {
   rerank_score?: number;
 };
 
+type Citation = {
+  marker: string;
+  label: string;
+  document?: string;
+  full_title?: string;
+  doc_type?: string;
+  doc_type_label?: string;
+  is_legal?: boolean;
+  authority?: string;
+  revision?: string;
+  revision_verified?: boolean;
+  page?: number | null;
+  section?: string | null;
+  snippet?: string;
+};
+
+type Flag = {
+  type: string;
+  regulation?: string;
+  message: string;
+};
+
+type Grounding = {
+  should_abstain?: boolean;
+  confidence?: number;
+  reason?: string;
+};
+
 type Message = {
   role: "user" | "assistant";
   content: string;
   docs?: Doc[];
+  citations?: Citation[];
+  flags?: Flag[];
+  grounding?: Grounding;
   timing?: Record<string, number>;
   warnings?: string[];
 };
@@ -40,6 +71,18 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function exportAnswer(msg: Message) {
+    const lines: string[] = [msg.content, "", "Sources:"];
+    (msg.citations || []).forEach((c) => {
+      lines.push(
+        `${c.marker} ${c.label} [${c.is_legal ? "Legal regulation" : c.doc_type_label || "Reference"}]`
+      );
+      if (c.snippet) lines.push(`    "${c.snippet}"`);
+    });
+    (msg.flags || []).forEach((f) => lines.push(`Note: ${f.message}`));
+    navigator.clipboard?.writeText(lines.join("\n"));
+  }
+
   async function send() {
     const q = input.trim();
     if (!q || loading) return;
@@ -61,6 +104,9 @@ export default function Home() {
           role: "assistant",
           content: data.answer,
           docs: data.documents,
+          citations: data.citations,
+          flags: data.flags,
+          grounding: data.grounding,
           timing: data.timing,
           warnings: data.warnings,
         },
@@ -108,6 +154,25 @@ export default function Home() {
             ) : (
               <p>{msg.content}</p>
             )}
+            {msg.role === "assistant" &&
+              msg.grounding?.should_abstain && (
+                <div className="abstain">
+                  Not answered from the corpus — retrieval confidence below
+                  threshold
+                  {msg.grounding.confidence != null &&
+                    ` (${(msg.grounding.confidence * 100).toFixed(0)}%)`}
+                  .
+                </div>
+              )}
+            {msg.flags && msg.flags.length > 0 && (
+              <div className="flags">
+                {msg.flags.map((f, j) => (
+                  <div key={j} className={`flag flag-${f.type}`}>
+                    ⚑ {f.message}
+                  </div>
+                ))}
+              </div>
+            )}
             {msg.warnings && msg.warnings.length > 0 && (
               <div className="warnings">
                 {msg.warnings.map((w, j) => (
@@ -115,20 +180,60 @@ export default function Home() {
                 ))}
               </div>
             )}
-            {msg.docs && msg.docs.length > 0 && (
-              <details className="sources">
-                <summary>Sources ({msg.docs.length})</summary>
-                <ul>
-                  {msg.docs.map((d, j) => (
-                    <li key={j}>
-                      [{d.regulation}] {d.title} — {d.source}
-                      {d.rerank_score != null &&
-                        ` (score: ${d.rerank_score.toFixed(3)})`}
+            {msg.citations && msg.citations.length > 0 && (
+              <details className="sources" open>
+                <summary>Sources ({msg.citations.length})</summary>
+                <ul className="citation-list">
+                  {msg.citations.map((c, j) => (
+                    <li key={j} className="citation">
+                      <span className="cmarker">[{c.marker}]</span>
+                      <span
+                        className={`badge ${
+                          c.is_legal ? "badge-legal" : "badge-rating"
+                        }`}
+                        title={c.doc_type_label}
+                      >
+                        {c.is_legal ? "Legal" : c.doc_type === "rating_protocol" ? "Rating" : "Ref"}
+                      </span>
+                      <span className="clabel">{c.label}</span>
+                      {!c.revision_verified && (
+                        <span className="badge badge-unverified" title="Revision not verified">
+                          rev?
+                        </span>
+                      )}
+                      {c.snippet && <p className="csnippet">{c.snippet}</p>}
                     </li>
                   ))}
                 </ul>
               </details>
             )}
+            {(!msg.citations || msg.citations.length === 0) &&
+              msg.docs &&
+              msg.docs.length > 0 && (
+                <details className="sources">
+                  <summary>Sources ({msg.docs.length})</summary>
+                  <ul>
+                    {msg.docs.map((d, j) => (
+                      <li key={j}>
+                        [{d.regulation}] {d.title} — {d.source}
+                        {d.rerank_score != null &&
+                          ` (score: ${d.rerank_score.toFixed(3)})`}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            {msg.role === "assistant" &&
+              msg.citations &&
+              msg.citations.length > 0 && (
+                <button
+                  className="export"
+                  onClick={() => exportAnswer(msg)}
+                  type="button"
+                >
+                  Copy answer + sources
+                </button>
+              )}
             {msg.timing && (
               <small className="timing">
                 {msg.timing.total_ms != null && `${msg.timing.total_ms} ms total`}
@@ -219,6 +324,90 @@ export default function Home() {
           gap: 0.25rem;
           color: var(--warn);
           font-size: 0.85rem;
+        }
+        .abstain {
+          margin-top: 0.75rem;
+          padding: 0.5rem 0.75rem;
+          border-radius: 8px;
+          background: rgba(245, 158, 11, 0.12);
+          border: 1px solid rgba(245, 158, 11, 0.4);
+          color: var(--warn);
+          font-size: 0.85rem;
+        }
+        .flags {
+          margin-top: 0.75rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+        }
+        .flag {
+          padding: 0.5rem 0.75rem;
+          border-radius: 8px;
+          font-size: 0.82rem;
+          background: rgba(59, 130, 246, 0.1);
+          border: 1px solid rgba(59, 130, 246, 0.35);
+        }
+        .flag-mixed_doc_types {
+          background: rgba(245, 158, 11, 0.12);
+          border-color: rgba(245, 158, 11, 0.45);
+        }
+        .citation-list {
+          list-style: none;
+          padding: 0;
+          margin: 0.5rem 0 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+        }
+        .citation {
+          padding: 0.5rem 0.6rem;
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          background: var(--surface);
+        }
+        .cmarker {
+          font-weight: 700;
+          margin-right: 0.4rem;
+        }
+        .badge {
+          display: inline-block;
+          padding: 0.05rem 0.4rem;
+          border-radius: 6px;
+          font-size: 0.7rem;
+          font-weight: 700;
+          margin-right: 0.4rem;
+          vertical-align: middle;
+        }
+        .badge-legal {
+          background: #16a34a;
+          color: #fff;
+        }
+        .badge-rating {
+          background: #f97316;
+          color: #fff;
+        }
+        .badge-unverified {
+          background: #6b7280;
+          color: #fff;
+        }
+        .clabel {
+          font-weight: 600;
+        }
+        .csnippet {
+          margin: 0.4rem 0 0;
+          color: var(--muted);
+          font-size: 0.8rem;
+          line-height: 1.4;
+        }
+        .export {
+          margin-top: 0.6rem;
+          padding: 0.35rem 0.7rem;
+          font-size: 0.78rem;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          background: transparent;
+          color: var(--text);
+          cursor: pointer;
         }
         .sources {
           margin-top: 0.75rem;

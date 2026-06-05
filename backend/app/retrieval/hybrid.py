@@ -184,6 +184,9 @@ class HybridRetriever:
                     {
                         "id": cid,
                         "score": sim,
+                        # Preserve raw cosine so it survives RRF/multi-query fusion
+                        # and can be used for the grounding confidence gate.
+                        "semantic_score": sim,
                         "text": c.get("text", ""),
                         "title": c.get("section_title", ""),
                         "heading_path": c.get("heading_path", ""),
@@ -252,6 +255,7 @@ class HybridRetriever:
             {
                 "id": self._bm25_chunks[i].get("chunk_id", ""),
                 "score": float(s),
+                "bm25_score": float(s),
                 "text": self._bm25_chunks[i].get("text", ""),
                 "title": self._bm25_chunks[i].get("section_title", ""),
                 "heading_path": self._bm25_chunks[i].get("heading_path", ""),
@@ -410,6 +414,12 @@ class HybridRetriever:
         # 5. Parent-Child Retrieval (dedupe + attach parent context)
         fused = self._expand_parent_child(fused)
 
+        # Best raw semantic similarity in the candidate set (grounding signal).
+        sem_scores = [
+            d["semantic_score"] for d in fused if d.get("semantic_score") is not None
+        ]
+        top_semantic_score = max(sem_scores) if sem_scores else None
+
         latency_ms = round((time.perf_counter() - t0) * 1000, 2)
         logger.info(
             f"Retrieve done: queries={len(queries)} semantic={semantic_total} "
@@ -422,5 +432,6 @@ class HybridRetriever:
             "semantic_count": semantic_total,
             "bm25_count": bm25_total,
             "intent_flags": intent_flags,
+            "top_semantic_score": top_semantic_score,
             "latency_ms": latency_ms,
         }

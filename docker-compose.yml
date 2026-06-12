@@ -18,6 +18,10 @@ services:
       - ENABLE_GATEWAY=${ENABLE_GATEWAY:-false}
       - GATEWAY_SHADOW_MODE=${GATEWAY_SHADOW_MODE:-false}
       - GATEWAY_CANARY_PCT=${GATEWAY_CANARY_PCT:-100}
+      # Local Docker should fail over quickly when a provider is unreachable.
+      # Increase these in production if you want stronger retry behavior.
+      - GATEWAY_PROVIDER_TIMEOUT_S=${GATEWAY_PROVIDER_TIMEOUT_S:-10}
+      - GATEWAY_MAX_RETRIES=${GATEWAY_MAX_RETRIES:-0}
       - ENABLE_SEMANTIC_CACHE=${ENABLE_SEMANTIC_CACHE:-true}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - CLAUDE_HAIKU_MODEL=${CLAUDE_HAIKU_MODEL:-claude-haiku-4-5}

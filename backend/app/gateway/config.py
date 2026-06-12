@@ -149,8 +149,8 @@ CODE_KEYWORDS: tuple[str, ...] = tuple(
 
 
 # ───────────────────────── reliability ─────────────────────────
-PROVIDER_TIMEOUT_S = _f("GATEWAY_PROVIDER_TIMEOUT_S", 30.0)
-MAX_RETRIES = _i("GATEWAY_MAX_RETRIES", 2)          # retries per provider
+PROVIDER_TIMEOUT_S = _f("GATEWAY_PROVIDER_TIMEOUT_S", 20.0)
+MAX_RETRIES = _i("GATEWAY_MAX_RETRIES", 1)          # retries per provider
 BACKOFF_BASE_S = _f("GATEWAY_BACKOFF_BASE_S", 0.5)  # exponential base
 BACKOFF_MAX_S = _f("GATEWAY_BACKOFF_MAX_S", 8.0)
 
@@ -159,7 +159,11 @@ FALLBACK_CHAINS: dict[str, list[str]] = {
     # provider -> ordered providers to try (first is the primary)
     "groq": ["groq", "anthropic_haiku", "anthropic_sonnet"],
     "anthropic_haiku": ["anthropic_haiku", "anthropic_sonnet", "groq"],
-    "anthropic_sonnet": ["anthropic_sonnet", "anthropic_haiku"],
+    # Keep Groq as the final fail-open provider even for Tier 3. Anthropic can be
+    # blocked by local Docker networking, corporate proxy, quota, or regional API
+    # issues; the chat path should still return an answer from the existing Groq
+    # integration rather than surfacing an LLM error to the user.
+    "anthropic_sonnet": ["anthropic_sonnet", "anthropic_haiku", "groq"],
 }
 
 

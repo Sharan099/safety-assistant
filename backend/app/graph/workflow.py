@@ -89,31 +89,29 @@ def _build_grounded_context(documents: list[dict], citations: list[dict]) -> str
 
 
 def _build_prompt(query: str, context: str) -> str:
+    # The system prompt (config.SYSTEM_PROMPT) owns the core rules, adaptive
+    # output format, and edge-case wording. This per-request turn only presents
+    # the question + retrieved context and reinforces the few rules that benefit
+    # from sitting next to the data — without re-stating contradictory formatting.
     citation_rule = (
-        "After EVERY factual statement, cite the exact source marker(s) in "
-        "square brackets, e.g. [S1] or [S2][S3]. A claim without a citation is "
-        "not allowed."
+        "Cite [S#] after every factual claim; a claim without a citation is not "
+        "allowed."
         if REQUIRE_CITATIONS
-        else "Cite source markers like [S1] where possible."
+        else "Cite [S#] markers where possible."
     )
-    return f"""
-You are PSA AI, an expert passive safety and homologation engineering assistant.
-You provide DECISION SUPPORT only; the responsible engineer remains accountable.
-
-USER QUESTION
+    return f"""USER QUESTION
 {query}
 
 RETRIEVED CONTEXT (each passage has a marker [S#] and a type)
 {context}
 
-RULES
-- Answer using ONLY the context above. Do not use outside knowledge.
+REMINDERS
+- Answer using ONLY the context above. No outside knowledge.
 - {citation_rule}
-- Never present a rating protocol (e.g. Euro NCAP) as a legal requirement, and
-  never present a legal regulation as a consumer rating. Keep them distinct.
+- Keep legal regulations (UN/ECE, FMVSS) distinct from rating protocols (Euro NCAP).
+- Match the answer's length and format to the question; default to brevity.
 - If the context does not contain the answer, reply exactly:
-  "I don't know — not found in the provided regulation context."
-- Use clear markdown sections. Be precise with numbers, units, and clause numbers.
+  "Not found in the regulations."
 """
 
 

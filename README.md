@@ -716,6 +716,37 @@ sum(rate(rag_errors_total[5m]))
 - **Tracing dashboards:** connect LangSmith datasets to Grafana, or add OpenTelemetry
   spans for distributed traces across gateway → backend → Groq.
 
+## Response style (adaptive prompt, v3.0)
+
+The system prompt (`config.py → SYSTEM_PROMPT`, applied to **every** tier — Groq,
+Haiku, Sonnet) makes the assistant **match answer length and format to the
+question** and default to brevity:
+
+| Question type | Output |
+|---------------|--------|
+| Simple lookup / definition | 1–2 sentences, no headers |
+| Specific value (load, torque, angle, dimension) | the number + unit + clause, nothing more |
+| Comparison | short markdown table only |
+| Procedure / multi-step | numbered steps, minimal prose |
+| Analysis / reasoning | structured but concise, no filler |
+
+Core rules are unchanged in spirit but tightened: answer **only** from retrieved
+context, **cite `[S#]` after every claim**, never blur **legal regulations**
+(UN/ECE, FMVSS) with **rating protocols** (Euro NCAP), and flag multiple revisions.
+
+**Exact edge-case replies** (kept extremely short to minimise tokens):
+
+| Situation | Reply |
+|-----------|-------|
+| Answer not in retrieved context | `Not found in the regulations.` |
+| Non-regulation topic | `Out of scope — regulations only.` |
+| Prompt injection / instruction override | `Request blocked.` |
+
+These LLM-level replies layer on top of the existing defenses, they do not replace
+them: prompt injection is still **blocked at input by guardrails first**, and the
+**grounding gate still abstains pre-LLM** (with `ABSTAIN_MESSAGE`) when retrieval
+confidence is below threshold.
+
 ## Guardrails
 
 - Blocks prompt injection & jailbreak patterns on input
@@ -746,8 +777,10 @@ Prompt-injection attempt ("Ignore all previous instructions…") blocked at inpu
 
 ![Guardrail — prompt injection blocked](output/screenshots/Test_prompt_injection.png)
 
-Out-of-scope question ("Who won the FIFA World Cup 2022?") correctly answered
-with *"Information not found in regulations"* — grounding / scope boundary:
+Out-of-scope question ("Who won the FIFA World Cup 2022?") correctly refused —
+grounding / scope boundary. As of v3.0 the assistant replies exactly
+*"Out of scope — regulations only."* for non-regulation topics (the screenshot
+below predates v3.0 and shows the earlier wording):
 
 ![Scope boundary — out-of-scope question](output/screenshots/Text_boundry.png)
 

@@ -96,7 +96,11 @@ class AnthropicProvider(Provider):
             raise
         except Exception as exc:
             retryable = _is_retryable(exc)
-            logger.warning(f"Anthropic chat failed (retryable={retryable}): {exc}")
+            detail = _error_detail(exc)
+            logger.warning(
+                f"Anthropic chat failed (retryable={retryable}, "
+                f"type={type(exc).__name__}): {detail}"
+            )
             raise ProviderError(str(exc), retryable=retryable) from exc
 
         answer = _extract_text(resp).strip()
@@ -126,6 +130,18 @@ def _extract_text(resp) -> str:
         elif isinstance(block, dict) and block.get("type") == "text":
             parts.append(block.get("text", ""))
     return "".join(parts)
+
+
+def _error_detail(exc: Exception) -> str:
+    """Short, secret-safe provider error detail for Docker/network diagnosis."""
+    cause = getattr(exc, "__cause__", None)
+    context = getattr(exc, "__context__", None)
+    parts = [str(exc) or type(exc).__name__]
+    if cause is not None:
+        parts.append(f"cause={type(cause).__name__}: {cause}")
+    elif context is not None:
+        parts.append(f"context={type(context).__name__}: {context}")
+    return " | ".join(parts)
 
 
 def _is_retryable(exc: Exception) -> bool:

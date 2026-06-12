@@ -43,6 +43,12 @@ chroma_db/
 # Low-DPI OCR page image cache (rebuilt by paddle_ocr_converter)
 output/page_cache/
 
+# SQLite app database (users / sessions / messages / feedback) — runtime data
+output/*.db
+output/*.db-wal
+output/*.db-shm
+*.sqlite3
+
 # =====================================================
 # NOTEBOOKS
 # =====================================================

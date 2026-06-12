@@ -1,13 +1,20 @@
-# PSA AI — Passive Safety RAG (v2.1)
+# PSA AI — Passive Safety RAG (v2.2)
 
 Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → BGE rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
 
+> **v2.2 — Feedback, users & readiness** (see [Feedback & testing phase](#feedback--testing-phase-v22)):
+> first-time users pick a buddy name (stored with a session), every answer has
+> 👍/👎 feedback (👎 opens a problem picker + comment box), all of it is stored in
+> a SQLite database for analysis, the UI shows a **testing-phase** banner, and the
+> chat input is **gated by a backend self-test** so the "Could not reach backend"
+> first-query error is gone. Adds cloud-deploy hardening (CORS, security headers,
+> rate limiting, parameterized SQL).
+>
 > **v2.1 — Grounding & citations** (see [Grounding & citations](#grounding--citations-v21)):
-> every answer now carries structured source citations (document, page/section,
+> every answer carries structured source citations (document, page/section,
 > revision), abstains with *"I don't know"* when retrieval confidence is below a
 > threshold, separates **legal regulations** from **rating protocols**, and flags
-> regulations that have multiple revisions. This is the foundation for the wider
-> roadmap (two-tier knowledge base, comparison tables, audit trail, SSO/RBAC).
+> regulations that have multiple revisions.
 
 ## Architecture
 
@@ -124,6 +131,68 @@ Expected: a grounded query returns `should_abstain: False` with a citation like
 `UN R14 (Revision 7 (09 series of amendments)), §6.4.2`; an out-of-scope query
 (e.g. *"best pizza topping"*) returns `should_abstain: True`.
 
+## Feedback & testing phase (v2.2)
+
+The app is positioned as **in a testing phase with a few users** and collects
+structured feedback to improve the system.
+
+**What it does**
+
+- **Buddy-name onboarding.** A first-time visitor picks a username (no email /
+  password). It is registered via `POST /users`, which returns a `user_id` and a
+  `session_id`; both are stored in `localStorage` so the session persists.
+- **Per-answer feedback.** Every assistant answer has 👍 / 👎. 👎 opens a panel
+  with **5 common RAG problem options** (hallucination, missing info, wrong
+  sources, not grounded / wrong revision, unclear formatting) plus a free-text
+  box. Submitted via `POST /feedback`.
+- **Background storage.** Users, sessions, Q/A messages, and feedback are written
+  to a **SQLite** database (`output/app.db`, gitignored) using parameterized
+  queries. A `rag_feedback_total{rating}` Prometheus counter is also incremented.
+- **Readiness gate.** On load the frontend polls `GET /ready`, which runs **one
+  end-to-end self-test query**. The chat box stays disabled (showing "warming
+  up…") until the self-test passes — this removes the *"Could not reach the
+  backend"* first-query error.
+- **Cloud hardening.** Configurable CORS (no wildcard + credentials), security
+  headers, an in-process rate limiter, request length limits, and validated
+  usernames. See limitations below.
+
+**Endpoints**
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/users` | Register / fetch a user, start a session |
+| `POST` | `/api/v1/feedback` | Store 👍/👎 + reasons + comment |
+| `GET`  | `/api/v1/ready` | Self-test gate (cached after first pass) |
+| `POST` | `/api/v1/chat` | Now accepts `user_id`/`session_id`, returns `message_id` |
+
+**Config (`.env`)**
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `APP_DB_PATH` | `output/app.db` | SQLite database location |
+| `RUN_SELFTEST_ON_STARTUP` | `true` | Run the self-test at boot |
+| `READY_SKIP_LLM` | `false` | Self-test retrieval only (skip Groq call) |
+| `CORS_ORIGINS` | `localhost:3000,8080` | Allowed browser origins |
+| `RATE_LIMIT_ENABLED` | `true` | In-process rate limiter |
+| `ENABLE_HSTS` | `false` | Send HSTS (enable only over HTTPS) |
+
+**Inspect collected feedback**
+
+```powershell
+conda run -n rag python -c "from backend.app.core import store; print(store.feedback_stats())"
+# or open output/app.db with any SQLite browser: tables users / sessions / messages / feedback
+```
+
+**Security limitations (be honest before going to production)**
+
+- The rate limiter is **in-process** — with multiple workers/instances each has
+  its own counters. Enforce real limits at the gateway/CDN or use Redis.
+- **No authentication yet.** Buddy names are not identity. Add **SSO + RBAC**
+  before exposing sensitive/unpublished data.
+- SQLite suits the testing phase; migrate to a managed Postgres for scale.
+- Always deploy behind **HTTPS/TLS**, keep `GROQ_API_KEY` in a secrets manager
+  (never in the image), and set `CORS_ORIGINS` to your real domain.
+
 ## Quick start
 
 ### 1. Environment
@@ -143,7 +212,7 @@ docker compose up --build
 | Service | URL |
 |---------|-----|
 | App (gateway) | http://localhost:8080 |
-| API docs | http://localhost:8080/docs |
+| API docs | http://localhost:8080/docs | 
 | Grafana | http://localhost:3001 (admin/admin) |
 | Prometheus | http://localhost:9090 |
 

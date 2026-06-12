@@ -57,6 +57,13 @@ ACTIVE_REQUESTS = Gauge(
     "In-flight RAG requests",
 )
 
+# User feedback (thumbs up/down) collected during the testing phase
+FEEDBACK_TOTAL = Counter(
+    "rag_feedback_total",
+    "User feedback submissions",
+    ["rating"],
+)
+
 
 def estimate_tokens(text: str) -> int:
     return max(1, int(len(text.split()) * 1.33))

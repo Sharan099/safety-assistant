@@ -4,6 +4,7 @@ Architecture: API Gateway → FastAPI → LangGraph → Retriever → Reranker �
 """
 
 import asyncio
+import os
 import sys
 from pathlib import Path
 
@@ -21,21 +22,27 @@ from loguru import logger
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from backend.app.api.routes import router
+from backend.app.core.security import SecurityHeadersMiddleware
 from backend.app.core.settings import API_PREFIX, CORS_ORIGINS
 
 app = FastAPI(
     title="AutoSafety RAG API",
     description="Passive safety regulation RAG with hybrid search and guardrails",
-    version="2.0.0",
+    version="2.2.0",
 )
 
+# CORS: never combine wildcard origins with credentials (browser blocks it and
+# it is a security risk). Use explicit origins when credentials are needed.
+_origins = [o.strip() for o in CORS_ORIGINS if o.strip()]
+_allow_credentials = "*" not in _origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in CORS_ORIGINS if o.strip()],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_origins,
+    allow_credentials=_allow_credentials,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(router, prefix=API_PREFIX)
 
@@ -46,9 +53,13 @@ Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 async def startup() -> None:
     logger.info("Starting AutoSafety RAG backend...")
     try:
-        from backend.app.core.services import warmup_pipeline
+        from backend.app.core.services import run_self_test, warmup_pipeline
 
         await asyncio.to_thread(warmup_pipeline)
+        # Run the end-to-end self-test in the background so startup is not
+        # blocked; the frontend polls /ready until it passes.
+        if os.getenv("RUN_SELFTEST_ON_STARTUP", "true").lower() == "true":
+            asyncio.create_task(asyncio.to_thread(run_self_test))
     except Exception as exc:
         logger.error(f"Pipeline warmup failed: {exc}")
 

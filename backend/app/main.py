@@ -23,12 +23,17 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from backend.app.api.routes import router
 from backend.app.core.security import SecurityHeadersMiddleware
-from backend.app.core.settings import API_PREFIX, CORS_ORIGINS
+from backend.app.core.settings import (
+    API_PREFIX,
+    CORS_ORIGINS,
+    EXPOSE_GATEWAY_API,
+)
 
 app = FastAPI(
     title="AutoSafety RAG API",
-    description="Passive safety regulation RAG with hybrid search and guardrails",
-    version="2.2.0",
+    description="Passive safety regulation RAG with hybrid search, guardrails, "
+    "and an Intelligent Multi-LLM Gateway",
+    version="3.0.0",
 )
 
 # CORS: never combine wildcard origins with credentials (browser blocks it and
@@ -45,6 +50,14 @@ app.add_middleware(
 app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(router, prefix=API_PREFIX)
+
+# OpenAI-compatible gateway endpoints (POST /api/v1/gateway/v1/chat/completions).
+# Mounting the router is harmless when the gateway is disabled: the endpoints
+# return 503 until ENABLE_GATEWAY=true.
+if EXPOSE_GATEWAY_API:
+    from backend.app.api.gateway_routes import router as gateway_router
+
+    app.include_router(gateway_router, prefix=API_PREFIX)
 
 Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 

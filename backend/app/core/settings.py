@@ -69,6 +69,14 @@ LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY", "")
 LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "autosafety-rag")
 LANGSMITH_TRACING = os.getenv("LANGSMITH_TRACING", "false").lower() == "true"
 
+# Intelligent Multi-LLM Gateway (v3.0).
+#   When disabled (default) the LangGraph workflow uses GroqLLM exactly as in
+#   v2.2 — full backward compatibility. The detailed gateway knobs (providers,
+#   pricing, routing weights, cache, reliability) live in
+#   backend/app/gateway/config.py so the gateway stays a separable component.
+ENABLE_GATEWAY = os.getenv("ENABLE_GATEWAY", "false").lower() == "true"
+EXPOSE_GATEWAY_API = os.getenv("EXPOSE_GATEWAY_API", "true").lower() == "true"
+
 # API
 API_PREFIX = "/api/v1"
 CORS_ORIGINS = os.getenv(

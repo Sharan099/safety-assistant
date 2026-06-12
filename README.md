@@ -1,6 +1,15 @@
-# PSA AI — Passive Safety RAG (v2.2)
+# PSA AI — Passive Safety RAG (v3.0)
 
-Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → BGE rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
+Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → BGE rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, an **Intelligent Multi-LLM Gateway** (Groq → Claude Haiku → Claude Sonnet), and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
+
+> **v3.0 — Intelligent Multi-LLM Gateway** (see [PSA AI v3.0 — Intelligent Multi-LLM Gateway](#psa-ai-v30--intelligent-multi-llm-gateway)):
+> every answer is routed to the cheapest capable model based on a 0–10 complexity
+> score that **reuses the existing grounding confidence**. Tier 1 (Groq) handles
+> simple lookups, Tier 2 (Claude Haiku) moderate reasoning, Tier 3 (Claude Sonnet)
+> advanced reasoning / code. Adds an OpenAI-compatible endpoint, a Redis **semantic
+> cache** (reuses BGE embeddings), automatic **failover** (Groq → Haiku → Sonnet),
+> and a Grafana **gateway dashboard** with live model usage, token, and cost-saved
+> panels. **OFF by default** (`ENABLE_GATEWAY=false`) — fully backward compatible.
 
 > **v2.2 — Feedback, users & readiness** (see [Feedback & testing phase](#feedback--testing-phase-v22)):
 > first-time users pick a buddy name (stored with a session), every answer has
@@ -192,6 +201,183 @@ conda run -n rag python -c "from backend.app.core import store; print(store.feed
 - SQLite suits the testing phase; migrate to a managed Postgres for scale.
 - Always deploy behind **HTTPS/TLS**, keep `GROQ_API_KEY` in a secrets manager
   (never in the image), and set `CORS_ORIGINS` to your real domain.
+
+## PSA AI v3.0 — Intelligent Multi-LLM Gateway
+
+The gateway sits behind the LangGraph `generate` node and routes every request to
+the cheapest capable model. Routing reuses signals the pipeline already computes
+(grounding confidence, retrieval confidence) plus query complexity, code/reasoning
+detection, conversation depth and feedback history.
+
+| Tier | Provider / Model | For |
+|------|------------------|-----|
+| **1** | Groq (`llama-3.x`) | definitions, regulation lookup, citation retrieval |
+| **2** | Claude **Haiku** | comparisons, summaries, extraction |
+| **3** | Claude **Sonnet** | debugging, engineering analysis, multi-step planning, code |
+
+**Key properties**
+
+- **OFF by default.** `ENABLE_GATEWAY=false` → the workflow uses Groq exactly as
+  in v2.2. Turning it on never removes a capability.
+- **Fail-open.** If the Anthropic key is missing or Redis is down, the gateway
+  degrades to Groq via the failover chain — the system never gets worse.
+- **Semantic cache** reuses the existing **BGE** embeddings (no second model);
+  repeated/similar prompts return instantly and accrue `cost_saved`.
+- **Observability.** Seven `gateway_*` Prometheus metrics on the existing
+  `/metrics` endpoint, plus a provisioned **"PSA AI — Multi-LLM Gateway"** Grafana
+  dashboard.
+
+### Enable the gateway (`.env`)
+
+```env
+ENABLE_GATEWAY=true
+GATEWAY_SHADOW_MODE=false        # true = decide + log routing but still answer with Groq
+GATEWAY_CANARY_PCT=100           # % of traffic allowed to route (else Tier 1)
+
+ANTHROPIC_API_KEY=sk-ant-...     # without this, Tier 2/3 fall back to Groq
+CLAUDE_HAIKU_MODEL=claude-haiku-4-5
+CLAUDE_SONNET_MODEL=claude-sonnet-4-5
+
+ENABLE_SEMANTIC_CACHE=true
+REDIS_URL=redis://localhost:6379/0   # docker compose uses redis://redis:6379/0 automatically
+```
+
+> Minimal smoke test: with only `ENABLE_GATEWAY=true` + `GROQ_API_KEY` (no
+> Anthropic key, no Redis), the gateway still classifies and routes — every tier
+> resolves to Groq via failover and the cache disables itself.
+
+### Test it from the frontend and watch model selection + tokens live
+
+This is the recommended end-to-end walkthrough.
+
+**1. Start the full stack** (backend + frontend + Redis + Prometheus + Grafana):
+
+```powershell
+docker compose up --build
+```
+
+Or run locally without Docker:
+
+```powershell
+# Terminal A — backend (gateway reads ENABLE_GATEWAY from .env)
+conda run -n rag uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+# Terminal B — frontend
+cd frontend; npm install; npm run dev
+```
+
+| Surface | URL |
+|---------|-----|
+| Chat UI | http://localhost:8080 (Docker) or http://localhost:3000 (local) |
+| Gateway health | http://localhost:8000/api/v1/gateway/health |
+| Raw metrics | http://localhost:8000/metrics |
+| Grafana | http://localhost:3001 (admin/admin) → **PSA AI — Multi-LLM Gateway** |
+| Prometheus | http://localhost:9090 |
+
+**2. Confirm the gateway is live.** Open `…/api/v1/gateway/health` — it should show
+`"enabled": true` and a `providers_available` map (e.g. `groq: true`,
+`anthropic_haiku/sonnet: true` only if the Anthropic key is set).
+
+**3. Chat and observe routing per answer.** In the chat UI, send queries that
+exercise different tiers and watch which model is picked:
+
+| Ask this | Expected tier / model |
+|----------|-----------------------|
+| *"What is UN R14?"* | Tier 1 — Groq |
+| *"Compare UN R14 and UN R16 belt anchorage loads."* | Tier 2 — Claude Haiku |
+| *"Debug why this FE crash model diverges and give a multi-step plan."* | Tier 3 — Claude Sonnet |
+
+**In the chat UI**, each assistant answer now shows a **routing badge** directly
+under the response:
+
+```
+🧠 claude-haiku-4-5 · Tier 2 · balanced   ⚡ cached   🎟 312 in / 148 out   score 4.7   saved $0.00042
+```
+
+- the coloured pill names the **model** and **tier** (blue T1 / purple T2 / pink T3);
+  hover it to see the **route reasons**,
+- **🎟 tokens** shows the real prompt/completion token counts for that answer,
+- **⚡ cached** appears on a semantic-cache hit, **↪ failover** if a provider was
+  skipped, and **saved $…** shows cost avoided vs the most-capable tier.
+
+Every `/chat` response also carries the same data as an additive **`gateway`**
+block — `provider`, `tier`, `route_score`, `route_reasons`, `cache_hit`,
+`cost_usd`, `cost_saved_usd`, `prompt_tokens`, `completion_tokens` — so you can see
+exactly why a model was chosen. The `timing` block still reports per-stage latency
+including `llm_ms`.
+
+To inspect it directly while chatting (DevTools → Network → the `chat` request,
+or via curl):
+
+```powershell
+curl -X POST http://localhost:8000/api/v1/chat -H "Content-Type: application/json" `
+  -d '{\"query\":\"What is UN R14?\",\"user_id\":\"tester\",\"session_id\":\"s1\"}'
+```
+
+**4. Preview routing for free (no tokens spent).** This calls only the classifier:
+
+```powershell
+curl -X POST http://localhost:8000/api/v1/gateway/route-preview -H "Content-Type: application/json" `
+  -d '{\"prompt\":\"What is UN R14?\",\"grounding_confidence\":0.9}'
+# → {"score":..., "reasons":[...], "tier":1, "provider":"groq", "model":"..."}
+```
+
+**5. See the semantic cache work.** Send the **same query twice**. The second
+response returns `"cache_hit": true` with near-zero `llm_ms`, and
+`gateway_cache_hits_total` increments (needs Redis running).
+
+**6. Watch model usage and tokens in real time.**
+
+- **Grafana** (`http://localhost:3001` → *PSA AI — Multi-LLM Gateway*): live panels
+  for **model usage** (req/s by model), **tier distribution**, **cache hit ratio**,
+  **cost saved (USD)**, **p95 latency by model**, and **provider failovers**. Token
+  usage is on the **AutoSafety RAG — Operations** dashboard (`rag_tokens_prompt_total`
+  / `rag_tokens_completion_total`).
+- **Raw scrape** — filter the gateway and token counters as you chat:
+
+```powershell
+curl http://localhost:8000/metrics | findstr /R "gateway_ rag_tokens_ rag_estimated_cost"
+```
+
+  Useful PromQL in Prometheus / Grafana Explore:
+
+```promql
+# requests per second by model
+sum(rate(gateway_model_usage_total[1m])) by (model, tier)
+
+# completion tokens per second (throughput)
+rate(rag_tokens_completion_total[1m])
+
+# cache hit ratio
+sum(rate(gateway_cache_hits_total[5m]))
+  / clamp_min(sum(rate(gateway_cache_hits_total[5m])) + sum(rate(gateway_cache_misses_total[5m])), 1e-9)
+
+# USD saved per hour by routing down + cache hits
+rate(gateway_cost_saved_usd_total[1h]) * 3600
+```
+
+**7. (Optional) Use the OpenAI-compatible endpoint.** External clients can call the
+gateway directly and still get automatic routing/caching/failover:
+
+```powershell
+curl -X POST http://localhost:8000/api/v1/gateway/v1/chat/completions -H "Content-Type: application/json" `
+  -d '{\"model\":\"auto\",\"messages\":[{\"role\":\"user\",\"content\":\"Summarise UN R16 belt requirements\"}]}'
+```
+
+The response is standard OpenAI `chat.completion` JSON plus a `psa_gateway`
+metadata block (tier, score, cache_hit, cost).
+
+> Tip: the first time you enable the gateway in any shared environment, set
+> `GATEWAY_SHADOW_MODE=true`. It logs the routing decision and emits metrics but
+> still answers with Groq, so you can validate routing with zero risk before
+> flipping to live multi-model routing.
+
+### Gateway tests
+
+```powershell
+conda run -n rag python -m pytest `
+  tests/test_gateway_classifier.py tests/test_gateway_cache.py `
+  tests/test_gateway_router.py tests/test_gateway_backward_compat.py -q
+```
 
 ## Quick start
 

@@ -33,6 +33,7 @@ class ChatResponse(BaseModel):
     flags: list[dict[str, Any]] = []
     grounding: dict[str, Any] = {}
     guardrails: dict[str, Any] = {}
+    gateway: dict[str, Any] = {}
     timing: dict[str, Any] = {}
     warnings: list[str] = []
 
@@ -139,7 +140,9 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
     status = "success"
     try:
         logger.info(f"POST /chat query={req.query[:80]}...")
-        result = await asyncio.to_thread(get_workflow().run, req.query)
+        result = await asyncio.to_thread(
+            get_workflow().run, req.query, req.user_id, req.session_id
+        )
         if result.get("error"):
             status = "error"
             prom.ERRORS_TOTAL.labels(error_type="workflow").inc()
@@ -166,6 +169,7 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
         message_id = None
         try:
             grounding = result.get("grounding", {})
+            gateway_meta = result.get("gateway", {})
             message_id = await asyncio.to_thread(
                 store.record_message,
                 session_id=req.session_id,
@@ -173,6 +177,7 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
                 query=result["query"],
                 answer=answer,
                 grounding=str(grounding) if grounding else None,
+                model=gateway_meta.get("model"),
             )
         except Exception as exc:  # never fail the chat because of logging
             logger.warning(f"Message persistence failed: {exc}")
@@ -196,6 +201,7 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
             flags=result.get("flags", []),
             grounding=result.get("grounding", {}),
             guardrails=result.get("guardrails", {}),
+            gateway=result.get("gateway", {}),
             timing=result.get("timing", {}),
             warnings=warnings,
         )

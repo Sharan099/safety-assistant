@@ -13,6 +13,7 @@ _lock = threading.RLock()
 _retriever: HybridRetriever | None = None
 _reranker: CrossEncoderReranker | None = None
 _workflow: RAGWorkflow | None = None
+_gateway = None  # type: ignore[var-annotated]
 _warmed = False
 
 # Readiness / self-test state (gates the frontend until the pipeline is proven).
@@ -52,6 +53,28 @@ def get_workflow() -> RAGWorkflow:
                     reranker=get_reranker(),
                 )
     return _workflow
+
+
+def get_gateway():
+    """Shared Intelligent Multi-LLM Gateway, or None when disabled.
+
+    The gateway's semantic cache REUSES the retriever's BGE embedding model via
+    `HybridRetriever.embed_text`, so no second embedding model is loaded.
+    """
+    global _gateway
+    from backend.app.core.settings import ENABLE_GATEWAY
+
+    if not ENABLE_GATEWAY:
+        return None
+    if _gateway is None:
+        with _lock:
+            if _gateway is None:
+                from backend.app.gateway.gateway import LLMGateway
+
+                logger.info("Initializing Intelligent Multi-LLM Gateway...")
+                retriever = get_retriever()
+                _gateway = LLMGateway(embed_fn=retriever.embed_text)
+    return _gateway
 
 
 def warmup_pipeline() -> None:

@@ -125,19 +125,96 @@ class RAGWorkflow:
     ) -> None:
         self.retriever = retriever
         self.reranker = reranker
-        self._llm: GroqLLM | None = None
+        self._llm = None
+        self._llm_is_gateway = False
         self.guardrails = SafetyGuardrails()
         self.graph = self._build_graph()
 
-    def _get_llm(self) -> GroqLLM:
+    def _get_llm(self):
+        """Return the LLM client behind the generate node.
+
+        When ENABLE_GATEWAY is set, this is the Intelligent Multi-LLM Gateway
+        (Groq -> Claude Haiku -> Claude Sonnet, with cache + failover). Otherwise
+        it is the original GroqLLM — preserving v2.2 behaviour exactly.
+        """
         if self._llm is None:
+            from backend.app.core.settings import ENABLE_GATEWAY
+
+            if ENABLE_GATEWAY:
+                try:
+                    from backend.app.core.services import get_gateway
+
+                    gateway = get_gateway()
+                    if gateway is not None:
+                        logger.info("Workflow LLM: Intelligent Multi-LLM Gateway")
+                        self._llm = gateway
+                        self._llm_is_gateway = True
+                        return self._llm
+                except Exception as exc:
+                    logger.warning(
+                        f"Gateway init failed, falling back to GroqLLM: {exc}"
+                    )
+
             if not os.getenv("GROQ_API_KEY"):
                 raise EnvironmentError(
                     "GROQ_API_KEY is not set. Add it to .env in the project root."
                 )
             logger.info("Connecting to Groq LLM...")
             self._llm = GroqLLM()
+            self._llm_is_gateway = False
         return self._llm
+
+    def _build_routing_context(self, state: RAGState):
+        """Assemble the gateway routing inputs from existing pipeline state.
+
+        Reuses the already-computed grounding assessment and retrieval signals,
+        and reads conversation depth / feedback history from the store. All
+        reads are best-effort and never break a chat request.
+        """
+        from backend.app.core import store
+        from backend.app.gateway.types import RoutingContext
+
+        meta = state.get("metadata") or {}
+        query = state.get("query", "")
+        grounding = state.get("grounding") or {}
+        docs = state.get("documents") or []
+        user_id = meta.get("user_id")
+        session_id = meta.get("session_id")
+
+        try:
+            depth = store.session_depth(session_id)
+        except Exception:
+            depth = 0
+        try:
+            downvote = store.recent_downvote_rate(user_id)
+        except Exception:
+            downvote = 0.0
+        try:
+            perf = store.model_performance()
+        except Exception:
+            perf = {}
+        try:
+            scope = self.retriever.detect_regs(query)
+        except Exception:
+            scope = []
+
+        return RoutingContext(
+            prompt=state.get("prompt", ""),
+            query=query,
+            grounding=grounding,
+            retrieval={
+                "doc_count": len(docs),
+                "best_semantic": grounding.get("best_semantic"),
+                "reranker_used": meta.get("reranker_used"),
+                "citations": state.get("citations"),
+            },
+            conversation_depth=depth,
+            user_id=user_id,
+            session_id=session_id,
+            feedback_downvote_rate=downvote,
+            model_performance=perf,
+            scope=scope,
+        )
 
     def _node_validate_input(self, state: RAGState) -> RAGState:
         with trace_span("validate_input", {"query": state.get("query", "")}) as span:
@@ -245,12 +322,17 @@ class RAGWorkflow:
             return {**state, "answer": ABSTAIN_MESSAGE}
         if not state.get("context"):
             return {**state, "answer": ABSTAIN_MESSAGE}
-        logger.info("Calling Groq LLM...")
+        logger.info("Calling LLM...")
         with trace_span("generate", {"prompt_len": len(state.get("prompt", ""))}) as span:
             try:
-                out = self._get_llm().generate(state["prompt"])
+                llm = self._get_llm()
+                if self._llm_is_gateway:
+                    ctx = self._build_routing_context(state)
+                    out = llm.generate(state["prompt"], routing_context=ctx)
+                else:
+                    out = llm.generate(state["prompt"])
             except Exception as exc:
-                logger.exception("Groq generation failed")
+                logger.exception("LLM generation failed")
                 return {
                     **state,
                     "answer": f"LLM error: {exc}",
@@ -259,10 +341,39 @@ class RAGWorkflow:
             span["outputs"] = {
                 "answer_len": len(out["answer"]),
                 "model": out.get("model"),
+                "provider": out.get("provider"),
+                "tier": out.get("tier"),
+                "cache_hit": out.get("cache_hit"),
             }
+            if out.get("error"):
+                return {**state, "answer": out["answer"], "error": out["error"]}
+
             timing = {**state.get("timing", {}), "llm_ms": out["latency_ms"]}
-            logger.info(f"Groq answer ready in {out['latency_ms']}ms")
-            return {**state, "answer": out["answer"], "timing": timing}
+            # Additive routing metadata (only present when the gateway is active).
+            gw_meta = {
+                k: out[k]
+                for k in (
+                    "model",
+                    "provider",
+                    "tier",
+                    "cache_hit",
+                    "fallback_used",
+                    "route_score",
+                    "route_reasons",
+                    "cost_usd",
+                    "cost_saved_usd",
+                    "prompt_tokens",
+                    "completion_tokens",
+                )
+                if out.get(k) is not None
+            }
+            logger.info(f"LLM answer ready in {out['latency_ms']}ms")
+            return {
+                **state,
+                "answer": out["answer"],
+                "timing": timing,
+                "metadata": {**(state.get("metadata") or {}), **gw_meta},
+            }
 
     def _node_validate_output(self, state: RAGState) -> RAGState:
         gr = self.guardrails.validate_output(state.get("answer", ""))
@@ -296,11 +407,22 @@ class RAGWorkflow:
         return g.compile()
 
     @trace_run("rag_workflow")
-    def run(self, query: str) -> dict[str, Any]:
+    def run(
+        self,
+        query: str,
+        user_id: str | None = None,
+        session_id: str | None = None,
+    ) -> dict[str, Any]:
         t0 = time.perf_counter()
         logger.info(f"Chat workflow start: {query[:80]}...")
         try:
-            final = self.graph.invoke({"query": query, "timing": {}, "metadata": {}})
+            final = self.graph.invoke(
+                {
+                    "query": query,
+                    "timing": {},
+                    "metadata": {"user_id": user_id, "session_id": session_id},
+                }
+            )
             total_ms = round((time.perf_counter() - t0) * 1000, 2)
             timing = {**final.get("timing", {}), "total_ms": total_ms}
             logger.info(f"Chat workflow done in {total_ms}ms")
@@ -308,10 +430,30 @@ class RAGWorkflow:
             answer = final.get("answer", "")
             flags = final.get("flags", [])
             grounding = final.get("grounding", {})
+            meta = final.get("metadata", {}) or {}
             # Surface answer-level flags inline for plain-text / export consumers.
-            if flags and not final.get("metadata", {}).get("abstain"):
+            if flags and not meta.get("abstain"):
                 notes = "\n".join(f"> ⚠ {f['message']}" for f in flags)
                 answer = f"{answer}\n\n{notes}"
+
+            # Additive gateway routing summary (empty dict when gateway is off).
+            gateway = {
+                k: meta[k]
+                for k in (
+                    "model",
+                    "provider",
+                    "tier",
+                    "cache_hit",
+                    "fallback_used",
+                    "route_score",
+                    "route_reasons",
+                    "cost_usd",
+                    "cost_saved_usd",
+                    "prompt_tokens",
+                    "completion_tokens",
+                )
+                if k in meta
+            }
 
             return {
                 "query": query,
@@ -326,6 +468,7 @@ class RAGWorkflow:
                     "input": final.get("guardrails_input", {}),
                     "output": final.get("guardrails_output", {}),
                 },
+                "gateway": gateway,
                 "timing": timing,
             }
         except Exception as exc:

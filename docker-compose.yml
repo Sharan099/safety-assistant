@@ -12,10 +12,41 @@ services:
       - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
       - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-autosafety-rag}
       - GROQ_API_KEY=${GROQ_API_KEY}
+      # SQLite DB lives on a writable named volume (output is mounted read-only).
+      - APP_DB_PATH=/app/var/app.db
+      # v3.0 Intelligent Multi-LLM Gateway (OFF by default — safe rollout).
+      - ENABLE_GATEWAY=${ENABLE_GATEWAY:-false}
+      - GATEWAY_SHADOW_MODE=${GATEWAY_SHADOW_MODE:-false}
+      - GATEWAY_CANARY_PCT=${GATEWAY_CANARY_PCT:-100}
+      - ENABLE_SEMANTIC_CACHE=${ENABLE_SEMANTIC_CACHE:-true}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_HAIKU_MODEL=${CLAUDE_HAIKU_MODEL:-claude-haiku-4-5}
+      - CLAUDE_SONNET_MODEL=${CLAUDE_SONNET_MODEL:-claude-sonnet-4-5}
+      # Inside Compose, Redis is reached by service name, not localhost. Use
+      # DOCKER_REDIS_URL only if you intentionally want to override this.
+      - REDIS_URL=${DOCKER_REDIS_URL:-redis://redis:6379/0}
     volumes:
       - ./output:/app/output:ro
+      - backend_data:/app/var
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    # redis-stack ships the RediSearch module used for vector similarity in the
+    # gateway's semantic cache. Plain `redis` also works (NumPy scan fallback).
+    image: redis/redis-stack:7.2.0-v9
+    ports:
+      - "6379:6379"
+      - "8001:8001"  # RedisInsight UI (optional)
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -62,3 +93,7 @@ services:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
+
+volumes:
+  backend_data:
+  redis_data:

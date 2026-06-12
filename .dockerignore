@@ -61,6 +61,22 @@ data/regulations/
 rag_env/
 venv/
 
+# Output: keep only the JSON artifacts the backend loads at boot.
+# The compose file bind-mounts ./output at runtime, so the image only needs
+# enough artifacts for a standalone smoke run. Sending charts/screenshots/DBs
+# through the build context can make Docker Desktop/BuildKit fail with EOF.
+output/*
+!output/regulation_chunks.json
+!output/regulation_embeddings.json
+!output/ingest_manifest.json
+
+# Not needed in the backend image
+agent-transcripts/
+tests/
+scripts/
+notebooks/
+*.ipynb
+
 rag_env/
 venv/
 __pycache__/

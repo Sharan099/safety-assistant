@@ -80,6 +80,7 @@ def _init_schema(conn: sqlite3.Connection) -> None:
             query         TEXT,
             answer        TEXT,
             grounding     TEXT,
+            model         TEXT,
             created_at    INTEGER NOT NULL
         );
         CREATE TABLE IF NOT EXISTS feedback (
@@ -96,7 +97,17 @@ def _init_schema(conn: sqlite3.Connection) -> None:
         );
         """
     )
+    _migrate(conn)
     conn.commit()
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Idempotent, backward-safe schema migrations for existing databases."""
+    cols = {row["name"] for row in conn.execute("PRAGMA table_info(messages)")}
+    if "model" not in cols:
+        # Pre-v3.0 databases lack the model column used for routing analytics.
+        conn.execute("ALTER TABLE messages ADD COLUMN model TEXT")
+        logger.info("store: migrated messages table (+model column)")
 
 
 def is_valid_username(username: str) -> bool:
@@ -151,6 +162,7 @@ def record_message(
     query: str,
     answer: str,
     grounding: str | None = None,
+    model: str | None = None,
 ) -> str:
     """Persist a Q/A turn and return its message id (for feedback linkage)."""
     conn = _connect()
@@ -158,12 +170,67 @@ def record_message(
     with _lock:
         conn.execute(
             "INSERT INTO messages "
-            "(id, session_id, user_id, query, answer, grounding, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (mid, session_id, user_id, query, answer, grounding, _now()),
+            "(id, session_id, user_id, query, answer, grounding, model, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (mid, session_id, user_id, query, answer, grounding, model, _now()),
         )
         conn.commit()
     return mid
+
+
+def session_depth(session_id: str | None) -> int:
+    """Number of prior turns in a session (a gateway routing input)."""
+    if not session_id:
+        return 0
+    conn = _connect()
+    with _lock:
+        row = conn.execute(
+            "SELECT COUNT(*) FROM messages WHERE session_id = ?", (session_id,)
+        ).fetchone()
+    return int(row[0]) if row else 0
+
+
+def recent_downvote_rate(user_id: str | None, *, limit: int = 20) -> float:
+    """Share of the user's recent feedback that was 👎 (0..1). Routing input #8."""
+    if not user_id:
+        return 0.0
+    conn = _connect()
+    with _lock:
+        rows = conn.execute(
+            "SELECT rating FROM feedback WHERE user_id = ? "
+            "ORDER BY created_at DESC LIMIT ?",
+            (user_id, limit),
+        ).fetchall()
+    if not rows:
+        return 0.0
+    down = sum(1 for r in rows if r["rating"] == "down")
+    return round(down / len(rows), 4)
+
+
+def model_performance() -> dict[str, float]:
+    """Per-model success proxy (1 - downvote_rate) from feedback joined to the
+    answering model. Routing input #9 (previous model performance)."""
+    conn = _connect()
+    with _lock:
+        rows = conn.execute(
+            """
+            SELECT m.model AS model,
+                   SUM(CASE WHEN f.rating='down' THEN 1 ELSE 0 END) AS downs,
+                   COUNT(f.id) AS total
+            FROM feedback f
+            JOIN messages m ON m.id = f.message_id
+            WHERE m.model IS NOT NULL
+            GROUP BY m.model
+            """
+        ).fetchall()
+    perf: dict[str, float] = {}
+    for r in rows:
+        total = int(r["total"] or 0)
+        if total <= 0:
+            continue
+        downs = int(r["downs"] or 0)
+        perf[r["model"]] = round(1.0 - downs / total, 4)
+    return perf
 
 
 def record_feedback(

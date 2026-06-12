@@ -2,6 +2,11 @@
 
 from prometheus_client import Counter, Histogram, Gauge
 
+# Importing the gateway metrics module registers the gateway_* metrics on the
+# default registry so they are exposed by the existing GET /metrics endpoint.
+# (Safe no-op when the gateway is disabled — defining metrics has no runtime cost.)
+from backend.app.gateway import metrics as gateway_metrics  # noqa: F401
+
 # Latency histograms (seconds)
 REQUEST_LATENCY = Histogram(
     "rag_request_duration_seconds",

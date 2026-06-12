@@ -2,16 +2,34 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-COPY backend/requirements.txt /app/backend/requirements.txt
-RUN pip install --no-cache-dir -r /app/backend/requirements.txt
+COPY backend/requirements.runtime.txt /app/backend/requirements.runtime.txt
+
+# Install the CPU-only PyTorch wheel FIRST. The default torch wheel bundles CUDA
+# (~2.5-7 GB), which bloats the image and can make BuildKit's "exporting layers"
+# step drop the connection (rpc EOF) on Docker Desktop. The CPU wheel is all we
+# need for local inference here.
+RUN pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.1.0"
+
+# Remaining runtime deps only. Evaluation/test deps stay in backend/requirements.txt
+# for local development but are intentionally not baked into the Docker image.
+RUN pip install -r /app/backend/requirements.runtime.txt
 
 COPY config.py /app/config.py
 COPY backend /app/backend
 COPY output /app/output
+
+# Writable location for the runtime SQLite DB (users/sessions/feedback).
+# The ./output mount is read-only, so the DB must live outside it.
+RUN mkdir -p /app/var
+ENV APP_DB_PATH=/app/var/app.db
 
 ENV PYTHONPATH=/app
 ENV HF_HOME=/app/.cache/huggingface

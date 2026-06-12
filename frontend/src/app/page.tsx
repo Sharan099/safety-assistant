@@ -30,6 +30,26 @@ type Citation = {
 type Flag = { type: string; regulation?: string; message: string };
 type Grounding = { should_abstain?: boolean; confidence?: number; reason?: string };
 
+type Gateway = {
+  model?: string;
+  provider?: string;
+  tier?: number;
+  cache_hit?: boolean;
+  fallback_used?: boolean;
+  route_score?: number;
+  route_reasons?: string[];
+  cost_usd?: number;
+  cost_saved_usd?: number;
+  prompt_tokens?: number;
+  completion_tokens?: number;
+};
+
+const TIER_LABEL: Record<number, string> = {
+  1: "Tier 1 · fast",
+  2: "Tier 2 · balanced",
+  3: "Tier 3 · advanced",
+};
+
 type Feedback = {
   rating?: "up" | "down";
   panelOpen?: boolean;
@@ -46,6 +66,7 @@ type Message = {
   citations?: Citation[];
   flags?: Flag[];
   grounding?: Grounding;
+  gateway?: Gateway;
   timing?: Record<string, number>;
   warnings?: string[];
   feedback?: Feedback;
@@ -210,6 +231,7 @@ export default function Home() {
           citations: data.citations,
           flags: data.flags,
           grounding: data.grounding,
+          gateway: data.gateway,
           timing: data.timing,
           warnings: data.warnings,
           feedback: { reasons: [], comment: "" },
@@ -453,6 +475,45 @@ export default function Home() {
               </details>
             )}
 
+            {msg.role === "assistant" && msg.gateway?.model && (
+              <div className="gateway">
+                <span
+                  className={`gw-badge gw-tier-${msg.gateway.tier ?? 0}`}
+                  title={msg.gateway.route_reasons?.join(" · ") || "Routing decision"}
+                >
+                  🧠 {msg.gateway.model}
+                  {msg.gateway.tier != null &&
+                    ` · ${TIER_LABEL[msg.gateway.tier] || `Tier ${msg.gateway.tier}`}`}
+                </span>
+                {msg.gateway.cache_hit && (
+                  <span className="gw-pill gw-cache" title="Served from the semantic cache">
+                    ⚡ cached
+                  </span>
+                )}
+                {msg.gateway.fallback_used && (
+                  <span className="gw-pill gw-fallback" title="Primary provider failed; failed over">
+                    ↪ failover
+                  </span>
+                )}
+                {(msg.gateway.prompt_tokens != null ||
+                  msg.gateway.completion_tokens != null) && (
+                  <span className="gw-pill" title="Prompt / completion tokens">
+                    🎟 {msg.gateway.prompt_tokens ?? 0} in / {msg.gateway.completion_tokens ?? 0} out
+                  </span>
+                )}
+                {msg.gateway.route_score != null && (
+                  <span className="gw-pill" title="Complexity score (0–10)">
+                    score {msg.gateway.route_score.toFixed(1)}
+                  </span>
+                )}
+                {msg.gateway.cost_saved_usd != null && msg.gateway.cost_saved_usd > 0 && (
+                  <span className="gw-pill gw-saved" title="Estimated cost saved vs the most capable tier">
+                    saved ${msg.gateway.cost_saved_usd.toFixed(5)}
+                  </span>
+                )}
+              </div>
+            )}
+
             {msg.timing && (
               <small className="timing">
                 {msg.timing.total_ms != null && `${msg.timing.total_ms} ms total`}
@@ -690,6 +751,27 @@ const appCss = `
   .clabel { font-weight: 600; }
   .csnippet { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
   .timing { display: block; margin-top: 0.5rem; color: var(--muted); }
+  .gateway {
+    margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;
+  }
+  .gw-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.15rem 0.55rem; border-radius: 999px;
+    font-size: 0.74rem; font-weight: 700; color: #fff;
+    background: #475569; border: 1px solid rgba(255,255,255,0.15);
+  }
+  .gw-tier-1 { background: #2563eb; }
+  .gw-tier-2 { background: #7c3aed; }
+  .gw-tier-3 { background: #be185d; }
+  .gw-pill {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0.12rem 0.5rem; border-radius: 999px;
+    font-size: 0.72rem; font-weight: 600;
+    background: var(--bg); border: 1px solid var(--border); color: var(--muted);
+  }
+  .gw-cache { color: #16a34a; border-color: rgba(22,163,74,0.45); }
+  .gw-fallback { color: #d97706; border-color: rgba(217,119,6,0.45); }
+  .gw-saved { color: #16a34a; border-color: rgba(22,163,74,0.4); }
   .feedback { margin-top: 0.85rem; border-top: 1px dashed var(--border); padding-top: 0.65rem; }
   .fb-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
   .fb-q { font-size: 0.83rem; color: var(--muted); }

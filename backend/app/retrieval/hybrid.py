@@ -136,6 +136,21 @@ class HybridRetriever:
         model.encode(["warmup"], convert_to_numpy=True, show_progress_bar=False)
         logger.info("Embedding model warmed up")
 
+    def embed_text(self, text: str) -> np.ndarray:
+        """Encode a single string with the shared BGE model.
+
+        Exposed so the gateway's semantic cache can REUSE this exact embedding
+        model (BAAI/bge-base-en-v1.5) rather than introducing a second one.
+        """
+        model = self._get_model()
+        return model.encode(
+            [text], convert_to_numpy=True, show_progress_bar=False
+        )[0]
+
+    def detect_regs(self, query: str) -> list[str]:
+        """Public wrapper around regulation detection (used for cache scoping)."""
+        return self._detect_regs(query)
+
     def _detect_regs(self, query: str) -> list[str]:
         q = query.lower()
         return [v for k, v in REG_MAP.items() if k in q]

@@ -1,0 +1,113 @@
+{
+  "title": "PSA AI — Multi-LLM Gateway",
+  "uid": "psa-gateway",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Model Usage (req/s by model)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(gateway_model_usage_total[5m])) by (model, tier)",
+          "legendFormat": "T{{tier}} {{model}}"
+        }
+      ]
+    },
+    {
+      "type": "piechart",
+      "title": "Tier Distribution (total)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(gateway_model_usage_total) by (tier)",
+          "legendFormat": "Tier {{tier}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Cache Hit Ratio",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "min": 0, "max": 1 }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(gateway_cache_hits_total[15m])) / clamp_min(sum(rate(gateway_cache_hits_total[15m])) + sum(rate(gateway_cache_misses_total[15m])), 1e-9)",
+          "legendFormat": "hit ratio"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Cost Saved (USD total)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+      "fieldConfig": { "defaults": { "unit": "currencyUSD" } },
+      "targets": [{ "expr": "gateway_cost_saved_usd_total" }]
+    },
+    {
+      "type": "stat",
+      "title": "Cache Hits",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+      "targets": [{ "expr": "gateway_cache_hits_total" }]
+    },
+    {
+      "type": "stat",
+      "title": "Cache Misses",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+      "targets": [{ "expr": "gateway_cache_misses_total" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Gateway Latency p95 (by model)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(gateway_latency_seconds_bucket[5m])) by (le, model))",
+          "legendFormat": "{{model}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Provider Failovers (rate)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "targets": [
+        {
+          "expr": "sum(rate(gateway_fallback_total[5m])) by (from_provider, to_provider)",
+          "legendFormat": "{{from_provider}} → {{to_provider}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests by Outcome (rate)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "targets": [
+        {
+          "expr": "sum(rate(gateway_requests_total[5m])) by (outcome)",
+          "legendFormat": "{{outcome}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Routing Score p50/p95 (by tier)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(gateway_route_score_bucket[5m])) by (le, tier))",
+          "legendFormat": "p95 T{{tier}}"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(gateway_route_score_bucket[5m])) by (le, tier))",
+          "legendFormat": "p50 T{{tier}}"
+        }
+      ]
+    }
+  ]
+}

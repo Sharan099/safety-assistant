@@ -185,37 +185,79 @@ def assess_grounding(
     }
 
 
-def derive_answer_flags(citations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+# Markers injected into the context look like [S1], [S2] …; the LLM is required
+# to cite them inline. We use this to tie answer-level flags to the sources the
+# answer ACTUALLY used, not to every retrieved passage.
+_MARKER_RE = re.compile(r"\[S(\d+)\]")
+
+
+def extract_cited_markers(answer_text: str) -> set[str]:
+    """Parse the source markers ([S1], [S2] …) actually cited in the answer."""
+    if not answer_text:
+        return set()
+    return {f"S{m.group(1)}" for m in _MARKER_RE.finditer(answer_text)}
+
+
+def derive_answer_flags(
+    citations: list[dict[str, Any]],
+    answer_text: str | None = None,
+    *,
+    should_abstain: bool = False,
+) -> list[dict[str, Any]]:
     """
-    Answer-level flags required by Item 1:
+    Answer-level flags:
       - multiple revisions exist for a cited legal regulation -> confirm version
       - both legal regulations and rating protocols cited -> do not blur them
       - a cited revision is unverified
-    """
-    flags: list[dict[str, Any]] = []
-    cited_regs = {c["regulation"] for c in citations if c.get("regulation")}
 
+    Flags are scoped to the sources the answer actually cited. When `answer_text`
+    is provided, only citations whose marker ([S#]) appears in the answer are
+    considered; this prevents a revision warning from firing for a regulation
+    that was merely retrieved but never used. Flags are deduplicated by
+    (type, regulation). When the system abstains there is no answer, so no flags.
+    """
+    if should_abstain:
+        return []
+
+    # Restrict to the citations the answer actually used (if we know the answer).
+    if answer_text is not None:
+        cited_markers = extract_cited_markers(answer_text)
+        citations = [c for c in citations if c.get("marker") in cited_markers]
+
+    if not citations:
+        return []
+
+    flags: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()  # (flag_type, regulation_code) -> dedupe
+
+    cited_regs = {c["regulation"] for c in citations if c.get("regulation")}
     for reg in sorted(cited_regs):
         meta = get_document_meta(reg)
         if meta.is_legal and meta.has_multiple_revisions:
-            flags.append({
-                "type": "multiple_revisions",
-                "regulation": meta.display_name,
-                "message": (
-                    f"{meta.display_name} has multiple revisions. This answer is "
-                    f"based on {meta.indexed_revision}. Confirm this matches the "
-                    f"revision applicable to your project."
-                ),
-            })
+            key = ("multiple_revisions", meta.code)
+            if key not in seen:
+                seen.add(key)
+                flags.append({
+                    "type": "multiple_revisions",
+                    "regulation": meta.display_name,
+                    "message": (
+                        f"{meta.display_name} has multiple revisions. This answer "
+                        f"is based on {meta.indexed_revision}. Confirm this matches "
+                        f"the revision applicable to your project."
+                    ),
+                })
         if not meta.verified and meta.code != "UNKNOWN":
-            flags.append({
-                "type": "unverified_revision",
-                "regulation": meta.display_name,
-                "message": (
-                    f"The indexed revision of {meta.display_name} is not verified; "
-                    f"treat version-specific values with caution."
-                ),
-            })
+            key = ("unverified_revision", meta.code)
+            if key not in seen:
+                seen.add(key)
+                flags.append({
+                    "type": "unverified_revision",
+                    "regulation": meta.display_name,
+                    "message": (
+                        f"The indexed revision of {meta.display_name} is not "
+                        f"verified; treat version-specific values with caution."
+                    ),
+                })
 
     doc_types = {c["doc_type"] for c in citations}
     if "legal_regulation" in doc_types and "rating_protocol" in doc_types:

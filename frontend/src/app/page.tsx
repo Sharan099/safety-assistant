@@ -407,7 +407,26 @@ export default function Home() {
           </div>
         )}
 
-        {messages.map((msg, i) => (
+        {messages.map((msg, i) => {
+          // On abstention (or when nothing was cited) there is no grounded
+          // answer: render only the one-line answer — no sources, revision
+          // banners, or warning blocks.
+          const shouldAbstain = !!msg.grounding?.should_abstain;
+          const hasCitations = !!(msg.citations && msg.citations.length > 0);
+          const showExtras =
+            msg.role === "assistant" && !shouldAbstain && hasCitations;
+
+          // Revision/answer-level flags: render once per regulation as a single
+          // compact banner (deduplicated by regulation id).
+          const seenReg = new Set<string>();
+          const dedupedFlags = (msg.flags || []).filter((f) => {
+            const key = f.regulation || f.type;
+            if (seenReg.has(key)) return false;
+            seenReg.add(key);
+            return true;
+          });
+
+          return (
           <article
             key={i}
             className={`bubble ${msg.role === "user" ? "user" : "assistant"}`}
@@ -418,18 +437,9 @@ export default function Home() {
               <p>{msg.content}</p>
             )}
 
-            {msg.role === "assistant" && msg.grounding?.should_abstain && (
-              <div className="abstain">
-                Not answered from the corpus — retrieval confidence below threshold
-                {msg.grounding.confidence != null &&
-                  ` (${(msg.grounding.confidence * 100).toFixed(0)}%)`}
-                .
-              </div>
-            )}
-
-            {msg.flags && msg.flags.length > 0 && (
+            {showExtras && dedupedFlags.length > 0 && (
               <div className="flags">
-                {msg.flags.map((f, j) => (
+                {dedupedFlags.map((f, j) => (
                   <div key={j} className={`flag flag-${f.type}`}>
                     ⚑ {f.message}
                   </div>
@@ -437,7 +447,7 @@ export default function Home() {
               </div>
             )}
 
-            {msg.warnings && msg.warnings.length > 0 && (
+            {showExtras && msg.warnings && msg.warnings.length > 0 && (
               <div className="warnings">
                 {msg.warnings.map((w, j) => (
                   <span key={j}>⚠ {w}</span>
@@ -445,11 +455,11 @@ export default function Home() {
               </div>
             )}
 
-            {msg.citations && msg.citations.length > 0 && (
+            {showExtras && (
               <details className="sources" open>
-                <summary>Sources ({msg.citations.length})</summary>
+                <summary>Sources ({msg.citations!.length})</summary>
                 <ul className="citation-list">
-                  {msg.citations.map((c, j) => (
+                  {msg.citations!.map((c, j) => (
                     <li key={j} className="citation">
                       <span className="cmarker">[{c.marker}]</span>
                       <span
@@ -587,7 +597,8 @@ export default function Home() {
               </div>
             )}
           </article>
-        ))}
+          );
+        })}
 
         {loading && (
           <p className="loading">

@@ -182,6 +182,11 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
         except Exception as exc:  # never fail the chat because of logging
             logger.warning(f"Message persistence failed: {exc}")
 
+        # On abstention there is no grounded answer: never surface sources/flags.
+        should_abstain = bool(grounding.get("should_abstain"))
+        citations = [] if should_abstain else result.get("citations", [])
+        flags = [] if should_abstain else result.get("flags", [])
+
         return ChatResponse(
             query=result["query"],
             answer=result["answer"],
@@ -197,8 +202,8 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
                 }
                 for d in result.get("documents", [])
             ],
-            citations=result.get("citations", []),
-            flags=result.get("flags", []),
+            citations=citations,
+            flags=flags,
             grounding=result.get("grounding", {}),
             guardrails=result.get("guardrails", {}),
             gateway=result.get("gateway", {}),

@@ -49,6 +49,8 @@ app.add_middleware(
 )
 app.add_middleware(SecurityHeadersMiddleware)
 
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+
 app.include_router(router, prefix=API_PREFIX)
 
 # OpenAI-compatible gateway endpoints (POST /api/v1/gateway/v1/chat/completions).
@@ -58,8 +60,6 @@ if EXPOSE_GATEWAY_API:
     from backend.app.api.gateway_routes import router as gateway_router
 
     app.include_router(gateway_router, prefix=API_PREFIX)
-
-Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 
 @app.on_event("startup")

@@ -59,7 +59,7 @@ if EXPOSE_GATEWAY_API:
 
     app.include_router(gateway_router, prefix=API_PREFIX)
 
-Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+# Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 
 @app.on_event("startup")

@@ -18,6 +18,8 @@ from backend.app.core.settings import (
     CHUNKS_FILE,
     EMBEDDINGS_FILE,
     EMBEDDING_MODEL,
+    EMBEDDING_QUERY_PREFIX,
+    EMBEDDING_TRUST_REMOTE_CODE,
     ENABLE_METADATA_FILTER,
     ENABLE_MULTI_QUERY,
     ENABLE_PARENT_CHILD,
@@ -120,7 +122,10 @@ class HybridRetriever:
                 from sentence_transformers import SentenceTransformer
 
                 logger.info(f"Loading embedding model (first query may take ~30-60s): {EMBEDDING_MODEL}")
-                self._model = SentenceTransformer(EMBEDDING_MODEL)
+                self._model = SentenceTransformer(
+                    EMBEDDING_MODEL,
+                    trust_remote_code=EMBEDDING_TRUST_REMOTE_CODE,
+                )
                 logger.info("Embedding model ready")
             except Exception as exc:
                 logger.error(f"Embedding model failed: {exc}")
@@ -137,14 +142,15 @@ class HybridRetriever:
         logger.info("Embedding model warmed up")
 
     def embed_text(self, text: str) -> np.ndarray:
-        """Encode a single string with the shared BGE model.
+        """Encode a single string with the shared embedding model.
 
         Exposed so the gateway's semantic cache can REUSE this exact embedding
-        model (BAAI/bge-base-en-v1.5) rather than introducing a second one.
+        model (nomic-embed-text-v1.5) rather than introducing a second one.
+        Uses the query prefix so cached prompts share the query embedding space.
         """
         model = self._get_model()
         return model.encode(
-            [text], convert_to_numpy=True, show_progress_bar=False
+            [EMBEDDING_QUERY_PREFIX + text], convert_to_numpy=True, show_progress_bar=False
         )[0]
 
     def detect_regs(self, query: str) -> list[str]:
@@ -174,7 +180,12 @@ class HybridRetriever:
 
         try:
             model = self._get_model()
-            q = model.encode([query], convert_to_numpy=True, show_progress_bar=False)[0]
+            # Nomic requires the "search_query: " task prefix on queries.
+            q = model.encode(
+                [EMBEDDING_QUERY_PREFIX + query],
+                convert_to_numpy=True,
+                show_progress_bar=False,
+            )[0]
             qn = q / max(float(np.linalg.norm(q)), 1e-9)
             sims = self._emb_norms @ qn
 

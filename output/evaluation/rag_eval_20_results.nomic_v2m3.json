@@ -1,0 +1,285 @@
+{
+  "timestamp": "2026-06-15T21:02:13Z",
+  "evaluation_mode": "retrieval_proxy (Groq rate limit — using retrieval proxy answers)",
+  "test_cases_total": 20,
+  "test_cases_regulation": 15,
+  "test_cases_guardrail": 5,
+  "corpus": {
+    "regulation_pdfs_total": 37,
+    "regulation_pdfs_indexed": 2,
+    "total_pages_ocr_markdown": 148,
+    "chunks_indexed": 1572,
+    "embeddings_indexed": 1572,
+    "embedding_model_artifact": "nomic-ai/nomic-embed-text-v1.5",
+    "regulations_in_index": [
+      "UN_R14",
+      "UN_R16"
+    ]
+  },
+  "ragas": {
+    "faithfulness": 0.7867,
+    "answer_relevancy": 0.5563,
+    "context_precision": 0.8178,
+    "context_recall": 0.7143
+  },
+  "ragas_proxies": {
+    "faithfulness": 0.8382,
+    "answer_relevancy": 0.2583,
+    "context_precision": 0.2476,
+    "context_recall": 0.4736
+  },
+  "ragas_raw": {
+    "faithfulness": 0.7866746348889205,
+    "answer_relevancy": 0.5562899639280325,
+    "context_precision": 0.8177777777395833,
+    "context_recall": 0.7142857142857143
+  },
+  "ablation": {
+    "semantic_only": {
+      "avg_context_recall_proxy": 0.382,
+      "avg_context_precision_proxy": 0.2325,
+      "avg_latency_ms": 1722.72
+    },
+    "hybrid_rrf_rerank": {
+      "avg_context_recall_proxy": 0.4736,
+      "avg_context_precision_proxy": 0.2476,
+      "avg_latency_ms": 18793.38
+    },
+    "context_recall_lift_pct": 23.97
+  },
+  "guardrails": {
+    "input_block_rate_pct": 100.0,
+    "out_of_scope_safe_rate_pct": 100.0,
+    "hallucination_rate_semantic_pct": 0.0,
+    "hallucination_rate_hybrid_pct": 0.0,
+    "injection_tests": 3,
+    "injection_blocked": 3
+  },
+  "latency": {
+    "retrieval_p95_ms": 7343.86,
+    "pipeline_p95_ms": 27299.19,
+    "semantic_avg_ms": 1722.72,
+    "hybrid_avg_ms": 18793.38,
+    "avg_prompt_tokens": 0,
+    "avg_completion_tokens": 0,
+    "est_cost_per_query_usd": 0.000453
+  },
+  "overall_score": 0.7188,
+  "models": {
+    "embedding": "nomic-ai/nomic-embed-text-v1.5",
+    "reranker": "BAAI/bge-reranker-v2-m3",
+    "llm": "llama-3.1-8b-instant"
+  },
+  "per_case_regulation": [
+    {
+      "id": "R001",
+      "question": "What are the UN R14 requirements for seat belt anchorage strength?",
+      "semantic_retrieval_ms": 24071.75,
+      "hybrid_pipeline_ms": 27655.05,
+      "context_recall_semantic": 0.3485,
+      "context_recall_hybrid": 0.3485,
+      "context_precision_semantic": 0.2424,
+      "context_precision_hybrid": 0.1515,
+      "faithfulness_proxy": 0.8929,
+      "answer_relevancy_proxy": 0.0909,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R002",
+      "question": "What test load applies to belt anchorages in configuration 6.4.1 for M1 vehicles?",
+      "semantic_retrieval_ms": 174.77,
+      "hybrid_pipeline_ms": 13335.02,
+      "context_recall_semantic": 0.5857,
+      "context_recall_hybrid": 0.5857,
+      "context_precision_semantic": 0.5714,
+      "context_precision_hybrid": 0.5238,
+      "faithfulness_proxy": 0.8636,
+      "answer_relevancy_proxy": 0.5714,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R003",
+      "question": "What is the lap belt test load under UN R14 section 6.4.3?",
+      "semantic_retrieval_ms": 132.49,
+      "hybrid_pipeline_ms": 11640.16,
+      "context_recall_semantic": 0.4,
+      "context_recall_hybrid": 0.4,
+      "context_precision_semantic": 0.6667,
+      "context_precision_hybrid": 0.5333,
+      "faithfulness_proxy": 0.8421,
+      "answer_relevancy_proxy": 0.8,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R005",
+      "question": "How do test loads differ for M3 and N3 vehicles under UN R14?",
+      "semantic_retrieval_ms": 126.11,
+      "hybrid_pipeline_ms": 11638.97,
+      "context_recall_semantic": 0.125,
+      "context_recall_hybrid": 0.125,
+      "context_precision_semantic": 0.0,
+      "context_precision_hybrid": 0.0,
+      "faithfulness_proxy": 0.7,
+      "answer_relevancy_proxy": 0.0,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R006",
+      "question": "What is the purpose of geometry requirements for seat belt anchorages in UN R14?",
+      "semantic_retrieval_ms": 128.49,
+      "hybrid_pipeline_ms": 23681.13,
+      "context_recall_semantic": 0.4773,
+      "context_recall_hybrid": 0.6023,
+      "context_precision_semantic": 0.2727,
+      "context_precision_hybrid": 0.2121,
+      "faithfulness_proxy": 0.8889,
+      "answer_relevancy_proxy": 0.1818,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R021",
+      "question": "What tests apply to safety belts under UN R16?",
+      "semantic_retrieval_ms": 135.03,
+      "hybrid_pipeline_ms": 24508.13,
+      "context_recall_semantic": 0.3833,
+      "context_recall_hybrid": 0.6083,
+      "context_precision_semantic": 0.1111,
+      "context_precision_hybrid": 0.2222,
+      "faithfulness_proxy": 0.8929,
+      "answer_relevancy_proxy": 0.25,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R022",
+      "question": "Explain dynamic test requirements for belt assemblies under UN R16.",
+      "semantic_retrieval_ms": 140.41,
+      "hybrid_pipeline_ms": 22138.77,
+      "context_recall_semantic": 0.5923,
+      "context_recall_hybrid": 0.7462,
+      "context_precision_semantic": 0.2308,
+      "context_precision_hybrid": 0.3077,
+      "faithfulness_proxy": 0.875,
+      "answer_relevancy_proxy": 0.3077,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R024",
+      "question": "What are buckle inspection requirements under UN R16?",
+      "semantic_retrieval_ms": 111.58,
+      "hybrid_pipeline_ms": 10995.08,
+      "context_recall_semantic": 0.3929,
+      "context_recall_hybrid": 0.6071,
+      "context_precision_semantic": 0.2381,
+      "context_precision_hybrid": 0.5238,
+      "faithfulness_proxy": 0.8846,
+      "answer_relevancy_proxy": 0.7143,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R031",
+      "question": "What is tested in UN R16 section 7.8?",
+      "semantic_retrieval_ms": 145.59,
+      "hybrid_pipeline_ms": 16270.42,
+      "context_recall_semantic": 0.3,
+      "context_recall_hybrid": 0.4,
+      "context_precision_semantic": 0.0667,
+      "context_precision_hybrid": 0.1,
+      "faithfulness_proxy": 0.6667,
+      "answer_relevancy_proxy": 0.0,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R035",
+      "question": "What harness belt requirements exist under UN R16?",
+      "semantic_retrieval_ms": 109.62,
+      "hybrid_pipeline_ms": 25684.94,
+      "context_recall_semantic": 0.4167,
+      "context_recall_hybrid": 0.6528,
+      "context_precision_semantic": 0.1481,
+      "context_precision_hybrid": 0.1852,
+      "faithfulness_proxy": 0.8696,
+      "answer_relevancy_proxy": 0.1111,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R041",
+      "question": "What injury criteria are referenced in occupant protection regulations?",
+      "semantic_retrieval_ms": 119.8,
+      "hybrid_pipeline_ms": 16131.39,
+      "context_recall_semantic": 0.2917,
+      "context_recall_hybrid": 0.3333,
+      "context_precision_semantic": 0.2222,
+      "context_precision_hybrid": 0.1944,
+      "faithfulness_proxy": 0.85,
+      "answer_relevancy_proxy": 0.1667,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R046",
+      "question": "What is ASIL in automotive functional safety context?",
+      "semantic_retrieval_ms": 109.23,
+      "hybrid_pipeline_ms": 27146.67,
+      "context_recall_semantic": 0.25,
+      "context_recall_hybrid": 0.25,
+      "context_precision_semantic": 0.125,
+      "context_precision_hybrid": 0.1667,
+      "faithfulness_proxy": 0.88,
+      "answer_relevancy_proxy": 0.125,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R051",
+      "question": "What is a type approval in UN vehicle regulations?",
+      "semantic_retrieval_ms": 111.34,
+      "hybrid_pipeline_ms": 19470.84,
+      "context_recall_semantic": 0.5,
+      "context_recall_hybrid": 0.6111,
+      "context_precision_semantic": 0.3333,
+      "context_precision_hybrid": 0.2963,
+      "faithfulness_proxy": 0.8889,
+      "answer_relevancy_proxy": 0.2222,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R055",
+      "question": "What components make up a three-point safety belt system?",
+      "semantic_retrieval_ms": 113.33,
+      "hybrid_pipeline_ms": 15329.68,
+      "context_recall_semantic": 0.3056,
+      "context_recall_hybrid": 0.4167,
+      "context_precision_semantic": 0.1111,
+      "context_precision_hybrid": 0.1852,
+      "faithfulness_proxy": 0.7273,
+      "answer_relevancy_proxy": 0.1111,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    },
+    {
+      "id": "R059",
+      "question": "What frontal impact test speed is typical in regulatory protocols?",
+      "semantic_retrieval_ms": 111.2,
+      "hybrid_pipeline_ms": 16274.45,
+      "context_recall_semantic": 0.3611,
+      "context_recall_hybrid": 0.4167,
+      "context_precision_semantic": 0.1481,
+      "context_precision_hybrid": 0.1111,
+      "faithfulness_proxy": 0.85,
+      "answer_relevancy_proxy": 0.2222,
+      "hallucination_semantic": false,
+      "hallucination_hybrid": false
+    }
+  ]
+}

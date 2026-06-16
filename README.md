@@ -1,6 +1,14 @@
-# PSA AI — Passive Safety RAG (v3.0)
+# PSA AI — Passive Safety RAG (v3.1)
 
-Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → BGE rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, an **Intelligent Multi-LLM Gateway** (Groq → Claude Haiku → Claude Sonnet), and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
+Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → cross-encoder rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, an **Intelligent Multi-LLM Gateway** (Groq → Claude Haiku → Claude Sonnet), and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
+
+> **v3.1 — Retrieval model upgrade** (see [Evaluation results](#evaluation-results)):
+> embeddings upgraded to **`nomic-ai/nomic-embed-text-v1.5`** (task-prefixed, 768-dim)
+> and the reranker to **`BAAI/bge-reranker-v2-m3`**. The corpus was fully re-embedded
+> and re-evaluated against the prior BGE stack — the upgrade lifts **context precision
+> +14.4 pp** (0.674 → 0.818) on the 20-question set, with a live-Groq 5-question
+> RAGAS overall of **0.92**. Model choice is `.env`-configurable; see
+> [Model selection](#model-selection-env--v31-retrieval-upgrade).
 
 > **v3.0 — Intelligent Multi-LLM Gateway** (see [PSA AI v3.0 — Intelligent Multi-LLM Gateway](#psa-ai-v30--intelligent-multi-llm-gateway)):
 > every answer is routed to the cheapest capable model based on a 0–10 complexity
@@ -43,7 +51,7 @@ React/Next.js Frontend
    │       ↓ Hybrid Retrieval       (Dense + BM25 + RRF, per variant + multi-query fusion)
    │       ↓ Metadata Filtering     (boost chunks matching query intent flags)
    │       ↓ Parent-Child Retrieval (precise child chunks + parent section context)
-   ├── Cross-Encoder Reranker        (BAAI/bge-reranker-base)
+   ├── Cross-Encoder Reranker        (BAAI/bge-reranker-v2-m3)
    ├── Prompt builder
    ├── Groq LLM
    └── Guardrails (output: PII / unsafe warnings)
@@ -59,12 +67,12 @@ React/Next.js Frontend
 | Orchestration | LangGraph |
 | Query expansion | domain synonyms + intent detection (`query_expansion.py`) |
 | Multi-query | rule-based variants (optional Groq paraphrases) |
-| Embeddings (semantic) | `BAAI/bge-base-en-v1.5` (768-dim) |
+| Embeddings (semantic) | `nomic-ai/nomic-embed-text-v1.5` (768-dim, task-prefixed) |
 | Sparse retrieval | BM25 (`rank_bm25`) |
 | Fusion | Reciprocal Rank Fusion (RRF) + multi-query RRF |
 | Metadata filtering | chunk feature flags (`has_loads`, `has_test_procedure`, …) |
 | Parent-child | child paragraph match + parent section context |
-| Reranker | `BAAI/bge-reranker-base` (cross-encoder) |
+| Reranker | `BAAI/bge-reranker-v2-m3` (cross-encoder) |
 | LLM | Groq `llama-3.3-70b-versatile` |
 | OCR ingestion | PaddleOCR / PP-OCR (RapidOCR ONNX fallback) |
 | Observability | LangSmith (query, docs, prompt, response, latency) |
@@ -85,6 +93,21 @@ React/Next.js Frontend
 | `METADATA_BOOST` | `0.5` | Score multiplier per matching flag |
 | `ENABLE_PARENT_CHILD` | `true` | Attach parent section context to child hits |
 | `ENABLE_LLM_MULTI_QUERY` | `false` | Groq paraphrases (uses API tokens) |
+
+### Model selection (`.env`) — v3.1 retrieval upgrade
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `EMBEDDING_MODEL` | `nomic-ai/nomic-embed-text-v1.5` | Bi-encoder used to embed chunks + queries (768-dim) |
+| `EMBEDDING_TRUST_REMOTE_CODE` | `true` | Required by Nomic's custom modeling code |
+| `EMBEDDING_QUERY_PREFIX` | `"search_query: "` | Nomic task prefix added to queries |
+| `EMBEDDING_DOC_PREFIX` | `"search_document: "` | Nomic task prefix added to passages |
+| `RERANKER_MODEL` | `BAAI/bge-reranker-v2-m3` | Cross-encoder reranker over fused candidates |
+
+> Switching `EMBEDDING_MODEL` requires re-running the embedding build
+> (`python data/embed_chunks.py`) so `output/regulation_embeddings.json` matches.
+> To revert to a plain BGE bi-encoder, set `EMBEDDING_MODEL=BAAI/bge-base-en-v1.5`,
+> `EMBEDDING_TRUST_REMOTE_CODE=false`, and clear both prefixes.
 
 ## Grounding & citations (v2.1)
 
@@ -449,8 +472,10 @@ For OCR, also use `OCR_BACKEND=rapidocr` (PP-OCR via ONNX) instead of native Pad
    ```
 3. Restart backend; check `http://localhost:8000/api/v1/health` → `groq_configured: true`.
 
-> Note: `BAAI/bge-reranker-base` runs on CPU (~10–30 s per query). For low-latency
-> local chat, set `ENABLE_RERANKER=false` — the hybrid + RRF ranking is still used.
+> Note: `BAAI/bge-reranker-v2-m3` is a larger, stronger reranker and runs ~25–55 s
+> per query on CPU (`bge-reranker-base` is ~6–20 s). For low-latency local chat,
+> either set `RERANKER_MODEL=BAAI/bge-reranker-base` or `ENABLE_RERANKER=false`
+> (hybrid + RRF ranking is still used). GPU inference removes most of this cost.
 
 ### 4. Verify retrieval & run evaluation
 
@@ -548,6 +573,49 @@ Set `EMBEDDING_BATCH=4` in `.env` if embedding still runs out of memory on CPU.
 
 ## Evaluation results
 
+### v3.1 retrieval upgrade — Nomic embeddings + `bge-reranker-v2-m3`
+
+The retrieval stack was upgraded from `BAAI/bge-base-en-v1.5` + `bge-reranker-base`
+to **`nomic-ai/nomic-embed-text-v1.5`** (task-prefixed, 768-dim) +
+**`BAAI/bge-reranker-v2-m3`**. The corpus (1,572 chunks) was fully re-embedded and
+re-evaluated. Baselines are preserved as `*.bge_baseline.json` and the comparison
+plots are reproducible via `python scripts/plot_comparison.py`.
+
+**Reranker A/B — 5 questions, live Groq answers (RAGAS `full` mode), Nomic embeddings**
+
+| Metric | `bge-reranker-v2-m3` | `bge-reranker-base` |
+|--------|----------------------|---------------------|
+| Faithfulness | **0.914** | 0.860 |
+| Answer relevancy | **0.986** | 0.973 |
+| Context precision | **0.990** | 0.900 |
+| Context recall | 0.800 | **1.000** |
+| **Overall** | 0.923 | **0.933** |
+| Hybrid latency (avg) | 37.3 s | **11.2 s** |
+| Pipeline p95 | 54.5 s | **20.2 s** |
+
+![Reranker comparison — Nomic embeddings, live Groq (5Q)](output/evaluation/eval_compare_reranker_5q_groq.png)
+
+`v2-m3` wins on faithfulness and **context precision** (ranks the single best clause
+highest); `base` is ~3× faster and edges out a higher overall score on this small set.
+**`v2-m3` is the configured default** for precision-critical answers; switch to `base`
+(or GPU) when latency matters.
+
+**Embedding+reranker upgrade — 20 questions (retrieval-proxy mode)**
+
+| Metric | BGE baseline | Nomic + v2-m3 | Δ |
+|--------|-------------|---------------|---|
+| Faithfulness | 0.800 | 0.787 | −0.013 |
+| Answer relevancy | 0.664 | 0.556 | −0.108 |
+| Context precision | 0.674 | **0.818** | **+0.144** |
+| Context recall | 0.733 | 0.714 | −0.019 |
+| Overall | 0.718 | 0.719 | +0.001 |
+
+![Embedding upgrade comparison (20Q)](output/evaluation/eval_compare_embedding_20q.png)
+
+The headline gain is **+14.4 pp context precision**. Answer-relevancy deltas in this
+table are unreliable (both 20Q runs hit the Groq rate limit and fell back to proxy
+answers); the 5Q live-Groq run above is the trustworthy quality signal.
+
 ### Latest: 20-question run (RAGAS, Groq-judged)
 
 `output/evaluation/rag_eval_20_results.json` — **15 regulation + 5 guardrail**.
@@ -595,7 +663,7 @@ Mode: `EVAL_SKIP_LLM=true` (proxy answers). Overall score **0.401**; hybrid reca
 | PDFs indexed (OCR markdown) | **2** (UN R14, UN R16) |
 | Pages in markdown | **148** |
 | Chunks indexed | **1,572** |
-| Embedding vectors | **1,572** (`BAAI/bge-base-en-v1.5`) |
+| Embedding vectors | **1,572** (`nomic-ai/nomic-embed-text-v1.5`) |
 
 ### RAGAS-style metrics (hybrid + RRF + BGE rerank)
 

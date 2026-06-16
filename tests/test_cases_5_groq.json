@@ -1,0 +1,32 @@
+[
+  {
+    "question": "What are the UN R14 requirements for seat belt anchorage strength?",
+    "ground_truth": "UN R14 specifies static strength tests on safety-belt anchorages with defined test loads in daN for different vehicle categories.",
+    "id": "R001",
+    "category": "regulation"
+  },
+  {
+    "question": "What test load applies to belt anchorages in configuration 6.4.1 for M1 vehicles?",
+    "ground_truth": "A test load of 1350 daN ± 20 daN is applied to traction devices on belt anchorages for M1 and N1 vehicles under section 6.4.",
+    "id": "R002",
+    "category": "regulation"
+  },
+  {
+    "question": "What is the lap belt test load under UN R14 section 6.4.3?",
+    "ground_truth": "A test load of 2225 daN ± 20 daN is applied to lower belt anchorages in lap belt configuration for M1 and N1 vehicles.",
+    "id": "R003",
+    "category": "regulation"
+  },
+  {
+    "question": "How do test loads differ for M3 and N3 vehicles under UN R14?",
+    "ground_truth": "For M3 and N3 vehicles, reduced test loads such as 450 daN ± 20 daN apply instead of higher M1/N1 values.",
+    "id": "R005",
+    "category": "regulation"
+  },
+  {
+    "question": "What is the purpose of geometry requirements for seat belt anchorages in UN R14?",
+    "ground_truth": "Geometry requirements ensure correct anchorage location and angles for effective restraint and regulatory compliance.",
+    "id": "R006",
+    "category": "regulation"
+  }
+]

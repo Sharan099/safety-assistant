@@ -2,10 +2,15 @@
 config.py — Passive Safety Regulation Hybrid RAG
 
 Shared configuration for paths, models, retrieval, and prompts.
-Models are unchanged from the original system:
-- LLM:        Groq llama-3.3-70b-versatile
-- Embeddings: sentence-transformers/BAAI/bge-base-en-v1.5
-- Reranker:   BAAI/bge-reranker-base (see backend settings)
+Models (v3.1 retrieval upgrade):
+- LLM:        Groq llama-3.1-8b-instant
+- Embeddings: nomic-ai/nomic-embed-text-v1.5  (was BAAI/bge-base-en-v1.5)
+- Reranker:   BAAI/bge-reranker-v2-m3         (was BAAI/bge-reranker-base; see backend settings)
+
+Nomic embeddings ship custom modeling code (trust_remote_code) and require task
+prefixes ("search_query:" for queries, "search_document:" for passages). These
+are exposed as env-overridable settings so the system can fall back to a plain
+BGE bi-encoder (empty prefixes, trust_remote_code off) without code changes.
 """
 
 import os
@@ -77,14 +82,23 @@ CHUNK_OVERLAP = 50
 MIN_CHUNK_LEN = 50
 
 # ─────────────────────────────────────────────
-# MODELS (unchanged)
+# MODELS
 # ─────────────────────────────────────────────
 
 GROQ_MODEL = "llama-3.1-8b-instant"
-EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
 
 EMBEDDING_BATCH = int(os.getenv("EMBEDDING_BATCH", "2"))
-EMBEDDING_DIMENSION = 768  # BAAI/bge-base-en-v1.5
+# nomic-embed-text-v1.5 = 768 dims (same as bge-base-en-v1.5, so no index migration).
+EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "768"))
+
+# Nomic requires custom modeling code + task prefixes. For a plain BGE
+# bi-encoder set EMBEDDING_TRUST_REMOTE_CODE=false and the prefixes to "".
+EMBEDDING_TRUST_REMOTE_CODE = (
+    os.getenv("EMBEDDING_TRUST_REMOTE_CODE", "true").lower() == "true"
+)
+EMBEDDING_QUERY_PREFIX = os.getenv("EMBEDDING_QUERY_PREFIX", "search_query: ")
+EMBEDDING_DOC_PREFIX = os.getenv("EMBEDDING_DOC_PREFIX", "search_document: ")
 
 # ─────────────────────────────────────────────
 # LLM GENERATION

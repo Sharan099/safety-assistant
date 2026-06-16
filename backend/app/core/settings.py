@@ -11,7 +11,10 @@ if str(ROOT_DIR) not in sys.path:
 from config import (  # noqa: E402
     CHUNKS_FILE,
     EMBEDDINGS_FILE,
+    EMBEDDING_DOC_PREFIX,
     EMBEDDING_MODEL,
+    EMBEDDING_QUERY_PREFIX,
+    EMBEDDING_TRUST_REMOTE_CODE,
     GROQ_MODEL,
     LLM_MAX_TOKENS,
     LLM_TEMPERATURE,
@@ -22,11 +25,14 @@ from config import (  # noqa: E402
     VECTOR_SCORE_THRESHOLD,
 )
 
-# Reranker (BGE cross-encoder). Note: bge-base-en-v1.5 is a bi-encoder
-# embedding model; the matching reranker in the BGE family is bge-reranker-base.
+# Re-export so retrieval modules can import embedding settings from one place.
+__all__ = ["EMBEDDING_QUERY_PREFIX", "EMBEDDING_DOC_PREFIX", "EMBEDDING_TRUST_REMOTE_CODE"]
+
+# Reranker (cross-encoder). Upgraded to bge-reranker-v2-m3 — a stronger, larger
+# multilingual reranker than bge-reranker-base, for better top-k precision.
 RERANKER_MODEL = os.getenv(
     "RERANKER_MODEL",
-    "BAAI/bge-reranker-base",
+    "BAAI/bge-reranker-v2-m3",
 )
 
 # Hybrid fusion

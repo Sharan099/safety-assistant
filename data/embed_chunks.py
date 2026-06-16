@@ -1,7 +1,9 @@
 """
 embed_chunks.py — Embed hierarchical chunks (chunks-only, no KG entities).
 
-Uses: BAAI/bge-base-en-v1.5 (config.EMBEDDING_MODEL)
+Uses: nomic-ai/nomic-embed-text-v1.5 (config.EMBEDDING_MODEL)
+Passages are prefixed with EMBEDDING_DOC_PREFIX ("search_document: ") as Nomic
+requires; queries are prefixed with "search_query: " at retrieval time.
 Output: output/regulation_embeddings.json
 """
 
@@ -16,7 +18,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from config import CHUNKS_FILE, EMBEDDING_BATCH, EMBEDDING_MODEL, EMBEDDINGS_FILE  # noqa: E402
+from config import (  # noqa: E402
+    CHUNKS_FILE,
+    EMBEDDING_BATCH,
+    EMBEDDING_DOC_PREFIX,
+    EMBEDDING_MODEL,
+    EMBEDDING_TRUST_REMOTE_CODE,
+    EMBEDDINGS_FILE,
+)
 
 sys.stdout.reconfigure(line_buffering=True)
 
@@ -65,7 +74,11 @@ def run() -> dict:
 
     from sentence_transformers import SentenceTransformer
 
-    model = SentenceTransformer(EMBEDDING_MODEL,device="cpu")
+    model = SentenceTransformer(
+        EMBEDDING_MODEL,
+        device="cpu",
+        trust_remote_code=EMBEDDING_TRUST_REMOTE_CODE,
+    )
     ids = [c["chunk_id"] for c in to_embed]
 
     t0 = time.perf_counter()
@@ -73,7 +86,10 @@ def run() -> dict:
     save_every = int(os.getenv("EMBED_SAVE_EVERY", "200"))
     for start in range(0, len(to_embed), EMBEDDING_BATCH):
         batch_chunks = to_embed[start : start + EMBEDDING_BATCH]
-        batch_texts = [build_chunk_embedding_text(c) for c in batch_chunks]
+        # Nomic requires the "search_document: " task prefix on passages.
+        batch_texts = [
+            EMBEDDING_DOC_PREFIX + build_chunk_embedding_text(c) for c in batch_chunks
+        ]
         batch_ids = [c["chunk_id"] for c in batch_chunks]
         vectors = model.encode(
             batch_texts,

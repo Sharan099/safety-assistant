@@ -59,7 +59,14 @@ if EXPOSE_GATEWAY_API:
 
     app.include_router(gateway_router, prefix=API_PREFIX)
 
-Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+Instrumentator(
+    skip_paths=[
+        "/metrics",
+        "/api/v1/health",
+        "/api/v1/ready",
+        "/api/v1/gateway/health",
+    ],
+).instrument(app).expose(app, endpoint="/metrics")
 
 
 @app.on_event("startup")

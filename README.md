@@ -870,6 +870,8 @@ Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 
 `output/regulation_chunks.json` and `output/regulation_embeddings.json` are baked into the Docker image. Rebuild after re-ingestion.
 
+**Git LFS:** `output/regulation_embeddings.json` (~218 MB) is stored via [Git LFS](https://git-lfs.github.com) (GitHub’s 100 MB file limit). After clone, run `git lfs pull`. Enable **Git LFS** in Railway project settings so deploys fetch the vector index.
+
 ### Frontend — Vercel
 
 1. Import the same GitHub repo in [Vercel](https://vercel.com).

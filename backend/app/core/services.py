@@ -77,6 +77,16 @@ def get_gateway():
     return _gateway
 
 
+def pipeline_status() -> dict:
+    """Cheap status for GET /health — does not load models or JSON artifacts."""
+    return {
+        "pipeline_warmed": _warmed,
+        "retriever_loaded": _retriever is not None,
+        "groq_configured": bool(os.getenv("GROQ_API_KEY")),
+        "reranker_enabled": os.getenv("ENABLE_RERANKER", "false").lower() == "true",
+    }
+
+
 def warmup_pipeline() -> None:
     """
     Fast startup: load JSON + BM25 + vector matrix only.

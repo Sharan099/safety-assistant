@@ -83,6 +83,14 @@ LANGSMITH_TRACING = os.getenv("LANGSMITH_TRACING", "false").lower() == "true"
 ENABLE_GATEWAY = os.getenv("ENABLE_GATEWAY", "false").lower() == "true"
 EXPOSE_GATEWAY_API = os.getenv("EXPOSE_GATEWAY_API", "true").lower() == "true"
 
+# Prometheus HTTP middleware (prometheus-fastapi-instrumentator).
+# OFF by default — required for Railway/Vercel-style deploys where no Prometheus
+# scraper runs. FastAPI 0.137+ breaks instrumentator 8.0.0 unless FastAPI is
+# pinned <0.137; keep this false in production unless you run docker-compose monitoring.
+ENABLE_PROMETHEUS_METRICS = (
+    os.getenv("ENABLE_PROMETHEUS_METRICS", "false").lower() == "true"
+)
+
 # API
 API_PREFIX = "/api/v1"
 CORS_ORIGINS = os.getenv(

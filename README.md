@@ -864,9 +864,21 @@ Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 1. Push this repo to GitHub (see [Manual GitHub push](#manual-github-push) below).
 2. In [Railway](https://railway.app), create a project → **Deploy from GitHub** → select the repo.
 3. Set **Root directory** to repo root and use `Dockerfile.backend` (or `railway.toml` which points to it).
-4. Add environment variables from `.env.example` (at minimum `GROQ_API_KEY`, `CORS_ORIGINS`).
+4. Add environment variables from `.env.example` (at minimum `GROQ_API_KEY`, `CORS_ORIGINS`, `ENABLE_PROMETHEUS_METRICS=false`).
 5. Mount a **volume** at `/app/var` so SQLite (`APP_DB_PATH=/app/var/app.db`) persists users, sessions, messages, and feedback.
-6. Note the public URL (e.g. `https://psa-api.up.railway.app`). Health check: `GET /api/v1/health`.
+6. Note the public URL (e.g. `https://psa-api.up.railway.app`). Health check: `GET /api/v1/health` (lightweight — does not load ML models).
+
+**Railway env (required):**
+
+| Variable | Value |
+|----------|--------|
+| `GROQ_API_KEY` | your Groq key |
+| `CORS_ORIGINS` | `https://your-app.vercel.app` |
+| `APP_DB_PATH` | `/app/var/app.db` |
+| `ENABLE_PROMETHEUS_METRICS` | `false` |
+| `RUN_SELFTEST_ON_STARTUP` | `false` (optional, faster cold start) |
+
+> **Note:** `prometheus-fastapi-instrumentator` crashes on FastAPI 0.137+ when enabled. Production keeps metrics **off**; FastAPI is pinned `<0.137` in `requirements.runtime.txt` for local docker-compose monitoring.
 
 `output/regulation_chunks.json` and `output/regulation_embeddings.json` are baked into the Docker image. Rebuild after re-ingestion.
 

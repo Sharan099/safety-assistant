@@ -19,13 +19,13 @@ load_dotenv(ROOT / ".env")
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from backend.app.api.routes import router
 from backend.app.core.security import SecurityHeadersMiddleware
 from backend.app.core.settings import (
     API_PREFIX,
     CORS_ORIGINS,
+    ENABLE_PROMETHEUS_METRICS,
     EXPOSE_GATEWAY_API,
 )
 
@@ -59,7 +59,19 @@ if EXPOSE_GATEWAY_API:
 
     app.include_router(gateway_router, prefix=API_PREFIX)
 
-# Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+if ENABLE_PROMETHEUS_METRICS:
+    try:
+        from prometheus_fastapi_instrumentator import Instrumentator
+
+        Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+        logger.info("Prometheus /metrics endpoint enabled")
+    except ImportError:
+        logger.warning(
+            "ENABLE_PROMETHEUS_METRICS=true but prometheus-fastapi-instrumentator "
+            "is not installed — skipping HTTP metrics"
+        )
+    except Exception as exc:
+        logger.error(f"Prometheus instrumentation failed: {exc}")
 
 
 @app.on_event("startup")
@@ -79,9 +91,11 @@ async def startup() -> None:
 
 @app.get("/")
 async def root() -> dict:
-    return {
+    payload = {
         "service": "autosafety-rag",
         "docs": "/docs",
         "api": API_PREFIX,
-        "metrics": "/metrics",
     }
+    if ENABLE_PROMETHEUS_METRICS:
+        payload["metrics"] = "/metrics"
+    return payload

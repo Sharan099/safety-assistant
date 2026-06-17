@@ -63,16 +63,13 @@ class FeedbackRequest(BaseModel):
 # ───────────────────────── health / readiness ─────────────────────────
 @router.get("/health")
 async def health() -> dict:
-    from backend.app.core.services import get_retriever
+    """Lightweight liveness probe — must not load ML models (Railway healthcheck)."""
+    from backend.app.core.services import pipeline_status
 
-    r = get_retriever()
     return {
         "status": "ok",
         "service": "autosafety-rag-backend",
-        "chunks": len(r.chunks),
-        "embeddings": len(r.embeddings),
-        "groq_configured": bool(os.getenv("GROQ_API_KEY")),
-        "reranker_enabled": os.getenv("ENABLE_RERANKER", "false").lower() == "true",
+        **pipeline_status(),
     }
 
 

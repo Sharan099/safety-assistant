@@ -1,12 +1,17 @@
 :root {
-  --bg: #0f1419;
-  --surface: #1a2332;
-  --border: #2d3a4f;
-  --text: #e8edf4;
-  --muted: #8b9cb3;
-  --accent: #3b82f6;
-  --warn: #f59e0b;
-  --danger: #ef4444;
+  --bg: #ffffff;
+  --surface: #fff7ed;
+  --surface-2: #ffedd5;
+  --border: #fed7aa;
+  --text: #1c1917;
+  --muted: #78716c;
+  --accent: #ea580c;
+  --accent-hover: #c2410c;
+  --accent-soft: rgba(234, 88, 12, 0.1);
+  --warn: #d97706;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --shadow: 0 4px 24px rgba(234, 88, 12, 0.08);
 }
 
 * {
@@ -15,10 +20,11 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  line-height: 1.5;
 }
 
 button {

@@ -1,0 +1,21 @@
+{
+  "completed_pdfs": [
+    "CAE_COMPANION.pdf.pdf",
+    "EURO_NCAP_FRONTAL.pdf.pdf",
+    "EURO_NCAP_REAR.pdf.pdf",
+    "EURO_NCAP_SIDE.pdf.pdf",
+    "EURO_NCAP_VRU.pdf.pdf",
+    "FMVSS_208.pdf.pdf",
+    "ISO_26262.pdf.pdf",
+    "SAFETY_COMPANION.pdf.pdf",
+    "UN_R135.pdf",
+    "UN_R137.pdf",
+    "UN_R14.pdf",
+    "UN_R16.pdf",
+    "UN_R17.pdf",
+    "UN_R94.pdf",
+    "UN_R95.pdf"
+  ],
+  "batches_done": 8,
+  "errors": []
+}

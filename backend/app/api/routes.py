@@ -110,7 +110,11 @@ async def register_user(req: UserRequest, request: Request) -> UserResponse:
 @router.post("/feedback")
 async def submit_feedback(req: FeedbackRequest, request: Request) -> dict:
     rate_limit(request, "feedback", limit=60, window_s=60)
+    if not req.user_id:
+        raise HTTPException(status_code=422, detail="user_id is required for feedback")
     try:
+        if req.session_id:
+            await asyncio.to_thread(store.create_session, req.user_id, req.session_id)
         fid = await asyncio.to_thread(
             store.record_feedback,
             message_id=req.message_id,
@@ -165,11 +169,17 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
             time.perf_counter() - t0
         )
 
-        # Persist the turn (background) so feedback can reference it.
+        # Persist the turn so feedback can reference it by message_id.
         message_id = None
+        grounding = result.get("grounding", {})
         try:
-            grounding = result.get("grounding", {})
+            if req.user_id and req.session_id:
+                await asyncio.to_thread(
+                    store.create_session, req.user_id, req.session_id
+                )
             gateway_meta = result.get("gateway", {})
+            from config import GROQ_MODEL
+
             message_id = await asyncio.to_thread(
                 store.record_message,
                 session_id=req.session_id,
@@ -177,7 +187,7 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
                 query=result["query"],
                 answer=answer,
                 grounding=str(grounding) if grounding else None,
-                model=gateway_meta.get("model"),
+                model=gateway_meta.get("model") or GROQ_MODEL,
             )
         except Exception as exc:  # never fail the chat because of logging
             logger.warning(f"Message persistence failed: {exc}")

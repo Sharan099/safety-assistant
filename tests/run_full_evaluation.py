@@ -41,9 +41,9 @@ from backend.app.retrieval.hybrid import HybridRetriever
 from backend.app.retrieval.reranker import CrossEncoderReranker
 
 EVAL_DIR = ROOT / "output" / "evaluation"
-TEST_CASES = Path(os.getenv("EVAL_TEST_CASES", str(ROOT / "tests" / "test_cases_70.json")))
+TEST_CASES = Path(os.getenv("EVAL_TEST_CASES", str(ROOT / "tests" / "test_cases_20.json")))
 CHECKPOINT = EVAL_DIR / "eval_checkpoint.json"
-RESULTS_JSON = EVAL_DIR / os.getenv("EVAL_RESULTS_NAME", "rag_full_evaluation_results.json")
+RESULTS_JSON = EVAL_DIR / os.getenv("EVAL_RESULTS_NAME", "rag_eval_20_results.json")
 SKIP_LLM = os.getenv("EVAL_SKIP_LLM", "false").lower() == "true"
 
 NOT_FOUND_PHRASES = (
@@ -61,9 +61,10 @@ def p(msg: str) -> None:
 
 def ensure_test_cases() -> None:
     if not TEST_CASES.exists():
-        from tests.generate_test_cases_70 import main as gen
-
-        gen()
+        raise FileNotFoundError(
+            f"Test cases not found at {TEST_CASES}. "
+            "The canonical set is tests/test_cases_20.json."
+        )
 
 
 def corpus_stats() -> dict:

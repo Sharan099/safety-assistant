@@ -1,20 +1,345 @@
 {
   "converted": [
     {
-      "pdf": "data\\regulations\\ECE-R-16-Regulation.pdf",
-      "markdown": "ECE-R-16-Regulation.md",
-      "chars": 176170,
+      "pdf": "data\\CAE_COMPANION.pdf.pdf",
+      "markdown": "CAE_COMPANION.pdf.md",
+      "chars": 564162,
       "engine": "rapidocr-ppocr",
-      "seconds": 57.1
+      "seconds": 30.3
     },
     {
-      "pdf": "data\\UN_R16.pdf",
-      "markdown": "UN_R16.md",
-      "chars": 234095,
+      "pdf": "data\\EURO_NCAP_FRONTAL.pdf.pdf",
+      "markdown": "EURO_NCAP_FRONTAL.pdf.md",
+      "chars": 60368,
       "engine": "rapidocr-ppocr",
-      "seconds": 28.1
+      "seconds": 8.3
+    },
+    {
+      "pdf": "data\\EURO_NCAP_REAR.pdf.pdf",
+      "markdown": "EURO_NCAP_REAR.pdf.md",
+      "chars": 90681,
+      "engine": "rapidocr-ppocr",
+      "seconds": 14.5
+    },
+    {
+      "pdf": "data\\EURO_NCAP_SIDE.pdf.pdf",
+      "markdown": "EURO_NCAP_SIDE.pdf.md",
+      "chars": 62044,
+      "engine": "rapidocr-ppocr",
+      "seconds": 16.9
+    },
+    {
+      "pdf": "data\\EURO_NCAP_VRU.pdf.pdf",
+      "markdown": "EURO_NCAP_VRU.pdf.md",
+      "chars": 107956,
+      "engine": "rapidocr-ppocr",
+      "seconds": 29.0
+    },
+    {
+      "pdf": "data\\FMVSS_208.pdf.pdf",
+      "markdown": "FMVSS_208.pdf.md",
+      "chars": 3223932,
+      "engine": "rapidocr-ppocr",
+      "seconds": 2223.1
+    },
+    {
+      "pdf": "data\\ISO_26262.pdf.pdf",
+      "markdown": "ISO_26262.pdf.md",
+      "chars": 76208,
+      "engine": "rapidocr-ppocr",
+      "seconds": 5.3
+    },
+    {
+      "pdf": "data\\regulations\\13069a-ads2.0_090617_v9a_tag (1).pdf",
+      "markdown": "13069a-ads2.0_090617_v9a_tag (1).md",
+      "chars": 83070,
+      "engine": "rapidocr-ppocr",
+      "seconds": 20.5
+    },
+    {
+      "pdf": "data\\regulations\\28-inf01.pdf",
+      "markdown": "28-inf01.md",
+      "chars": 57585,
+      "engine": "rapidocr-ppocr",
+      "seconds": 13.1
+    },
+    {
+      "pdf": "data\\regulations\\4.-Final_New_Submit_Introduction_to_Passive_Safety_Onoda_MMC_240528.pdf",
+      "markdown": "4.-Final_New_Submit_Introduction_to_Passive_Safety_Onoda_MMC_240528.md",
+      "chars": 6465,
+      "engine": "rapidocr-ppocr",
+      "seconds": 34.7
+    },
+    {
+      "pdf": "data\\regulations\\[E_]ECE_TRANS_WP.29_GRSP_2010_20-EN.pdf",
+      "markdown": "[E_]ECE_TRANS_WP.29_GRSP_2010_20-EN.md",
+      "chars": 25460,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.2
+    },
+    {
+      "pdf": "data\\regulations\\CAE-Companion-2025-26.pdf",
+      "markdown": "CAE-Companion-2025-26.md",
+      "chars": 558517,
+      "engine": "rapidocr-ppocr",
+      "seconds": 18.6
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_32010L0040_EN_TXT.pdf",
+      "markdown": "CELEX_32010L0040_EN_TXT.md",
+      "chars": 46119,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.3
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_32016R0679_EN_TXT.pdf",
+      "markdown": "CELEX_32016R0679_EN_TXT.md",
+      "chars": 361718,
+      "engine": "rapidocr-ppocr",
+      "seconds": 1.1
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_32018R0858_EN_TXT.pdf",
+      "markdown": "CELEX_32018R0858_EN_TXT.md",
+      "chars": 619201,
+      "engine": "rapidocr-ppocr",
+      "seconds": 24.9
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_32019R2144_EN_TXT.pdf",
+      "markdown": "CELEX_32019R2144_EN_TXT.md",
+      "chars": 118912,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.5
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_32022R2236_EN_TXT.pdf",
+      "markdown": "CELEX_32022R2236_EN_TXT.md",
+      "chars": 275926,
+      "engine": "rapidocr-ppocr",
+      "seconds": 2.2
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_42010X0528(03)_EN_TXT.pdf",
+      "markdown": "CELEX_42010X0528(03)_EN_TXT.md",
+      "chars": 109594,
+      "engine": "rapidocr-ppocr",
+      "seconds": 60.1
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_42015X0710(01)_EN_TXT.pdf",
+      "markdown": "CELEX_42015X0710(01)_EN_TXT.md",
+      "chars": 127405,
+      "engine": "rapidocr-ppocr",
+      "seconds": 50.0
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_42020X0486_EN_TXT.pdf",
+      "markdown": "CELEX_42020X0486_EN_TXT.md",
+      "chars": 94260,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.5
+    },
+    {
+      "pdf": "data\\regulations\\CELEX_42020X0576_EN_TXT.pdf",
+      "markdown": "CELEX_42020X0576_EN_TXT.md",
+      "chars": 97323,
+      "engine": "rapidocr-ppocr",
+      "seconds": 5.4
+    },
+    {
+      "pdf": "data\\regulations\\d24106255.pdf",
+      "markdown": "d24106255.md",
+      "chars": 129677,
+      "engine": "rapidocr-ppocr",
+      "seconds": 57.0
+    },
+    {
+      "pdf": "data\\regulations\\ECE-R-16-Regulation.pdf",
+      "markdown": "ECE-R-16-Regulation.md",
+      "chars": 176233,
+      "engine": "rapidocr-ppocr",
+      "seconds": 92.5
+    },
+    {
+      "pdf": "data\\regulations\\engproc-85-00038.pdf",
+      "markdown": "engproc-85-00038.md",
+      "chars": 25767,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.2
+    },
+    {
+      "pdf": "data\\regulations\\euro-ncap-protocol-crash-protection-frontal-impact-v11.pdf",
+      "markdown": "euro-ncap-protocol-crash-protection-frontal-impact-v11.md",
+      "chars": 60401,
+      "engine": "rapidocr-ppocr",
+      "seconds": 3.2
+    },
+    {
+      "pdf": "data\\regulations\\euro-ncap-protocol-crash-protection-side-impact-v11.pdf",
+      "markdown": "euro-ncap-protocol-crash-protection-side-impact-v11.md",
+      "chars": 62077,
+      "engine": "rapidocr-ppocr",
+      "seconds": 6.7
+    },
+    {
+      "pdf": "data\\regulations\\euro-ncap-protocol-overall-assessment-v100.pdf",
+      "markdown": "euro-ncap-protocol-overall-assessment-v100.md",
+      "chars": 12917,
+      "engine": "rapidocr-ppocr",
+      "seconds": 3.7
+    },
+    {
+      "pdf": "data\\regulations\\GlobalSpec-ASIL-Rating-Article.pdf",
+      "markdown": "GlobalSpec-ASIL-Rating-Article.md",
+      "chars": 8998,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.1
+    },
+    {
+      "pdf": "data\\regulations\\OJ_L_202502161_EN_TXT.pdf",
+      "markdown": "OJ_L_202502161_EN_TXT.md",
+      "chars": 112690,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.7
+    },
+    {
+      "pdf": "data\\regulations\\R017r6e.pdf",
+      "markdown": "R017r6e.md",
+      "chars": 83764,
+      "engine": "rapidocr-ppocr",
+      "seconds": 10.3
+    },
+    {
+      "pdf": "data\\regulations\\R029r2am5e.pdf",
+      "markdown": "R029r2am5e.md",
+      "chars": 1954,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.1
+    },
+    {
+      "pdf": "data\\regulations\\R029r2e.pdf",
+      "markdown": "R029r2e.md",
+      "chars": 42123,
+      "engine": "rapidocr-ppocr",
+      "seconds": 10.5
+    },
+    {
+      "pdf": "data\\regulations\\R127r3am3e.pdf",
+      "markdown": "R127r3am3e.md",
+      "chars": 12878,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.3
+    },
+    {
+      "pdf": "data\\regulations\\R137e.pdf",
+      "markdown": "R137e.md",
+      "chars": 104936,
+      "engine": "rapidocr-ppocr",
+      "seconds": 12.5
+    },
+    {
+      "pdf": "data\\regulations\\R152am7e.pdf",
+      "markdown": "R152am7e.md",
+      "chars": 13159,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.3
+    },
+    {
+      "pdf": "data\\regulations\\R155e (2) (1).pdf",
+      "markdown": "R155e (2) (1).md",
+      "chars": 75193,
+      "engine": "rapidocr-ppocr",
+      "seconds": 5.5
+    },
+    {
+      "pdf": "data\\regulations\\R156e (2).pdf",
+      "markdown": "R156e (2).md",
+      "chars": 38001,
+      "engine": "rapidocr-ppocr",
+      "seconds": 3.3
+    },
+    {
+      "pdf": "data\\regulations\\SafetyCompanion-2026.pdf",
+      "markdown": "SafetyCompanion-2026.md",
+      "chars": 459327,
+      "engine": "rapidocr-ppocr",
+      "seconds": 94.3
+    },
+    {
+      "pdf": "data\\regulations\\SGS TUEV Brochure Training FUSA Auto EN A4 13 1.pdf",
+      "markdown": "SGS TUEV Brochure Training FUSA Auto EN A4 13 1.md",
+      "chars": 17226,
+      "engine": "rapidocr-ppocr",
+      "seconds": 6.4
+    },
+    {
+      "pdf": "data\\regulations\\tp-208-14_tag.pdf",
+      "markdown": "tp-208-14_tag.md",
+      "chars": 490814,
+      "engine": "rapidocr-ppocr",
+      "seconds": 121.6
+    },
+    {
+      "pdf": "data\\regulations\\UsedVehicles_Kigali_Passive_General_Safety.pdf",
+      "markdown": "UsedVehicles_Kigali_Passive_General_Safety.md",
+      "chars": 19499,
+      "engine": "rapidocr-ppocr",
+      "seconds": 19.6
+    },
+    {
+      "pdf": "data\\regulations\\whitepaper-virtual-validation-at-in-tech.pdf",
+      "markdown": "whitepaper-virtual-validation-at-in-tech.md",
+      "chars": 9749,
+      "engine": "rapidocr-ppocr",
+      "seconds": 4.7
+    },
+    {
+      "pdf": "data\\SAFETY_COMPANION.pdf.pdf",
+      "markdown": "SAFETY_COMPANION.pdf.md",
+      "chars": 460766,
+      "engine": "rapidocr-ppocr",
+      "seconds": 64.1
+    },
+    {
+      "pdf": "data\\UN_R135.pdf",
+      "markdown": "UN_R135.md",
+      "chars": 90299,
+      "engine": "rapidocr-ppocr",
+      "seconds": 22.5
+    },
+    {
+      "pdf": "data\\UN_R137.pdf",
+      "markdown": "UN_R137.md",
+      "chars": 104938,
+      "engine": "rapidocr-ppocr",
+      "seconds": 8.3
+    },
+    {
+      "pdf": "data\\UN_R17.pdf",
+      "markdown": "UN_R17.md",
+      "chars": 151905,
+      "engine": "rapidocr-ppocr",
+      "seconds": 7.5
+    },
+    {
+      "pdf": "data\\UN_R94.pdf",
+      "markdown": "UN_R94.md",
+      "chars": 133920,
+      "engine": "rapidocr-ppocr",
+      "seconds": 29.8
+    },
+    {
+      "pdf": "data\\UN_R95.pdf",
+      "markdown": "UN_R95.md",
+      "chars": 6065,
+      "engine": "rapidocr-ppocr",
+      "seconds": 0.1
     }
   ],
-  "skipped": [],
+  "skipped": [
+    "data\\UN_R14.pdf",
+    "data\\UN_R16.pdf"
+  ],
   "errors": []
 }

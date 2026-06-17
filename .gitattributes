@@ -1,3 +1,6 @@
 # PDF files in data/regulations - use Git LFS
 data/regulations/*.pdf filter=lfs diff=lfs merge=lfs -text
 data/**/*.pdf filter=lfs diff=lfs merge=lfs -text
+
+# Vector index (~200+ MB) — exceeds GitHub 100 MB limit without LFS
+output/regulation_embeddings.json filter=lfs diff=lfs merge=lfs -text

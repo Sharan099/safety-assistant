@@ -91,6 +91,30 @@ const PROBLEM_OPTIONS = [
 
 const USER_KEY = "psa_user";
 
+const INDEXED_REGULATIONS = [
+  { code: "UN R14", type: "Legal", topic: "Seat belt anchorages & strength" },
+  { code: "UN R16", type: "Legal", topic: "Safety belts & restraint systems" },
+  { code: "UN R17", type: "Legal", topic: "Seats, strength & head restraints" },
+  { code: "UN R94", type: "Legal", topic: "Frontal impact occupant protection" },
+  { code: "UN R95", type: "Legal", topic: "Side impact protection" },
+  { code: "UN R135", type: "Legal", topic: "Pole side impact" },
+  { code: "UN R137", type: "Legal", topic: "Full-width frontal impact" },
+  { code: "FMVSS 208", type: "Legal", topic: "US frontal occupant protection" },
+  { code: "Euro NCAP", type: "Rating", topic: "Frontal, side, rear & VRU protocols" },
+  { code: "ISO 26262", type: "Reference", topic: "Functional safety (ASIL)" },
+  { code: "CAE Companion", type: "Reference", topic: "Crash simulation & virtual validation" },
+  { code: "Safety Companion", type: "Reference", topic: "Passive safety engineering guide" },
+];
+
+const EXAMPLE_QUESTIONS = [
+  "What are the UN R14 anchorage strength requirements?",
+  "What test load applies to belt anchorages for M1 vehicles under UN R14?",
+  "What tests apply to safety belts under UN R16?",
+  "What frontal impact requirements apply under UN R94?",
+  "How does Euro NCAP assess frontal crash protection?",
+  "What is ASIL in ISO 26262?",
+];
+
 function getApiBase() {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window !== "undefined" && window.location.port === "8080") {
@@ -267,7 +291,7 @@ export default function Home() {
     const msg = messages[idx];
     const fb = msg.feedback || { reasons: [], comment: "" };
     try {
-      await fetch(`${apiBase}/feedback`, {
+      const res = await fetch(`${apiBase}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -281,10 +305,16 @@ export default function Home() {
           answer: msg.content,
         }),
       });
+      if (!res.ok) throw new Error(await res.text());
       updateFeedback(idx, { submitted: true, panelOpen: false, rating });
     } catch {
-      updateFeedback(idx, { submitted: true, panelOpen: false, rating });
+      updateFeedback(idx, { panelOpen: rating === "down", submitted: false, rating });
+      alert("Could not save feedback. Please try again.");
     }
+  }
+
+  function pickExample(question: string) {
+    setInput(question);
   }
 
   function onThumb(idx: number, rating: "up" | "down") {
@@ -321,14 +351,23 @@ export default function Home() {
     return (
       <main className="onboard">
         <div className="card">
-          <h1>PSA AI</h1>
-          <p className="tag">Passive Safety Regulation Assistant — Hybrid RAG</p>
+          <div className="logo-badge">PSA</div>
+          <h1>Passive Safety Assistant</h1>
+          <p className="tag">
+            Regulation-aware AI for crashworthiness, restraints, and occupant protection
+          </p>
           <div className="testing">
-            🧪 This system is in a <strong>testing phase</strong>. We are currently
-            evaluating it with a small group of users. Your questions and feedback
-            are stored to help us improve.
+            <strong>Testing phase</strong> — your questions and feedback are stored to
+            help us improve answer quality and guardrails.
           </div>
-          <label htmlFor="buddy">Pick a buddy name to get started</label>
+          <section className="onboard-info">
+            <h3>What&apos;s indexed</h3>
+            <p className="muted">
+              12 document families (~13,000 text chunks): UN R14/R16/R17/R94/R95/R135/R137,
+              FMVSS 208, Euro NCAP protocols, ISO 26262, CAE Companion, and Safety Companion.
+            </p>
+          </section>
+          <label htmlFor="buddy">Choose a display name</label>
           <input
             id="buddy"
             value={nameInput}
@@ -339,12 +378,12 @@ export default function Home() {
             autoFocus
           />
           {nameError && <p className="err">{nameError}</p>}
-          <button onClick={registerUser} disabled={registering}>
+          <button className="primary" onClick={registerUser} disabled={registering}>
             {registering ? "Setting up…" : "Start chatting"}
           </button>
           <p className="fine">
-            No email or password needed. We only store the name you choose, your
-            chats, and any feedback you give — to improve the assistant.
+            No email or password. We store your chosen name, chat history, and any
+            thumbs-up/down feedback linked to your session.
           </p>
         </div>
         <style jsx>{onboardCss}</style>
@@ -355,23 +394,73 @@ export default function Home() {
   const warming = !ready?.ready;
 
   return (
-    <main className="layout">
+    <main className="app-shell">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <span className="logo-badge sm">PSA</span>
+          <div>
+            <strong>Passive Safety</strong>
+            <span className="sidebar-sub">Regulation Assistant</span>
+          </div>
+        </div>
+
+        <section className="sidebar-section">
+          <h2>Indexed regulations</h2>
+          <p className="sidebar-hint">
+            Answers are grounded only in these documents. Out-of-scope questions
+            (e.g. general knowledge) are refused by guardrails.
+          </p>
+          <ul className="reg-list">
+            {INDEXED_REGULATIONS.map((r) => (
+              <li key={r.code}>
+                <span className={`reg-type reg-type-${r.type.toLowerCase()}`}>{r.type}</span>
+                <div>
+                  <strong>{r.code}</strong>
+                  <span>{r.topic}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="sidebar-section">
+          <h2>Good questions to ask</h2>
+          <ul className="example-list">
+            {EXAMPLE_QUESTIONS.map((q) => (
+              <li key={q}>
+                <button type="button" className="example-btn" onClick={() => pickExample(q)}>
+                  {q}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="sidebar-section sidebar-foot">
+          <p>
+            <strong>How it works:</strong> hybrid retrieval (semantic + keyword) →
+            reranking → grounded answer with citations. If evidence is weak, the
+            assistant says it is not found in the regulations.
+          </p>
+        </section>
+      </aside>
+
+      <div className="main-col">
       <header className="header">
         <div>
-          <h1>PSA AI</h1>
-          <p>Passive Safety Regulation Assistant — Hybrid RAG</p>
+          <h1>Chat</h1>
+          <p>Ask about UN/ECE regulations, FMVSS, Euro NCAP, ISO 26262, and engineering references</p>
         </div>
         <div className="who">
-          <span>👤 {user.username}</span>
+          <span className="user-pill">👤 {user.username}</span>
           <button className="link" onClick={resetUser}>
-            switch user
+            Switch user
           </button>
         </div>
       </header>
 
       <div className="testing-banner">
-        🧪 Testing phase — we&apos;re trialling this with a few users. Answers may
-        be imperfect; please rate them so we can improve.
+        Testing phase — please rate answers with 👍/👎 so we can improve retrieval and guardrails.
       </div>
 
       {warming && (
@@ -391,19 +480,36 @@ export default function Home() {
       <section className="chat">
         {messages.length === 0 && (
           <div className="empty">
-            <h2>What this assistant does</h2>
+            <h2>Welcome, {user.username}</h2>
             <p>
-              It answers questions about passive-safety regulations (currently
-              <strong> UN R14</strong> and <strong>UN R16</strong>) using only the
-              indexed regulation text. Every answer shows its sources with the
-              document, clause/section, and revision. If it isn&apos;t confident,
-              it will say <em>&quot;I don&apos;t know&quot;</em> rather than guess.
+              This assistant answers <strong>passive safety</strong> questions using
+              only the indexed regulation text — not general web knowledge. Every
+              grounded answer shows sources (document, section, revision). If the
+              corpus does not contain enough evidence, you will see{" "}
+              <em>Not found in the regulations.</em>
             </p>
-            <ul>
-              <li>What are the UN R14 anchorage strength requirements?</li>
-              <li>Explain UN R16 dynamic test requirements for belt assemblies.</li>
-              <li>What test load applies to belt anchorages for M1 vehicles?</li>
-            </ul>
+            <div className="empty-grid">
+              <div className="empty-card">
+                <h3>You can ask about</h3>
+                <ul>
+                  <li>Test loads, procedures, and approval criteria (UN R14–R137)</li>
+                  <li>US FMVSS 208 frontal protection requirements</li>
+                  <li>Euro NCAP crash test protocols and scoring</li>
+                  <li>ISO 26262 functional safety (ASIL)</li>
+                  <li>CAE / Safety Companion engineering references</li>
+                </ul>
+              </div>
+              <div className="empty-card">
+                <h3>It will refuse</h3>
+                <ul>
+                  <li>General knowledge (geography, sports, etc.)</li>
+                  <li>Prompt injection or jailbreak attempts</li>
+                  <li>Unsafe or illegal instructions</li>
+                  <li>Topics outside the indexed documents</li>
+                </ul>
+              </div>
+            </div>
+            <p className="empty-cta">Try an example from the sidebar, or type your own question below.</p>
           </div>
         )}
 
@@ -632,6 +738,7 @@ export default function Home() {
       </footer>
 
       <style jsx>{appCss}</style>
+      </div>
     </main>
   );
 }
@@ -642,177 +749,265 @@ const onboardCss = `
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(160deg, #fff7ed 0%, #ffffff 45%, #ffedd5 100%);
   }
   .card {
     width: 100%;
-    max-width: 440px;
-    background: var(--surface);
+    max-width: 480px;
+    background: #fff;
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    box-shadow: var(--shadow);
   }
-  .card h1 { margin: 0; font-size: 1.8rem; }
-  .tag { margin: 0; color: var(--muted); font-size: 0.9rem; }
+  .logo-badge {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), #fb923c);
+    color: #fff; font-weight: 800; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card h1 { margin: 0; font-size: 1.65rem; color: var(--text); }
+  .tag { margin: 0; color: var(--muted); font-size: 0.92rem; }
   .testing {
-    margin: 0.5rem 0;
-    padding: 0.75rem;
-    border-radius: 10px;
-    background: rgba(245, 158, 11, 0.12);
-    border: 1px solid rgba(245, 158, 11, 0.4);
-    color: var(--text);
-    font-size: 0.85rem;
+    margin: 0.25rem 0;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    font-size: 0.86rem;
     line-height: 1.45;
   }
-  label { font-size: 0.9rem; font-weight: 600; margin-top: 0.5rem; }
+  .onboard-info h3 { margin: 0.5rem 0 0.25rem; font-size: 0.95rem; }
+  .muted { margin: 0; color: var(--muted); font-size: 0.84rem; line-height: 1.45; }
+  label { font-size: 0.9rem; font-weight: 600; margin-top: 0.25rem; }
   input {
-    padding: 0.75rem;
-    border-radius: 8px;
+    padding: 0.8rem 0.9rem;
+    border-radius: 10px;
     border: 1px solid var(--border);
-    background: var(--bg);
+    background: #fff;
     color: var(--text);
     font-size: 1rem;
   }
+  input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
   .err { color: var(--danger); font-size: 0.85rem; margin: 0; }
-  button {
-    margin-top: 0.5rem;
-    padding: 0.8rem;
+  .primary {
+    margin-top: 0.35rem;
+    padding: 0.85rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--accent);
     color: #fff;
     font-weight: 600;
     font-size: 1rem;
   }
-  button:disabled { opacity: 0.5; }
-  .fine { color: var(--muted); font-size: 0.78rem; line-height: 1.4; margin: 0.25rem 0 0; }
+  .primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .primary:disabled { opacity: 0.55; }
+  .fine { color: var(--muted); font-size: 0.78rem; line-height: 1.45; margin: 0.25rem 0 0; }
 `;
 
 const appCss = `
-  .layout {
-    max-width: 920px;
-    margin: 0 auto;
+  .app-shell {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
+    display: grid;
+    grid-template-columns: minmax(260px, 300px) 1fr;
+    background: #fafaf9;
+  }
+  @media (max-width: 900px) {
+    .app-shell { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid var(--border);
+    padding: 1.25rem 1rem 1.5rem;
+    overflow-y: auto;
+    max-height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+  .sidebar-brand {
+    display: flex; align-items: center; gap: 0.65rem;
+    margin-bottom: 1.25rem; padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-badge.sm {
+    width: 36px; height: 36px; border-radius: 10px; font-size: 0.75rem;
+    background: linear-gradient(135deg, var(--accent), #fb923c);
+    color: #fff; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sidebar-brand strong { display: block; font-size: 0.95rem; }
+  .sidebar-sub { color: var(--muted); font-size: 0.78rem; }
+  .sidebar-section { margin-bottom: 1.25rem; }
+  .sidebar-section h2 {
+    margin: 0 0 0.35rem; font-size: 0.82rem; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--accent);
+  }
+  .sidebar-hint { margin: 0 0 0.6rem; font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+  .reg-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+  .reg-list li {
+    display: flex; gap: 0.5rem; align-items: flex-start;
+    padding: 0.45rem 0.5rem; border-radius: 8px; background: var(--surface);
+    border: 1px solid transparent; font-size: 0.78rem;
+  }
+  .reg-list strong { display: block; font-size: 0.8rem; }
+  .reg-list span { color: var(--muted); line-height: 1.3; }
+  .reg-type {
+    flex-shrink: 0; font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+    padding: 0.15rem 0.35rem; border-radius: 4px; margin-top: 0.1rem;
+  }
+  .reg-type-legal { background: #dcfce7; color: #166534; }
+  .reg-type-rating { background: #ffedd5; color: #c2410c; }
+  .reg-type-reference { background: #f5f5f4; color: #57534e; }
+  .example-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+  .example-btn {
+    width: 100%; text-align: left; padding: 0.5rem 0.6rem;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: #fff; color: var(--text); font-size: 0.78rem; line-height: 1.35;
+  }
+  .example-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .sidebar-foot p { margin: 0; font-size: 0.76rem; color: var(--muted); line-height: 1.45; }
+  .main-col {
+    max-width: 900px; width: 100%; margin: 0 auto;
+    min-height: 100vh; display: flex; flex-direction: column; padding: 1rem 1.25rem;
   }
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 1rem; margin-bottom: 0.5rem;
   }
-  .header h1 { margin: 0; font-size: 1.5rem; }
-  .header p { margin: 0.25rem 0 0.5rem; color: var(--muted); font-size: 0.9rem; }
-  .who { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; font-size: 0.85rem; }
+  .header h1 { margin: 0; font-size: 1.45rem; }
+  .header p { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.88rem; max-width: 36rem; }
+  .who { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; font-size: 0.85rem; }
+  .user-pill {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.82rem;
+  }
   .link {
     background: none; border: none; color: var(--accent);
     font-size: 0.78rem; padding: 0; text-decoration: underline;
   }
   .testing-banner {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    background: rgba(245, 158, 11, 0.12);
-    border: 1px solid rgba(245, 158, 11, 0.4);
+    margin-bottom: 0.65rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
     font-size: 0.82rem;
   }
   .status {
     margin-bottom: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    background: rgba(59, 130, 246, 0.12);
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    padding: 0.55rem 0.85rem;
+    border-radius: 10px;
+    background: #fff7ed;
+    border: 1px solid var(--border);
     font-size: 0.83rem;
   }
-  .status-err { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.45); }
-  .status-warn { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.4); }
-  .chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
-  .empty { color: var(--muted); padding: 1rem 0; }
-  .empty h2 { color: var(--text); font-size: 1.1rem; margin: 0 0 0.5rem; }
-  .empty p { line-height: 1.5; }
-  .empty ul { padding-left: 1.2rem; }
-  .empty li { margin: 0.25rem 0; }
-  .bubble { padding: 1rem 1.25rem; border-radius: 12px; line-height: 1.5; }
-  .bubble.user { background: var(--accent); color: #fff; align-self: flex-end; max-width: 85%; }
-  .bubble.assistant { background: var(--surface); border: 1px solid var(--border); }
-  .abstain {
-    margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 8px;
-    background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4);
-    color: var(--warn); font-size: 0.85rem;
+  .status-err { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+  .status-warn { background: #fffbeb; border-color: #fde68a; color: var(--warn); }
+  .chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-bottom: 0.5rem; }
+  .empty { padding: 0.5rem 0 1rem; }
+  .empty h2 { font-size: 1.2rem; margin: 0 0 0.5rem; }
+  .empty p { color: var(--muted); line-height: 1.55; margin: 0 0 1rem; }
+  .empty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) { .empty-grid { grid-template-columns: 1fr; } }
+  .empty-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+  .empty-card h3 { margin: 0 0 0.4rem; font-size: 0.9rem; color: var(--accent); }
+  .empty-card ul { margin: 0; padding-left: 1.1rem; font-size: 0.84rem; color: var(--muted); }
+  .empty-card li { margin: 0.2rem 0; }
+  .empty-cta { font-size: 0.85rem; font-style: italic; margin: 0; }
+  .bubble { padding: 1rem 1.15rem; border-radius: 14px; line-height: 1.55; }
+  .bubble.user {
+    background: linear-gradient(135deg, var(--accent), #f97316);
+    color: #fff; align-self: flex-end; max-width: 85%;
+    box-shadow: 0 2px 12px rgba(234, 88, 12, 0.2);
+  }
+  .bubble.assistant {
+    background: #fff; border: 1px solid var(--border);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
   }
   .flags { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
   .flag {
     padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.82rem;
-    background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.35);
+    background: var(--accent-soft); border: 1px solid var(--border);
   }
-  .flag-mixed_doc_types { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.45); }
+  .flag-mixed_doc_types { background: #fffbeb; border-color: #fde68a; }
   .warnings { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; color: var(--warn); font-size: 0.85rem; }
   .sources { margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted); }
   .citation-list { list-style: none; padding: 0; margin: 0.5rem 0 0; display: flex; flex-direction: column; gap: 0.6rem; }
-  .citation { padding: 0.5rem 0.6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); }
-  .cmarker { font-weight: 700; margin-right: 0.4rem; }
+  .citation { padding: 0.55rem 0.65rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+  .cmarker { font-weight: 700; margin-right: 0.4rem; color: var(--accent); }
   .badge { display: inline-block; padding: 0.05rem 0.4rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; margin-right: 0.4rem; }
   .badge-legal { background: #16a34a; color: #fff; }
-  .badge-rating { background: #f97316; color: #fff; }
-  .badge-unverified { background: #6b7280; color: #fff; }
+  .badge-rating { background: var(--accent); color: #fff; }
+  .badge-unverified { background: #a8a29e; color: #fff; }
   .clabel { font-weight: 600; }
   .csnippet { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
-  .timing { display: block; margin-top: 0.5rem; color: var(--muted); }
-  .gateway {
-    margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;
-  }
+  .timing { display: block; margin-top: 0.5rem; color: var(--muted); font-size: 0.78rem; }
+  .gateway { margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
   .gw-badge {
     display: inline-flex; align-items: center; gap: 0.3rem;
     padding: 0.15rem 0.55rem; border-radius: 999px;
     font-size: 0.74rem; font-weight: 700; color: #fff;
-    background: #475569; border: 1px solid rgba(255,255,255,0.15);
+    background: #78716c;
   }
-  .gw-tier-1 { background: #2563eb; }
-  .gw-tier-2 { background: #7c3aed; }
-  .gw-tier-3 { background: #be185d; }
+  .gw-tier-1 { background: var(--accent); }
+  .gw-tier-2 { background: #c2410c; }
+  .gw-tier-3 { background: #9a3412; }
   .gw-pill {
     display: inline-flex; align-items: center; gap: 0.25rem;
     padding: 0.12rem 0.5rem; border-radius: 999px;
     font-size: 0.72rem; font-weight: 600;
-    background: var(--bg); border: 1px solid var(--border); color: var(--muted);
+    background: #fff; border: 1px solid var(--border); color: var(--muted);
   }
-  .gw-cache { color: #16a34a; border-color: rgba(22,163,74,0.45); }
-  .gw-fallback { color: #d97706; border-color: rgba(217,119,6,0.45); }
-  .gw-saved { color: #16a34a; border-color: rgba(22,163,74,0.4); }
+  .gw-cache { color: var(--success); border-color: #bbf7d0; }
+  .gw-fallback { color: var(--warn); border-color: #fde68a; }
+  .gw-saved { color: var(--success); border-color: #bbf7d0; }
   .feedback { margin-top: 0.85rem; border-top: 1px dashed var(--border); padding-top: 0.65rem; }
   .fb-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
   .fb-q { font-size: 0.83rem; color: var(--muted); }
   .thumb {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
     padding: 0.25rem 0.5rem; font-size: 1rem;
   }
-  .thumb.active { border-color: var(--accent); }
-  .fb-thanks { color: #22c55e; font-size: 0.85rem; }
+  .thumb.active { border-color: var(--accent); background: var(--accent-soft); }
+  .fb-thanks { color: var(--success); font-size: 0.85rem; }
   .fb-panel {
     margin-top: 0.6rem; padding: 0.75rem; border: 1px solid var(--border);
-    border-radius: 10px; background: var(--bg); display: flex; flex-direction: column; gap: 0.4rem;
+    border-radius: 12px; background: var(--surface); display: flex; flex-direction: column; gap: 0.4rem;
   }
   .fb-title { margin: 0 0 0.2rem; font-size: 0.85rem; font-weight: 600; }
   .fb-opt { display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.83rem; line-height: 1.3; }
   .fb-comment {
     margin-top: 0.3rem; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); resize: vertical;
+    background: #fff; color: var(--text); resize: vertical;
   }
   .fb-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
-  .fb-cancel { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+  .fb-cancel { background: #fff; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.82rem; }
   .fb-submit { background: var(--accent); border: none; color: #fff; border-radius: 8px; padding: 0.4rem 0.9rem; font-size: 0.82rem; font-weight: 600; }
-  .export { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.76rem; }
+  .export { background: #fff; border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.76rem; }
   .loading { color: var(--muted); font-style: italic; }
-  .composer { display: flex; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-  .composer textarea {
-    flex: 1; resize: none; padding: 0.75rem; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  .composer {
+    display: flex; gap: 0.5rem; padding-top: 1rem;
+    border-top: 1px solid var(--border); background: #fafaf9;
+    position: sticky; bottom: 0;
   }
+  .composer textarea {
+    flex: 1; resize: none; padding: 0.8rem; border-radius: 12px;
+    border: 1px solid var(--border); background: #fff; color: var(--text);
+  }
+  .composer textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
   .composer textarea:disabled { opacity: 0.6; }
-  .composer button { padding: 0 1.25rem; border: none; border-radius: 8px; background: var(--accent); color: #fff; font-weight: 600; }
+  .composer button {
+    padding: 0 1.35rem; border: none; border-radius: 12px;
+    background: var(--accent); color: #fff; font-weight: 600;
+  }
+  .composer button:hover:not(:disabled) { background: var(--accent-hover); }
   .composer button:disabled { opacity: 0.5; }
 `;

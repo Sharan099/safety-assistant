@@ -129,5 +129,73 @@ def run() -> dict:
     return out
 
 
+def run_incremental(new_chunks: list[dict], model=None) -> dict:
+    """Embed only chunks not already present in EMBEDDINGS_FILE; merge and save."""
+    existing: dict = {"embeddings": {}, "metadata": {}}
+    if EMBEDDINGS_FILE.exists():
+        with open(EMBEDDINGS_FILE, encoding="utf-8") as f:
+            existing = json.load(f)
+
+    known = set(existing.get("embeddings", {}))
+    to_embed = [
+        c for c in new_chunks
+        if (c.get("text") or "").strip() and c.get("chunk_id") not in known
+    ]
+    if not to_embed:
+        p(f"No new chunks to embed ({len(known)} vectors already on disk)")
+        return existing
+
+    from sentence_transformers import SentenceTransformer
+
+    if model is None:
+        model = SentenceTransformer(
+            EMBEDDING_MODEL,
+            device="cpu",
+            trust_remote_code=EMBEDDING_TRUST_REMOTE_CODE,
+        )
+
+    p(f"Incremental embed: {len(to_embed)} new chunks ({len(known)} existing)")
+    embeddings = dict(existing.get("embeddings", {}))
+    metadata = dict(existing.get("metadata", {}))
+    t0 = time.perf_counter()
+
+    for start in range(0, len(to_embed), EMBEDDING_BATCH):
+        batch_chunks = to_embed[start : start + EMBEDDING_BATCH]
+        batch_texts = [
+            EMBEDDING_DOC_PREFIX + build_chunk_embedding_text(c) for c in batch_chunks
+        ]
+        batch_ids = [c["chunk_id"] for c in batch_chunks]
+        vectors = model.encode(
+            batch_texts,
+            batch_size=min(EMBEDDING_BATCH, len(batch_texts)),
+            show_progress_bar=False,
+            convert_to_numpy=True,
+            normalize_embeddings=True,
+        )
+        for cid, vec, chunk in zip(batch_ids, vectors, batch_chunks):
+            embeddings[cid] = vec.tolist()
+            metadata[cid] = {
+                "type": chunk.get("chunk_type"),
+                "regulation": chunk.get("regulation"),
+                "heading_path": chunk.get("heading_path"),
+                "parent_id": chunk.get("parent_id"),
+            }
+        gc.collect()
+
+    out = {
+        "model": EMBEDDING_MODEL,
+        "dimension": getattr(
+            model, "get_embedding_dimension", model.get_sentence_embedding_dimension
+        )(),
+        "total_vectors": len(embeddings),
+        "embeddings": embeddings,
+        "metadata": metadata,
+    }
+    EMBEDDINGS_FILE.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+    elapsed = round(time.perf_counter() - t0, 1)
+    p(f"Merged {len(to_embed)} new vectors -> {EMBEDDINGS_FILE} ({elapsed}s, total={len(embeddings)})")
+    return out
+
+
 if __name__ == "__main__":
     run()

@@ -146,6 +146,53 @@ def discover_pdfs(only_regs: list[str] | None = None) -> list[Path]:
     return filtered
 
 
+def discover_root_pdfs() -> list[Path]:
+    """PDFs directly under data/ only — excludes data/regulations/ and other subdirs."""
+    return sorted(
+        p for p in DATA_DIR.iterdir()
+        if p.is_file() and p.suffix.lower() == ".pdf"
+    )
+
+
+def convert_single_pdf(
+    pdf_path: Path,
+    *,
+    force: bool = False,
+    converter=None,
+) -> dict:
+    """Convert one PDF to markdown. Returns a manifest-style result dict."""
+    MARKDOWN_DIR.mkdir(parents=True, exist_ok=True)
+    stem = pdf_path.stem
+    out_md = MARKDOWN_DIR / f"{stem}.md"
+    rel_pdf = str(pdf_path.relative_to(DATA_DIR.parent))
+
+    if out_md.exists() and not force:
+        return {"status": "skipped", "pdf": rel_pdf, "markdown": out_md.name}
+
+    t0 = time.perf_counter()
+    md, engine = convert_pdf(pdf_path, converter=converter)
+    if not md.strip():
+        raise ValueError("empty markdown output")
+
+    header = (
+        f"---\n"
+        f"source_pdf: {pdf_path.name}\n"
+        f"regulation: {_detect_regulation(pdf_path.name)}\n"
+        f"converter: {engine}\n"
+        f"---\n\n"
+    )
+    out_md.write_text(header + md, encoding="utf-8")
+    elapsed = round(time.perf_counter() - t0, 1)
+    return {
+        "status": "converted",
+        "pdf": rel_pdf,
+        "markdown": out_md.name,
+        "chars": len(md),
+        "engine": engine,
+        "seconds": elapsed,
+    }
+
+
 def run(force: bool = False, only_regs: list[str] | None = None) -> dict:
     MARKDOWN_DIR.mkdir(parents=True, exist_ok=True)
     pdfs = discover_pdfs(only_regs=only_regs)

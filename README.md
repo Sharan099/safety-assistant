@@ -77,7 +77,7 @@ React/Next.js Frontend
 | OCR ingestion | PaddleOCR / PP-OCR (RapidOCR ONNX fallback) |
 | Observability | LangSmith (query, docs, prompt, response, latency) |
 | Monitoring | Prometheus + Grafana (cost, latency, tokens, errors) |
-| Evaluation | RAGAS + `tests/test_ragas_evaluation.py` |
+| Evaluation | RAGAS + `tests/run_full_evaluation.py` (`tests/test_cases_20.json`) |
 
 > Note: `backend/app/graph/workflow.py` is the **LangGraph** orchestration graph,
 > not GraphRAG. GraphRAG (Neo4j KG) was removed.
@@ -479,18 +479,10 @@ For OCR, also use `OCR_BACKEND=rapidocr` (PP-OCR via ONNX) instead of native Pad
 
 ### 4. Verify retrieval & run evaluation
 
-**20 questions (recommended, with Groq LLM):**
+**20 questions (canonical set — regulations + guardrails):**
 
 ```powershell
 .\scripts\run_evaluation_20.ps1
-```
-
-**70 questions (full benchmark):**
-
-```bash
-conda run -n rag python tests/generate_test_cases_70.py
-conda run -n rag python tests/run_full_evaluation.py
-# or: .\scripts\run_evaluation.ps1
 ```
 
 If Groq daily token limit is hit, use retrieval-only proxies:
@@ -504,10 +496,9 @@ Outputs under `output/evaluation/`:
 
 | File | Description |
 |------|-------------|
-| `rag_eval_20_results.json` | **20-Q run** (Groq answers) |
-| `eval_*_20.png` | Charts for 20-Q run |
-| `rag_full_evaluation_results.json` | 70-Q run |
-| `eval_ragas_metrics.png` | 70-Q charts (no `_20` suffix) |
+| `rag_eval_20_results.json` | 20-question RAGAS results |
+| `eval_*_20.png` | Scorecard, guardrails, latency, ablation charts |
+| `eval_ragas_metrics_20.png` | RAGAS metric charts for the 20-Q set |
 
 ## Project layout
 
@@ -779,7 +770,7 @@ sum(rate(rag_errors_total[5m]))
   (e.g. notify Slack when `rate(rag_errors_total[5m]) > 0`).
 - **Retrieval-quality panels:** export per-query `semantic_count` / `bm25_count` /
   `rerank_score` as metrics to chart hybrid contribution and rerank lift over time.
-- **RAGAS over time:** push `tests/test_ragas_evaluation.py` results into Prometheus
+- **RAGAS over time:** push `tests/run_full_evaluation.py` results into Prometheus
   (pushgateway) or a CI job to trend context recall / faithfulness per build.
 - **Tracing dashboards:** connect LangSmith datasets to Grafana, or add OpenTelemetry
   spans for distributed traces across gateway → backend → Groq.
@@ -865,6 +856,39 @@ Guardrail blocks spiking on the dashboard during prompt-injection tests:
 Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 
 ![Prometheus targets](output/screenshots/Prometheus.png)
+
+## Deploy to Railway (backend) + Vercel (frontend)
+
+### Backend — Railway
+
+1. Push this repo to GitHub (see [Manual GitHub push](#manual-github-push) below).
+2. In [Railway](https://railway.app), create a project → **Deploy from GitHub** → select the repo.
+3. Set **Root directory** to repo root and use `Dockerfile.backend` (or `railway.toml` which points to it).
+4. Add environment variables from `.env.example` (at minimum `GROQ_API_KEY`, `CORS_ORIGINS`).
+5. Mount a **volume** at `/app/var` so SQLite (`APP_DB_PATH=/app/var/app.db`) persists users, sessions, messages, and feedback.
+6. Note the public URL (e.g. `https://psa-api.up.railway.app`). Health check: `GET /api/v1/health`.
+
+`output/regulation_chunks.json` and `output/regulation_embeddings.json` are baked into the Docker image. Rebuild after re-ingestion.
+
+### Frontend — Vercel
+
+1. Import the same GitHub repo in [Vercel](https://vercel.com).
+2. Set **Root directory** to `frontend`.
+3. Add `NEXT_PUBLIC_API_URL=https://<your-railway-host>/api/v1` (see `frontend/.env.example`).
+4. Deploy. Add the Vercel URL to Railway `CORS_ORIGINS`.
+
+### Manual GitHub push
+
+When you are ready to deploy, commit and push manually:
+
+```bash
+git add -A
+git status          # review changes
+git commit -m "Production cleanup: 20Q eval, Railway/Vercel, UI refresh"
+git push origin main
+```
+
+You control when code reaches GitHub — nothing is pushed automatically from this assistant.
 
 ## License
 

@@ -7,6 +7,7 @@ import json
 import os
 import re
 import time
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -47,6 +48,23 @@ REG_MAP = {
     "fmvss": "FMVSS",
 }
 
+_LFS_POINTER_PREFIX = "version https://git-lfs.github.com/spec/v1"
+
+
+def _load_json_artifact(path: Path, *, label: str) -> dict:
+    """Load a JSON artifact; fail clearly if Git LFS was not pulled."""
+    raw = path.read_text(encoding="utf-8")
+    if raw.lstrip().startswith(_LFS_POINTER_PREFIX):
+        raise ValueError(
+            f"{label} ({path.name}) is a Git LFS pointer, not the real file. "
+            "Enable Git LFS on Railway or rebuild the Docker image (Dockerfile "
+            "runs git lfs pull for output/regulation_embeddings.json)."
+        )
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{label} ({path.name}) is not valid JSON: {exc}") from exc
+
 
 class HybridRetriever:
     def __init__(self) -> None:
@@ -66,18 +84,20 @@ class HybridRetriever:
 
     def _load(self) -> None:
         if CHUNKS_FILE.exists():
-            with open(CHUNKS_FILE, encoding="utf-8") as f:
-                self.chunks = json.load(f).get("chunks", [])
+            data = _load_json_artifact(CHUNKS_FILE, label="Chunk index")
+            self.chunks = data.get("chunks", [])
             self._chunk_by_id = {
                 c.get("chunk_id", ""): c for c in self.chunks if c.get("chunk_id")
             }
             logger.info(f"Loaded {len(self.chunks)} chunks")
 
         if EMBEDDINGS_FILE.exists():
-            with open(EMBEDDINGS_FILE, encoding="utf-8") as f:
-                data = json.load(f)
+            try:
+                data = _load_json_artifact(EMBEDDINGS_FILE, label="Embedding index")
                 self.embeddings = data.get("embeddings", {})
-            logger.info(f"Loaded {len(self.embeddings)} embeddings")
+                logger.info(f"Loaded {len(self.embeddings)} embeddings")
+            except ValueError as exc:
+                logger.error(f"{exc} — semantic search disabled; BM25-only fallback")
 
         self._build_bm25_index()
         self._build_vector_index()

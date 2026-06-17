@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl build-essential \
+    curl build-essential git git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.runtime.txt /app/backend/requirements.runtime.txt
@@ -24,7 +24,18 @@ RUN pip install -r /app/backend/requirements.runtime.txt
 
 COPY config.py /app/config.py
 COPY backend /app/backend
-COPY output /app/output
+COPY output/regulation_chunks.json output/ingest_manifest.json /app/output/
+
+# Embeddings (~218 MB) live in Git LFS. Railway/docker COPY often ships only the
+# LFS pointer text, which breaks json.load at runtime — clone + lfs pull here.
+ARG GIT_REPO=https://github.com/Sharan099/safety-assistant.git
+RUN git lfs install \
+    && git clone --depth 1 "${GIT_REPO}" /tmp/embed-src \
+    && cd /tmp/embed-src \
+    && git lfs pull --include="output/regulation_embeddings.json" \
+    && cp output/regulation_embeddings.json /app/output/regulation_embeddings.json \
+    && rm -rf /tmp/embed-src \
+    && python -c "import json; d=json.load(open('/app/output/regulation_embeddings.json')); n=len(d.get('embeddings',{})); assert n>1000, f'embeddings empty (got {n})'"
 
 # Writable location for the runtime SQLite DB (users/sessions/feedback).
 # The ./output mount is read-only, so the DB must live outside it.

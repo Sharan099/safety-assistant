@@ -43,6 +43,13 @@ chroma_db/
 # Low-DPI OCR page image cache (rebuilt by paddle_ocr_converter)
 output/page_cache/
 
+# Local corpus backups and OCR experiments (regenerate or keep offline)
+output/archive/
+output/ocr_compare/
+
+# Runtime logs (regenerate locally)
+output/overnight_run.log
+
 # SQLite app database (users / sessions / messages / feedback) — runtime data
 output/*.db
 output/*.db-wal

@@ -1,7 +1,7 @@
 ---
 source_pdf: UN_R14.pdf
 regulation: UN_R14
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # UN_R14
@@ -1628,7 +1628,7 @@ Annex 2
  Arrangements of the approval mark 
 Model A 
 (see paragraph 4.4. of this Regulation) 
-  
+ 
  
  
  
@@ -1644,7 +1644,7 @@ number indicate that UN Regulation No. 14 already included the 09 series of amen
 when the approval was given. 
 Model B 
 (see paragraph 4.5. of this Regulation) 
-  
+ 
  
  
  

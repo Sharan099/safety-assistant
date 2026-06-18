@@ -1,7 +1,7 @@
 ---
 source_pdf: whitepaper-virtual-validation-at-in-tech.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # whitepaper-virtual-validation-at-in-tech
@@ -9,12 +9,10 @@ converter: rapidocr-ppocr
 
 ## Page 1
 
-intech
-anInfosyscompany
-Virtual Validation in the
-Automotive Industry
-A Cost-Effective and Scalable Solution Driving Innovation
+A Cost-Effective and Scalable Solution Driving Innovation 
 and Safety in Automotive Development
+Virtual Validation in the 
+Automotive Industry
 www.in-tech.com
 
 

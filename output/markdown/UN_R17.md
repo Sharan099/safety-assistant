@@ -1,7 +1,7 @@
 ---
 source_pdf: UN_R17.pdf
 regulation: UN_R17
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # UN_R17

@@ -1,7 +1,7 @@
 ---
 source_pdf: SGS TUEV Brochure Training FUSA Auto EN A4 13 1.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # SGS TUEV Brochure Training FUSA Auto EN A4 13 1
@@ -9,22 +9,11 @@ converter: rapidocr-ppocr
 
 ## Page 1
 
-10010000100000100
-100109.0010000
-01010101016
-1100101
-0301010109
-01010100100101010010
-C.U10101040010101
-FUNCTIONALSAFETY
-AUTOMOTIVE
-TRAINING ANDPERSONAL QUALIFICATION
-PUBLIC TRAININGS, IN-HOUSE SEMINARS,WEBINARS
-PERS0NALQUALIFICATI0N0NIS026262
-SGS
-Tuv
-SGS
-SAAR
+FUNCTIONAL SAFETY 
+Automotive
+training aND PERSONal QUALIFIcation
+Public trainings, In - house seminars, webinars
+Personal qualification on ISO 26262
 
 
 ## Page 2

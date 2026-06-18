@@ -1,7 +1,7 @@
 ---
 source_pdf: CELEX_32018R0858_EN_TXT.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # CELEX_32018R0858_EN_TXT
@@ -15298,30 +15298,12 @@ EN
 
 ## Page 199
 
-14.6.2018
+Appendix 3 
+Validation process 
+14.6.2018 
+L 151/199 
+Official Journal of the European Union 
 EN
-Official Journal of the European Union
-L 151/199
-Appendix3
-Validation process
-Manufacturer
-Mathematicalmodel
-Validation process
-Approval process
-Physical prototype
-Virtual Prototypes I, Il,...
-Physical
-Computer
-Computer
-Test
-Simulation
-Simulation
-Technical Report acc.to
-Validation Report
-EC Directive
-Agreement
-ApprovalAuthority
-Approval Authority
 
 
 ## Page 200
@@ -15776,35 +15758,13 @@ EN
 
 ## Page 208
 
-L 151/208
+Appendix 1 
+Manufacturer's certificate on access to vehicle OBD information and vehicle repair and maintenance 
+information 
+14.6.2018 
+L 151/208 
+Official Journal of the European Union 
 EN
-Official Journal of the European Union
-14.6.2018
-Appendix1
-Manufacturer's certificate on access to vehicle OBD information and vehicle repair and maintenance
-information
-(Manufacturer):...
-(Address of the manufacturer):...
-Certifiesthat
-itprovidesaccesstovehicleOBDinformationandvehiclerepairandmaintenanceinformationincompliancewiththe
-provisions of:
-withrespect tothetypesofvehicle,system,component orseparatetechnical unit listed inan attachment to thiscertificate.
-Thefollowing derogations are applied:Customer adaptations(*)—Smallvolume(*)—.
-Theprincipalwebsiteaddressesthroughwhichtherelevantinformation,whichisherebycertifiedtobeincompliancewith
-those provisions,may be accessed,arelisted in an attachment to this certificate along with the contact details of the
-Whereapplicable:ThemanufacturerherebyalsocertifiesthathehascompliedwiththeobligationofArticle62of
-laterthansixmonthsafterthedateoftype-approval.
-Done at... [Place]
-On ...[Date]
-[Signature][Position]
-Annexes:
--Annex A:Website addresses;
-—AnnexB:Contactdetails;
-Explanatory note:
-(*)Delete where not applicable.
-(1）Regulation(EU)2018/858of theEuropeanParliament andof the Council of30May2018ontheapprovalandmarket surveillance of
-motorvehiclesandtheirtrailers,andofsystems,componentsandseparatetechnicalunitsintendedforsuchvehicles,amending
-Regulations (EC) No 715/2007 and (EC) No 595/2009 and repealing Directive 2007/46/EC (OJ L 151,14.6.2018,p.1).
 
 
 ## Page 209

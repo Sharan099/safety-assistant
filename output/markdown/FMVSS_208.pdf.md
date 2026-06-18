@@ -1,7 +1,7 @@
 ---
 source_pdf: FMVSS_208.pdf.pdf
 regulation: FMVSS
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # FMVSS_208.pdf
@@ -1432,377 +1432,48 @@ page 27 of 1400
 
 ## Page 28
 
-49 CFRPart 571(up to date asof5/07/2026)
-49 CFR571.101S5.6.2
-FederalMotorVehicleSafetyStandards
-Controls,Telltales,and Indicators
-With Hllumination or ColorRequirements'
-Column 1
-Column2
-Column3
-Column4
-Column5
-Column6
-ITEM
-SYMBOL
-WORDSOR
-FUNCTION
-ILLUMIN-
-COLOR
-ABBRE-
-ATION
-VIATIONS
-Highbeam 2
-Blue or
-Telltale
-Green *
-3,5
-Turn signals 2
-Control
-3,6
-Telltale
-Green 4
-Hazard warning signal
-Hazard
-Control
-Yes
-Telltale 7
-3
-Position,side marker,end
-00三
-Marker Lamps
-Outline marker,identification,
-or
-Control
-Yes
-or clearance lamps
-MK Lps s
-3.8
-Windshieldwipingsystem
-Wiper
-or
-Control
-Yes
-Wipe
-Windshieldwashing system
-Washer
-or
-Control
-Yes
-Wash
-Windshield washingand wiping
-Washer-Wiper
-system combined
-or
-Control
-Yes
-Wash-Wipe
-Windshield defrosting and
-Defrost, Defog,
-defogging system
-or
-Control
-Yes
-Def.
-Rear window defrosting and
-Rear Defrost,
-defogging system
-Rear Defog,
-Control
-Yes
-》
-Rear Def.,or
-R-Def.
-Brake system malfunction
-Brake
-Telltale
-Red 4
-49 CFR571.101S5.6.2(enhanced display)
-page28of1400
-Antilock brake system
-Antilock,
-malfunction forvehiclessubject
-Anti-lock,or
-Telltale
-Yellow
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.101 S5.6.2
+49 CFR 571.101 S5.6.2 (enhanced display)
+page 28 of 1400
 
 
 ## Page 29
 
-49 CFR Part 571(up to date as of5/07/2026)
-49 CFR571.101S5.6.2
-FederalMotorVehicleSafetyStandards
-Column 1
-Column2
-Column3
-Column4
-Column5
-Column6
-ITEM
-SYMBOL
-WORDS OR
-FUNCTION
-ILLUMIN-
-COLOR
-ABBRE-
-ATION
-VIATIONS
-Malfunction inVariableBrake
-Brake
-Proportioning System
-Telltale
-Yellow
-Proportioning 9
-Regenerativebrake system
-RBSor
-malfunction
-Telltale
-Yellow
-ABS/RBS9
-Malfunction in antilocksystem
-ABS
-forvehicles other than trailers
-or
-Teltale
-Yellow
-subject to FMVSS 121
-Antilock9
-Antilockbrake system trailer
-TrailerABS
-fault forvehicles subject to
-Teltale
-or
-Yellow
-FMVSS121
-8
-TrailerAntilock
-Brake pressure
-(forvehicles subject toFMVss
-Brake Pressure9
-Telltale
-Red4
-105 or 135)
-Low brakefluid condition
-(for vehicles subject toFMVSS
-Brake Fluid9
-Telltale
-Red 4
-105 or 135)
-Parking brake applied
-Park or
-（forvehicles subject toFMVsS
-Telltale
-Red 4
-Parking Brake9
-105 or 135)
-Brakeliningwear-outcondition
-(for vehicles subject to FMVSS
-Brake Wear9
-Telltale
-Red 4
-135)
-ElectronicStability Control
-System Malfunction
-ESC12
-Telltale
-Yellow
-(for vehicles subject to FMVSS
-126)0,11
-ElectronicStability Control
-Control
-Yes
-System"OFF"
-(forvehiclessubject toFMVsS
-ESC OFF
-126)10
-OFF
-Teltale
-Yellow
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.101 S5.6.2
 49 CFR 571.101 S5.6.2 (enhanced display)
-page 29 of1400
+page 29 of 1400
 
 
 ## Page 30
 
-49 CFRPart 571(up to date asof5/07/2026)
-49 CFR571.101S5.6.2
-FederalMotorVehicleSafetyStandards
-Column1
-Column2
-Column3
-Column4
-Column5
-Column6
-ITEM
-SYMBOL
-WORDSOR
-FUNCTION
-ILLUMIN-
-COLOR
-ABBRE-
-ATION
-VIATIONS
-ElectronicStability Control
-System Malfunction
-(forvehiclessubject toFMVSS
-136)1
-.10
-ESC
-Telltale
-Yellow
-or
-22
-Fuel Level
-M
-Telltale
-or
-Fuel
-B
-Indicator
-Yes
-Engine oil pressure
-Telltale
-I!O
-13
-Indicator
-Yes
-Engine coolant temperature
-怎
-Telltale
-Temp
-13
-Indicator
-Yes
-Electrical charge
-Voltsor
-Telltale
-Charge or
-Amp
-Indicator
-Yes
-Engine stop
-Engine Stop14
-Control
-Yes
-Automaticvehicle speed
-(cruise control)
-Control
-Yes
-Speedometer
-MPH,or MPH
-Indicator
-Yes
-and km/h15
-HeatingandAir conditioning
-49.CER.571.101 S5.6.2 (enhanced display)
-Control
-Yes
-page30.of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.101 S5.6.2
+49 CFR 571.101 S5.6.2 (enhanced display)
+page 30 of 1400
 
 
 ## Page 31
 
-49 CFRPart571(uptodateasof5/07/2026)
-49 CFR 571.101S5.6.2
-FederalMotorVehicleSafetyStandards
-Column1
-Column2
-Column3
-Column 4
-Column5
-Column6
-ITEM
-SYMBOL
-WORDSOR
-FUNCTION
-ILLUMIN-
-COLOR
-ABBRE-
-ATION
-VIATIONS
-Automatic (park)
-P
-transmission(reverse)
-R
-control (neutral)
-N
-Indicator
-Yes
-position(drive)
-D
-16
-Heating and/or air conditioning
-fan
-Fan
-Control
-Yes
-or
-Low Tire Pressure
-(including malfunction)
-Low Tire17
-Teltale
-Yellow
-(See FMVSS138)
-17
-Low Tire Pressure
-(including malfunction that
-Low Tire17
-identifies involved tire)
-Telltale
-Yellow
-(See FMVSS 138)
-17
-Tire Pressure Monitoring
-System Malfunction
-TPMS17.19
-Telltale
-Yellow
-(See FMVSS 138) 18
-RearSeatBeltWarning
-Telltale
-Green or
-Red²1
-Notes to table 1 to 571.101:
-An identifier is shown in this table if it is required for a control for which an illumination requirement exists or if it is used for a telltale for which
-a color requirement exists.Ifa line appears in column 2 and column3,the control,telltale,orindicator is required tobe identified,however the
-form of the identification is the manufacturers option.Teltales are not considered to have an illumination requirement,because by definition the
-telitalemust lightwhenthecondition for its activation exists.
-2Additional requirements in FMVSS 108.
-Framed areas ofthe symbol may be solid; solid areas may be framed.
-*Blue may be blue-green.Red may be red-orange.
-Symbols employing four lines instead of five may also be used.
-be considered separate symbols and be spaced accordingly.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.101 S5.6.2
+49 CFR 571.101 S5.6.2 (enhanced display)
+page 31 of 1400
 
 
 ## Page 32
 
-49 CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.101S5.6.2
-Refer oFMVSS105orFMVSS135,as appropriateforadditional specific requirements forbrake teltale labeling andcolor.Ifasingle tetale
-is used to indicate more than one brake system condition,the brake systemmalfunction identifier must be used.
-1Requirement effective September1,2011.
-1A manufacturer may use this telltale in flashing mode to indicate ESC operation
-2Thissymbolmayalsobeused toindicatethemalfunctionofrelatedsystems/functions,including tractioncontroltrailerstabilityassistcomer
-brake control,and other similar functions thatuse throttle and/or individualwheel torquecontrol to operate and share common components with
-ESC.
-Combination ofthe engine oil pressure symbolandthe enginecoolant temperature symbolinasingle telltaleis permitted
-14 Use when engine control is separate from the key locking system.
-I$ If the speedometer is graduated in both miles per hour and in kilometers per hour, the scales must be identified "MPH" and "km/h",
-respectively,in any combination of upper-and lowercase letters.
- The lettrsP,R',N',and'D'are considered separate identifiers for the individual gear positions.Their locations within the vehicle,and with
-respect to each other,are governed byFMVSS 102.The letter'D'may be replaced by another alphanumeric character or symbol chosen by the
-manufacturer.
-1Required onlyforFMVSS138compliantvehicles.
-18 Alternatively, either low tire pressure teltale may be used to indicate a TPMS malfunction.See FMVSS 138.
-1Required only forvehicles manufactured on or after September 1,2007.
-20Refer toFMVSS208for additional requirements.
-2i These are the colors if symbols or numbers are chosen. Ifa symbol or number is used to indicate to the driverhow many or which rear seat
-or which rear seat belts are not in use,or how many or which rear seat belts have undergone a change of status from in use to not in use,the color
-ofthe illuminated symbol or number must be red.SeeFMVSS208S7.5(c)(3).
-Table 2 to S 571.101
-49 CFR571.101S5.6.2(enhanced display)
-page32of1400
+Table 2 to § 571.101
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.101 S5.6.2
+49 CFR 571.101 S5.6.2 (enhanced display)
+page 32 of 1400
 
 
 ## Page 33
@@ -6313,25 +5984,11 @@ page 109 of 1400
 
 ## Page 110
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.106S12.7(c)(4)
-FederalMotorVehicleSafetyStandards
-FIGURE 8. IMPACT TEST APPARATUS
-0.454 kg (1.00 lb.) mass,
-31.75 mm (1.25 in.) diameter,
-15.88 m m (0.625 in) spherical radius
-on impactsurface.Mass slides
-freelywithin fiocturesndfalls305mm
-(12.00 in.) with no tubing in fixture
-(falls 305 mn minus diameter of tubing
-when used for testing).
-Release and lifting handle,
-weight inclutled in mass
-total weight
-Section A-A
-49 CFR 571.106 S12.7(c)(4)(enhanced display)
-page 110 of1400
-Hole for brake
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.106 S12.7(c)(4)
+49 CFR 571.106 S12.7(c)(4) (enhanced display)
+page 110 of 1400
 
 
 ## Page 111
@@ -12588,105 +12245,11 @@ page 220 of 1400
 
 ## Page 221
 
-49CFRPart571(upto date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-MAXIMUMFILAMENT
-LOWER
-BEAM
-POWERAT 12.8V
-N.A.
-6
-N.A.
-6
-N.A.
-5
-09
-N.A
-UPPER
-BEAM
-70
-7
-N.A.
-5
-3
-5
-4
-5
-5
-3
-70
-See S10.13.2.
-TABLES XIX-A, XIX-b, XIX-c
-PHOTOMETRYREQUIREMENTSREFERENCE
-LOWER
-BEAM
-VISUAL
-LB1V(l)
-AIM
-LB2V
-LB3V
-LB2V
-LB3V
-LB3V
-N.A.
-N.A.
-LB2V
-LB3V
-N.A.
-N.A.
-LOWERBEAM
-MECHAIM
-LBIM()
-LB4M
-LB3M
-LB4M
-LB3M
-LB3M
-LB4M
-LB3M
-N.A.
-N.A.
-N.A.
-N.A.
-UPPERBEAM
-MECHANICAL
-TABLEXVIII
-AND VISUAL
-UB4
-UB3
-UB3
-N.A()
-AIM
-UB4
-UB5
-UB3
-UB5
-UB1
-UB4
-UB5
-UB3
-ps magked "UF' are activated.
-BEAMS
-3FILAMENTS
-3FILAMENTS
-3FILAMENTS
-3FILAMENTS
-3FILAMENTS
-3FILAMENTS
-3FILAMENTS
-MPOSITION
-LAMENT
-LAMENT
-LAMENT
-LAMENT
-LAMENT
-ED 1
-R
-571
-108
-9.3.12.
-nanceddi
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 221 of 1400
 
 
 ## Page 222
@@ -13648,887 +13211,56 @@ page 233 of 1400
 
 ## Page 234
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-450
-850
-3237
-850
-450
-GROUPMINIMUM
-PHOTOMETRIC
-3
-INTENSITY (cd)
-Lighted Sections
-2.5XBASEREQUIREMENTS
-387.5
-737.5
-2825
-737.5
-387.5
-2
-acleararge lamponavehicle2032mm ormorein overallwidthis combinedwitha front turn signallamp and themaximum luminous intensity of the
-325
-625
-2375
-625
-325
-87.5
-87.5
-137.5
-137.5
-250
-350
-250
-587.5
-687.5
-687.5
-687.5
-587.5
-250
-350
-250
-137.5
-137.5
-)N)
-87.5
-87.5
-PHOTOMETRIC
-E
-Lighted Sections
-MINIMUM
-120
-120
-220
-300
-220
-512.5
-009
-009
-009
-512.5
-5
-15
-220
-300
-220
-120
-120
-2
-15
-62.5
-62.5
-187.5
-187.5
-437.5
-437.5
-187.5
-250
-187.5
-100
-100
-250
-500
-500
-500
-100
-100
-62.5
-62.5
-1
-GROUPMINIMUM
-180
-340
-1295
-340
-180
-PHOTOMETRIC
-INTENSITY(cd)
-Lighted Sections
-3
-BASEREQUIREMENTS
-155
-295
-1130
-295
-155
-2
-130
-250
-950
-250
-130
-easured values at each test point must not be less than 60% of the minimum value.
-INTENSITY( (cd)
-3
-3
-53
-5
-5
-100
-140
-100
-235
-275
-275
-275
-235
-100
-140
-100
-5
-5
-3
-PHOTOMETRIC
-35
-Lighted Sections
-MINIMUM
-30
-30
-8
-48
-88
-120
-8
-205
-240
-240
-240
-205
-8
-120
-2
-88
-8
-30
-30
-5°downbather than at thespecifiedrequireddownward angle.
-25
-40
-15
-001
-15
-175
-200
-200
-200
-175
-100
-一
-4
-5
-MINIMUMPHOTOMETRIC
-WHERECOMBINEDWITH
-CLEARANCE
-LAMP4
-INTENSITYRATIO
-3
-3
-3
-3
-3
-3
-3
-5
-5
-5
-5
-3
-3
-3
-3
-3
-3
-3
-3
-:V
-PARKING
-LAMP
-3
-3
-3
-3
-5
-3
-3
-3
-3
-ntal or vgtical line.
-STPOINT
-3
-10U
-571.108
-S14.9.3.12
-noed
-a
-H
-H
-H
-3
-nan
-台
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 234 of 1400
 
 
 ## Page 235
 
-49 CFRPart 571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-1942.5
-GROUPMINIMUM
-270
-510
-510
-270
-PHOTOMETRIC
-INTENSITY (cd)
-Lighted Sections
-3
-1.5XBASEREQUIREMENTS
-232.5
-442.5
-1695
-442.5
-232.5
-1a cleargnce lamp onavehicle 2032mmormore in overallwidthis combinedwith a front turn signal lamp and themaximum luminous intensity of the
-2
-195
-375
-1425
-375
-195
-52.5
-82.5
-82.5
-150
-210
-150
-352.5
-412.5
-412.5
-412.5
-352.5
-INTENSITY(D) (cd)
-150
-210
-150
-82.5
-82.5
-52.5
-52.5
-3
-PHOTOMETRIC
-Lighted Sections
-MINIMUM
-132
-307.5
-360
-360
-307.5
-5$
-$
-2
-2
-132
-180
-360
-132
-2
-180
-132
-12
-2
-5
-45
-37.5
-37.5
-112.5
-150
-112.5
-262.5
-300
-262.5
-112.5
-300
-150
-112.5
-300
-37.5
-37.5
-09
-09
-360
-680
-2590
-GROUPMINIMUM
-680
-360
-PHOTOMETRIC
-INTENSITY (cd)
-Lighted Sections
-3
-2XBASEREQUIREMENTS
-310
-590
-2260
-590
-310
-2
-260
-500
-1900
-500
-260
-measuredvalues ateach test point must not beless than60%of theminimum value.
-20
-70
-110
-110
-200
-280
-200
-470
-550
-550
-550
-470
-200
-280
-200
-110
-110
-PHOTOMETRIC
-3
-170
-00
-Lighted Sections
-MINIMUM
-8
-6
-176
-240
-176
-410
-480
-480
-480
-410
-176
-6
-240
-176
-2
-6
-6
-8
-clearargelampluminousintensitywithin thegenerated area.
-1
-8
-8
-150
-200
-150
-350
-400
-400
-400
-350
-150
-200
-150
-MINIMUMPHOTOMETRIC
-INTENSITYRATIOWHERE
-CLEARANCE
-COMBINEDWITHA:
-LAMP(4)
-3
-3
-3
-3
-3
-3
-3
-5
-5
-5
-3
-3
-3
-3
-3
-3
-3
-3
-PARKING
-LAMP
-3
-3
-3
-3
-5
-5
-5
-1
-3
-3
-3
-3
-zontal ortvertical line.
-5U
-P5D
-10U
-nog
-5U
-5D
-3
-H
-5D
-3
-5D
-571.108
-(
-R
-S14.9.
-(enha
-20L
-10L
->
-10R
-20R
->
->
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 235 of 1400
 
 
 ## Page 236
 
-49 CFRPart571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-120
-220
-3
-825
-220
-120
-GROUPMINIMUM
-PHOTOMETRIC
-INTENSITY(cd)
-AMBERLAMPS
-Lighted Sections
-N
-100
-S81
-710
-185
-001
-cleancelamp）islocated belowhorizontalandwithinanareageneratedbya0.5°radius arounda testpoint(1.0°radiusonlampsinstalledonavehicle2032mmormoreinoverall
-610/590
-sl
-80/84
-165
-165
-8/08
-MINIMUMPHOTOMETRIC
-25
-25
-53
-3
-59
-65
-150
-175
-175
-3
-175
-150
-S9
-06
-S9
-3
-35
-2
-25
-006
-AMBERLAMPS
-Lighted Sections
-wi).theratiofor the test pointmaybe computed byusing thelowest value of the taillamp (orclearance lamp)luminous intensity within thegenerated area.
-20
-20
-30
-3
-15
-15
-5
-130
-150
-150
-15
-55
-3
-3
-2
-006
-2
-130/120
-130/120
-(s)l
-26/27
-26/27
-110
-130
-110
-26/27
-26/27
-5
-15
-5
-750
-GROUPMINIMUM
-120
-135
-520
-3
-PHOTOMETRIC
-Reiredonlywhencombined turn signallamp and clearance lamp isinstalled onavehicle2032mm ormore in overall width.
-INTENSITY (cd)
-REDLAMPS
-Lighted Sections
-115
-445
-SII
-2
-09
-TAB?EVII:REARTURNSIGNALLAMPPHOTOMETRYREQUIREMENTS
-100
-380
-100
-50
-5
-5
-2
-2
-40
-S6
-110
-011
-3
-110
-40
-40
-2
-2
-5
-420
-PHOTOMETRIC
-REDLAMPS
-Lighted Sections
-MINIMUM
-35
-35
-82
-95
-53
-47
-35
-19
-360
-Themeasured values at each testpointmustnotbeless than60%of theminimumvalue.
-2
-2
-2
-19
-5
-2
-2
-2
-100
-0
-3
-130
-10
-8
-120
-30
-4
-33
-0
-0
-300
-PHOTOMETRI
-MINIMUM
-CINTENSITY
-COMBINED
-WITHATAIL
-LAMPOR
-CLEARANCE
-WHERE
-LAMP(78)
-RATIO
-3
-3
-3
-3
-3
-3
-5
-5
-5
-3
-m
-3
-3
-3
-3
-3
-APPLICABLETO
-DOUBLEFACED
-RIGHT
-TESTPOINTS
-SIDE
-LAMP
-YES
-YES
-YES
-YES
-YES
-YES
-YES
-YES
-ON
-2
-NO
-2
-2
-2
-2
-LAMPS6)
-LEFT
-SIDE
-LAMP
-at therequired downward angie.
-2
-2
-2
-2
-YES
-2
-YES
-YES
-YES
-YES
-YES
-YES
-TESTPOINT
-10U
-5U
-5U
-SU
-5D
-10U
-5D
-5D
-3
-(degrees)
-5L
-701
->
->
->
-10R
-5R
-20R
-FR
-571.108
-S14.
-4.9.3.12.6.3
-nced
-I display)
-NUMBER
-GROUP
-2
-（
-（8）
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 236 of 1400
 
 
 ## Page 237
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-6.0
-24.0
-3
-6.0
-3.5
-GROUPMINIMUM
-PHOTOMETRIC
-Lighted Sections
-2.4
-2
-16.8
-2.4
-2
-1.4
-9.6
-1.4
-MAXIMUM
-25
-23
-25
-25
-2
-23
-25
-2
-25
-2
-25
-23
-3
-MNIMUM
-PHOTOMETRIC INTENSITYO (cd)
-1.0
-2.0
-2.0
-4.5
-20
-2
-1.0
-MAXIMUM
-Lighted Sections
-20
-2
-2
-20
-20
-2
-20
-20
-N
-MNMUM
-0.5
-3
-1.4
-1.4
-3.1
-3
-3
-3
-0.7
-0.7
-3
-MAXIMUM
-18
-18
-8
-18
-MINIMUM
-0.3
-0.4
-0.8
-0.8
-8'0
-81
-2.0
-2
-80
-80
-8'0
-0.4
-0.4
-3
-TESTPOINT
-10D()
-10U
-3
-10U
-5D
-(degrees)
-20L
-10L
->
->
-10R
-20R
-CFR
-571.108
-$14.9.3.12.6.3 (enhanced display)
-VIII:
-2
-3
-4
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 237 of 1400
 
 
 ## Page 238
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-uv ai +e.+ cow .
-2
-INFTIYl)
-C1
-*+w 
-Laghted Seetinns
-01
-011
-42
-MINMUM
-()
-N
-2
-2
-2
-2
-300
-1
-三
-三
-三
-司
-河
-宇
-三
-三
-三
-arfa dmnra  1n eoy am xa aq m sn urnd sa qma 1e sorl asraur. 
-1
-RATIDWURK
-RONINIR
-INTENSITY
-COMBINED
-1
-:15
-5D
-35
-H
-15
-POINT
-us wihg  suhr vgle de.nel by lhe tea xoil. mlge
-702
-1OR
-2R
-XIMUHPHOTOAETRIC INTENSITY"
-N
-5
-571.108 S14.9.3.12.6.3(enhanced display)
-pag
-3TA
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 238 of 1400
 
 
 ## Page 239
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-Values followed by a slash () apply only to lamps installed on multipurpose passenger vehicles, trucks,trailers,
-and buses of 2032 mm or more in overall widith.
-angle.
-(S
-(9
-49CFR571.108S14.9.3.12.6.3(enhanced display)
-page239of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 239 of 1400
 
 
 ## Page 240
@@ -14721,544 +13453,47 @@ page 243 of 1400
 
 ## Page 244
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-GROUPMINIMUM
-PHOTOMETRIC
-INTENSITY (cd)
-00
-100
-200
-720
-100
-SINGLELAMPSYSTEM
-00
-  a       ps  ss u s d sd   sn
-INTENSITY (cd)()
-PHOTOMETRIC
-MINIMUM
-30
-3
-20
-30
-2
-100
-100
-160
-160
-100
-100
-30
-30
-30
-fore theglash applies to each lamp in a multiple lamp system; the value after the slash applies to a single lamp system.
-GROUPMINIMUM
-TWOLAMPSYSTEMS-EACHLAMP
-PHOTOMETRIC
-INTENSITY (cd)
-4
-360
-INTENSITY (cd)0)
-PHOTOMETRIC
-MINIMUM
-5
-5
-23
-25
-20
-5
-2
-2
-8
-8
-8
-21
-2
-5
-5
-MAXIMUMPHOTOMETRIC
-INTENSITY (cd)
-ANY SINGLE LAMP
-ed to meet the minimum value.
-300/600(6)
-300/600(5)
-300/600()
-300/600()
-300/600(5)
-(s009/000
-(s)009/000
-(s)009/000
-300/600(5)
-300/600()
-300/600(5)
-(s)009/000
-(s009/000
-300/600(6)
-300/600(5)
-vith twige the stated requirements.
-ESTPONT
-10U
-vertical line.
-(suraap)
-PSU
-3
-5D
-H
-5D
-H
-5D
-H
-5D
-$14.
-notrequ
-L
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 244 of 1400
 
 
 ## Page 245
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-110
-412.5
-09
-110
-GROUPMINIMUM
-3
-09
-PHOTOMETRIC
-INTENSITY (cd)
-LightedSections
-AMBERREAR
-TURNSIGNAL
-LAMP
-92.5
-355
-92.5
-2
-50
-ric intensityvaluesbetweentest pointsmustnotbelessthanthelowerspecifiedminimumvalueofthe twoclosest adjacent test pointsonahorizontal orvertical
-np is congined with a rear turn signal lamp and the maximum luminous intensity of the taillamp is located below horizontal and within an area generated by a
-82.5
-305
-82.5
-40
-AMBERREARTURN
-12.5
-12.5
-17.5
-17.5
-32.5
-45
-32.5
-17
-87.5
-87.5
-87.5
-3
-75
-32.5
-45
-32.5
-17.5
-17.5
-12.5
-12.5
-006
-INTENSITYUK(cd)
-PHOTOMETRIC
-photongric intensity must not occur over any area larger than that generated by a 0.5° radius within a solid angle defined by the test point range.
-SIGNAL LAMP
-Lighted Sections
-MINIMUM
-10
-0
-5
-5
-27.5
-37.5
-27.5
-63
-27.5
-37.5
-2
-17
-15
-17
-27.5
-5
-5
-00
-00
-006
-ORCCLETURNSIGNALLAMPALTERNATIVEPHOTOMETRYREQUIREMENTS
-1
-15
-3
-3
-32.5
-5
-5
-32.5
-5
-3
-15.5
-1.
-750
-GROUPMINIMUM
-PHOTOMETRIC
-REDREARTURN
-67.5
-53
-260
-67.5
-SIGNALLAMP
-3
-3
-Lighted Sections
-57.5
-222.5
-3
-57.5
-2
-30
-061
-15.
-15.
-=
-20
-27.5
-2
-47.5
-5
-5
-5
-47.5
-二
-20
-27.5
-20
-二
-二
-15.5
-15.
-420
-RED REARTURN
-PHOTOMETRIC
-SIGNALLAMP
-LightedSections
-MINIMUM
-9.5
-17.5
-23.5
-17.5
-9
-41
-47.5
-47.5
-47.5
-41
-17.5
-23.5
-17.5
-9.5
-9.5
-9
-9
-360
-2
-6
-8
-5
-20
-5
-3
-4
-4
-'3
-5
-5
-8
-8
-5
-5
-300
-5
-values at each test pointmust not belessthan60%of the minimum value.
-647.5
-GROUPMINIMUM
-0
-170
-170
-PHOTOMETRIC
-3
-06
-INTENSITY (cd)
-FRONT TURN
-SIGNAL LAMP
-Lighted Sections
-77.5
-147.5
-147.5
-565
-77.5
-2
-125
-475
-125
-65
-FRONTTURNSIGNAL
-17.5
-17.5
-27.5
-27.5
-50
-117.5
-137.5
-50
-137.5
-137.5
-117.5
-3
-70
-50
-170
-50
-27.5
-27.5
-17.5
-17.5
-PHOTOMETRIC
-Lighted Sections
-MINIMUM
-LAMP
-102.5
-120
-120
-120
-102.5
-2
-5
-5
-忆
-忆
-44
-09
-44
-44
-44
-忆
-忆
-5
-15
-12.5
-12.5
-2
-20
-37.5
-37.5
-87.5
-100
-100
-100
-87.5
-37.5
-50
-37.5
-20
-2
-12.5
-12.5
-CINTENSITY
-e
-dspp
-3
-5
-5
-5
-5
-3
-3
-3
-3
-3
-3
-3
-3
-HINIMU
-6
-B
-pag
-ING
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 245 of 1400
 
 
 ## Page 246
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-GROUPMINIMUMPHOTOMETRICINTENSITY(cd)
-9
-36
-420
-3
-MOTORDRIVENCYCLESTOPLAMP
-Lighted Sections
-9
-226
-3
-9
-3
-360
-2
-300
-luminointensity within the generated area
-1INIMUMPHOTOMETRIC
-NTENSETYRATIOWHERE
-MOT&R DRIVEN CYCLE
-WITHBA TAIL LAMP
-METRICINTENSITY
-3
-3
-3
-33
-3
-5
-5
-5
-5
-33
-3
-3
-3
-3
-3
-3
-test point range.
-3.12.6.3(enhanced display)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 246 of 1400
 
 
 ## Page 247
 
-49 CFRPart 571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-3
-16.8
-3
-otometric intensity values between test points must not be less than the lower specified minimum
-PHOTOMETRIC
-MAXIMUM
-INTENSITY
-of the two closest adjacent test points on a horizontal or vertical line.
-(p)
-125
-250
-250
-2
-12
-250
-12
-250
-2
-250
-250
-12
-250
-PHOTOMETRIC
-INTENSITY0()
-MINIMUM
-(p)
-0.4
-0.4
-0.8
-28
-3
-23
-28
-0.8
-二
-0.8
-0.4
-0.4
-10D(3)
-10D(3)
-5D
-10U
-5U
-3
-10U
-H
-H
-EST POINT
-FR
-57
-10R
-20R
-gouepre
->
-张
->
-K
-1
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 247 of 1400
 
 
 ## Page 248
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-PHOTOMETRIC INTENSITY3)
-GROUPMINIMUM
-(cd)
-125
-8
-(cd)
-PHOTOMETRIC
-MINIMUM
-INTENSITY(20)
-25
-2
-25
-6
-1
-16
-8
-8
-160
-V:HIGH-MOUNTED STOPLAMPPHOTOMETRYREQUIREMENTS
-tometric intensity at each test point must not be less than 60% of the specified minimum value
-pair ofgamps identical in size and shape are used due to vehicle construction, they together
-5U
-3
-3
-3
-10U
-10U
-H
-10U
-H
-H
-TESTPOINT
-)
-the two closest adjacent test points on a horizontal or vertical line.
-10R
-10R
-10R
-MAXIMUMPHOTOMETRICINTENSITY?
->
->
-10L
-<
-eet photgnetric requirements.
-2
-3
-4
-and 5D810R.
-R
-57
-S14.9.3.12.6.3 (enhanced display)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 248 of 1400
 
 
 ## Page 249
@@ -15629,625 +13864,47 @@ page 254 of 1400
 
 ## Page 255
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-PHOTOMETRIC
-INTENSITY(cd)
-MINIMUM
-1,000
-2,000
-20,000
-10,000
-3,250
-1,500
-750
-5,000
-1,500
-2,500
-1,500
-5,000
-40,000
-15,000
-750
-5,000
-3,000
-1,500
-5,000
-1,000
-UPPERBEAM#3(UB3)
-UPPERBEAM#6(UB6)
-PHOTOMETRIC
-INTENSITY(cd)
-MAXIMUM
-75,000
-5,000
-70,000
-5,000
-PHOTOMETRIC
-INTENSITY (cd)
-MINIMUM
-1,500
-5,000
-40,000
-15,000
-5,000
-3.000
-1,500
-5,000
-2,000
-2,500
-1,000
-2,000
-7,000
-3,000
-2,000
-000
-750
-2,000
-750
-750
-000'
-UPPERBEAM #2(UB2)
-UPPERBEAM#5(UB5)
-400
-PHOTOMETRIC
-INTENSITY(cd)
-MAXIMUM
-I:HEADLAMPUPPERBEAMPHOTOMETRYREQUIREMENTS
-75,000
-12,000
-15,000
-2,500
-PHOTOMETRIC
-INTENSITY(cd)
-MINIMUM
-UPPERBEAM #1 (UB1)
-1,500
-5,000
-40,000
-15,000
-5,000
-3,000
-1,500
-5,000
-2,000
-2,500
-1,000
-3,000
-18,000
-12,000
-3,000
-2,000
-750
-3,000
-1,250
-UPPERBEAM#4(UB4)
-750
-1,500
-009
-PHOTOMETRIC
-INTENSITY(cd)
-MAXIMUM
-70.000
-5,000
-60,000
-5,000
-571.108
-S14.
-.9.3.
-3
-(e1
-6L&6g
-1676
-2L&1
-2L&12R
-2L&12R
-3L&3R
-L&9R
-1400
-9L&9R
-3L&3R
-6L&6R
-INT
-V
->
-V
-A
->
-A
-V
-A
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 255 of 1400
 
 
 ## Page 256
 
-49 CFRPart571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-PHOTOMETRIC
-INTENSITY(cd)
-LOWERBEAM#2V(LB2V)
-MINIMUM
-10,000
-4,500
-1,800
-15,000
-135
-200
-500
-135
-1,250
-1,000
-4
-300
-PHOTOMETRIC
-INTENSITY (cd)
-MAXIMUM
-2,700
-12,000
-12,500
-125
-,400
-700
-1,000
-PHOTOMETRIC
-INTENSITY(cd)
-LOWERBEAM#2M(LB2M)
-MINIMUM
-10,000
-1,000
-15,000
-135
-200
-00S
-1,000
-850
-PHOTOMETRIC
-INTENSITY(cd)
-MAXIMUM
-1,400
-1,000
-2,700
-3,000
-20,000
-12,500
-125
-700
-PHOTOMETRIC
-INTENSITY (cd)
-LOWERBEAM#1V(LBIV)
-MINIMUM
-10,000
-4,500
-1,800
-15,000
-135
-200
-500
-135
-1,250
-1,000
-64
-300
-PHOTOMETRIC
-INTENSITY(cd)
-MAXIMUM
-1,400
-1,000
-2,700
-12,000
-5,000
-10,000
-12,500
-125
-700
-PHOTOMETRIC
-INTENSITY (cd)
-LOWERBEAM#IM(LBIM)
-MINIMUM
-10,000
-1,000
-15,000
-200
-500
-1,000
-13
-850
-PHOTOMETRIC
-ONTENSITY (ed)
-MAXIMUM
-1,400
-1,000
-2,700
-5,000
-3,000
-20,000
-000
-12,500
-125
-700
-FR
-571
-$14.
-.9.3
-12.6.
-3
-(enha
-display)
-page
-256
-15R
-12R
-20R
-Lto
-3R
-OR
-101
-toL
-3R
-to L
-9R
-9R
-P
-R
-R
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 256 of 1400
 
 
 ## Page 257
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-PHOTOMETRIC
-INTENSITY(cd)
-LOWERBEAM#5M(LB5M)
-MINIMUM
-10.000
-1,000
-15,000
-135
-200
-500
-135
-1,000
-850
-2,500
-1,000
-PHOTOMETRIC
-INTENSITY(ed)
-MAXIMUM
-,400
-2,700
-5,000
-3,000
-20,000
-7,000
-12,500
-125
-700
-1,000
-PHOTOMETRIC
-INTENSITY (cd)
-LOWERBEAM#4M (LB4M)
-MINIMUM
-8,000
-15,000
-200
-00S
-135
-750
-750
-700
-points  boundaries,intensity values within this boundary must meet the listed photomety requirement.
-PHOTOMETRIC
-INTENSITY(cd)
-MAXIMUM
-1,400
-1,000
-2,700
-20,000
-12,500
-125
-700
-2500
-PHOTOMETRIC
-INTENSITY (cd)
-LOWERBEAM#3V(LB3V)
-MINIMUM
-10,000
-4,500
-1,800
-15,000
-200
-500
-1,250
-135
-1,000
-64
-300
-PHOTOMETRIC
-INTENSITY(cd)
-MAXIMUM
-2,700
-12,000
-12,500
-125
-,400
-700
-1,000
-PHOTOMETRIC
-INTENSITY (cd)
-LOWERBEAM#3M(LB3M)
-MINIMUM
-8.000
-15,000
-#
-200
-00S
-750
-750
-700
-PHOTOMETRIC
-ONTENSITY (ed)
-MAXIMUM
-1,400
-1,000
-2,700
-2,500
-20,000
-12,500
-125
-700
-FR
-571
-$14.
-.9.3
-12.6.
-3
-(enha
-display)
-page
-257
-15R
-12R
-20R
-Lto
-8
-3R
-OR
-toL
-70
-3R
-toL
-9R
-R
-R
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 257 of 1400
 
 
 ## Page 258
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-MINIMUMPHOTOMETRICINTENSITY(cd)
-10,000
-4,500
-1,800
-15,000
-1,250
-1,000
-2.500
-03
-1,000
-300
-LOWERBEAM#4V(LB4V)
-ointsarboundaries,intensityvalues within this boundarymust meet the listed photometryrequirement.
-REQUIREMENTS
-MAXIMUMPHOTOMETRIC
-INTENSITY(cd)
-1,400
-1,000
-2,700
-5,000
-12,000
-10,000
-12,500
-700
-19to3R
-107
-9L&9R
-15L&15R
-12L&12R
-1.5LtoL
-9L&9R
-1.5R
-1.3R
-A
-3.5L
-4L
-18
-6
-2
-A
->
-4R
-page
-of140
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 258 of 1400
 
 
 ## Page 259
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-TABLEXX:MOTORCYCLEANDMOTORDRIVENCYCLEHEADLAMPPHOTOMETRYREQUIREMENTS
-LOWERBEAM
-TESTPOINT
-MOTORCYCLE
-MOTORDRIVENCYCLE
-MOTORDRIVENCYCLE
-(degrees)
-withSingleLampSystem
-MAXIMUM
-MINIMUM
-MAXIMUM
-MINIMUM
-MAXIMUM
-MINIMUM
-PHOTOMETRIC
-PHOTOMETRIC
-PHOTOMETRIC
-PHOTOMETRIC
-PHOTOMETRIC
-PHOTOMETR
-INTENSITY(cd)
-INTENSITY (cd)
-INTENSITY (cd)
-INTENSITY (cd)
-INTENSITY (cd)
-ICINTENSITY
-(ed)
-1.5U
-IRtoR
-1.400
-1,400
-1.5U
-1Rto3R
-1,400
-IU
-1.5LtoL
-700
-700
-700
-0.5U
-1.5LtoL
-1.000
-1.000
-1,000
-0.5U
-1Rto3R
-2.700
-2,700
-2,700
-1.5D
-9Land9R
-700
-2D
-V
-7.000
-5,000
-4,000
-2D
-3Land3R
-4,000
-3.000
-3,000
-2D
-6Land6R
-1,500
-1.500
-1.500
-2D
-12Land12R
-700
-·
-3D
-6Land6R
-800
-800
-4D
-V
-2.000
-2.000
-1,000
-4D
-4R
-12.500
-12.500
-*
-12,500
-UPPERBEAM
-TESTPOINT
-MOTORCYCLE
-MOTORDRIVENCYCLE
-(degrees)
-MAXIMUM
-MINIMUM
-MAXIMUM
-MINIMUM
-PHOTOMETRIC
-PHOTOMETRIC
-PHOTOMETRIC
-PHOTOMETRIC
-INTENSITY(cd)
-INTENSITY(cd)
-INTENSITY(cd)
-INTENSITY(cd)
-2U
-V
-1,000
-1U
-3Land3R
-·
-2.000
-2.000
-H
-V
-12.500
-10,000
-0.5D
-20.000
-20.000
-0.5D
-3Land3R
-10.000
-5.000
-0.5D
-6Land6R
-3.300
-2,000
-0.5D
-9Land9R
-1,500
-0.5D
-12Land12R
-800
-ID
-V
-17.500
--
-15,000
-2D
-V
-5.000
-5,000
-3D
-V
-2.500
-2.500
-3D
-6Land6R
-800
-3D
-9Land9R
-1,500
-3D
-12Land12R
-300
-4D
-V
-1,500
-4D
-V
-7.500
-7,500
-ANYWHERE IN
-75.000
-75,000
-BEAM
-49CFR571.108S14.9.3.12.6.3(enhanceddisplay)
-page 259of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 259 of 1400
 
 
 ## Page 260
@@ -16458,1123 +14115,272 @@ page 262 of 1400
 
 ## Page 263
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-Federal MotorVehicleSafetyStandards
-.9
-Z=0
-.8
-.51
-.7
-.6
-.5o
-GREEN
-.5
-y
-4
-WHITE
-.3
-49-
-BLLE
-.2
-RESTRICTED
-4
-O
-.2
-.3×.4
-.5
-.6
-.7
-.8
-CHROMATICITYDIAGRAM
-FIGURE1
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page263of1400
+page 263 of 1400
 
 
 ## Page 264
 
-49 CFRPart 571(up to date asof5/07/2026)
-Federal Motor VehicleSafety Standards
-49CFR571.108S14.9.3.12.6.3
-Percent Current "On" time
-9
-9
-9
-FLASHER PERFORMANCE CHART
-Flash Rate (Flashes per Minute)
-FIGURE 2
-6
-0
-age264of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 264 of 1400
 
 
 ## Page 265
 
-49 CFRPart 571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-CENTEROF
-AIMING PLANE
-AIMINGPATTERN
-LENS SURFACE
-X
-HV AXIS
-AIMINGREFERENCE
-PLANE
-CENTEROF
-AIMINGPATTERN
-'B"
-“A”
-"A"
-'B"
-OOHOOV
-D
-"E"
-MECHANICALAIMINGDEVICE
-LOCATING PLATESETTINGS
-Letter
-MM
-inches
-FORTHEADJUSTABLELEGS
-Notes:
-A
-42.16±0.25
-1.660±0.010
-GroupIorGroupllaimingpadlocations
-B
-60.05±1.00
-may be used
-2.364±0.039
-C
-64.0±1.00
-2.520 ±0.039
-GroupIairningpad location(frontview)is
-D
-68.58 ±0.51
-2.700 ± 0.020
-thatprescribedfor2B1sealedbeamunits
-E
-Mechanicalaimingdevicelocatingplate
-Group ll aimingpad location(frontview)is
-settingfor thevertical adjustableleg.
-thatprescribedfor1A1/2A1sealedbeam units
-(Millimeters)
-F
-Mechanicalaiming devicelocatingplate
-settingfor the horizontal adjustable leg.
-(Millimeters)
-REPLACEABLEBULBHEADLAMPAIMPADS
-FIGURE 3
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page 265of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 265 of 1400
 
 
 ## Page 266
 
-49CFRPart571(uptodate asof5/07/2026)
-49 CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-AMP
-METER
-POWER
-SOURCE
-VOLT
-METER
-SEALED
-BEAM
-76
-NOTEDIMENSIONSAREMm
-HEADLAMP CONNECTOR TEST SETUP
-FIGURE 4
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page266of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 266 of 1400
 
 
 ## Page 267
 
-49 CFRPart571(up todate asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-HEADLAMPABRASION TEST FIXTURE
-FIGURE 5
-ABRASIONDIRECTION
-HOLDING FIXTURE
-HEADLAMP
-MECHANISM
-ABRADING
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 267of1400
+page 267 of 1400
 
 
 ## Page 268
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Ambient temperatyre transition rates:
-Maximum 4°Cperminute
-100
-80
-Point‘B'
-60
-2 hour minimum
-(48.9° C)
-40
-Temperature
-(22.8° C)
-20
-0
--20
-2hourminimum
-(-34.40 C)
--40
-Point'A'
-0
-2
-4
-6
-8
-Hours
-Note:Ambient conditions 23°C±4°and30%RH±10%
-THERMALCYCLE PROFILE
-FIGURE6
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 268 of1400
+page 268 of 1400
 
 
 ## Page 269
 
-49 CFRPart 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-Circulatng Fan
-(305mm),mmimum)
-(Shown Cut Away With Top Cower Removed)
-Target
-(nside 0imensions 36*(915 mm) L,
-2Urethane nsulatonBiockBox
-x24°（610mm)W,×12
-DIRTTAMBIENTTESTSETUP
-FIGURE7
-(uu 292) 08
-HeadBmoWth Mounting
-Haneare (Backside)
-49
-08
-8S14.9.3.12.6.3 (enhanced display)
-page269of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 269 of 1400
 
 
 ## Page 270
 
-49 CFRPart571(upto date asof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-A
-ReferencePlane
-F00e017.8N+0.4N
-appied to giassin dinection
-ROIE
-Light source base
-figkiy mounteoto
-rd nbbp
-Mininum soherical radius
-1m
-Lineuough fiamercenter
-perpenaicular topressed gass seal
-and nlament axes
-Point ofdenecion
-Smalestdimension of
-neasurener8180
-opgositeforceBoplicatlon
-ofhe glass capsule
-Fxhane
-First force
-apolication
-kigt suoe
-Secona torce
-Founhforce
-application
-applicaion
-Third forco
-application
-49CFR571.108S14.9.3.12.6.3(enhanced display)
-page 270 of1400
-REPLACEABLELIGHTSOURCEDEFLECTIONTESTSETUP
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 270 of 1400
 
 
 ## Page 271
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Notes:
-ON @ 12.8v (or6.4v
-OFF+Test1&Test2-
-OFF+Test1&Test2
-Test 1:Conduct voitage drop and rate test
-Test 2: Test of automatic Tum-Off
-ON@11.0v(or5.5v)
-ON @ 13.0v (or6.5v)
-Environmental conditions shail not
-be altered after the test item is turned-on
-Tolerances: Rate of temperature transition:
-Test
-Minimurn: 1° F (0.6° C) per Minute
-OFF
-Maximkum: 8° F (4° C) per Minute
-Humidity. ± 5% Relative Humidity
-Soak Temperature:± 5° F (± 3° C)
-OFF
-145°F
-OFF+Test1&Test2
-(63C)
-ON @12.8v (or6.4)
-OFF+Test1&Test2
-10%RH
-Temperature (°F & °C) and Relative Humidity (
-125°F
-(52C)
-90% RH
-100°F
-ON@12.8v（or6.4v)
-75°F
-OFF+Test1&Test2
-(24° C)
-ON@11.0v(or5.5v)
-ON@13.0v(or6.5v)
-50%RH
-Test 1
-Test1
-50°F
-25°F
-sinoH 
-3Hours
-OF
-(-18° C)
-sinoHC
-SJnOHC
-SInOHE
-SnOHE
-unof
-SnOH
-sInOHE
-25F
-(-32C)
-5
-10
-15
-20
-25
-30
-35
-40
-45
-50
-55
-60
-Time (hours)
-ENVIRONMENTALTESTPROFILE
-FIGURE9
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page 271of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 271 of 1400
 
 
 ## Page 272
 
-49CFRPart571(uptodate asof5/07/2026)
-49 CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Air pressure
-gauge
-Air pressure
-source
-Pressure Chamber
-Replaceable
-Light source
-Aperture in pressure chamber for light source
-Light source retainer
-made to dimensions listed for aperture for
-orequivalent
-light source in response to Part 564.5(a)
-REPLACEABLE LIGHT SOURCE PRESSURE TEST SETUP
-FIGURE10
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page 272 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 272 of 1400
 
 
 ## Page 273
 
-49 CFR Part 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-300 mm
-300 mm
-75mm
-300mm
-min.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 273 of1400
+page 273 of 1400
 
 
 ## Page 274
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-7/>"++pue7/>"+x+x
-L = Length of any continuous strip
-TRAILER CONSPICUITY DETAILI
-Grade DOT-C3 = 300 mm (±150 mm) L x 75 mm W Minimum
-GradeD0T-C4=300mm(±150mm) Lx100mm WMinimum
-Grade D0T-C2=300 mm(±150 mm) Lx50 mmWMinimum
-FIGURE 12-1
-W
-W
-WHITE
-RED
-RED
-WHITE
-49 CFR 571.108S14.9.3.12.6.3(enhanced display)
-page274of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 274 of 1400
 
 
 ## Page 275
 
-49 CFR Part 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-75mm min.
-REQUIRED
-RED
-AMBER
-/LAMP
-75 mm min.
-REQUIRED
-WHITE
-AMBER
-LAMP
-75mmmn.
-REQUIRED
-WHITE
-RED
-LAMP
-TRAILERCONSPICUITYDETAIL!!
-FIGURE 12-2
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page275of1400
+page 275 of 1400
 
 
 ## Page 276
 
-49 CFR Part 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-FIGURE 13
-CONSPICUITY
-TREATMENT
-EXAMPLES
-TRACTOR
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 276 of1400
+page 276 of 1400
 
 
 ## Page 277
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-250 06 
-sp S 06 0 
-026
-144.50
-40.0
- 8.15
-72.25
-1 Revclylion eqsets 0.5 dktiocfien
-0000
-92 X150 mm HEADLAMPAIM DEFLECTIONTEST SETUP
-.80
-Weigrl arseembiy io be 1.8f-4 Kg
-10 Equsi divisions
-45.49
- @
-OI 
-e n se-= 
-Spot dr3 as Requied
-c0 v+ F afues
-oqe(g
-86
-FIGURE 14
-Aiumingrn Coiat
-pe9ag (od t9
-Kns e) fiu/rs
-75
-SEC.A-A
-yal) Cs enaep ualrzti
-puetijanipe Asuos qung
-0
-C  G)
-CAE -AA- 6061 -T6 Gx equlv.
-Headiamp Test Fixture
- Cudrnium piato
-sgea 009
-ARuminurm - Machtine fhaars
-snpg gog
-55.0-
-Spring Sleel SAE 1050
-Wieight & Eyebolt assernbiy
-Machiseai Ditps +f 0.?2 rmr
- iuTsupe - GaNS
-Uhu 认 F 9UQ;SU5uNG
-92 x150 mm
-es 
-Spring cly and groov
-peiabe s8
-y E0 0q G Aa 00
-Gjuslmnent  4° ug
-mc(nog gue db;
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 277of1400
+page 277 of 1400
 
 
 ## Page 278
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.108S14.9.3.12.6.3
-Federal Motor VehicleSafetyStandards
-S4E 1018
-81.0, 20
-Mid  dA
-6s0 990}
-(0)
-(.25 ± .005)
-Wisigtit of eyetcit and weighi aety.
-(900 590)
-（000S）
-to bo (3.4 0s) 11.36 g
-6.35
-1.14
-19qseM v2-0t #
-Liglitening hoss as requrired
-594 2-0 
-c bus.、projectiors.hoes. or
-GR j0 sseps3ia: su0(ssAdau)
-891) 9g y550, s90e 68941
-52(9} 0 
-(00}
-20.32
-TYP 4 Flsces
-[010+996）
-(929)
-13.33
-90ld 7 dAL
-(996)
-FIGURE 15
-(00)
-2602
-(0)
-91'01
-p0981 2- a
-(5.789 min)
-(99)
-92.45
-(699)
-0054
-(010 +9E)
-(2S4)
-2279
-10.16
-0.14
-73.52
-(sne
-83.94
-46.101
-4964
-(00 +25}
-(92)
-（4.230±005)
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-201
-page 278of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 278 of 1400
 
 
 ## Page 279
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-SAEHEADLAMPTESTFIXTURE
-100X165MM
-(f)
-508BUBBLEMOVEMENT
-MUSTINDICATE0.25DEGREE
-DIMENSFONS ARE IN mm
-SENSITIVITYORBETTER
-MACHINE MATERIALS:
-(2)
-MUSTBEACCURATETO
-WITHIN±0.05DEGREE
-THROUGHARANGEOF
-COILSPRINGANDLEVELCLIP-SPRINGSTEEL
-SAE1050-CADMIUMPLATE
-4DEGREES-
-WEIGHTANDEYEBOLTASSEMBLY-STEEL-CADMIUMPLATE
-SCREWS-ALUMINUM-MACHINETHREADS
-MACHINEDDIM±0.13mm
-SAE 100X165mm-HEADLAMPTESTFIXTURE
-12.70±25
-10EOUALDMISIONS
-1-REVOLUTIONEOUALS
-0.5DEGREEDEFLECTION
-1.27IMPRESSION
-SECTIONAA-AA
-SECTIONB-B
-SECTIONA-A
-508
-889
-163.59
-35.05
-1270
-ALUMINUMSLEEVETO
-10033
-LIMITTHUMB SCREEN
-ADJUSTMENTTO
-TYP424
-5.35
-TYP12.70
-4DOWN
-AA
-SPRING TO SUIT
-TYP3.10
-BRASSTHUMB
-4549
-SCREW64THREADS
-PER254mm
-SPRING CUIP
-ANDGROOVEN
-TYP
-14.73
-THUMBSCREW
-TOLIMIT
-TYP
-10312
-ADJUSTMENT
-TO4UP
-MAX
-TYP
-6985
-TYP
-ALUM COLLET
-TYP. 4 24
-78 4
-635
-T
-TYP6.35
-3175
-TYP
-1016
-1016
-127RINGCLEARANCENOTCH
-TYP 4.24
-6.35
-9842
-LIGHTENINGHOLESASREQUIRED
-SPOTDRILLASREQUIRED
-FINALWEIGHTOFDISC&LEVELASSEMBLY
-TO BE0.481kg
-FINALWEIGHTOFEYEBOLTAND
-WEIGHTASSEMBLYTOBE1814kg
-TYPESAANDEHEADLAMPAIMDEFLECTIONTESTSETUP
-FIGURE 16
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page 279 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 279 of 1400
 
 
 ## Page 280
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-SAEHEADLAMPTESTFIXTURE
-142X200MM
-(1)
-5.08BUBBLEMOVEMENT
-MUSTINDICATE025DEGREE
-SENSITIVITYORBETTER
-(2)
-MUSTBEACCURATETO
-9982
-DIMENSIONSAREINmm
-WITHIN±0O5DEGREE
-MACHINEMATERIALS:
-THROUGHARANGEOF
-DISC.ARMANDBRACE-ALUMINUM-SAE-AA-6061-T6OREQUIV
-14DEGREES-
-COILSPRINGANDLEVELCLIP-SPRINGSTEEL
-952
-SAE 1050-CADMIUMPLATE
-WEIGHTANDEYESOLTASSEMBLY-STEEL-CADMIUMPLATE
-19,05
-SCREWS-ALUMINUM-MACHINETHREADS
-MACHINEDDIM±0.13mm
-3810
-SAE142X200mm-HEADLAMPTESTFIXTURE
-19.05
-文
-199.64
-10EQUALDIVISIONS
-1-REVOLUTIONEQUALS
-OSDEGREEDEFLECTION
-SECTIONB-B
-SECTIONA-A
-ALUMINUMSLEEVETOLIMIT
-THUMBSCREENADJUSTMENT
-1.27IMPRESSION
-12.70
-TO4DEGREESDOWN
-127.0
-635
-25 4 TYP.
-7.62CONSTANT
-SPRINGTOSUIT
-100.33
-BRASS THUMS
-SCREW64THREADS
-45.49
-A
-TYP
-14.73
-140 72
-#10SCREW
-TYPICAL-2PLACES
-2540R
-ALUM COLLET
-6032
-6985MAX
-EYE
-7036
-31.75
-LIGHTENINGHOLESASREQUIRED-
-SPRING CLPANO
-98 42DIA
-1270
-FINALWEIGHTOFDISC&LEVELASSEMBLY
-TOBE067kg
-GROOVEINTHUMBSCREW
-SPOTDRILLASREQUIREO
-TOLIMITADJUSTMENTTO
-FINALWEIGHTOFEYEBOLTAND
-4DEGREESUP
-WEIGHTASSEMBLYTOBE1814kg
-TYPEBHEADLAMPAIMDEFLECTIONTESTSETUP
-FIGURE 17
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page 280 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 280 of 1400
 
 
 ## Page 281
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-UNIT
-ADIM
-BDIM
-(1)
-508BUBBLEMOVEMENT
-MUSTINDICATE0.25DEGREE
-SAE5.75
-14453
-13462
-SENSITIVITYORBETTER
-(2)
-MUSTBEACCURATETO
-SAE700
-17831
-16866
-WITHIN±OO5DEGREE
-THROUGHARANGEOF±4DEGREES
-DIMENSIONSAREINmm
-MACHINEMATERIALS.
-DISC.ARMANDBRACE-ALUMINUM-SAE-AA-6061-T6OREQUIV
-CORLSPRINGANDLEVELCLIP-SPRINGSTEEL
-SAE1050-CADMIUMPLATE
-WEIGHTANOEYEBOLTASSEMBLY-STEEL-CAOMIUMPLATE
-SCREWS-ALUMINUM-MACHINETHREADS
-MACHINEDDIM±0.13mm
-SAE146ANDSAE178-HEADLAMPTESTFIXTURE
-10EQUALDIVISIONS
-1-REVOLUTIONEQUALS
-05DEGREEDEFLECTION
-ALUMINUMSLEEVETOLIMIT
-THUMBSCREENADJUSTMENT
-1.27
-IMPRESSION
-12.70
-TO4DEGREESDOWN
-6.35→
-127.0
-SECTIONB-B
-SECTIONA-A
-10033
-SPRINGTOSUIT
-4549
-BRASSTHUMBSCREW
-B
-ADIA
-64THREADS
-PER254mm
-TYP
-1473
-BDIA
-#10SCREWTYPICAL
-2PLACES
-69.85
-ALUMCOLLET
-MAX
-EYEBOLT
-31.75
-SPRING CLIP AND
-LIGHTENINGHOLESASREOUIRED
-FINALWEIGHTOFDISC&LEVELASSEMBLY
-GROOVEINTHUMB
-98 42 DIA
-DiSC
-TOBE:148UNIT-O.313kg
-SCREWTOLIMIT
-178UNIT-0510kg
-ADJUSTMENTTO
-4 DEGREESUP
-SPOTDRILLASREOUIRED-FINALWEIGHTOFEYEBOLT
-DIMENSIONSARE INmm
-ANDWEIGHTASSEMBLYTOBE1.814kg
-TYPESCANDDHEADLAMPAIMDEFLECTIONTESTSETUP
-FIGURE 18
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page 281of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 281 of 1400
 
 
 ## Page 282
 
-49CFRPart571(upto date asof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-300mm（12in.)
-150mm (6 in.)
-125mm（5in.)
-125mm(5in.)
-Eight Test Stations
-90 mm (3.5 in.)
-90 mm (3.5 in.)
-25 mm {1 in )DIA
-25mm25mm
-60 mm (2 4 in)-→
-75 mm(3in.)
-50mm(2in.）→
-Four Mountung Locatons
-6 35 mm ( 25 in) DIA
-150mm(6 in.)
-50mm(2in.）
-60 mm (2.4 in.)
-TestPlateforVehiclesother than MotorcyclesandMotorDriven Cycles
-Six Test Stalions
-25 nsm (S84 in.） DA
-150 mm (5.75 in.)-
-130mm(5in.)
-75mm(3in.）
-65mm（2.5in.）
-(uz）ww 0
-100 mm (4 in.)
-70 mm (2.75 in.)
-UW
-GC-
-Four Mountng Locatiors
-(1/4 in - 20 Mounting Stud)
-90mm(3.5 in.)
-175 mm (7 in.)
-TestPlateforMotorcycles andMotorDriven Cycles
-LICENSEPLATELAMPTARGETLOCATIONS
-FIGURE19
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page282of1400
+page 282 of 1400
 
 
 ## Page 283
 
-49 CFRPart 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-Plane of Plate
-8°Min.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page283of1400
+page 283 of 1400
 
 
 ## Page 284
 
-49 CFRPart 571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-CAMPROFILERADII*
-Point
-Radius,in.
-Point
-Radius,in.
-Point
-Radius,in.
-Point
-Radius,in.
-1
-0.5000
-6
-0.5504
-11
-0.6284
-16
-0.7064
-2
-0.5000
-7
-0.5660
-12
-0.6440
-17
-0.7220
-3
-0.5086
-8
-0.5816
-13
-0.6596
-18
-0.7376
-4
-0.5192
-9
-0.5972
-14
-0.6752
-19
-0.7466
-5
-0.5348
-10
-0.6128
-15
-0.6908
-20
-0.7500
-*Thecamwidthisbetween1/2and 1in.
-19
-20
-22.125"
-Test Lamp
-16.6"
-Mounting
-16
-15-
-14-
-Lift=.125"
-3”
-Cam
-12
-品
-Springsadjusted
-to60to70lbs
-5.375"
-atAnvil
-4.125
-VeePulley
-Speed750RPM
-Cam
-o
-1/4HpMotor
-h
-o
-。
-?
-FIGURE21VIBRATIONTESTMACHINE
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page 284 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 284 of 1400
 
 
 ## Page 285
 
-49 CFRPart571(uptodateasof5/07/2026)
-Federal Motor VehicleSafety Standards
-49CFR571.108S14.9.3.12.6.3
-VM
-RESISTORS
-REMOVABLE SHUNTS
-TRIMMING
-0.005 OHM MAX.
-W
-FLASHER STANDARD TEST CIRCUIT
-LAMP
-LOAD
-AMP
-FIGURE 22
-HIGH IMPED
-RECORD VM.
-FLASHER
-SWCH
-49CFR571.108S14.9.3.
-12.6.3
-anced display)
-page285of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 285 of 1400
 
 
 ## Page 286
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-Lux Meter Locations(2Places)
-Mount2.14 m behind the headlamps
-2.2m
-Centerof Lane
-1.1m
-Headlamps(2Places)
-0.7m
-0.4m
-0.15m
-0.6m
-Ground
-Car/Truckoppositedirectionstimulustestfixturedimensions
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page286of1400
+page 286 of 1400
 
 
 ## Page 287
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Figure 23
-Lux Meter Locations (5 Places)
-Centerof Lane
-Mount3.5mbehindthe
-taillamps
-1.8m
-Taillamps (2Places)
-E
-1.2
-0.9 m
-0.7m
-0.7 m
-0.6m
-0.9m
-0.9m
-Ground
-Car/ Truck same direction stimulusfixture dimensions
-49 CFR 571.108 S14.9.3.12.6.3(enhanced display)
-page287of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 287 of 1400
 
 
 ## Page 288
 
-49 CFR Part 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.108S14.9.3.12.6.3
-Figure 24
-LuxMeter Location
-Mount 0.5 m behind the headlamps
-1.3 m
-Headlamp
-Centerof Lane
-0.6m
-Ground
-Motorcycle opposite direction stimulus testfixture dimensions
-49CFR571.108S14.9.3.12.6.3(enhanced display)
-page 288 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 288 of 1400
 
 
 ## Page 289
 
-49CFRPart571(upto date asof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Figure 25
-LuxMeter Location
-Mount1.0m behind the taillamps
-1.2 m
-0.4m
-0.4 m
-Taillamp
-Centerof Lane
-0.6 m
-Ground
-Motorcyclesame direction stimulustestfixture dimensions
-49 CFR 571.108S14.9.3.12.6.3(enhanced display)
-page289of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
+49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
+page 289 of 1400
 
 
 ## Page 290
 
-49 CFRPart571(up to date asof5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Figure 26
-Opposite
-Dire ction
-Stimulus
-Test Fixture
-Testvehicle
-Re pre sents stirmulus lamp
-Repre sents photormeter
-Not to scale. For illustrative purposes only.
-Figure 27 OppositeDirectionTestScenarios
-Same Direction
-StimulusTest
-8
-Fixture
-TestVehicle
-Represents stirmulusIarp
-Re pre sents photormeter
-Not to scale. For illustrative purposes only.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 290of1400
+page 290 of 1400
 
 
 ## Page 291
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Figure 28 Same Direction Test Scenarios
-Test Fixture
-Measurement distance
-R
-Not to scale. For illustrative
-purposes only.
-Test Vehicle
-AccelerationArea
-Do not approach
-from this area
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 291of1400
+page 291 of 1400
 
 
 ## Page 292
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49 CFR571.108S14.9.3.12.6.3
-FederalMotorVehicleSafetyStandards
-Figure 29 Left Curve Test Scenarios
-Test Fixture
-Me asurement distance
-R
-1
-Not to scale.For illustrative
-purposes only.
-TestVehicle
-Acceleration Area
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.108 S14.9.3.12.6.3
 49 CFR 571.108 S14.9.3.12.6.3 (enhanced display)
-page 292of1400
-Do not approach
-from this area
+page 292 of 1400
 
 
 ## Page 293
@@ -18088,61 +14894,20 @@ page 303 of 1400
 
 ## Page 304
 
-49CFRPart571(uptodate asof5/07/2026)
-49CFR571.109S6.
-FederalMotorVehicleSafetyStandards
-457
-B
-317R
-68
-25R
-25R
-46
-Tangent
-SECTIONA-A
-B
-254R
-SECTION B-B
-MATERIAL:CastAluminum355
-T-6 Condition
-Finish-1.3 Micrometer(um)
-Figure 2. DIAGRAM OF BEAD UNSEATING BLOCK
-All dimensions in millimeters (mm)
-49 CFR 571.109 S6.(enhanced display)
-page304of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.109 S6.
+49 CFR 571.109 S6. (enhanced display)
+page 304 of 1400
 
 
 ## Page 305
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.109S6.
-FederalMotorVehicleSafetyStandards
-39 (Ref.)
-457
-A
-100
-1.B
-10°
-本
-68
-317R
-41
-146
-25R
-A
-Tangent
-25 R
-SECTIONA-A
-SECTIONB-B
-213R
-254R
-MATERiAL:CastAluminum355
-T-6 Condition
-Finish-1.3 Micrometer (um)
-Figure 2A. DIAGRAM OF BEAD UNSEATING BLOCK
-All.dimensions in millimeters (mm)
-49CFR571.109S6.(enhanc
-page305of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.109 S6.
+49 CFR 571.109 S6. (enhanced display)
+page 305 of 1400
 
 
 ## Page 306
@@ -18876,50 +15641,11 @@ page 320 of 1400
 
 ## Page 321
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.110S8.2
-FederalMotorVehicleSafetyStandards
-Vehicle Placard
-Optional
-Alphanumeric
-YellowTextonBlackBackgroundor
-Identifier
-BlackTextonYellowBackground
-orBarcode
-1
-13mmx14mm
-TIRE AND LOADING INFORMATION
-6503870
-(.51"x .55")
-SEATING CAPACITY
-TOTAL5FRONT2REAR
-Thecombined weightofoccupantsandcargo should neverexceedXXXkgorXXxxlbs.*
-BE41S5
-TIRE
-SIZE
-COLDTIREPRESSURE
-SEEOWNER'S
-P195/70R14
-200KPA,29PSI
-MANUALFOR
-7DA03E
-FRONT
-Red Border
-ADDITIONAL
-REAR
-P195/70R14
-200KPA,29PSI
-INFORMATION
-SPARE
-T125/70D15
-420KPA,60PSI
-YellowTextonBlackBackgroundor
-BlackTextonYellowBackground
-*For trailers,thisstatement should read:
-TheweightofcargoshouldnotexceedXxxkgorXxXlbs.
-Figure 1
-49 CFR 571.110 s8.2 (enhanced display)
-page 321of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.110 S8.2
+49 CFR 571.110 S8.2 (enhanced display)
+page 321 of 1400
 
 
 ## Page 322
@@ -19080,37 +15806,11 @@ page 325 of 1400
 
 ## Page 326
 
-49 CFRPart 571(uptodate as of 5/07/2026)
-49CFR571.110S10.2
-FederalMotorVehicleSafetyStandards
-MOTORHOME OCCUTANTAND CARGO CARRYING CAPACIEY
-THECOMRINED WEIGHTOFOCCLPANTSAND CARGO SHOULDNEVERENCEED
-kgoraxxbs
-Safenhelt equippud seating capncity:Xe
-CAUTION
-A full load of water equals AX kgor YXX tbs of cargo a I kg/L. (8.3 lb/galr and the tongue
-weight ofxtowed trailer counts a cargo
-Figure 3 -Motor Home Occupant and Cargo Carying Capacity Label
-RECREATIONVEHICLETRAHLERCARGOCARRYINGCAPACITY
-THEWEIGHTOFCARGO SHOULDNEYEREXCEED:
-NLkgorXXhs
-CAUTION
-Afulload ofwater eqwalsXXX kgorXX lbsof cargo @ 1 kg/L.(8.3 th/gal)
-Figure 4-RVTrailerCargo CarryingCapacityLabel
-CALTON
-A fullloadofwater cgualsXx kgorX1bs of cargo @ 1kg/L (8.31b/gal)
-and the tongue weight of a towed trailer counts as cargo
-Figure5-MotorHomeSupplemental Label
-CAUTION.
-A fnll loadofwatercgmakXx kgorXxx Jbsof cargo @1 kg/L(83lh/gah)
-Figure 6RVTrailerSupplementalLabel
-CAUTIONLOAD CARRYINGCAPACITYRENUCED
-Modifications to thisvehicke hayereducedtheorigmal load carryingcapacity by
-kgora
-ths
-Figure 7.Load Carrying CapacityModification Label
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.110 S10.2
 49 CFR 571.110 S10.2 (enhanced display)
-page326of1400
+page 326 of 1400
 
 
 ## Page 327
@@ -19802,52 +16502,20 @@ page 337 of 1400
 
 ## Page 338
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR 571.111S13.3(g)
-FederalMotorVehicleSafetyStandards
-B
-C
-3.6 m (12 ft)
-D
-E
-F
-1.8 m (6 f)
-G
-H
-1
-Centerine of
-Front Axle
-M
-Centerline of
-Rear Axje
- = Test Cylinder
-.3 m(1 ft)
-3.6 m (12 ft)
-1.8 m (6 ft)
-1.8 m (6 f)
-Figure 2.—-Location of Test Cylinders for School Bus Field-of-View Test
-All Dimensions in Meters (m)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.111 S13.3(g)
 49 CFR 571.111 S13.3(g) (enhanced display)
-page338of1400
+page 338 of 1400
 
 
 ## Page 339
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR 571.111S13.3(g)
-FederalMotorVehicleSafetyStandards
-81
-15.24 cm (6 in)
-Driver's eye location
-D
-B
-A
-15.24 cm (6 in)
-15.24 cm (6 in)
-Figure 3.
-Camera Locations for School Bus Field-of-View Test
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.111 S13.3(g)
 49 CFR 571.111 S13.3(g) (enhanced display)
-page339of1400
+page 339 of 1400
 
 
 ## Page 340
@@ -20107,19 +16775,11 @@ page 345 of 1400
 
 ## Page 346
 
-49 CFRPart571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.111S14.3.3
-Vehicle
-Longitudinai
-Centerline
-0.3m
-(1 ft)
-3.05m
-(10 ft)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.111 S14.3.3
 49 CFR 571.111 S14.3.3 (enhanced display)
-page346 of1400
-6
+page 346 of 1400
 
 
 ## Page 347
@@ -22420,47 +19080,20 @@ page 392 of 1400
 
 ## Page 393
 
-49CFRPart571(uptodate asof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.118 S9.(c)
-FederalMotorVehicleSafetyStandards
-SUNROOFPANEL
-CYLINDRICALTESTROD
-DETAIL
-HINGED SUNROOF
-EXTERIOR
-SUNROOF
-SUNROOFPANEL
-FRAME
-CYLINDRICAL TEST ROD
-INTERIOR
-SUNROOF
-WINDOWFRAME
-CYLINDRICAL.
-TEST RODS
-WINDOW
-WINDOW
-Figure 1 - Typical Cylindrical Test Rods Protruding
-through Sunroof and Window Daylight Openings
 49 CFR 571.118 S9.(c) (enhanced display)
-page 393of1400
+page 393 of 1400
 
 
 ## Page 394
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.118S9.(c)
-Federal MotorVehicleSafetyStandards
-FIGURE2-REFLECTANCETESTAPPARATUS
-Sample or Mirror
-Sample Hoider
-150 mm. +/-50 mm.
-150 mm.+/-50 mm.
-InfraredSource
-Infrared Sensor
-0i = 16 +/- 2 deg.
-θr =0i
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.118 S9.(c)
 49 CFR 571.118 S9.(c) (enhanced display)
-page 394 of1400
+page 394 of 1400
 
 
 ## Page 395
@@ -24612,104 +21245,29 @@ page 432 of 1400
 
 ## Page 433
 
-49 CFRPart571(up to dateasof 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.121S6.2.7
-Control Line
-Supply Line
-30'-3/8* 1.D. Line
-(Straight or Coiled)
-Glad Hand
-Glad Hand
-and for the supply line pressure retention test in S5.8.2; and any
-pressure above 70 psi for parking brake test in S5.6.5.3.)
-30'-3/8" I.D. Line (Straight or Coiled)
-Figure 1. Trailer Test Rig.
-QRV
-- Regulator (set at 1o0 psi for service brake actuation tests;
-M
-MV
-95 psi for service brake release tests;
-Control
-Valve
-· Metering Valve (Variable or Fixed)
-1000 in 3
-Reservoir
-3/8" I.D. Line
-. Shut-off Valve
-2
-SV
-age433of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.121 S6.2.7
+49 CFR 571.121 S6.2.7 (enhanced display)
+page 433 of 1400
 
 
 ## Page 434
 
-49 CFRPart 571(up to date asof 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.121S6.2.7
-FIGURE 2
-THERMOCOUPLE INSTALLATION
-·O.250IAMAX-
-0.201A
-0.12
-0.25
-AS
-REOUIRED
-0.090A
-0.16D1A
-CB ORILL NO.31
-O.IOO MAX DEPTH
-BEFORE GRIND
-TWISTANO-
-0.125
-MIN
-SILVER
-ORILL
-SOLOER
-NO35
-OO4O RECESS UNDER
-QHODIA
-GROUNO SURFACE
-1/8OOCOPPER
-TUBE OPENID
-WITH NO.44
-20 GAGE 0032
-DRILL(0.086D1A)
-DIAI-CDUPLEX
-WIRE0.35A/FT1
-GRINO TO1/8
-MAX SEFORE
-PLACING INLINING
-O.O4O RECESS UNDER
-GROUNO SURFACE
-49 CFR 571.121S6.2.7(enhanced display)
-page434of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.121 S6.2.7
+49 CFR 571.121 S6.2.7 (enhanced display)
+page 434 of 1400
 
 
 ## Page 435
 
-49 CFRPart571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.121S6.2.7
-95-5psi 0.7 sec
-Figure 3. Pressure vs. Time for 50 in? Test Reservoir.
-Time (sec) from Initial Valve Movement
-0.5
-Apply
-Release
-0.4
-jsd09-0
-0.35 sec
-0.3
-Initial Valve Movement-Release
-0.2
-Movement - Apply
-InitialValve
-49CFR571
-Page435of1400
-100
-8
-2
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.121 S6.2.7
+49 CFR 571.121 S6.2.7 (enhanced display)
+page 435 of 1400
 
 
 ## Page 436
@@ -26207,46 +22765,11 @@ page 460 of 1400
 
 ## Page 461
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.122S6.11.3
-Figure 2. Typical Plug Type Thermocouple Installations
-0.25DIAMAX
-Q12DIA-
-0.12
-0.25
-AS
-REQUIRED
-0090IA
-016DIA
-CB DRILL NO.3
-O.OO MAXDEPTH
-0.125
-BEFORE GRIND
-TWISTANO
-MIN
-SILVER
-ORILL
-SOLDER
-NO35
-C.O4O RECESS UNDER
-QIIODIA
-GROUND SURFACE
-9/2
-1/8ODCOPPER
-TUBE OPEN1O
-W1TH NO.44
-20 GAGE 0032
-DRILL(GOB6DIA)
-DIA}C(DUPLEX
-WIREQ35A/FT)
-GRIND TO1/8
-MAX BEFORE
-PLACING IN LINING
-O.O4O RECESS UNDER
-GROUND SURFACE
-49 CFR571.122S6.11.3(enhanced display)
-page 461of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.122 S6.11.3
+49 CFR 571.122 S6.11.3 (enhanced display)
+page 461 of 1400
 
 
 ## Page 462
@@ -26757,50 +23280,11 @@ page 471 of 1400
 
 ## Page 472
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.122aS7.11(e)
-FederalMotorVehicleSafetyStandards
-0.25D1AMAX
-012GA
-0.12
-Q.25
-AS
-REOUIRED
-Q09DIA
-016 DiA
-CB DRILL NO.31
-O.IOO MAXDEPTH
-BEFORE GRIND
-TWIST AND
-0.125
-SILVER
-MIN
-ORILL
-SOLDER
-NO35
-O.O4O RECESSUNDER
-QIIODIA
-GROUNO SURFACE
-9i/
-1/8ODCOPPER
-TUBE CPENID
-WITH NO.44
-20 GAGE 0032
-DRILL(0066DIA)
-DIA}CIDUPLEX
-WIAEQ35A/FT)
-GRIND YO 1/8
-MAX BEFORE
-PLACINGINLINING
-O.O4O RECESS UNDER
-GROUND SURFACE
-FIGURE1-TYPICALPLUG TYPE THERMOCOUPLE INSTALLATIONS
-FIG. 2 DIRECTION OF FORCE
-1.2IN.→
-06
-06
-49 CFR 571.122a S711(e) (enhanced display)
-page472of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.122a S7.11(e)
+49 CFR 571.122a S7.11(e) (enhanced display)
+page 472 of 1400
 
 
 ## Page 473
@@ -26893,74 +23377,11 @@ page 474 of 1400
 
 ## Page 475
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.123S5.2.5
-Federal MotorVehicleSafetyStandards
-Table 1 -Motorcycle Control Location and Operation Requirements
-Equipment Control -
-Location --
-Operation --
-Column 1
-Column 2
-Column 3
-Manual clutch orintegrated
-Left handlebar
-Squeeze to
-clutch and gear change
-disengage clutch.
-2
-Foot-operated gear change
-Left foot control
-An upward
-motion of the
-operator's toe
-shifts
-transmission
-towardlower
-numerical gear
-ratios(commonly
-referred to as
-"higher gears"),
-andadownward
-motiontoward
-higher numerical
-gear ratios
-(commonly
-referred to as
-lower gears"). 1f
-threeormore
-gears are
-provided, it shall
-not be possible to
-shift from the
-highest gear
-directly to the
-lowest,or vice
-versa.
-3
-Headlampupper-lower beam
-Left handlebar
-Up for upper
-control
-beam, down for
-lower beam.If
-combined with
-the headlight on-
-off switch, means
-shall be provided
-toprevent
-inadvertent
-actuationofthe
-"off'function.
-4
-Hom
-Left handlebar
-Push to activate.
-5
-Turn signal lamps
-Handlebars.
-49 CFR 571.123 S5.2.5(enhanced display)
-page 475 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.123 S5.2.5
+49 CFR 571.123 S5.2.5 (enhanced display)
+page 475 of 1400
 
 
 ## Page 476
@@ -27017,58 +23438,11 @@ page 478 of 1400
 
 ## Page 479
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.123S5.2.5
-Federal MotorVehicleSafetyStandards
-Table3 tos571.123-Motorcycle Controland DisplayIdentificationRequirements
-Column 1
-Column2
-Column3
-Column4
-Identification at
-No.
-Control andDisplay
-Control andDisplay
-Equipment
-AppropriatePositionof
-IdentificationWord
-IdentificationSymbol
-Control andDisplay
-Ignition
-Ignition
-Of
-Supplemental Engine
-2
-Engine Stop
-Off, Run
-Stop (Off, Run)
-Manual Choke or
-3
-Choke or Enrichener
-Mixture Enrichment
-Electric Starter
-Start 1
-Headlamp Upper-
-Lights
-Hi, Lo
-LowerBeam Control
-6
-Horn
-Horn
-Turn Signal
-un
-L,R
-MPH
-MPH4
-8
-Speedometer
-OR
-MPH and km/h 5
-MPH, km/h 5
-N
-49 CFR 571.123 S525-(enhanced display)
-Neutral
-page 479 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.123 S5.2.5
+49 CFR 571.123 S5.2.5 (enhanced display)
+page 479 of 1400
 
 
 ## Page 480
@@ -27366,187 +23740,20 @@ page 486 of 1400
 
 ## Page 487
 
-49CFRPart571(uptodate asof5/07/2026)
-49 CFR571.125S6.3(d)
-FederalMotorVehicleSafetyStandards
-OSSERVATIONPOINT
-REFLECTED LICHT
-LIGHT
-OBSERVATION
-SOURCE
-DIVERGENCEANGLE
-INCIDENT LIGHT
--ENTRANCE{INCIDENCCANGLE
-PERPENDICULARTOREFLECTIVESURFACE
-REFLECTIVESURFACE
-100FT.
-REFLECTIVITYTESTDIAGRAM
-Figure2
-IFRONT!
-(REAR)
-APPROXIMATELY
-40PACES
-DISABLED
-100FT
-VEHICLE
-WARNING
-DEVICE
-RECOMMENDEDWARNING DEVICE POSITIONING
-Figure 3
-TOTAL MINIMUM CANDLEPOWER
-PER INCIDENT FOOT CANDLE
-Entrance Angles - Degrees
-Observation
-10
-10
-20
-20
-30
-30
-Angles-Degrees
-0
-up
-down
-left
-right
-left
-right
-49 CFR 571.125 s6.2(d) (enhanced dispa)
-80
-80
-40
-40
-8.0
-page 4870f 1400
-1.5
-0.8
-0.8
-0.8
-0.4
-0.4
-0.08
-0.08
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.125 S6.3(d)
+49 CFR 571.125 S6.3(d) (enhanced display)
+page 487 of 1400
 
 
 ## Page 488
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.125 S6.3(d)
-FederalMotorVehicleSafetyStandards
-0.98
-0.93
-0060
-RED:
-y=0.33
-520
-x+y=0.98
-515
-800
-5.35
-540
-SPECTRUMLOCUS
-510
-545
-700
-550
-505
-995
-560
-x+y=0.93
-600
-GREEN
-565
-YELLOWISH
-GREEN
-570
-500
-YELLOW
-GREEN
-575y=0.49x+0.17
-500
-/
-580
-YELLOW ORANGE
-YBLLOM
-585
-ORANGE
-590
-y=0.35
-495
-400
-BLUISH
-GRANGE
-GREEN
-595
-ORANGE
-600
-y=0.33
-PINK
-HEDDISH
-ORANGE
-605
-BLUE
-CIE ILLLMINANT
-6104
-GREEN
-675
-RED
-300
-PINK
-1620
-490
-RED
-630
-640
-0675
-GREENISH
-PURPLISH
-PURPLISH
-700750
-3018
-PINK
-RED
-200
-485
-17
-RED
-x+y=0.98
-BLUE
-PURPLE
-480
-PURPLE
-REDDISH
-PURPLE
-SPECTRUMLOCUS
-100
-475
-470
-ORANGE:x+y=0.93
-y=0.49x+.17
-460
-BLUISHPURPLE
-y=0.35
-450
-440
-430
-380
-000
-T
-400
-0.000
-100
-420
-.200
-300
-400
-.500
-.600
-700
-.800
-X
-figure 4.ClE Chromaticity Diagram.
-49 CFR 571.125S6.3(d)(enhanced display)
-page 488 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.125 S6.3(d)
+49 CFR 571.125 S6.3(d) (enhanced display)
+page 488 of 1400
 
 
 ## Page 489
@@ -28105,19 +24312,11 @@ page 499 of 1400
 
 ## Page 500
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.126S8.8
-FederalMotorVehicleSafetyStandards
-Handwheel Angle
-Time
-Yaw Rate
-Time
-T
-To+1To+1.75
-Figure 1.Steering wheel position and yawvelocity information used to assess lateral stability.
-8
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.126 S8.8
 49 CFR 571.126 S8.8 (enhanced display)
-page500 of1400
+page 500 of 1400
 
 
 ## Page 501
@@ -29222,17 +25421,11 @@ page 520 of 1400
 
 ## Page 521
 
-49 CFRPart 571(up to date asof5/07/2026)
-49CFR571.127S10.5.(e)
-FederalMotorVehicleSafetyStandards
-50 % Overlap
-PTM Direction
-of Travel
-Subject Vehicle
-Direction of
-Travel
-49 CFR 571.127 S10.5.(e)(enhanced display)
-page 521of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.127 S10.5.(e)
+49 CFR 571.127 S10.5.(e) (enhanced display)
+page 521 of 1400
 
 
 ## Page 522
@@ -29247,15 +25440,11 @@ page 522 of 1400
 
 ## Page 523
 
-49 CFRPart571(up to date asof5/07/2026)
-49CFR571.127S10.5.(e)
-FederalMotorVehicleSafetyStandards
-50 % Overlap
-PTM Direction
-of Travel
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.127 S10.5.(e)
 49 CFR 571.127 S10.5.(e) (enhanced display)
-page523of1400
-SubiectVehicle
+page 523 of 1400
 
 
 ## Page 524
@@ -29270,16 +25459,11 @@ page 524 of 1400
 
 ## Page 525
 
-49 CFRPart571(up to date asof5/07/2026)
-49 CFR571.127S10.5.(e)
-FederalMotorVehicleSafetyStandards
-25 % Overlap
-PTM Stationary
-Subject Vehicle
-Direction of
-Travel
-49 CFR 571.127 S10.5.(e)(enhanced display)
-page 525 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.127 S10.5.(e)
+49 CFR 571.127 S10.5.(e) (enhanced display)
+page 525 of 1400
 
 
 ## Page 526
@@ -29294,17 +25478,11 @@ page 526 of 1400
 
 ## Page 527
 
-49 CFRPart571(up to date asof5/07/2026)
-49 CFR571.127S10.5.(e)
-FederalMotorVehicleSafetyStandards
-25 % Overlap
-PTM Direction
-of Travel
-Subject Vehicle
-Direction of
-Travel
-49 CFR 571.127 S10.5.(e)(enhanced display)
-page 527of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.127 S10.5.(e)
+49 CFR 571.127 S10.5.(e) (enhanced display)
+page 527 of 1400
 
 
 ## Page 528
@@ -29650,41 +25828,20 @@ page 535 of 1400
 
 ## Page 536
 
-49 CFRPart571(upto date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.129S7.3
-NON-PNEUMATIC
-LATERAL FORCE
-TIRE ASSEMBLY
-TESI BLOCK
-(BEAM HORIZONTAL)
-TIRE ASSEMBLY
-ROTATIONAL AXIS OF
-NON-PNEUMATIC
-LATERAL FORCE TEST FIXTURE
-(DIMENSIONS IN INCHES)
-PIVOT ON CENTERLINE
-OF BEAM
-FIGURE 1 -- 
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.129 S7.3
 49 CFR 571.129 S7.3 (enhanced display)
-page 536of1400
+page 536 of 1400
 
 
 ## Page 537
 
-49CFRPart571(upto dateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.129S7.3
-CENTERLINE
-LATERAL FORCE TEST BLOCK
-FRONT VIEW
-DIMENSIONAL TOLERANCE IS +/- 0.050 INCH
-8
-DIMENSIONS ARE IN INCHES
-FIGURE 2 -
-VIEW
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.129 S7.3
 49 CFR 571.129 S7.3 (enhanced display)
-page 537of1400
+page 537 of 1400
 
 
 ## Page 538
@@ -35414,17 +31571,11 @@ page 644 of 1400
 
 ## Page 645
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.201S10.13
-FederalMotorVehicleSafetyStandards
-PARALLELTOTHE
-VEHICLE'SLONGITUDINAI
-AX18
-VEHICLE'SFRONT
-VEHICEE'SREAR
-FIGURE1-ORTHOGONALREFERENCESYSTEM
-49CFR571.201S10.13(enhanced display)
-page645of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.201 S10.13
+49 CFR 571.201 S10.13 (enhanced display)
+page 645 of 1400
 
 
 ## Page 646
@@ -36467,64 +32618,29 @@ page 665 of 1400
 
 ## Page 666
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.202aS7.2.2
-FederalMotorVehicleSafetyStandards
-Figure 1 of s571.202a -Sled pulse acceleration corridor.The target acceleration
-with time expressed in milliseconds is a = 86 Sin(rt/88) m/s², for. V = 17.3 ± 0.6
-km/h. The time zero for the test is defined by the point when the sled acceleration
-achieves 2.5 m/s² (0.25 G's).
-100
-B
-80
-G
-60
-Target
-SledPulse
-Minimum
-40
-Corridor
-Maximum
-Corridor
-20
-A
-E
-H
-20
-40
-60
-80
-100
-TIME(MILLISECONDS)
-49CFR571.202aS7.2.2(enhanceddisplay)
-page 666 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.202a S7.2.2
+49 CFR 571.202a S7.2.2 (enhanced display)
+page 666 of 1400
 
 
 ## Page 667
 
-49CFRPart571(upto date asof5/07/2026)
-49CFR571.202aS7.2.2
-FederalMotorVehicleSafetyStandards
-Figure 2 of s571.202a - Measurement of a vertical gap "a".
-165 mm dia.
-sphere
-Section A-A
-49 CFR 571.202a S7.2.2(enhanced display)
-page667of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.202a S7.2.2
+49 CFR 571.202a S7.2.2 (enhanced display)
+page 667 of 1400
 
 
 ## Page 668
 
-49CFRPart571(upto date asof5/07/2026)
-49CFR571.202aS7.2.2
-FederalMotorVehicleSafetyStandards
-Figure 3 of s571.202a - Measurement of a horizontal gap “a".
-A
-165 mm dia.
-sphere
-Section A-A
-49 CFR 571.202a S7.2.2(enhanced display)
-page 668 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.202a S7.2.2
+49 CFR 571.202a S7.2.2 (enhanced display)
+page 668 of 1400
 
 
 ## Page 669
@@ -37120,22 +33236,11 @@ page 680 of 1400
 
 ## Page 681
 
-49 CFRPart571(upto date asof5/07/2026)
-49CFR571.205(a)S6.5
-FederalMotorVehicleSafetyStandards
-Dlmensions in millimeters
-150 (approximate)
-23
-23
-Figure 1 -- Test Fixture For Clamped Specimens
-口350(minimum)
-口
-Rubber gasket
-Test piece
-10 (minimum)
-Sheet ofrubber
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.205(a) S6.5
 49 CFR 571.205(a) S6.5 (enhanced display)
-page 681of1400
+page 681 of 1400
 
 
 ## Page 682
@@ -37974,260 +34079,83 @@ page 696 of 1400
 
 ## Page 697
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.206S5.3
-FederalMotorVehicleSafetyStandards
-FIGURE 1.EVALUATION OF SLIDING DOOR GAP SEPARATION
-Top View-Pre Test
-Door Frame
-Door
-ExteriorofVehicle
-Top View-During Force Application
-Interiorof
-Vehicle
-DoorFrame
-Door
-Unobstructed
-passagefromvehicle
-exteriortointerior
-throughout atany
-point
-49 CFR 571.206S5.3(enhanced display)
-page 697of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
+49 CFR 571.206 S5.3 (enhanced display)
+page 697 of 1400
 
 
 ## Page 698
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.206S5.3
-FIGURE 2 - DOOR LATCH - TENSILE TESTING FIXTURE FOR LOAD TEST 1
-MOUNTINGPLATE(RECOMMENDED
-MOUNTINGPROVISIONS
--EQUALIZINGLINKS
-INTERCHANGEABLELATCH
-OFTHELATCHAND
-ADAPT THE TEST
-FIXTURE TO THE
-GAGE 3.05 ± 0.25 mm)
-MOUNTING PLATE(RECOMMENDED
-88.9±0.13mm
-STRIKER
-INTERCHANGEABLESTRIKER
-GAGE3.05±0.25 mm)
-PULL
-PULL
-BETWEEN CENTER
-203.2 ±0.13 mm
-LINES
-900 N LOAD
-49CFR571.206S5.3（enhanceddis)
-page698of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
+49 CFR 571.206 S5.3 (enhanced display)
+page 698 of 1400
 
 
 ## Page 699
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.206S5.3
-Federal MotorVehicleSafetyStandards
-FIGURE3-DOORLATCH-TENSILETESTINGFIXTUREFORLOADTEST2
-PULL
-APPLIEDLOADINTHEFORK-BOLTOPENING
-DIRECTION(LATCHOPENING).PULLTOBE
-IN-LINEWTHCONTACTINGSURFACESOF
-THELATCHANDSTRIKER.
-DOORLATCH
-ASSEMBLY
-STRIKERASSY.
-ADAPTTHETESTFIXTURETO
-THEMOUNTINGPROVISIONS
-OFTHELATCHANDSTRIKER
-PULL
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
 49 CFR 571.206 S5.3 (enhanced display)
-page 699of1400
+page 699 of 1400
 
 
 ## Page 700
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.206S5.3
-Federal MotorVehicleSafetyStandards
-FIGURE 4-DOORLATCH-TENSILE TESTING FIXTURE FOR LOAD TEST 3 (BACKDOORS ONLY)
-PULL
-APPLIEDLOADTOBEORTHOGONALTO
-PREVIOUSTWOLOADCASES
-DOORLATCH
-ASSEMBLY
-STRIKERASSY.
-ADAPTTHETESTFIXTURETO
-THEMOUNTINGPROVISIONS
-OFTHELATCHANDSTRIKER.
-PULL
-49 CFR 571.206S5.3 (enhanced display)
-page700 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
+49 CFR 571.206 S5.3 (enhanced display)
+page 700 of 1400
 
 
 ## Page 701
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.206S5.3
-FederalMotorVehicleSafetyStandards
-Upper Bound
-Lower Bound
-Time
-Acceleration
-Time
-Acceleration
-Point
-Point
-(ms)
-(g)
-(ms)
-(g)
-A
-0
-9
-E
-5
-0
-B
-20
-36
-F
-25
-30
-C
-60
-36
-G
-55
-30
-D
-100
-0
-H
-70
-0
-ACCELERATIONPULSECORRIDORTABLE1
-FIGURE5-DOORLATCHSTATICLOAD TEST DIRECTIONS
-LOAD TEST 2
-LOAD TEST 1
-LOAD TEST3
-LOAD TEST 3
-49CFR571.206S5.3(enhanced display)
-page 701of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
+49 CFR 571.206 S5.3 (enhanced display)
+page 701 of 1400
 
 
 ## Page 702
 
-49 CFR Part 571(up to date as of5/07/2026)
-49CFR571.206S5.3
-FederalMotorVehicleSafetyStandards
-Acceleration Pulse Corridor
-40
-B
-C
-35
-Maximum
-F
-G
-30
-Minimum
-25
-Acceleration
-20
-15
-10
-A
-5
-E
-H
-D
-0
-0
-20
-40
-60
-80
-100
-120
-Time (ms)
-LowerBound
-d UpeerBound
-FIGURE6-ACCELERATION PULSE
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
 49 CFR 571.206 S5.3 (enhanced display)
-page 702of1400
+page 702 of 1400
 
 
 ## Page 703
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.206S5.3
-FederalMotorVehicleSafetyStandards
-FIGURE·7.VEHICLECOORDINATE REFERENCESYSTEM FORINERTIALTESTING
-X
-longitudinal direction
-Y
-transverse directon
-Z
-verticaldlrection
-49 CFR 571.206S5.3(enhanced display)
-page 703 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
+49 CFR 571.206 S5.3 (enhanced display)
+page 703 of 1400
 
 
 ## Page 704
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.206S5.3
-LOWERHINGEASSEMBLY
-TRANSVERSELOAD
-LONGITUDINALLOAD
-PULL
-PULL
-DOOR HINGE
-UPPERHINGEASSEMBLY
-HINGEASSEMBLY
-203mm
-TRANSVERSELOAD
-FIGURE 8 - HINGE STATIC TEST FIXTURES
-LONGITUDINAL LOAD
-LOWER HINGE
-ASSEMBLY
-PULL
-406mm
-(16 in.)
-DOOR HINGE SYSTEM
-TRANSVERSELOAD
-PULL
-PULL
-UPPER HINGE
-ASSEMBLY
-49CFR571.206
-(enhanced
-page704of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
+49 CFR 571.206 S5.3 (enhanced display)
+page 704 of 1400
 
 
 ## Page 705
 
-49CFRPart571(uptodateasof5/07/2026)
-Federal MotorVehicleSafetyStandards
-49CFR571.206S5.3
-PULL
-FIGURE 9 - HINGE STATIC TEST LOAD DIRECTIONS FOR BACK DOORS
-PULL
-LOAD TEST 3
-LOAD TEST 1
-BACKDOORHINGESTATICTEST LOADDIRECTIONS
-PULL
-LOAD TEST 2
-ONLYFORBACKDOORSTHAT
-NOTE: LOAD TEST THREE
-OPENUPWARDS
-LOADTEST3
-PULL
-49CFR571.206S5.3(enhanceddisplay)
-page705of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.206 S5.3
+49 CFR 571.206 S5.3 (enhanced display)
+page 705 of 1400
 
 
 ## Page 706
@@ -38390,70 +34318,29 @@ page 709 of 1400
 
 ## Page 710
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.207S5.4
-FederalMotorVehicleSafetyStandards
-RIGID
-STRUT
-MEMBER
-HORIZONTAL REARWARD
-FORCETHROUGH THE
-CENTEROFGRAVITY
-DIAGONAL STRUT ATTACHED
-ASFARFORWA&DCFFRONT
-ATTACHING POINT ASPOSSIALE
-HORIZONTAL FORWARD FORCE
-THROUGH THE CENTER
-OF GRAVITY
-RICIDMEMBER
-FIGUREI
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.207 S5.4
 49 CFR 571.207 S5.4 (enhanced display)
-page710of1400
+page 710 of 1400
 
 
 ## Page 711
 
-49 CFRPart 571(up to date asof5/07/2026)
-49CFR571.207S5.4
-FederalMotorVehicleSafetyStandards
-CENTERCF GRAVITY
-CF SEAT BACK
-REARWARD
-KORIZONTAL
-LOADCELI
-FORCE
-FORWARD
-HORIZONTAL
-FORCE
-CENTEROFGRAVITY
-CFSEAT CUSHICN
-1111
-REARWARO
-KORIZONTAL
-FORCE
-FIGURE2
-HORIZONTAL
-FORCE
-FIGURE3
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.207 S5.4
 49 CFR 571.207 S5.4 (enhanced display)
-page 711of1400
+page 711 of 1400
 
 
 ## Page 712
 
-49 CFRPart 571(up to date asof5/07/2026)
-49CFR571.207S5.4
-FederalMotorVehicleSafetyStandards
-RIGID MEMBER
-HORIZONTALFORCE(P)TO
-SEATBACKATUPPER
-CROSSMEMBER
-SEATINGREFERENCE POINT
-MOMENT(PXD)COMPUTEDASOUTTHE
-SEATING REFERENCE POINT
-FIGURE4
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.207 S5.4
 49 CFR 571.207 S5.4 (enhanced display)
-page 712 of1400
+page 712 of 1400
 
 
 ## Page 713
@@ -44730,322 +40617,110 @@ page 827 of 1400
 
 ## Page 828
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-AttachtheInboardAeachString
-(19%"long) atthebaseof
-theheadoncenterline.
-Rearview
-50thO%o-tle
-dummy.
-sealedn
-foremost
-sealadjust-
-mentpositioni
-Attach theOutboardReachString
-(28ong)at thispoint on the
-..O0
-torsosheath.
-A--Using flexibletapemeasure 8
-19
-frombackcenterline10-1"from
-front centerlinetofind anchorpoint
-belowarmpi!ontorsosheath
-SeatPlaneis90°to theTorsoLine
-Figure 3.Location of Anchoring Points for Latchplate Reach Limiting Chains
-or Strings to Test for Latchplate Accessibility Using Subpart E Test Device
-49 CFR 571.208 S29.3(b)(enhanced display)
-page 828of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
+49 CFR 571.208 S29.3(b) (enhanced display)
+page 828 of 1400
 
 
 ## Page 829
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-Clearance Test Block
-%"R
-TYP
-(Notecornersareroundedoff
-to reduce snagging.)
-Typicalarm rest
-FigUre4-USEOFCLEARANCETESTBLOCKTODETERMINEHAND/ARMACCESS
-49CFR571.208S29.3(b)(enhanced display)
-page 829 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
+49 CFR 571.208 S29.3(b) (enhanced display)
+page 829 of 1400
 
 
 ## Page 830
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-Dimension A
-1
-Insert Webbing
-to Rest Against
-This Surface
-1/4lnchDiameter(Steel)
-Dimension B
-Direction of Pull
-Dimension A - Width of Webbing Plus 1/2 Inch
-Dimension B - 1/2 of Dimension A
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
 49 CFR 571.208 S29.3(b) (enhanced display)
-page 830 of1400
+page 830 of 1400
 
 
 ## Page 831
 
-49CFRPart571(uptodate asof5/07/2026)
-49 CFR571.208 S29.3(b)
-FederalMotorVehicleSafetyStandards
-SLED PULSE WITH MAXIMUM AND MINIMUM CORRIDORS
-5 ms @0G
-120 ms @ 0 G
-0
-E
-H
-D
-ACCELERATION (Gs)
--5
-Corridbr Boundafy
--10
-F
-G
--15
-B
-C
--20
-0
-25
-50
-75
-100
-125
-40 ms @ -18.2 G
-85 ms @ -18.2 G
-TIME (milliseconds or ms)
-Sled pulse for delta V = 30(+0,-2) mph. The Time Zero for the test is defined by the
-point when the sled acceleration achieves -0.5 G's.
-SLEDPULSE AND COORDINATES
-REFERENCE POINT
-t(ms)
-ACCELERATION(G)
-A
-0
--2
-B
-40
--18.2
-C
-85
--18.2
-D
-130
-0
-E
-5
-0
-F
-55.
--16
-G
-70
--16
-H
-120
-0.00
-49CFR571.208S29.3(b)(enhanced display)
-page 831of1400
-Figure 6 -Sled Pulse and Ccordinates
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
+49 CFR 571.208 S29.3(b) (enhanced display)
+page 831 of 1400
 
 
 ## Page 832
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-ArtworkBlackWith
-BottomTextBlack
-WhiteBackground
-White Background
-Top Text and Symbol
-Circle and Line Red
-BlackWithYellow
-WithWhiteBackground
-Background
-AWARNING
-DEATH or SERIOUS INJURY can occur
-Children 12 and under can be killed by the air bag
-The BACKSEAT is theSAFESTplace for children
-NEVERputarear-facing childseat in thefront
-Sit as far back as possible from the air bag
-ALWAYSUSeSEATBELTSandCHILDRESTRAINTS
-Figure 6a.SunVisor Label Visible whenVisor is in Down
-Position.
-49 CFR 571.208S29.3(b)(enhanced display)
-page 832of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
+49 CFR 571.208 S29.3(b) (enhanced display)
+page 832 of 1400
 
 
 ## Page 833
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-ArtworkBlackWith
-Bottom TextBlack
-WhiteBackground
-White Background
-Top Text and Symbol
-Circle and Line Red
-BlackWithYellow
-WithWhiteBackground
-Background
-AWARNING
-DEATH or SERIOUS INJURY can occur
-Children12 and under can be killedby the airbag
-TheBACKSEATis theSAFESTplace for children
-NEVER put a rear-facing child seat in the front unless
-air bag is off
-Sit as far back as possible from the air bag
-ALWAYSuseSEATBELTSandCHILDRESTRAINTS
-Figure 6b. SunVisor Label Visible whenVisor is in Down
-Position.
-49 CFR 571.208 S29.3(b)(enhanced display)
-page 833of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
+49 CFR 571.208 S29.3(b) (enhanced display)
+page 833 of 1400
 
 
 ## Page 834
 
-49CFRPart571(upto date asof5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-Circle and Line Red
-TextYellowWith
-With White Background
-Black Background
-ArtworkBlackWith
-WhiteBackground
-AIR BAG
-WARNING
-FLIP VISOR OVER
-Figure 6c. Sun Visor Label Visible When Visor is in Up
-Position.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
 49 CFR 571.208 S29.3(b) (enhanced display)
-page 834 of1400
+page 834 of 1400
 
 
 ## Page 835
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-BottomTextBlack
-WithWhite
-Background
-TopText andSymbol
-BlackWithYellow
-Background
-AWARNING
-Children Can Be KILLED or INJURED
-by Passenger Air Bag
-The back seat is the safest place for children 12 and under.
-Make sure all children use seat belts or child seats.
-Figure 7. Removable Label on Dash.
-49CFR571.208S29.3(b)(enhanced display)
-page 835of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
+49 CFR 571.208 S29.3(b) (enhanced display)
+page 835 of 1400
 
 
 ## Page 836
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-BottomTextandArtworkBlackwith
-TopTextBlackwith
-White Background
-YellowBackground
-AWARNING
-EVEN WITH ADVANCED AIR BAGS
- Children can be seriously injured by the air bag
-Thebackseat is thesafestplace forchildren
-■Awaysuseseat belts and childrestraints
-Seeowner'smanualformoreinformationabout
-air bags
-Figure8.SunVisor Label Visible whenVisor is in
-Down Position.
-BottomTextBlackwith
-TopTextBlackwith
-WhiteBackground
-YellowBackground
-This Vehicle is Equipped with
-Advanced Air Bags
-Even with Advanced Air Bags
-Children can be killed or seriously injured by the air bag.
-The back seat is the safest place for children.
-Always use seat belts and child restraints.
-See owner's manual for more information about air bags.
-Figure 9. Removable Label on Dash.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
 49 CFR 571.208 S29.3(b) (enhanced display)
-page836of1400
+page 836 of 1400
 
 
 ## Page 837
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-0.1W + T
-40%Overlap
-Legend
-Longitudinal Centerline of Vehicle
-Vehicle Width
-T
-Tolerance
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
 49 CFR 571.208 S29.3(b) (enhanced display)
-page837of1400
-Figure 10 Configuration for Frontal Offset Deformable Barrier Test
+page 837 of 1400
 
 
 ## Page 838
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
- See owner's manual for more information about air bags
-Top Text Black with
-Yellow Background
-eq he au Aq panu isnoas jo paly aq ueo uap 
-With advanced air bags
-Never put a rear-facing child seat in the front
-The back seat is the safest place for children
-Always use seat belts and child restraints
-nd Aftwork Black with
-571.208 S29 B(b) (e)
-pag838c
-pun
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
+49 CFR 571.208 S29.3(b) (enhanced display)
+page 838 of 1400
 
 
 ## Page 839
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.208S29.3(b)
-FederalMotorVehicleSafetyStandards
-BottomTextBlackwith
-TopTextBlackwith
-WhiteBackground
-YellowBackground
-This Vehicle is Equipped with
-Advanced Air Bags
-Even with Advanced Air Bags
-Children can be killed or seriously injured by the air bag.
-Thebackseat is thesafestplaceforchildren.
-Never put a rear-facing child seat in the front.
-Always use seat belts and child restraints.
-See owner's manual for more information about air bags.
-Figure 12.Removable Label onDash.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.208 S29.3(b)
 49 CFR 571.208 S29.3(b) (enhanced display)
-page839of1400
+page 839 of 1400
 
 
 ## Page 840
@@ -46299,123 +41974,38 @@ page 864 of 1400
 
 ## Page 865
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.209S5.4
-FederalMotorVehicleSafetyStandards
--WE8BING
-A1T021NCHESOR2.5TO5CENTIMETERS
-BAMINUS O.O6INCHORO.I5CENTIMETER
-FIGURE1
-A-WEBEING
-B-WEIGHT
-C-HEXAGONAL_ROD
-STEEL-SAE 51416
-ROCKWELLHARDNESS-B-97TOB-101
-SURFACE-COLD DRAWN FINISH
-page 865of1400
-6.35±O.03MILL.IMETER
-O.5O.IMILLIMETER
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.209 S5.4
+49 CFR 571.209 S5.4 (enhanced display)
+page 865 of 1400
 
 
 ## Page 866
 
-49 CFRPart 571(up to date asof5/07/2026)
-49CFR571.209S5.4
-FederalMotorVehicleSafetyStandards
-2f
-2C4NCH:GM
-Bt:Y
-OH
-OTMER
-R4BO:
-CONMECTION
-F+L
-ATTACNMENARDWARE
-16-20NF 0R
-JR
-:2.13NC
-SMULATED FIxTURE
-IMREAOS
-SHUUI D>ER BOL!
-ETE BOL!
-BOtT ANCHORAGE
-FIGURE 3
-FORCE VERTICAL
-FORCE VERTICAL
-HORIZONTAL
-FORCE
-HORIZONTAL
-LOCKING DEVICE
-IXTURE
-FIGURE4
-SINGLE ATTACHMENT HOOK
-TESTING
-WEEBING
-MACHNG
-SISTER HOOKS
-EYE BOLT
-ANCMOHAGE
-BAR
-A-2INCHES OW
-5CENTIMETERS
-B-2INCHES OR
-30 CENTIMETERS
-BUCRE
-WEBBING
-PARALLEL
-49 CFR 571.209 S5.4(enhanced display)
-page 866 of1400
-RG+D
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.209 S5.4
+49 CFR 571.209 S5.4 (enhanced display)
+page 866 of 1400
 
 
 ## Page 867
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.209S5.4
-FederalMotorVehicleSafetyStandards
-RETRACTOR
-CYCLING ATTACHMENT
-DUST
-COLLECTOR
-RETRACTOR
-A-2OINCHESOR
-50 CENTIMETERS
-B-IO INCHES OR
-25 CENTIMETERS
-DUST
-ORIFICE
-VALVE & FILTER
-AIR
-FIGURE 6
-34 F.R.115
-January 4,1969
-49 CFR 571.209 S5.4(enhanced display)
-page 867of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.209 S5.4
+49 CFR 571.209 S5.4 (enhanced display)
+page 867 of 1400
 
 
 ## Page 868
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.209S5.4
-FederalMotorVehicleSafetyStandards
-SHOATENINGSTKOKE
-BUCKtF （C)
-(D)
-PIVOT
-8:20
-WEBBING(A)
-HINGE STOP(E}
-3LB.WEIGHT{B}
-NOTENSION
-LENGTHENING SIROKE
-BUCKLE{C}
-NOSN3:ON
-WEBBING (A)
-WNGESTOP（E}
-3L8WEIGN7(B)
-FIGURE 7
-49 CFR 571.209S5.4(enhanced display)
-page 868of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.209 S5.4
+49 CFR 571.209 S5.4 (enhanced display)
+page 868 of 1400
 
 
 ## Page 869
@@ -46908,27 +42498,11 @@ page 878 of 1400
 
 ## Page 879
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.210S5.5(f)
-FederalMotorVehicleSafetyStandards
-Horizontal Line
-ACCEPTABLE
-RANGE
--Bep Ot
-:Bep 08
-Bep 06l
-22.16 In.
-(583 mm)
-6.0 In. (152.4 mm)
-Torso Line
-D Drafting Template
-derReference Point
-orizontai Line
-ign H-Point
-49CFR571.210S5.5(f)(enhance
-page8790
-of1400
-E1
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.210 S5.5(f)
+49 CFR 571.210 S5.5(f) (enhanced display)
+page 879 of 1400
 
 
 ## Page 880
@@ -46975,112 +42549,29 @@ page 882 of 1400
 
 ## Page 883
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.210 S6.(b)
-FederalMotorVehicleSafetyStandards
-School bus torso belt anchor point
-(vertical distance from the SgRP
-must be fixed or adjustable to at
-least 400mm for a small occupant
-seating position and 520 mm for all
-other seating positions).
-Schoolbustorsobelt
-adjusted height range
-≥ 520 mm
-(must adjust to within
-280 mm of SgRP).
-≥ 400 mm
-≤280 mm
-Seating Reference
-Point (SgRP)
-Figure 4 - Seat belt anchorage diagram
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.210 S6.(b)
 49 CFR 571.210 S6.(b) (enhanced display)
-page 883 of1400
+page 883 of 1400
 
 
 ## Page 884
 
-49CFRPart571(uptodate asof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.210 S6.(b)
-FederalMotorVehicleSafetyStandards
-Top View
-75mm
-20N
-Torso belt-
-School bus torso.
-belt height adjuster
->100 mm
-School bus torso
-75 mm
-20 N
-belt anchor point
-25mm
-School bus
-Torso belt
-School bustorso
-torso belt
-belt height adjuster
-adjusted
-height
-Seating Reference
-point (SgRP)
-Figure 5 - Minimum school bus torso belt adjusted
-height measurement
 49 CFR 571.210 S6.(b) (enhanced display)
-page 884 of1400
+page 884 of 1400
 
 
 ## Page 885
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.210S6.(b)
-FederalMotorVehicleSafetyStandards
-FrontView
-Seat Reference Plane
-T1
-T2
-P1
-P2
-T3
-T4
-1
-P3
-SgRP
-P4
-(0,0)
-Z
-RightSideView
-170mm
-LeftSideView
-170mm
-265mm
-T5
-T2
-T6
-P1
-P2
-P6
-425mm
-T7
-T3
-T4
-T8
-180mm
-210mm
-P7
-P3
-P4
-P8
-65mm
-X
-X
-Z
-230mm
--10mm
-50mm
-155
-49 CFR 571.210 S6.(b)(enhanced display)
-page885of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.210 S6.(b)
+49 CFR 571.210 S6.(b) (enhanced display)
+page 885 of 1400
 
 
 ## Page 886
@@ -49846,162 +45337,47 @@ page 933 of 1400
 
 ## Page 934
 
-49 CFRPart 571(up to date as of5/07/2026)
-49 CFR571.213S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-NOIES:
-(1)LAPBELTANCHOR POINTSARE
-SYMMETRICALLYLOCATEDWITH
-RESPECTTO THE CENTER SORL
-(2)MAXIMUMDISTANCEFROMTHE
-SEAT BIGHI TO THE END OFTHE
-BUCKLEIS175mm
-(3)OUTBOARDANCHORPOINT LOCATED
-700mmFROMTHECENTERSORI
-UPPERTORSO ANCHORPOINT
-(OUTBOARD SEATCONFIGURAHION)
-POINTZ
-400
-(1)LAPBELTANCHORPOINTS
-MEIRIC(mm)
-(CENTER SEAT CONFICURATION)
-NOTTOSCALE
-(2)INBOARD ANCHORPOINT
-(OUTBOARDSEAT CONFIGURATION)
-(3)OUTBOARD ANCHORPOINT
-(OUTBOARD SEATCONFIGURATION)
-SORL
-700
-(CENTER)
-SEATORIENTATIONREFERENCELINEANDBELTANCHORAGEPOINTLOCATIONS
-ONTHESTANDARDSEATASSEMBLY
-Figure 1A
-49 CFR571.213S10.2.3(e)(2)(enhanced display)
-page 934of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 934 of 1400
 
 
 ## Page 935
 
-49CFRPart571(upto dateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-（1i)TRANSVERSEHORIZONIALDISTANCE
-BETWEENTHE CENTEROF THEUNVERSAL
-ANCHORBARSAND THEVERTICALPLANE
-LOWERCONTAINNGSORLATTHECENTER
-6mmDIAMETERAND25mmLENGTH
-(1)UNMERSAL LOWER.ANCHOR BARS
-(ti)UNIVERSALLOWERANCHORBARS
-OFTHESEATASSEMBLYIS140mm.
-SEAT ORIENTATION REFERENCE LINE AND LOCATION OF UNIVERSAL CHILD RESTRAINT
-ANCHORAGESYSTEMONTHESTANDARDSEATASSEMBLY
-(CENTER)
-SORL
-NOTES:
-Figure 1A'
-POINL
 49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
-page 935of1400
+page 935 of 1400
 
 
 ## Page 936
 
-49 CFRPart 571(up to date as of5/07/2026)
-49 CFR571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-UPPER TORSO
-114
-ANCHOR POINT
-119
-(1)ANCHOR POINT ON
-FORWARO
-REARPACKAGESHELF
-EXCURSION
-LIMT
-INBOARD
-ANCHOR POINT
-POINTZ
-(2）REARLAPBELT
-OUTBOARD
-BUCKLELOCATION
-ANCHOR POINT
-394
-336
-961
-CENTER LAP BELT
-ANCHOR POINTS
-HEAD =813
-KNEES=915
-709
-NOTES:
-METRIC(mm)
-(1)Anchor Point on Rear PackageShell Located 544 mm Right or left
-NOT TO SCALE
-of the Center SORL as shownin Fig.1A
-(2) Rear Lop Bell Buckle Located 178mm Right or Left
-of the Center SORL as shown in Fig.1A
-LOCATIONOFBELTANCHORAGEPOINTSAND FORWARDEXCURSIONLIMITS
-ONTHESTANDARDSEATASSEMBLY
-Figure 1B
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page 936of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 936 of 1400
 
 
 ## Page 937
 
-49CFRPart571(uptodateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-(1)ANCHORPOINTON
-FORWARD
-REARPACKAGESHELF
-METRIC (mm)
-EXCURSION
-LIMIT
-NOT TO SCALE
-PONT Z
-(2)REAR LAP BELT
-(4)UNVERSALLOWER
-BUCKLELOCATION
-ANCHOR BARS
-323
-(3} HEAO
-KNEES = 915
-NOTES:
-(3)Hecd Excursion Limit is:(i) 720 mm with Tether Attoched and
-(i) 813 mm with Tether Unottoched
-or Left of theCenter SORLos shown in Fig.1A'
-(4)Universol LowerAnchorBorsLocated 102mm ForwordofPl 7
-(2)ReorLopBeltBuckie Locoted178mmRightor Left
-ond279 mm Upword from Floor
-of the Center SORLos shown in Fig.1A'
-LOCATIONOF UNIVERSALCHILDRESTRAINTANCHORAGESYSTEM
-ANDFORWARDEXCURSIONLIMITSFORTHESTANDARDSEATASSEMBLY
-Figure 1B'
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page 937of1400
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 937 of 1400
 
 
 ## Page 938
 
-49CFRPart571(uptodateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-Seatbackfrontal surfaceplaneextended
-Forward
-Limit
-Upper Limit
-Upper Restraint
-SurfacePoint.
-Note:The limits
-illustratedmove
-duringdynamic
-testing
-REARFACINGCHILDRESTRAINT
-FORWARDANDUPPERHEADEXCURSIONLIMITS
-FIGURE 1C
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page938 of1400
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 938 of 1400
 
 
 ## Page 939
@@ -50015,66 +45391,11 @@ page 939 of 1400
 
 ## Page 940
 
-49 CFRPart 571(up to date asof5/07/2026)
-49 CFR571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-30
-25
-8
-UpperBound
-(G's)
-LowerBound
-20
-Acceleration
-F
-G
-15
-10
-5A
-E
-D
-0
-H
-0
-20
-40
-60
-80
-100
-Time (msec)
-Upper Bound
-LowerBound
-Point
-Time
-Acceleration
-Point
-Time
-Acceleration
-A
-0
-3
-E
-0
-B
-10
-25
-F
-13
-19
-C
-52
-25
-G
-46
-19
-90
-0
-H
-75
-0
-Figure 2A
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
 49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
-page940of1400
+page 940 of 1400
 
 
 ## Page 941
@@ -50088,97 +45409,38 @@ page 941 of 1400
 
 ## Page 942
 
-49 CFRPart571(up to date asof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-a)
-Pull Horizontally
-Pull Vertically
-b)
 49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
-page942of1400
+page 942 of 1400
 
 
 ## Page 943
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
--Dimenson A
-Insert Webbing
-to RestAgainst
-This Surface
-1/15inch diameterwire
-Dimension B
-Direction ofPuli
-Dimension A.Width ofWeubingPlus 1/8 inch
-Dimension B.1/2 of Dimension A
-WEBBING TENSIONPULLDEVICE
-FIGURE 5
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page 943 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 943 of 1400
 
 
 ## Page 944
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.213S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-27±.5
-PIVOT
-10-15
-1±.25
-2±.25R
-FLOOR
-"A" represents a 2- to 3-inch thick polyurethane foam pad, 1.5-2.0 pounds
-per cubic foot density,over 0.020-inch-thick aluminum pan,and covered by
-12-to 14-ounce marine canvas.Ihe sheet aluminumpan is 20 inches wide
-and supported on each side by a rigid structure.1
-Theseat back is a
-rectangular frame covered with the aluminum sheet and weighing between 14
-and 15 pounds,with a center of mass 13 to 16 inches above the seat pivot
-axis.The mass moment of inertia of the seat back about the seat pivot
-axis is between 195 and 220 ounce-inch-second2, The seat back is free to
-fold forward about the pivot, but a stop prevents rearward motion.The
-passenger safety belt anchor points are spaced 21 to 22 inches apart and
-arelocatedinlinewiththeseatpivotaxis.
-FIGURE6:SIMULATED AIRCRAFTPASSENGERSEAT
-49CFR571.213S10.2.3(e)(2)(enhanceddisplay)
-page944of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 944 of 1400
 
 
 ## Page 945
 
-49 CFRPart571(up todate asof5/07/2026)
-49 CFR571.213S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-Buckie Pre-lond
-2 Pounde
-2 Pounds
-2 Pounds
-1Pound
-Pound
-7s. Single Lprch Piem
-7b. Doubie Latch Plsta
-Pre-loed
-Pre-lond
-Roleona
-Foroe
-Applianton Poaltior-
-Punh Sutten
-Reletse Forca
-Mochonlsms
-Release Force
-Applicaton:
-Application
-Position
-Poaition
-0.126nch
-Tc. Minged Bution
-7d. Flonting Button
-Figure 7. Pre-irrpact Buckie Feleene Force Tent Sat-up
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page 945of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 945 of 1400
 
 
 ## Page 946
@@ -50192,67 +45454,11 @@ page 946 of 1400
 
 ## Page 947
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.213S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-5"minimum
-FORYOURCHILD'SCONTINUEDSAFETY
-References to
-Pleasetakeafewmomentstopromptlyfill outandreturnthe
-online registration
-attached card[or register online using the direct link to the
-are optional.
-manufacturer'sregistrationwebsiteprovided].
-Preprinted
-Althoughchildrestraintsystemsundergotesting andevaluation,
-message to
-it is possible that a child restraint could be recalled.
-consumer;bold
-3'
-typeface,caps
-minimum
-In case of recall,we canreachyou only ifwehaveyourname
-andlowercase
-and address,sopleasesendin the card[orregister online] tobe
-minimum 12 point
-on our recall list.
-type.
-Pleasefill thiscardoutandmail itNow,
-[orregister onlineat
-(insert manufacturer'sregistrationwebsite))
-whileyou are thinking about it.
-The card is already addressed andwe've paid the postage.
-Tear off andmail this part
-FOLD/PERFORATION
-Consumer:Justfill inyour name and address and
-e-mail address (optional).
-YourName
-References to
-e-mail address
-are optional.
-YourStreetAddress
-3”
-City
-State
-Zip Code
-minimum
-Minimum10%
-E-mail Address (optional)
-screen tint.
-CHILDRESTRAINTREGISTRATIONCARD
-Preprinted or
-RESTRAINTMODELXXX
-stampedchild
-SERIALNUMBERYYYY
-restraint system
-modelname or
-MANUFACTUREDZZ-ZZ-20ZZ
-number and date
-of manufacture.
-Figure 9a -- Registration form for child restraint systems - product identification
-number andpurchaserinformationside.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
 49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
-page 947of1400
+page 947 of 1400
 
 
 ## Page 948
@@ -50267,58 +45473,11 @@ page 948 of 1400
 
 ## Page 949
 
-49 CFRPart 571(up to date as of5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-5-inch minimum
-Block letters
-(sans serif)-Bold
-minimum48point
-IMPORTANT
-type, caps.
-In case ofarecall,we canreachyou only ifwehave
-Minimum 10%
-your name and address.You MUST send in the
-screen tint.
-3'
-attachedcardorregisteronline tobeonourrecall
-minimum
-Preprinted message
-list.
-to consumer; bold
-typeface, caps and
-We've already paid the postage.
-lower case
-minimum12point
-Do it today.
-type.Reference to
-online registration
-is optional.
-NO POSTATE
-FOLD/PERFORATION
-NECESSARY
-IFMAILD
-INTHE
-Indication that
-UNITEDSTATES
-postage is
-prepaid.
-Reference to
-3"*
-online registration is
-minimum
-optional.
-MANUFACTURER
-Preprinted or
-POSTOFFICEBOX0000
-stampedname
-ANYTOWN,ST12345-6789
-and address of
-manufacturer or
-its designee.
-Figure 9b -Registration form for child restraint systems — address side.
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page 949 of1400
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 949 of 1400
 
 
 ## Page 950
@@ -50333,120 +45492,38 @@ page 950 of 1400
 
 ## Page 951
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.213S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-Label Outline,Verticaland Horizontal LineBlack
-BottomTextBlack
-ArtworkBlackWith
-WithWhite
-White Background
-Background
-Top Text and Symbol
-Circle and Line Red
-BlackWithYellow
-WithWhite Background
-Background
-AWARNING
-DO NOT place rear-facing child seat
-on front seat with air bag.
-DEATH OR SERIOUS INJURY can occur.
-The back seat is the safest place
-for children 12 and under.
-Figure 10.LabelonChildSeatWhereChild'sHeadRests.
-49 CFR571.213S10.2.3(e)(2)(enhanced display)
-page 951of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 951 of 1400
 
 
 ## Page 952
 
-49 CFRPart 571(up to date as of5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-64
-25.4
-81
-Top view
-See detail A
-64
-Minimum
-10.4
-20
-20
-64
-Sideview
-Radius12maximum
-Rod6.4diameter
-2.3 to3.8radius
-2.5Minimum
-45°Nominal
-DetailA
-LEGEND:
-Surrounding structure (if present)
-Area inwhichthetetherstraphook
-XXX
-interfaceprofilemustbewholly located.
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page952of1400
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 952 of 1400
 
 
 ## Page 953
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.213S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-Label Outline,Vertical andHorizontal LineBlack
-Artwork Gray and Black
-TextBlackWith
-WithWhiteBackground
-WhiteBackground
-Circle and Line Red
-With White Background
-WARNING! This restraint must only be
-used on school bus seats. Entire seat
-directlybehindmustbeunoccupiedor
-have restrained occupants.
-Figure 12.Label on Harness Component That Attaches toSchool Bus Seat Back.
-49CFR571.213S10.2.3(e)(2)(enhanced display)
-page 953of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 953 of 1400
 
 
 ## Page 954
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49 CFR571.213 S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-REVISION
-RECORD
-DATL
-SYMMETRICALABOUT THIS
-CENTERLINE
-39-
-R26,
-R9
-185
-180
-R7
-R4
-R32
-39
-R56
--R7
-108
-99
-NCTE
-MERPL: SLCONE RURBER - 5O A DUROMEER,
-3  TX
-UNITS AREmm
-NATIONALHIGEWAY TRAPYIC
-SEENOTE
-SAPETY ADMNISTRATION
-TINEMCS ARE:
-40.5mm =RADSES
-6Y0ANO1O YO LAP SHEUD
-Figure 13 - Lap Shield
-49 CFR 571.213 S10.2.3(e)(2)(enhanced display)
-page954of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213 S10.2.3(e)(2)
+49 CFR 571.213 S10.2.3(e)(2) (enhanced display)
+page 954 of 1400
 
 
 ## Page 955
@@ -50955,109 +46032,38 @@ page 964 of 1400
 
 ## Page 965
 
-49 CFRPart 571(up to date as of 5/07/2026)
-Federal MotorVehicleSafetyStandards
-49CFR571.213aS9.3(d)
-Figure 1 to571.213a.SideImpactSeatAssembly
-CHILDRESTRAINT
-ANCHORAGESYSTEM
-LOWERANCHORAGES
-300 mm ±2
-SORL
-Figure 2A to 571.213a.SideImpact SeatAssemblyPlanView
-2B
-300 mm±2
-SLIDING SEAT
-CHILD SEAT
-10°±1°
-FIGURE 2D
-2B
-SUB-FRAME
-FIGURE 2C
-49 CFR 571.213a S9.3(d)(enhanced display)
-page 965of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213a S9.3(d)
+49 CFR 571.213a S9.3(d) (enhanced display)
+page 965 of 1400
 
 
 ## Page 966
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.213aS9.3(d)
-FederalMotorVehicleSafetyStandards
-Figure 2B to § 571.213a. Side Impact Seat Assembly Door Panel View
-DOOR
-ARMREST
-ALUMINUMHONEYCOMB
-846 mm ±2
-490 mm ±2
-Figure2C to571.213a.SideImpactSeatAssemblyFrontalView
-DOOR-
-CHILDRESTRAINTSEAT-
-ARMREST..
-SLIDINGSEAT-
-38mm
-ALUMINUM
-HONEYCOMB
-300mm-
-305mm
-265mm
-49 CFR571.213a S9.3(d)(enhanced display)
-page 966 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213a S9.3(d)
+49 CFR 571.213a S9.3(d) (enhanced display)
+page 966 of 1400
 
 
 ## Page 967
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.213aS9.3(d)
-FederalMotorVehicleSafetyStandards
-Figure 2D to $ 571.213a. Side Impact Seat Assembly Side View
-CHILD SEAT
-SUB-FRAME
-49 CFR 571.213a S9.3(d)(enhanced display)
-page967of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213a S9.3(d)
+49 CFR 571.213a S9.3(d) (enhanced display)
+page 967 of 1400
 
 
 ## Page 968
 
-49CFRPart571(uptodateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213a S9.3(d)
-FederalMotorVehicleSafetyStandards
-Figure 3 to § 571.213a. SISA Sliding Seat Acceleration Boundaries
-30
-25
-Acceleration (g)
-20
-15
-10
-S
-0
-20
-40
-60
-Time (ms)
-UpperBoundary
-LowerBoundary
-Time (milliseconds)
-Acceleration(g)
-Time (milliseconds)
-Acceleration(g)
-0
-0.5
-2
-0
-6
-25.5
-13
-18.5
-44
-25.5
-40
-18.5
-58
-0
-48
-0
-49 CFR571.213a S9.3(d)(enhanced display)
-page 968 of1400
+49 CFR 571.213a S9.3(d) (enhanced display)
+page 968 of 1400
 
 
 ## Page 969
@@ -53411,65 +48417,11 @@ page 1012 of 1400
 
 ## Page 1013
 
-49 CFRPart 571(up to date asof5/07/2026)
-49 CFR571.213bS10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-30
-25
-B
-Upper Bound
-(.5)
-LowerBound
-20
-Acceleration
-F
-G
-15
-10
-5A
-E
-D
-0
-H
-0
-20
-40
-60
-80
-100
-Tine (msec)
-Upper Bound
-LowerBonnd
-Point
-Time
-Acceleration
-Point
-Tine
-Acceleration
-A
-3
-E
-0
-B
-10
-25
-F
-13
-61
-C
-52
-2s
-G
-46
-61
-90
-0
-H
-75
-D
-0
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213b S10.2.3(e)(2)
 49 CFR 571.213b S10.2.3(e)(2) (enhanced display)
-page1013of1400
+page 1013 of 1400
 
 
 ## Page 1014
@@ -53484,14 +48436,11 @@ page 1014 of 1400
 
 ## Page 1015
 
-49 CFRPart 571(upto date asof 5/07/2026)
-49CFR571.213bS10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-8
-TIME-MILLISECONDS
-Figure 3 to § 571.213b
-49CFR571.213bS10.2.3
-age1015of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213b S10.2.3(e)(2)
+49 CFR 571.213b S10.2.3(e)(2) (enhanced display)
+page 1015 of 1400
 
 
 ## Page 1016
@@ -53506,15 +48455,11 @@ page 1016 of 1400
 
 ## Page 1017
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49 CFR571.213b S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-a
-Pull Horizontally
-Pull Vertically
-b)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.213b S10.2.3(e)(2)
 49 CFR 571.213b S10.2.3(e)(2) (enhanced display)
-page1017of1400
+page 1017 of 1400
 
 
 ## Page 1018
@@ -53582,33 +48527,11 @@ page 1023 of 1400
 
 ## Page 1024
 
-49CFRPart571(uptodateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.213b S10.2.3(e)(2)
-FederalMotorVehicleSafetyStandards
-64
-25.4
-81
-Top view
-See detail A
-64
-Minimum
-10.4
-20
-20
-64
-Sideview
-Radius12maximum
-Rod6.4diameter
-2.3to3.8radius
-2.5Minirum
-45°Nomnal
-DetalA
-LEGEND:
-Surrounding structure (if present)
-Area inwhich thetetherstraphook
-intertaceprofilemustbewhollylocated.
-49 CFR 571.213b S10.2.3(e)(2)(enhanced display)
-page1024of1400
+49 CFR 571.213b S10.2.3(e)(2) (enhanced display)
+page 1024 of 1400
 
 
 ## Page 1025
@@ -54296,82 +49219,20 @@ page 1041 of 1400
 
 ## Page 1042
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.214S8.12
-FederalMotorVehicleSafetyStandards
-3632
-2591
-BARRIER
-FACE
-1251
-1880
-TOP
-VIEW
-INSTRUMENTATION
-BALLASTAREA
-BALLASTAREA
-RIGHT
-SIDE
-VIEW
-4115
-NHTSAVEHICLESIMULATOR
-All dimensions in millimeters(mm)
-1-PieceAlum.HoneycombBlock-310kPa±
-17kPacrushstrength
-0.81Alum.Faces,179MPa5052-H34
-0.81Alum.BackPlate,
-179MPa
-Alum.HoneycombBumper,1689kPa±
-5052-H34
-103kPacrushstrength
-[→A
-1676
-1
-559
-HONEYCOMB
-DoNotBond
-203
-This Surface
-838
-Only
-BUMPER
-533
-FRONTVIEW
-279
-L→A
-GROUND
-330
-T
-381
-51
-NHTSABARRIERFACE
-483
-49CFR571.214S8.12(enhanceddisplay)
-3.2Alum.Faces,345MPa2024-T3
-page1042 of1400
-SECTIONA-A
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.214 S8.12
+49 CFR 571.214 S8.12 (enhanced display)
+page 1042 of 1400
 
 
 ## Page 1043
 
-49 CFRPart571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.214S8.12
-Wheelbase (W)
-940
--0.5W
-900
-630
-Vehicle A
-Impact Point
-Vehicle B
-Direction
-of Travel
-270
-@ 54
-Figure 3--TEST CONFIGURATION
-49CFR571.214S
-velocitv in km/h
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.214 S8.12
+49 CFR 571.214 S8.12 (enhanced display)
+page 1043 of 1400
 
 
 ## Page 1044
@@ -55728,20 +50589,11 @@ page 1067 of 1400
 
 ## Page 1068
 
-49 CFRPart571(upto date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.216S8.4
-EXPANDEDFRONTVIEW
-RIGID HORIZONTAL
-SUPPORT SYSTEM
-Figure 1. Test Device Orientation
-ForwardmostPointof theRoof
-254mm
-Force
-SIDEVIEW
-1829mm
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.216 S8.4
 49 CFR 571.216 S8.4 (enhanced display)
-page1068of1400
+page 1068 of 1400
 
 
 ## Page 1069
@@ -55999,19 +50851,11 @@ page 1073 of 1400
 
 ## Page 1074
 
-49 CFRPart571(upto date asof5/07/2026)
-49 CFR571.216aS9.(b)
-FederalMotorVehicleSafetyStandards
-Figure 1 to s571.216
-EXPANDEDFRONTVIEW
-RIGID HORIZONTAL
-Force
-SUPPORT SYSTEM
-Figure 1. Test Device Orientation
-Fonwtrdmot Poinlot neRoot
-SIDEVIEW
-49 CFR 571.216a S9.(b)(enhanced display)
-page1074of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.216a S9.(b)
+49 CFR 571.216a S9.(b) (enhanced display)
+page 1074 of 1400
 
 
 ## Page 1075
@@ -56664,95 +51508,29 @@ page 1086 of 1400
 
 ## Page 1087
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.217S6.4
-BYTHEINTERSECTION OF THEPROJECTIONSOFTHE
-SINCHES
-POSSISLE ARMAEST
-ACCESSREGIONISTHESPATIALVOLUMECREATED
-23 INCH RADIUS
-ADUACENTSEAT
-VIEWPERPENDICULARTOSEATBACK
-FLOOR BENEATHEMERGENCYEXIT
-AREAS SHOWN IN THE TWO VIEWS.
-2INCHES
-23INCHRADIUS
-Z3INCH RADIUS
-71INCHES
-23INCH RADIUS
-23INCH RADIUS
-PLOORBENEATHEMERGENCYEXIT
-VIEW PARALLEL TO SEAT BACK
-SINCHES
-DIMENSION
-POINTOF
-2INCHES
-EARANCEAREAAROUND
-DOTHER OBSTRUCTIONS
-ADJACENTSEAT
-49CFR5X1217S64
-1087 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
+49 CFR 571.217 S6.4 (enhanced display)
+page 1087 of 1400
 
 
 ## Page 1088
 
-49CFRPart571(upto dateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.217S6.4
-HON
-ADJACENTSEAT
--231NCHES-
-REGIONB
-POSSIBLE
-ARM REST
-VIEW PERPENDICULAR TO SEATBACK
-FLOORBENEATH EMERGENCYEXIT
-REGION
-B2INCHES
-FLOOR BENEATH EMERGENCYEXIT
-VIEWPARALLELTOSEATBACK
-REGION
-AREAAROUND
-NTRUCTION
-RM RESTS,
-49CFR
-page
-of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
+49 CFR 571.217 S6.4 (enhanced display)
+page 1088 of 1400
 
 
 ## Page 1089
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.217S6.4
-Federal Motor VehicleSafetyStandards
-13
-INDT CIILING
-ACCESSREGION
-FORLOWFORCES
-ACCISSREGION
-FOA HICHFORCES
-711NCHES
-BZENCHES
-24INCHES
-HNSIOEWALL
-1INCNEB
-INSIDEFLDOR
-3A.SIDE EMERGENCY EXIT
-INSIDEWALL
-52INCHES
-ACCESSREGION
-ACCESS REGION
-711NCHES
-FORLOWFORCES
-FORHIGHFORCES
-71INCHES
-62INCHES
-INSIDE CEILING
-INSIDEWALL
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
 49 CFR 571.217 S6.4 (enhanced display)
-3B. ROOF EMERGENCY EXIT
-page1089 of1400
+page 1089 of 1400
 
 
 ## Page 1090
@@ -56767,145 +51545,57 @@ page 1090 of 1400
 
 ## Page 1091
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.217S6.4
-FederalMotorVehicleSafetyStandards
-REYAINER
-0.75
-INSIDE SURFACE OF
-(DESIGNOPTIONAL)
-WINDOW GLAZING
-MOUNTINGOF
-TESTINGDEVICE
-6.5
-DIA.
-3.00INCH
-SPHERICAL RADILS
-APPLIED
-FORCE
-CENTEROFAREAOFGLAZING
-GRAIN
-SUGARPINE BLOCK
-250.026SYNTHETICUNDERLAYER
-26025 pi TENSILESTRENGTH
-501D%ELONGATION
-NAPAGOATSKIN,WET CHAMOIS,OR:
-ALLDMENSIONSININCHES
-030.0035YNTHETICSKIN
-UNLESSOTHERWISESPECIFIED
-100050 paiTENSILESTRENGTH
-100S%ELONGAYION
-49 CFR 571.217S6.4 (enhanced display)
-FIGURE4HEAD FORM
-page 1091of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
+49 CFR 571.217 S6.4 (enhanced display)
+page 1091 of 1400
 
 
 ## Page 1092
 
-49 CFRPart 571(up to date asof5/07/2026)
-49CFR571.217S6.4
-FederalMotorVehicleSafetyStandards
-Sides of Bus Body
-Front
-Side Emergency
-Exit Door
-30 cm
-minimum
-Centerline of Bus
-Figure 5A. Minimum Side Emergency Exit
-Clearance Specifications (Plan View)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
 49 CFR 571.217 S6.4 (enhanced display)
-page 1092 of1400
+page 1092 of 1400
 
 
 ## Page 1093
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.217S6.4
-FederalMotorVehicleSafetyStandards
-30 cm
-minimun
-Floor line
-No seat frame or seat botom
-No obsruction of
-may extend past door opening
-door Laich mechanism
-Figure 5B. Minimum Side Emergency Exit Flip-Up Seat
-Clearance Specifications
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
 49 CFR 571.217 S6.4 (enhanced display)
-page 1093 of1400
+page 1093 of 1400
 
 
 ## Page 1094
 
-49 CFRPart 571(upto date asof5/07/2026)
-49CFR571.217S6.4
-FederalMotorVehicleSafetyStandards
-30 cm
-minimum
-Floor line
-No seat or barrier
-No obstruction of
-may extend past
-door latch mechanism
-door opening
-Figure 5C. Minimum Side Emergency Exit
-Clearance Specifications
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
 49 CFR 571.217 S6.4 (enhanced display)
-page 1094 of1400
+page 1094 of 1400
 
 
 ## Page 1095
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.217S6.4
-FederalMotorVehicleSafetyStandards
-Interior
-Front
-side wall
-Centerline of
-School Bus
-305
-Center of
-Restricted Area
-305
-SideEmergency
-Exit Door
-305
-Dimensions in millimeters
-Reverse view for right side
-emergency exit door
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
 49 CFR 571.217 S6.4 (enhanced display)
-page 1095of1400
+page 1095 of 1400
 
 
 ## Page 1096
 
-49CFRPart571(uptodateasof5/07/2026)
-Federal MotorVehicleSafetyStandards
-49CFR571.217S6.4
-Figure 6B[Reserved]
-Rear Door Opening
-Front
-n
-11
-B
-CENTERLINE
-OFBUS
-GVWR
-A
-B
->4536kg
-305
-610
-Dimensions in millimeters
-<=4536kg
-152
-558
-Figure 6C. Rear Door Emergency Exit - No Wheelchair Anchorages
-within the shaded region
-49CFR571.217S6.4(enhanceddisplay)
-page 1096 of1400
+Figure 6B [Reserved]
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.217 S6.4
+49 CFR 571.217 S6.4 (enhanced display)
+page 1096 of 1400
 
 
 ## Page 1097
@@ -57534,1338 +52224,92 @@ page 1111 of 1400
 
 ## Page 1112
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-VerticalTransverse
-PlaneAsDetermined
-2.5inches
-by S6.2.3(d)
-(6.4cm)
-Test Line 1 Inch (2.5 cm)
-Above Reference
-Plane
-Test Line 1 Inch (2.5 cm)
-Below Reference
-Plare
-Reference Plane
-2.5 inches
-BasicPlane
-(6.4cm)
-VerticaiTransverse
-Plane As Determined
-by S6.2.3.(b)
-CenterofExternai
-Ear Opening
-(See Table 2)
-Note:Solid lineswould correspond to
-the testlineonatestheimet.
-Test Surface
-Figure2
-49 CFR571.218S7.3.4(enhanced display)
-page 1112 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
+49 CFR 571.218 S7.3.4 (enhanced display)
+page 1112 of 1400
 
 
 ## Page 1113
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-MELA dOL
-HEIMET
-REFERENCE
-HEADFORM
-MID-SAGITTAL
-PLANE
-1050
-MINIMUM ANGLE
-PERIPHERAL VISION
-CLEARANCE
-Figure 3
-49 CFR 571.218 S7.3.4(enhanced display)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
+49 CFR 571.218 S7.3.4 (enhanced display)
 page 1113 of 1400
 
 
 ## Page 1114
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-TEST HEIMET
-STATIONARY TEST
-HEADFORM
-RETENTION ASSEMBLY
-FREELY MOVING ROLLERS
-APPLICATION OF STATIC
-MOUNTED ON ADJUSTABLE
-TENSILE LOAD
-PORTION OF RETENTION
-SYSTEM TEST DEVICE WITH
-DIAMETERS O.5 INCH; AND
-CENTER-TO-CENTER SEPARA-
-TION 3 INCHES.
-RETENTION SYSTEM TEST DEVICE
-Figure 4
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
 49 CFR 571.218 S7.3.4 (enhanced display)
 page 1114 of 1400
 
 
 ## Page 1115
 
-49 CFRPart 571(up to date asof 5/07/2026)
-Federal Motor VehicleSafetyStandards
-49CFR571.218S7.3.4
-Figure 5
-HEADFORMSECTIONS
-Mid-Sagitta! Plane (Symmetrical Plane)
-Apex
-+6
-+4
-Z
-+3
-Level +2
-+1
-Z=0
-ReferencePiane
-X
-Coordinate Origin
--1
-forTable
--2
-~4
-Basic Plane
--5
-Front
-Rear
-BottomOpening
-Headform CoordinateSystems
-(Right-hand Rule)
-G=00
-Front
-R
-page1115 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
+49 CFR 571.218 S7.3.4 (enhanced display)
+page 1115 of 1400
 
 
 ## Page 1116
 
-49 CFRPart571(up to date asof5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-Table 2
-Medium Headform-Exterior Dimensions
-BottomOpeningZ=3.02
-Level-5Z=-2.900
-θ
-R
-Y
-R
-X
-Y
-0
-4.292
-4.292
-0
-4.293
-4.293
-0
-10
-4.266
-4.201
-0.741
-4.270
-4.205
-0.742
-20
-4.159
-3.908
-1.423
-4.172
-3.920
-1.427
-30
-3.967
-3.436
-1.984
-3.961
-3.430
-1.981
-40
-3.660
-2.804
-2.353
-3.670
-2.811
-2.359
-50
-3.332
-2.142
-2.553
-3.352
-2.155
-2.568
-60
-3.039
-1.520
-2.632
-3.067
-1.534
-2.656
-70
-2.839
-0.971
-2.668
-2.869
-0.981
-2.696
-80
-2.720
-0.472
-2.679
-2.772
-0.481
-2.730
-90
-2.675
-0
-2.675
-2.709
-0
-2.709
-100
-2.703
-0.469
-2.662
-2.724
--0.473
-2.683
-110
-2.764
-0.945
-2.597
-2.794
-0.956
-2.626
-120
-2.888
-~1.444
-2.501
-2.917
--1.459
-2.526
-130
-2.985
--1.919
-2.287
-3.040
--1.954
-2.329
-140
-3.100
--2.375
-1.993
-3.175
--2.432
-2.041
-150
-3.175
--2.750
-1.588
-3.232
--2.799
-1.616
-160
-3.186
--2.994
-1.090
-3.246
--3.050
-1.110
-170
-3.177
-3.129
-0.552
-3.237
--3.188
-0.562
-180
-3.187
--3.187
-0
-3.246
-3.246
-0
-BasicPlaneZ=-2.360
-Level-4Z=-2.000
-R
-X
-Y
-R
-Y
-0
-4.272
-4.272
-0
-4.247
-4.247
-0
-10
-4.248
-4.184
-0.738
-4.223
-4,159
-0.733
-20
-4.147
-3.897
-1.418
-4.120
-3.872
-1.409
-30
-3.961
-3.430
-1.981
-3.940
-3.412
-1.970
-40
-3.687
-2.824
-2.370
-3.683
-2.821
-2.367
-50
-3.384
-2.175
-2.592
-3.392
-2.180
-2.598
-60
-3.111
-1.556
-2.694
-3.132
-1.566
-2.712
-70
-2.927
-1.001
-2.751
-2.960
-1.012
-2.782
-08
-2.815
-0.489
-2.772
-2.860
-0.497
-2.817
-90
-2.779
-0
-2.779
-2.838
-0
-2.838
-100
-2.802
--0.487
-2.759
-2.861
-~0.497
-2.818
-110
-2.887
--0.987
-2.713
-2.958
--1.012
-2.780
-120
-3.019
--1.510
-2.615
-3.098
--1.549
-2.683
-130
-3.180
--2.044
-2.436
-3.260
--2.096
-2.497
-140
-3.306
--2.533
-2.125
-3.405
--2.608
-2.189
-150
-3.398
-2.943
-1.699
-3.516
--3.045
-1.758
-160
-3.458
--3.250
-1.183
-3.585
--3.369
-1.226
-170
-3.475
--3.422
-0.603
-3.612
--3.557
-0.627
-180
-3.472
-~3.472
-0
-3.609
--3.609
-0
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
 49 CFR 571.218 S7.3.4 (enhanced display)
-page 1116 of1400
+page 1116 of 1400
 
 
 ## Page 1117
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-Table 2
-Medium Headform-Exterior Dimensions (Continued)
-Level-3Z=-1.500
-Level-2Z=-1.000
-R
-X
-Y
-R
-X
-Y
-0
-4.208
-4.208
-0
-4.148
-4.148
-0
-10
-4.179
-4.116
-0.726
-4.112
-4.050
-0.714
-20
-4.075
-3.829
-1.394
-4.013
-3.771
-1.373
-30
-3.902
-3.379
-1.951
-3.844
-3.329
-1.922
-40
-3.654
-2.799
-2.349
-3.609
-2.765
-2.320
-50
-3.377
-2.171
-2.587
-3.352
-2.155
-2.568
-60
-3.094
-1.547
-2.680
-3.137
-1.569
-2.717
-70
-2.982
-1.020
-2.802
-2.989
-1.022
-2.809
-80
-2.891
-0.502
-2.847
-2.902
-0.504
-2.858
-06
-2.876
-0
-2.876
-2.884
-0
-2.884
-100
-2.918
--0.507
-2.874
-2.943
--0.511
-2.898
-110
-3.021
--1.033
-2.839
-3.052
--1.044
-2.868
-120
-3.170
--1.585
-2.745
-3.225
--1.613
-2.793
-130
-3.337
--2.145
-2.556
-3.397
--2.184
-2.602
-140
-3.483
--2.668
-2.239
-3.536
--2.709
-2.273
-150
-3.604
--3.121
-1.802
-3.657
--3.167
-1.829
-160
-3.682
--3.460
-1.259
-3.751
--3.525
-1.283
-170
-3.725
--3.668
-0.647
-3.807
--3.749
-0.661
-180
-3.741
--3.741
-0
-3.822
--3.822
-0
-Level1Z=~0.500
-ReferencePlaneZ=0.0
-θ
-R
-Y
-R
-X
-Y
-0
-4.067
-4.067
-0
-3.971
-3.971
-0
-10
-4.033
-3.972
-0.700
-3.935
-3.875
-0.683
-20
-3.944
-3.706
-1.349
-3.853
-3.621
-1.318
-30
-3.777
-3.271
-1.889
-3.701
-3.205
-1.851
-40
-3.552
-2.721
-2.283
-3.491
-2.674
-2.244
-50
-3.323
-2.136
-2.546
-3.279
-2.108
-2.512
-60
-3.126
-1.563
-2.707
-3.101
-1.551
-2.686
-70
-2.987
-1.022
-2.807
-2.979
-1.019
-2.799
-80
-2.912
-0.506
-2.868
-2.910
-0.505
-2.866
-06
-2.893
-0
-2.893
-2.890
-0
-2.890
-100
-2.895
--0.503
-2.851
-2.945
--0.511
-2.900
-110
-3.064
--1.048
-2.879
-3.062
--1.047
-2.877
-120
-3.231
--1.616
-2.798
-3.228
--1.614
-2.796
-130
-3.411
--2.193
-2.613
-3.413
-~2.194
-2.615
-140
-3.560
--2.727
-2.288
-3.563
--2.729
-2.290
-150
-3.682
-~3.189
-1.841
-3.681
--3.188
-1.841
-160
-3.783
-3.555
-1.294
-3.773
-3.546
-1.290
-170
-3.885
--3.826
-0.675
-3.832
--3.774
-0.665
-180
-3.857
--3.857
-0
-3.844
--3.844
-0
-49 CFR 571.218 S7.3.4(enhanced display)
-page1117of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
+49 CFR 571.218 S7.3.4 (enhanced display)
+page 1117 of 1400
 
 
 ## Page 1118
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-Table 2
-Medium Headform-Exterior Dimensions(Continued)
-Level+1Z=0.500
-Level +2 Z=1.000
-θ
-R
-Y
-R
-X
-Y
-0
-3.830
-3.830
-0
-3.665
-3.665
-0
-10
-3.801
-3.743
-0.660
-3.613
-3.558
-0.627
-20
-3.725
-3.500
-1.274
-3.554
-3.340
-1.216
-30
-3.587
-3.106
-1.794
-3.436
-2.976
-1.718
-40
-3.399
-2.604
-2.185
-3.271
-2.506
-2.103
-09
-3.205
-2.060
-2.455
-3.102
-1.994
-2.376
-09
-3.044
-1.522
-2.636
-2.959
-1.480
-2.563
-70
-2.927
-1.001
-2.751
-2.854
-0.976
-2.682
-80
-2.861
-0.497
-2.818
-2.792
-0.485
-2.750
-06
-2.855
-0
-2.855
-2.783
-0
-2.783
-100
-2.897
--0.503
-2.853
-2.832
--0.492
-2.789
-110
-3.007
--1.029
-2.826
-2.938
--1.005
-2.761
-120
-3.176
-~1.588
-2.751
-3.102
-1.551
-2.686
-130
-3.372
--2.168
-2.583
-3.294
--2.117
-2.523
-140
-3.520
--2.697
-2.263
-3.450
--2.643
-2.218
-150
-3.643
--3.155
-1.822
-3.564
--3.087
-1.782
-160
-3.728
--3.503
-1.275
-3.637
--3.418
-1.244
-170
-3.777
-3.720
-0.656
-3.675
--3.619
-0.638
-180
-3.782
--3.782
-0
-3.670
--3.670
-0
-Level+3Z=1.450
-Level+4Z=1.860
-θ
-R
-X
-X
-Y
-0
-3.419
-3.419
-0
-3.061
-3.061
-0
-10
-3.382
-3.331
-0.587
-3.035
-2.989
-0.527
-20
-3.299
-3.100
-1.128
-2.966
-2.787
-1.014
-30
-3.197
-2.769
-1.599
-2.872
-2.487
-1,436
-40
-3.052
-2.338
-1.962
-2.754
-2.110
-1.770
-09
-2.911
-1.871
-2.230
-2.642
-1.698
-2.024
-60
-2.786
-1.393
-2.413
-2.522
-1.261
-2.184
-70
-2.700
-0.924
-2.537
-2.477
-0.847
-2.328
-80
-2.647
-0.460
-2.607
-2.442
-0.424
-2.405
-06
-2.636
-0
-2.636
-2.442
-0
-2.442
-100
-2.691
-~0.467
-2.650
-2.492
--0.433
-2.454
-110
-2.796
--0.956
-2.627
-2.599
--0.889
-2.442
-120
-2.961
--1.481
-2.564
-2.758
--1.379
-2.389
-130
-3.147
--2.023
-2.411
-2.936
--1.887
-2.249
-140
-3.301
--2.529
-2.122
-3.081
-2.360
-1.980
-150
-3.408
--2.951
-1.704
-3.176
--2.751
-1.588
-160
-3.479
--3.269
-1.190
-3.230
--3.035
-1.105
-170
-3.514
--3.461
-0.610
-3.270
--3.220
-0.568
-180
-3.502
--3.502
-0
-3.271
--3.271
-0
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
 49 CFR 571.218 S7.3.4 (enhanced display)
-page.1118of1400
+page 1118 of 1400
 
 
 ## Page 1119
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-Table 2
-Medium Headform -Exterior Dimensions (Continued)
-Level+5 Z=2.250
-Level+6Z=2.560
-θ
-R
-X
-Y
-R
-X
-Y
-0
-2.526
-2.526
-0
-1.798
-1.798
-0
-10
-2.521
-2.483
-0.483
-1.798
-1.771
-0.312
-20
-2.464
-2.315
-0.843
-1.757
-1.651
-0.601
-30
-2.387
-2.067
-1.194
-1.719
-1.489
-0.860
-40
-2.305
-1.766
-1.482
-1.678
-1.285
-1.079
-50
-2.232
-1.435
-1.710
-1.652
-1.062
-1.266
-60
-2.174
-1.087
-1.883
-1.641
-0.821
-1.421
-70
-2.144
-0.733
-2.015
-1.645
-0.563
-1.546
-80
-2.132
-0.370
-2.100
-1.673
-0.291
-1.648
-06
-2.147
-0
-2.147
-1.712
-0
-1.712
-100
-2.213
--0.384
-2.179
-1.809
--0.314
-1.782
-110
-2.316
--0.792
-2.176
-1.925
--0.658
-1.809
-120
-2.463
--1.232
-2.133
-2.066
-1.033
-1.789
-130
-2.624
--1.687
-2.010
-2.213
-1.423
-1.695
-140
-2.763
--2.117
-1.776
-2.358
--1.806
-1.516
-150
-2.863
-2.479
-1.432
-2.469
--2.138
-1.235
-160
-2.919
--2.743
-0.988
-2.536
--2.383
-0.867
-170
-2.954
--2.909
-0.513
-2.561
--2.522
-0.445
-180
-2.958
--2.958
-0
-2.556
--2.556
-0
-Level +7 Z=2.750
-Notes:
-R
-X
-Y
-1.Apex is located at(-0.75,0,3.02)
-1.081
-for(X,Y,Z)or(0.75,180,3.02)
-0
-1.081
-0
-for (R,θ,Z).
-10
-1.088
-1.072
-0.189
-20
-1.055
-0.991
-0.361
-2.
-Center ofearopeningislocated at
-30
-1.039
-0.900
-0.520
-(0.40,2.78,-2.36)for(X,Y,Z)or
-40
-1.039
-0.796
-0.668
-(2.80,81.8,-2.36) for(R,θ,Z).
-50
-1.052
-0.676
-0.806
-Scalealldimensionsby0.8941for
-60
-1.068
-0.534
-0.925
-small headform.
-70
-1.106
-0.378
-1.039
-80
-1.171
-0.203
-1.153
-Scale all cimensions by 1.069 for large
-06
-1.242
-0
-1.242
-headform.
-100
-1.422
--0.247
-1,400
-5.
-Headform issymmetrical aboutthe
-110
-1.489
--0.509
-1.399
-mid-sagittai plane.
-120
-1.683
--0.842
-1.458
-130
-1.801
--1.158
-1.380
-6.Units:
-1.954
-1.497
-1.256
-R,X,Y,Z- inches.
-140
-O-degrees.
-150
-2.083
--1.804
-1.042
-160
-2.138
--2.009
-0.731
-7.Toobtainmetricequivalents in centimeters,
-170
-2.175
--2.142
-0.378
-multiplyeachfigureby2.54.
-180
-2.175
--2.175
-0
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
 49 CFR 571.218 S7.3.4 (enhanced display)
 page 1119 of 1400
 
 
 ## Page 1120
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-Figure 6
-Small Headform --Interior Design
-6.686
-2.849
-900
-3.250 B.C.
-45/64RAD
-A
-A
-1800
-4.784
-113/32
-2.392
-900
-250
-1.95RAD
-1.086
-5/16-18HelicalCoil Insert
-213/64
-1/2Length
-1/2
-ConstantWicth
-throughout2300
-155/64
-1/4RAD
-4.175
-1/16RAD
-Note:
-To obtain metric equivalents in
-1.040
-centimeters,multipiy each
-figure by 2.54.
-1.375 RAD
-.005 Loose Fit
-with Mounting Ball
-Smooth Finish
-Section A-A
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
 49 CFR 571.218 S7.3.4 (enhanced display)
-page 1120 of1400
+page 1120 of 1400
 
 
 ## Page 1121
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.218S7.3.4
-FederalMotorVehicleSafetyStandards
-Figure 7
-MediumHeadform-InteriorDesign
-7.479
-3.187
-900
-350
-45/64RAD
-C
-5
-1800
-X
-13/32
-3.250 B.C.
-2.675
--2.230-
-41/8
-213/64
-5/16-18HelicalCoil Insert
-1/2 Length
-1/2
-3/4
-Constant Width-
-throughout540
-60°
-4.40
-1/16RAD
-X
-.04
-Note:
-Toobtain metric equivalentsin
-centimeters,multiply each
-figure by 2.54.
-1.375 RAD
-.005Loose Fit
-with Mounting Bal
-Smooth Finish
-Section C-C
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.218 S7.3.4
 49 CFR 571.218 S7.3.4 (enhanced display)
-page 1121of1400
+page 1121 of 1400
 
 
 ## Page 1122
@@ -59949,210 +53393,74 @@ page 1143 of 1400
 
 ## Page 1144
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.222S6.8
-FederalMotorVehicleSafetyStandards
-10676
-[152mm,10676N]
-8896
-SEATBACKFORCE/DEFLECTIONCURVE
-FORCE[NEWTONS]
-SHALLNOTENTERSHADEDAREAS
-[127 mm, 4448 N]
-4448
-51
-102
-152
-203
-254
-305
-356
-DEFLECTION [MILLIMETERS] (mm)
-Figure 1.-Force/Deflection Zone
-49 CFR 571.222 S6.8(enhanced display)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
+49 CFR 571.222 S6.8 (enhanced display)
 page 1144 of 1400
 
 
 ## Page 1145
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.222S6.8
-FederalMotorVehicleSafetyStandards
-495R
-250
-BLOCK COVERED BY
-1.00 MED.DENSITYCANVAS
-49R
-COVEREDFOAMRUBBER
-(TYP)
-L50R
-19 DIA.
-50R
-85
-THRU HOLE
-152R
-229
-127
-50
--50
-134
-49R
-(TYP)
-508
-Figure 2.-Body Block for Lap Belt
-All Dimensions in Millimeters (mm)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
 49 CFR 571.222 S6.8 (enhanced display)
-page1145of1400
+page 1145 of 1400
 
 
 ## Page 1146
 
-49 CFRPart 571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.222S6.8
-83 R
-25R
-Figure 3
-All dimensions in millimeters (mm)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
 49 CFR 571.222 S6.8 (enhanced display)
-page1146of1400
+page 1146 of 1400
 
 
 ## Page 1147
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.222S6.8
-X-AXIS
-FLOOR PLANE
-Wheelchair Securement Anchorage Loading Direction
-FRONT OF BUS
-+45DEG
-Y-AXIS
-45 DEG
-(Rear Anchorage Shown)
-FLOOR PLANE
-Z-AXIS
-13344 N FORCE
-X-AXIS
-m
-/
-ANCHOR POINT (P)
-30 DEG
-PROJECTIONOFFORCE
-VIEWA-A
-60 DEG
-Figure 4. V
-ONX-YPLANE
-13344NFORCE
-Z-AXIS
-49CFR571.222S6.8(enhanced display)
-page1147of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
+49 CFR 571.222 S6.8 (enhanced display)
+page 1147 of 1400
 
 
 ## Page 1148
 
-49 CFRPart571(upto date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.222S6.8
-X-AXIS
- Pelvic Restraint Anchorage Loading Direction
-RONT OF BUS
-+45 DEG
-Y-AXIS
--45DEG
-FLOOR PLANE
-Z-AXIS
-13344 N FORCE
-X-AXIS
-ANCHOR POINT (P)
-45 DEG
-PROVECTIONOFFORCE
-Figure 5.
-VIEW 8-B
-80 DEG
-ON X-Y PLANE
-FORCE
-SIXV-Z
-13344 N
-49CFR571.222S6.8(enhanceddisplay
-page1148of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
+49 CFR 571.222 S6.8 (enhanced display)
+page 1148 of 1400
 
 
 ## Page 1149
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.222S6.8
-X-AXIS
-Figure 6. Pelvic Restraint and Wheelchair Securement
-IFLOORPLANE
-Common Anchorage Loading Direction
-FRONT OF BUS
-+45DEG
-Y-AXS
--45DEG
-(Rear Direction Only)
-FLOOR PLANE
-Z-AXIS
-FORCE
-X-AXIS
-ANCHORPOINT (P)
-45 DEG
-26688 N
-PROUECTION OF FORCE
-VIEW C-C
-80 DEG
-ONX-Y PLANE
-26688 N FOACE!
-Z-AXIS
-49 CFR 571.222 S6.8(enhanced display)
-page 1149 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
+49 CFR 571.222 S6.8 (enhanced display)
+page 1149 of 1400
 
 
 ## Page 1150
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.222S6.8
-FederalMotorVehicleSafetyStandards
-XAXIS
-FRONTOF BUS
-Figure 7. Upper Torso Restraint and Torso Harness
-6672 N F0RCE
-Y AXIS
-45 DEG
-Anchorage Loading Location
-FLOORPLANE
-Z AXIS
-UPPER ANCHOR POINT (P,U)
-PROJECTION OF FORCE
-XAXIS
-ON X-Y PLANE
-6672NFORCE
-VIEW D-D
-ZAXIS
-P.U
-49CFR571.222S6.8(enhanced display)
-page 1150 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
+49 CFR 571.222 S6.8 (enhanced display)
+page 1150 of 1400
 
 
 ## Page 1151
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.222S6.8
-FederalMotorVehicleSafetyStandards
-Angle of Posterior Surface of
-SeatBack
-406 ± 6 mm
-Seating ReferencePoint
-Upper Loading Bar
-(SgRP)
-Lower LoadingBar
-Aligned within ± 6
-mm of the SgRP.
-Figure 8 - Definition of initial angle of compartmentalizing seat back surface
-49 CFR 571.222 S6.8(enhanced display)
-page 1151of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.222 S6.8
+49 CFR 571.222 S6.8 (enhanced display)
+page 1151 of 1400
 
 
 ## Page 1152
@@ -60453,112 +53761,38 @@ page 1157 of 1400
 
 ## Page 1158
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR 571.223S6.9(b)
-FederalMotorVehicleSafetyStandards
-FIGURES TO 571.223
-FIGURE1:REARVIEWOFTHEREARIMPACTGUARD
-Rear extremity of trailer or
-rigid testfixtureassembly
-100-mm
-Attachment
-minimum
-points
-Support
-height
-P1
-P1
-P2
-50mm
-Horizontal
-member of
-rear impact
-guard
-3/8 L
-3/8 L-
-Longitudinal vertical
-plane
-Notes:
-1.L meanswidthof the horizontal member.
-2rR Brawing nmtnta asale
-49CFR
-page1158of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.223 S6.9(b)
+49 CFR 571.223 S6.9(b) (enhanced display)
+page 1158 of 1400
 
 
 ## Page 1159
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.223S6.9(b)
-FederalMotorVehicleSafetyStandards
-FIGURE2:TYPICALFORCEDEFLECTIONDIAGRAM
-Force
-(kN)
-Shaded area represents energy
-350
-absorbed (Minimum20,000 joules)
-175
-25
-50
-75
-100
-125
-Deflection (mm)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.223 S6.9(b)
 49 CFR 571.223 S6.9(b) (enhanced display)
-page 1159 of1400
+page 1159 of 1400
 
 
 ## Page 1160
 
-49CFRPart571(uptodateasof5/07/2026)
-49 CFR571.223S6.9(b)
-FederalMotorVehicleSafetyStandards
-FIGURE3:UNIFORMDISTRIBUTEDLOADAPPLICATIONTEST
-SIDE VIEW
-Rear extremity of trailer or
-rigid test fixture assembly
-Supportofhorizontal member
-Position ofhorizontal
-memberatstartofloadtest
-.Force
-Force application device
-TOP VIEW
-Outside edge of supports
-49CFR571.223S6.9(b)(enhanced display)
-HoP2a1400
-Force
-member
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.223 S6.9(b)
+49 CFR 571.223 S6.9(b) (enhanced display)
+page 1160 of 1400
 
 
 ## Page 1161
 
-49CFRPart571(uptodateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.223 S6.9(b)
-FederalMotorVehicleSafetyStandards
-FIGURE4:POST-TESTGROUNDCLEARANCEMEASUREMENT
-REARVIEW
-Supports
-Attachment
-points
-Ground
-Hbrizontal
-clearance
-member
-SIDEVEW
-Trailerrearextremity
-orrigid testfixture
-Positionofrearimpactguard
-honzontalmemberafter
-load testiscomplete
-Supportforhorizontal
-member
-Force
-Post-test
-ground
-clearance
-Position of rearimpact
-guardhorizontalmember
-atstartofload test
-page 1161of1400
+49 CFR 571.223 S6.9(b) (enhanced display)
+page 1161 of 1400
 
 
 ## Page 1162
@@ -61540,230 +54774,74 @@ page 1180 of 1400
 
 ## Page 1181
 
-49 CFRPart571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.225S13.2.2
-Yaw
-Roll
-Pitch
-49 CFR 571.225S13.2.2 (enhanced eisplay)
-page 1181of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1181 of 1400
 
 
 ## Page 1182
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.225S13.2.2
-Figure 1A - Child Restraint Fixture (CRF) with Side and Top Frames Removed
-49 CFR571.225 S13.2.2(enhanced display)
-page1182of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1182 of 1400
 
 
 ## Page 1183
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-SIDE,BACK,ANDTOPFRAMESREMOVABLE
-FORINSTALLATIONINVEHICLE
-TETHER STRAP
-200
-ATTACHMENT
-TETHER STRAP
-ATTACHMENT
-235
-60
-160
-R50
-400
-320
-POINTA
-POINTZ
-535
-70
-BACKVIEW
-605
-SIDEVIEW
-2
-220
-POINT A
-DETAILX
-TOPVIEW
-SEE DETAILB
-FIGURE17
-5
-METRIC (mm)
-NOT TO SCALE
-04
-30
-POINTZ
-PARTSECTIONA-A
-DETAILY
-Note:
-1. Mass of CRF 5 to 8 kg
- 49 CFR 571.225 S13.2.2 (enhancegilay2 - Child restraint fixture (CRF)
-page 1183 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1183 of 1400
 
 
 ## Page 1184
 
-49 CFR Part 571(up to date as of 5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.225 S13.2.2
-FederalMotorVehicleSafetyStandards
-"M"Plane
-cross-section
-Verticatlongitudinalplane
-Strap wrap-around length
-from "V" point: 250
-Strap wrap-arounc length
-from‘W'point: 200
-"R"Plane
-"R"Point
-cross-section
-"V"Point
-50
-"H"Point
-175
-350
-Torso linereference plang
-1,000
-2,000
-Linerepresents thevehicle specific
-floorpansurfacewithintheprescnibed
-Intersection of torsoline
-zone
-reference plane and floor pan
-Notes
-1.Dimensions in mm,exceptwhereotherwiseindicated
-2.Portion of user-ready tetheranchorage that is designed tobind with the tetherstrap hook
-tobelocatedwithinshadedzone
-3.
-Drawing not to scale
-4.
-"R"Point:Shoulder reference point
-5.
-"V"Point:V-reference point,350 mm vertically above and 175 mm horizontaly back
-from H-point
-6.
-“WPoint:W-referencepoint,50 mmverticallybelow and50mmhorizontally backfrom
-"R"Point
-7.“M"Plane:M-reference plane,1 0o0 mm horizontally back from"R"Point
-49 CFR 571.22F fjur2 (enhagseddiyplaw, User-ready Tether Anchorage Location
-page 1184 of1400
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1184 of 1400
 
 
 ## Page 1185
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-Verticallongitudinalplane
-Strap wrap-around length
-from "V" point: 250
-Strapwrap-aroundlength
-"W" Point
-from"W"point:200
-"R" Point
-"V" Point
-_Arcscreatedby
-A75
-wrap-around
-lengths
-350
-"H"Point
-Notes
-1.Dimensions in mm,exceptwhereotherwise indicated
-2.
-Portionof user-ready tether anchoragethat isdesigned tobindwith the tetherstraphooktobe
-locatedwithinshadedzone
-3.Drawing not to scale
-4.“R"Point:Shouiderreferencepoint
-6.“W” Point:W-reference point,50 mm vertically below and 50 mm horizontally back from"R" Point
-7.“M”Plane:M-referenceplane,10o0 mm horizontallyback from"R"Point
-Figure 4 --EnlargedSideViewof StrapWrap-around Area,User-readyTetherAnchorage
-Location
-49 CFR 571.225 S13.2.2(enhanced display)
-page 1185 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1185 of 1400
 
 
 ## Page 1186
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-Vertical longitudinalpiane
-"W'Point
-"RPoint
-"VPoint
-Median plane
-1000
-2000
-1.Dimensions inmm,exceptwhereotherwise indicated
-2.Portionof user-ready tether anchorage that is designed tobind with the tether strap hook tobe
-locatedwithinshadedzone
-3.Drawing not to scale
-4.“R"Point:Shoulder reference point
-5.“V”Point:V-referencepoint,350mmvertically above and175mmhorizontallybackfrom
-H-point.
-6.“WPoint:W-referencepoint,50 mmverticallybelowand50mmhorizontallybackfrom
-"R"Point
-Figure 5.PlanView(R-plane Cross Section),User-ready TetherAnchorage Location
-49 CFR 571.225 S13.2.2(enhanced display)
-page 1186 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1186 of 1400
 
 
 ## Page 1187
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-Median plane
-"R" Point -
-Areaview along
-"W" Point
-torso reference
-line plane
-"V" Point
-20°measured
-alongverticalplane
-through "R" Point
-Notes
-1. Portion of user-ready tether anchorage that is designed to bind with the tether
-straphooktobelocatedwithinshadedzone
-2. Drawing not to scale
-3."R"Point:Shoulderreferencepoint
-4. "V" Point: V-reference point, 350 mm vertically above and 175 mm
-49 cFksrizz9sialby(eanGkefrasplal)-point
-page 1187of1400
-5. "W” Point: W-reference point, 50 mm vertically below and 50 mm horizontally
-backfrom"R"Point
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1187 of 1400
 
 
 ## Page 1188
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-30°Plane
-"R"Plane
-cross-section
-"W"Point
-"R"Point
-"V"Point
-"H"Point
-Floorpan surface
-Frontedgeofzone
-Notes
-1. Portion of user-ready tether anchorage that is designed to bind with the tether strap hook
-tobelocatedwithinshadedzone
-2.Drawing not to scale
-3.“R"Point:Shouider reference point
-4.“VPoint:V-referencepoint,350 mmverticallyabove and175mm horizontallybackfrom
-H-point
-5.“W'Point:W-referencepoint,50 mmverticallybelow and50 mm horizontallybackfrom
-"R"Point
-Location
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1188 of 1400
 
 
 ## Page 1189
@@ -61801,239 +54879,65 @@ page 1191 of 1400
 
 ## Page 1192
 
-49 CFR Part 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.225S13.2.2
-Pointx
-Figure 12 - Three Dimensional Schematic View of the Static Force Application Device 1 (SFAD 1)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
 49 CFR 571.225 S13.2.2 (enhanced display)
-page1192of1400
+page 1192 of 1400
 
 
 ## Page 1193
 
-49CFRPart571(uptodate asof5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-Tetherattachmentpoint
-400.0
-76.2
-38.1
-513.0
-550.0
-Two1/2inchdiameterholes,
-in line and drill-through
-5.
-5
-"X"Point
-203.2
-114.3
-200.0
-2
-6
-50.8
-5
-_50.0
-76.2 diameter
-50.8diameter
-radius
-drill-throughhole
-drill-through hole
-typical
-Vehicle seat belt
-200.0
-path hole
-503.0
-Notes
-1.Material:6061-T6-910Aluminum
-2. Dimensions in mm, except where otherwise indicated
-3. Drawing not to scale
-4. Break all outside cormers
-Figure 13 -- Side View, Static Force Application Device 1 (SFAD 1)
-49 CFR571.225S13.2.2(enhanced display)
-page1193 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1193 of 1400
 
 
 ## Page 1194
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-251.5
-54.3 Reference
-9.5
-140.0
-191.1Reference
-9.5
-"8"
-typical
-12.7radius
-"X"Point
-Notes
-1.Material:6061-T6-910Aluminum
-2. Dimensions in mm, except where otherwise indicated
-3. Drawing not to scale
-4.Break all outside corners and lightning hole edges 1.5 mm approximately.
-5.Break edges of vehicle seat belt pathholes at least 4 mm
-6.“B"= approximately 0.8 mm
-Figure 14 --Plan View, Static Force Application Test Device 1 (SFAD 1)
-49 CFR 571.225 S13.2.2(enhanced display)
-page 1194 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1194 of 1400
 
 
 ## Page 1195
 
-49 CFRPart 571(up to date asof 5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-50.8
-6.35radius
-canter,2places
-9.5radius
-76.2
-center,2places
-39.8
-Tether attachmentpoint
-_15.9
-3.2
-"C"Ail
-50.8
-19.0diameter
-around
-slot
-12.7 diameter
-11.1
-Radius
-Section A-A
-9.5
-34.9.
-typical
-typical
-See Figure 16
-"X"Point
-127.6
-76.2
-50.8diameter
-9.5
-drill-throughtypical
-280.0
-Notes
-1.Material:6061-T6-910Aluminum
-2.Dimensions in mm,except where otherwise indicated
-3.Drawingnottoscale
-4. “B"= approximately 0.8 mm
-5. "C" approximately.3.2 mm
-49CFR571.225S13.2.2(enhanceddisplay)
-page1195of1400
-Figure 15 -- Front View, Static Force Application Device 1 (SFAD 1)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1195 of 1400
 
 
 ## Page 1196
 
-49 CFRPart 571(up to date asof 5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.225 S13.2.2
-FederalMotorVehicleSafetyStandards
-41.08
-190.5
-dia
-49.
-25.4
-Two
-6.35
-95.25
-Two 3/8 inch - 16
-Typical
-tapped holes witha
-Chamfer 0.13
-2.00inchesradiu
-1/2 inch c-bore
-typical
-0.370 inch deep,
-typical
-in-line and
-drillthrough
-28.45
-19.05
-38.1
-Topview
-Forceapplication device
-19.05
-Typical
-attachement point-"X"Point
-38.1
-Reference
-Sideview
-177.8
-6.35
-Typical
-Typical
-Ends miust be fiat
-Frontview
-Notes
-1.Material:Steel
-2.Dimensions inmm,exceptwhereotherwise indicated
-3.Drawingnottoscale
-4.Breakall outsidecornersapproximately 1.5mm
-5.Surfaces and edges arenot to be machined unless otherwise specified for tolerance.
-6.Saw-cutorstocksizematerialwheneverpossible.
-7.Construction tobesecurely welded.
-Figure 16 -- Cross Bar, Static Force Application Device 1 (SFAD 1)
-49 CFR 571.225S13.2.2(enhanced display)
-page 1196 of1400
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1196 of 1400
 
 
 ## Page 1197
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-See Detail C
-Yetherattachmentpoint
-50
-See Detail A
-270
-70
-Sideview
-See Detail B
-320
-Back view
-"XPoint
-(Center point)
-DetailA
-Force application test
-235
-device attachment
-point
-300
-400
-Bottomview
-3radius
-6.5.diameler
-10radius.
-26
-6.5
-8
-10
-DetaiC:Plates are welded toSFAD2
-Detail B
-Notes:
-1.Drawingnot toscale
-2.Dimensionsinmm,exceptwhereotherwiseindicated
-3.Devicestiffnesssatisfiedwhen using asecurelyweldedconstructionconsistingofrectangular3mmsteel tubing
-and6mm thickloadapplicationplate
-4.lf constructionnotasper note3,stiffness of device is satisfied if movement of pointXisnot more than 2mm in
-frontcrossmembersupportedbyarigidbar thatisheldat thecenterbyalongitudinalpivot25mmbelowthe
-SFAD2base(asshown inbroken lines) toallowbendingand twistingof thebaseof thedevice.Any deformation of
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1197 of 1400
 
 
 ## Page 1198
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.225S13.2.2
-Figure 18 - Three-dimensional Schematic Views of the IS0 13216-1 Static
-45eRGAARplicatianeDaxise2 (SFAD 2)
-page1198of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1198 of 1400
 
 
 ## Page 1199
@@ -62048,56 +54952,29 @@ page 1199 of 1400
 
 ## Page 1200
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-d/2
-2
-SgRP
-D4
-D2
-Plane
-(nominally 280 mm).
-D = distance between vertical longitudinal planes located midway between the anchorages for a
-given seatingposition.
-SgRP =Seatingreferencepoint,asdefined In49CFRS571.3.
-Flgure 20 - Measurement of Distanca Between Adjacent Seating Posltions for Use In
-Simultanoous Tosting
-49CFR571.225S13.2.2(enhanced display)
-page 1200 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1200 of 1400
 
 
 ## Page 1201
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.225S13.2.2
-FederalMotorVehicleSafetyStandards
-60 mm Max.
-7 mm
-25mmMin.
-Configuration shown is for illustration purposes only.
-Figure 21. Length of Lower Anchorage Bars
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
 49 CFR 571.225 S13.2.2 (enhanced display)
-page1201of1400
+page 1201 of 1400
 
 
 ## Page 1202
 
-49 CFR Part 571(up to date as of 5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.225S13.2.2
-Vertical TransversePlane
-Horizontal CenterLine of EachBarofthe
-Horizontal LongitudinalPlane
-LowerUniversal AnchorageSystem
-Notes:
-1. Drawing not to scale.
-2.50mm≤a≤100 mm.
-3.b=100 mm ±25 mm.
-Figure22.Placementof Symbolon theSeatBack
-andSeatCushionofavehicle
-49 CFR 571.225 S13.2.2(enhanced display)
-page1202 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.225 S13.2.2
+49 CFR 571.225 S13.2.2 (enhanced display)
+page 1202 of 1400
 
 
 ## Page 1203
@@ -62758,121 +55635,38 @@ page 1218 of 1400
 
 ## Page 1219
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR 571.226 S8.S8.9(e)
-FederalMotorVehicleSafetyStandards
-TheequationshownfortheY-Z
-planeisvalid inthefirstquadrant
-only(tophalf).butthebottomhalfis
-symmetricabout theY-axis.The
-restof theoutersurfaceis
-generatedbyrotatingthiscurvature
-(X/88.4)²+(Z/113)²1
-about the Z-axis.
-(Y/88.4)²+(Z/113)²=1
-113.0
-226.1
-56.0
-176.8
-88.4
-Figure 1 -Ejection Headform Face.All dimensions are millimeters.
-Daylight Opening
-Offset Line
-Front Window
-Rear Window
-Figure 2
-49 CFR 571.226 S8.S8.9(e)(enhanced display)
-page 1219 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.226 S8.S8.9(e)
+49 CFR 571.226 S8.S8.9(e) (enhanced display)
+page 1219 of 1400
 
 
 ## Page 1220
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49 CFR571.226 S8.S8.9(e)
-Federal MotorVehicleSafetyStandards
-Identify Primary Targets
-Geometric
-Center
-Geometric
-Center
-Primary Target.
-Primary Target.
-Primary Target.
-Primary Target.
-Figure 3
-Final Target Locations
-B/3
-B/3
-A/3
-A/3
-Figure 4
-49 CFR 571.226 S8.S8.9(e)(enhanced display)
-page 1220 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.226 S8.S8.9(e)
+49 CFR 571.226 S8.S8.9(e) (enhanced display)
+page 1220 of 1400
 
 
 ## Page 1221
 
-49 CFR Part 571(up to date as of 5/07/2026)
-49CFR571.226S8.S8.9(e)
-FederalMotorVehicleSafetyStandards
-Upper Primary
-Target
-UpperSecondary
-Target
-LowerPrimary
-Target
-Lower Secondary
-Target
-Figure 5
-49 CFR 571.226 S8.S8.9(e)(enhanced display)
-page 1221of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.226 S8.S8.9(e)
+49 CFR 571.226 S8.S8.9(e) (enhanced display)
+page 1221 of 1400
 
 
 ## Page 1222
 
-49 CFRPart 571(up to date asof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.226 S8.S8.9(e)
-FederalMotorVehicleSafetyStandards
-FacingLeftSideofVehicle
-TargetOrientation and MinimumDistanceBetweenX and ZAxesof Targets
-Vertical Orientation
-Horizontal Orientation
-Z
-个
-170mm.
-170mm.t
-Vehicle
-135mm.
-Coordinates
-X
-N
-Z
-Z
-X
--135mm.
-Figure 5a
-FacingRightSideofVehicle
-Target Orientation and Minimum Distance Between X and Z Axes of Targets
-Vertical Orientation
-Horizontal Orientation
-Z
-个
-170mm.
--170mm.
-Vehicle
-135mm.
-Coordinates
-X
-Z
-Z
->Z
-X
-X
-Z
-135mm.
-49 CFR 571.226 S8.S8.9(e)(enhanced display)
-page1222of1400
-Figure 5b
+49 CFR 571.226 S8.S8.9(e) (enhanced display)
+page 1222 of 1400
 
 
 ## Page 1223
@@ -63069,47 +55863,20 @@ page 1226 of 1400
 
 ## Page 1227
 
-49 CFRPart 571(up to date asof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.227 S7.(f)
-FederalMotorVehicleSafetyStandards
-250 mm
-250mm
-150mm
-150mm
-Segment3
-750mm
-Segment 2
-750mm
-SurvivaliSpace
-500mm
-Segment 1
-500 mm
-Floor
-Floor
-Left
-Right
-Figure 1 to s 571.227: Survival Space
-(Rear View - For Ilustration Purposes)
 49 CFR 571.227 S7.(f) (enhanced display)
-page 1227of1400
+page 1227 of 1400
 
 
 ## Page 1228
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.227S7.(f)
-FederalMotorVehicleSafetyStandards
-000
-口0口
-800±20mm
-Tilting platform
-Axisof
-rotation
-Impact surface
-Figure 2 tos 571.227:Vehicle on Tilting Platform
-(Rear View -For Hllustration Purposes)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.227 S7.(f)
 49 CFR 571.227 S7.(f) (enhanced display)
-page1228of1400
+page 1228 of 1400
 
 
 ## Page 1229
@@ -63486,120 +56253,29 @@ page 1236 of 1400
 
 ## Page 1237
 
-49CFRPart571(upto dateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.301S8.3.2
-3048
-1524
-1067
-EES
-3650
-90
-sOC
-019
-+tsi
-6SS
-B90C
-406
-soC
-SNOISNIWIG
-120.0
-60.0
-42.0
-21.0
-144.0
-051
-091
-24.0
-60.0
-84.0
-120.0
-0'9!
-6.0
-WON→KMN
-FIG.I-COMMON CARRIACE FOR MOVING BARRIERS
-TREAD
-AWHEELBASE
-BALLAST
-31 X s) StEEL TUBING.
-2. #aasr te downs.
-49CFR5713Q1S8.3.2(enhanc
-NOTES.
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.301 S8.3.2
+49 CFR 571.301 S8.3.2 (enhanced display)
+page 1237 of 1400
 
 
 ## Page 1238
 
-49 CFRPart 571(up to date asof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.301S8.3.2
-ww
-1372
-401
-762
-133
-95
-629
-457
-991
-1981
-762
-DIMENSIONS
-54.0
-30.0
-5.25
-3.75
-24.75
-u
-15.8
-18.0
-39.0
-78.0
-30.0
-Fig. 2 -- Common Carriage with Contoured Impact Surface Attached
-Letter
-A
-B
-C
-D
-E
-LL
-G
-工
-J
-K
-1
-5.ALLINNERREINFORCEMENTS4.0X2.0X0.19 IN(102X51X5mm) STEELTUBING.
-G
-2
-ATEACHFRONTWHEEL
-1100±25LB(499.0±
-BALLAST
-4000±50LB (1814±22.7kg)
-11.3kg)
-TOTALWEIGHT
-B
-900±25LB（408.2±11.3kg)
-ATEACHREARWHEEL
-BALLAST
-NOTES:
-49 CFR 571.301S8.3.2(enhanced display)
-page1238of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.301 S8.3.2
+49 CFR 571.301 S8.3.2 (enhanced display)
+page 1238 of 1400
 
 
 ## Page 1239
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.301S8.3.2
-DEFORMABLEBARRIERREARIMPACT-70%OVERLAP
-gitudinalcenterineoftestvehicle
-(W=maximum width of the test vehicle)
-20 %0f W± 50 mm
-80 km/h ± 1km/h）
-nableBanmier
-49CFR571.301S8.3.2（enhancddisplay)
-3
-page1239of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.301 S8.3.2
+49 CFR 571.301 S8.3.2 (enhanced display)
+page 1239 of 1400
 
 
 ## Page 1240
@@ -64685,211 +57361,65 @@ page 1261 of 1400
 
 ## Page 1262
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.305S9.3(c)
-FederalMotorVehicleSafetyStandards
-Electrical Chassis
-Energy ConversionSystem
-V2
-Energy Storage System
-Energy
-Energy
-Propulsion
-Vb
-Storage
-Conversion
-System
-Device
-Device
-V1
-Electrical Chassis
-Figure 1. S7.6.3 and S7.7 Voltage Measurements of the High Voltage Source
-49 CFR 571.305 S9.3(c)(enhanced display)
-page 1262 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.305 S9.3(c)
+49 CFR 571.305 S9.3(c) (enhanced display)
+page 1262 of 1400
 
 
 ## Page 1263
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.305S9.3(c)
-FederalMotorVehicleSafetyStandards
-Electrical Chassis
-Energy Conversion System
-Energy Storage System
-+
-+
-Energy
-Energy
-Propulsion
-Storage
-Conversion
-System
-Device
-Device
-V1
-Electrical Chassis
-Figure 2.S7.6.4 Measurement for V1 Voltage between the Negative Side of the High
-VoltageSourceand theElectrical Chassis
-49 CFR 571.305 S9.3(c)(enhanced display)
-page 1263 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.305 S9.3(c)
+49 CFR 571.305 S9.3(c) (enhanced display)
+page 1263 of 1400
 
 
 ## Page 1264
 
-49CFRPart571(uptodateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.305 S9.3(c)
-FederalMotorVehicleSafetyStandards
-Electrical Chassis
-Energy Conversion
-Energy Storage
-System
-V2
-System
-十
-+
-Energy
-Energy
-Propulsion
-Storage
-Conversion
-System
-Device
-Device
-Electrical Chassis
-Figure 3. S7.6.5 Measurement for V2 Voltage between the Positive Side of the High
-VoltageSource and theElectrical Chassis
-49CFR571.305S9.3(c)(enhanceddisplay)
-page 1264 of1400
+49 CFR 571.305 S9.3(c) (enhanced display)
+page 1264 of 1400
 
 
 ## Page 1265
 
-49CFRPart571(uptodateasof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.305 S9.3(c)
-FederalMotorVehicleSafetyStandards
-Electrical Chassis
-Energy ConversionSystem
-Energy Storage System
-Energy
-Energy
-Propuision
-Storage
-Conversion
-System
-Device
-Device
-V1'
-Ro
-Electrical Chassis
-Ri = R0 (1+V2/V1)(V1-V1')/V1)
-Figure 4. S7.6.6 Measurement for V1' Voltage across Resistor between Negative Side of
-theHighVoltageSource and Electrical Chassis
-49 CFR 571.305 S9.3(c)(enhanced display)
-page 1265 of1400
+49 CFR 571.305 S9.3(c) (enhanced display)
+page 1265 of 1400
 
 
 ## Page 1266
 
-49CFRPart571(uptodateasof5/07/2026)
-49CFR571.305S9.3(c)
-FederalMotorVehicleSafetyStandards
-Electrical Chassis
-Energy Conversion System
-EnergyStorageSystem
-V2'
-Ro
-Energy
-Energy
-Propulsion
-Storage
-Conversion
-System
-Device
-Device
-Electrical Chassis
-Ri = Ro (1+V1/V2)((V2-V2')/V2)
-Figure5.S7.6.7Measurement forV2'Voltage acrossResistorbetween PositiveSide of the
-HighVoltageSource and Electrical Chassis
-Figure 6. S5.4.1.1 Marking of high voltage equipment.
-49 CFR 571.305 S9.3(c)(enhanced display)
-page 1266 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.305 S9.3(c)
+49 CFR 571.305 S9.3(c) (enhanced display)
+page 1266 of 1400
 
 
 ## Page 1267
 
-49 CFRPart 571(up to date as of5/07/2026)
-49CFR571.305S9.3(c)
-FederalMotorVehicleSafetyStandards
-Access probe
-(Dimensions inmm)
-Jointed test finger
-Stop face
-(50x20)
-IPXXB
-12
-See Fig-7b
-forfull
-demensions
-Jointed test finger
-(Metal)
-Insulating material
-80
-Test wire 1.0 mm diameter, 100 mm long
-IPXXD
-Sphere 35±0.2
-(01+0.05)
-Approx.100.
-100±0.2
-Handle
-Rigid test wire
-(Insulating material)
-(Metal)
-Edges free
-Stop face
-from burrs
-(Insulating material)
-Figure 7a.S4, S5.3,S5.4.1.3,and S5.4.1.4 Access probes for the tests of direct contact
-protection.Access probe IPXXB (top) and Access probe IPxXD (bottom).
-49 CFR 571.305 S9.3(c)(enhanced display)
-page 1267 of1400
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.305 S9.3(c)
+49 CFR 571.305 S9.3(c) (enhanced display)
+page 1267 of 1400
 
 
 ## Page 1268
 
-49CFRPart571(uptodate asof5/07/2026)
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
 49 CFR 571.305 S9.3(c)
-FederalMotorVehicleSafetyStandards
-Access probe
-(Dimensionsinmm)
-Jointed test finger
-IPXXB
-075
-5±0.5
-Handle
-Guard
-Insulating
-material
-Stop face
-Chamber
-Joints
-012alledges
-14°
-20
-R2±0.05
-R4±0.05
-cylindrical
-spherical
-Section A-A
-20 ±0.2
-Section B-B
-050
-Material:metal,exceptwhere otherwise specified
-Linear dimensions in millimeters
-Tolerances on dimensions,without specific tolerance:
-49CFR571.305S9.3(c)(enhanceddisplay)
-page1268of1400
-on angles,0/10degrees
-onlinear dimensions:
+49 CFR 571.305 S9.3(c) (enhanced display)
+page 1268 of 1400
 
 
 ## Page 1269
@@ -65957,40 +58487,11 @@ page 1292 of 1400
 
 ## Page 1293
 
-49 CFRPart 571(up to date as of 5/07/2026)
-49CFR571.305aS14.2(b)
-FederalMotorVehicleSafetyStandards
-Access probe
-(Dimensionsinmm)
-Jointed test finger
-IPXXB
-075
-5±0.5
-Handle
-Guard
-Insulating
-material
-Stop face
-Chamfer
-Joints
-O12 alledges
-14°
-20
-R2±0.05
-R4±0.05
-cylindrical
-spherical
-Section A-A
-20±0.2
-Section B-B
-050
-Material:metal,exceptwhereotherwisespecified
-Linear dimensions in millimeters
-Tolerances on dimensions without specifictolerance:
-49CFR571.305aS14.2(b)(enhanceddisplay)
-page1293of1400
-onangles,U/10degrees
-onlinear dimensions:
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.305a S14.2(b)
+49 CFR 571.305a S14.2(b) (enhanced display)
+page 1293 of 1400
 
 
 ## Page 1294
@@ -69610,73 +62111,20 @@ page 1360 of 1400
 
 ## Page 1361
 
-49CFRPart571(uptodateasof5/07/2026)
-FederalMotorVehicleSafetyStandards
-49CFR571.403S7.14.4
-LONGITUDINALOR
-TRANSVERSE VEHICLE
-REFERENCEPLANE
-VEHICLEDOOR
-OUTLINE
-VERTICAL
-FLOORREFERENCE
-AXIS
-PLANE
-EDGEOF
-VEHICLE
-FLOOR
-LIFTREFERENCE
-PLANE
-VEHICLE
-LONGITUDINAL
-ORTRANSVERSE
-AXIS
-NORMALTO
-PLATFORM
-CENTER
-PLATFORMREFERENCEPLANE
-PLANES OF REFERENCE
-FIGURE 1
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.403 S7.14.4
 49 CFR 571.403 S7.14.4 (enhanced display)
-page1361of1400
+page 1361 of 1400
 
 
 ## Page 1362
 
-49CFRPart571(uptodate asof5/07/2026)
-49CFR571.403S7.14.4
-FederalMotorVehicleSafetyStandards
-FIGURE 2
-LIFTDOOREDGE
-LIFT DOOR
-MEASUREAUDIBLEWARNING
-WIDTH,W
-VIEWTHRESHOLDWARNING
-BEACON
-LIFT REFERENCEPLANE
-PLATFORM
-THRESHOLD
-AREA
-CENTROID
-PLATFORMTHRESHOLD
-AREA (SHADED)
-914 mm
-W/2
-FLOOR
-457mm
-LIFTSHOWN>25mm
-FLOOR
-BELOWVEHICLE
-FLOOREDGE
-25mm
-FLOOREDGEOF
-VEHICLE
-LIFTPLATFORMCENTERLINE
-PLATFORM THRESHOLDAREAAUDIBLE
-WARNING MEASUREMENTPOINT
+49 CFR Part 571 (up to date as of 5/07/2026)
+Federal Motor Vehicle Safety Standards
+49 CFR 571.403 S7.14.4
 49 CFR 571.403 S7.14.4 (enhanced display)
-page1362 of1400
-FIGURE 2
+page 1362 of 1400
 
 
 ## Page 1363

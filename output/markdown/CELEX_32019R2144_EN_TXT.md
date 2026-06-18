@@ -1,7 +1,7 @@
 ---
 source_pdf: CELEX_32019R2144_EN_TXT.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # CELEX_32019R2144_EN_TXT

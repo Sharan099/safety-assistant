@@ -1,7 +1,7 @@
 ---
 source_pdf: CELEX_42020X0576_EN_TXT.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # CELEX_42020X0576_EN_TXT
@@ -1523,18 +1523,12 @@ Official Journal of the European Union
 
 ## Page 32
 
-29.4.2020
-EN
-Official Journal of the European Union
+APPENDIX 
+Equivalence curve – tolerance band for curve ΔV = f(t)
+EN 
+29.4.2020 
+Official Journal of the European Union 
 L 136/49
-APPENDIX
-Equivalence curve － tolerance band for curve △V = f(t)
-m/s
-Referencecurve
-Vehicleagainstbarrier
-+1 m/s
-Speed variation (△V)
-Time (t)
 
 
 ## Page 33

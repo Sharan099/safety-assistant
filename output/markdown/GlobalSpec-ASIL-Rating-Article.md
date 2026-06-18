@@ -1,7 +1,7 @@
 ---
 source_pdf: GlobalSpec-ASIL-Rating-Article.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # GlobalSpec-ASIL-Rating-Article

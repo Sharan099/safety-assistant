@@ -1,7 +1,7 @@
 ---
 source_pdf: SAFETY_COMPANION.pdf.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # SAFETY_COMPANION.pdf
@@ -9,13 +9,7 @@ converter: rapidocr-ppocr
 
 ## Page 1
 
-SAFETY
-COMPANION
-Knowledge for Tomorrow's Automotive Engineering
-2026
 Version 1.6
-carhs
-Empowering Engineers
 
 
 ## Page 2
@@ -102,48 +96,6 @@ String Pot.
 Hangzhou Jebool Technology Co., Ltd.
 www.jebool.com
 info@jebool.com
-
-
-## Page 4
-
-CDH
-VIRTUAL
-ENGINEERING
-EXCELLENCE
-MEETINGTHESAFETYREQUIREMENTS
-OFTOMORROW'SVEHICLES
-The concepts for the interior design of future vehicles aim to provide the occupants with
-such vehicles places great emphasis on the safety of the vehicle occupants and pedestrians.
-Tomeetrequired safetystandards,newrestraining systemsand the applicationofadvanced
-virtual modelswillberequired inthedesignprocess.
-As a specialist in the area computer simulation of vehicle safety in the design stage,
-CDH supports customers in achieving the highlevels of Virtual TestingCrashworthiness
-standardsfor vehicles of tomorrow.
-AuthorizedDistributionPartner:
-AuthorizedReseller:
-ATDMODELS
-gns
-B
-Elemance
-FE-DummySolutions
-Hybrid III,THR,SID-IsaPLI
-CELLBOND-PHITEC Q-DUMMIES
-GHBMC  Virtual Human Body Modlels
-CDH AG
-CDH Detroit Inc.
-CDH-Japan Ltd.
-Ingolstadt,Germany
-Detroit, USA
-Shin-Yokohama,Japan
-Tel. +49 841 97481 0
-Tel. +1 248 758-2331
-Tel. +81 45 478 2277
-Email: cdh@cdh-ag.com
-Email:cdh-na@cdh-ag.com
-Email:customer_relation@cdh.co.jp
-www.cdh-ag.com
-www.cdh-ag.com
-www.cdh.co.jp
 
 
 ## Page 5
@@ -4026,41 +3978,6 @@ Post-Crash
 Safety
 
 
-## Page 41
-
-IMPACTING
-CELLBOND
-ONSAFETY
-CELLBOND BARRIER RANGE
-QDUMMIES
-Full, established range of
-Deformable Barriers
-New Chinese Type Barriers: SC-MDB
-&AC-MDB
-AC-MDB BARRIER
-Moving Impact Trolleys
-LS-Dyna FE Models from ARUP and
-RADlOSS FE models from Altair
-Barrier Design and Development
-WorldSID
-CELLBOND ATD RANGE
-Q-Series Child Dummies
-WorldSID-50M
-SC-MDB BARRIER
-THOR-50th
-THOR-05F
-Headform & Legform Impactors
-FE Models from ATD-Models &
-THOR-5F
-Phitec
-Design & Development
-Spare Parts
-Testing, Calibration & Equipment
-www.cellbond.com
-sales@cellbond.com
-+44 (0) 1480 435 302
-
-
 ## Page 42
 
 42
@@ -4662,11 +4579,8 @@ Frontal Impact Protocol Version 1.1
 
 ## Page 48
 
-INSTRON
-DQFAN
-INSTRON
 Instron GmbH
-LandwehrstraBe 65
+Landwehrstraße 65
 64293 Darmstadt
 www.instron.com
 sales_da@instron.com
@@ -4677,7 +4591,6 @@ sales_da@instron.com
 Innovative Solutions for Next Gen Crash Simulation
 Two-Piece Sled for Higher Performance and Increased Flexibility
 Improved Occupant Kinematics for More Accurate Results
-INSTRON
 
 
 ## Page 50
@@ -8388,27 +8301,6 @@ C-NCAP
 Management Regulation 2024 Revision
 
 
-## Page 77
-
-More Lives Saved
-More Life Lived
-DrivingSafetyForward-Together
-Autolivpartnersgloballywithleadingmanufacturerstointegrate
-Visit
-advancedsafetysystemsthatactivateinmillisecondswhenitmatters
-ourwebsite:
-most.ThroughclosecollaborationwithOEMs,wedeliversolutions
-thatprotectdrivers,passengers,andpedestriansworldwide.
-Withoperationsin25countries,Autolivcombinesglobalexpertise
-withlocalprecision.Ourtechnologiessaveover37,0o0livesannually
-Autoliv
-andpreventhundredsof thousandsof injuries,atestament tostrong
-partnershipsandasharedcommitmenttosafety.
-Together,wemakeeveryinnovationcount.
-Autoliv
-Autoliv-Savingmorelives
-
-
 ## Page 78
 
 78
@@ -10863,34 +10755,6 @@ UPDATE
 SafetyWissen.com
 
 
-## Page 95
-
-Modular Passive Safety Test Lab Solutions
-Airbag static
-deployment tests
-Impact tests
-AMAT
-Tank tests
-AMAT
-... and
-many more!
-AMAT
-Tailor-madefor your
-purpose:
-·turnkeycompletesolutions
-·hardwarewithaccess
-security
-·user-friendlyinterface
-·tamper-prooftestreports
-MAT
-MATSolutionsGmbH
-SolutionsforMeasurement,AutomationandTesting
-Solutions
-A companyofENSYTECgroupwww.ensytec.de
-Yourprofitisourexperience
-www.mat-solutions.de
-
-
 ## Page 96
 
 96
@@ -11693,37 +11557,6 @@ position
 ①
 
 
-## Page 105
-
-EURO
-NCAP
-25-TES
-YourAutomotive
-Global Provider
-for Testing
-&Certification
-CSI
-Passive & Active Safety | Durability | CAE Engineering I Hybrid &
-Electric Vehicle Testing | NVH | Data Acquisition| Type Approval &
-Homologation|Turn-keyProjects|Cyber Security
-AllECE and FMVsS crash protection tests atCSl.
-EURC
-NCAP
-ReadyforEuro NcAP 2026:CrashProtection&Post-Crash|Frontal
-Authorised
-Full-width deformable barrier crash (35 km/h) I Virtual Testing 1
-TestCentre2025
-Multi Collision Brake impact on road barrier
-sneap 
-CSI
-SafeDriving&CrashAvoidance:Occupant&DriverMonitoring|
-Child Presence Detection|Extended Range Matrix,Robustness Layer,
-Car-to-Motorbike Scenarios | Low-Speed Collisions, ACC & AEB
-performance| SLIlF evaluation on 2000 km route.
-automotive.csi-spa.com/en
-ITALY I CHINA I GERMANY I INDIA I POLAND | SPAIN I TURKEY I UAE I UK
-
-
 ## Page 106
 
 106
@@ -12478,55 +12311,9 @@ SafetyWissen.com
 
 ## Page 113
 
-dditium
-Manufacturing state-of-the-art
-Electrical Testing Systems
 www.additium.com
-FUTURE
-TEC
-FM1716
-假人上颈部力传感器-6轴
-FM3643/FM3644
-Crash Dum
-nmy Up Neck LoadCell6
-上下腔骨力传感器-4轴&5轴
-TibiaLoadCell465
-F2121/FM1914
-F20
-大腿力传感器-1轴&6轴
-安全带张力传感器
-Femur LoadCell166
-F1811/F1812
-Range:6kN/16kN/25kN
-FM3743/FM3744
-转向管柱力传感器-3轴
-H64C
-左右骼骨力传感器-5轴
-n LoadCell-Triaxia
-eft/RightASIS LoadCell5
-H68C
-单轴压阻式加速度计
-三轴压阻式加速度计
-Usfrestna
-Re.50-6000g
-nge:500-200
-H201/H201F
-H40A
-单轴压阻式加速度计
-H30
-单轴压阻式加速度计
-三轴压阻式加速度计
-erometer
-Triaial
-sistiveaccelerometer
-ProtectionTests
-UseforCrashTests
-Lowd
-上海福秋科技有限公司
-EFNST
-ShanghaiFutureTechnology Co.,Ltd
-www.future-tech.group
-info@future-tech.group
+Manufacturing state-of-the-art
+ Electrical Testing Systems
 
 
 ## Page 114
@@ -14558,42 +14345,6 @@ Frame 1
 1 frame
 @25 fps
 SafetyWissen in Cooperation with Photron Deutschland GmbH
-
-
-## Page 131
-
-High-Resolution - FullHD High-Speed Imaging
-ThePhotron FASTCAM Mini W5 and Mini W2 are compact,high-performance high-speed cameras
-designed to deliver high image quality, light sensitivity, and versatility in demanding research
-and industrial environments.
-FASTCAMMiniW5/W2
-2048 x 1152 pixels at 5,000fps (W5)
-2048 x 1152 pixels at 2,000fps (W2)
-1920 x 1080 pixels at 5,280fps (W5)
-1920 x 1080 pixels at 2,750fps (W2)
-Reduced resolution to 200,000fps(W5)
-Reduced resolution to 150,000fps (W2)
-Internal memory to 64GB
-High-Speed1/10-GigabitEthernetInterfac
-Standard 2-yearwarranty
-Exceptional Image Quality - 4K-UHD Camera
-Enjoy12-bit imagerecording rates of upto1,250fps at 4Kresolution,withimpressive shutterspeeds
-that go aslow as2us.Forevenhigherframerates,the cameraoffersrecording rates of upto
-200,000fps at lower image resolutions.
-FASTCAMMiniR5-4K/R5-3K
-4096x2304 pixels at 1,250fps (R5)
-4096 x 2304 pixels at 750fps (R3)
-3840 x 2160 pixels at 1,440fps (R5)
-3840 x 2160 pixels at 800fps (R3)
-Reduced resolution to 200,000fps(R5)
-Reduced resolution to 150,000fps (R3)
-Internal memory to 64GB
-4K
-High-Speed1/10-GigabitEthernetInterface
-Standard 2-year warranty
-ULTRAHD
-Photron
-www.photron.comI image@photron.com
 
 
 ## Page 132
@@ -25149,13 +24900,3 @@ Euro NCAP UpDate 2026
 08.-09.12.2026 | Alzenau | 
   p. 28
 Crash Safety of Hybrid and Electric Vehicles
-
-
-## Page 224
-
-EVOLVINGSAFETY
-TOKEEPHUMANSIN MOTION SAFE
-From crash test beginnings to sensor-enhanced ATDs,
-WEARE
-HUMANETICS
-humaneticsgroup.com

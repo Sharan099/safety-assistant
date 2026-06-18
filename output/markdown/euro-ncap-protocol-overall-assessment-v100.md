@@ -1,7 +1,7 @@
 ---
 source_pdf: euro-ncap-protocol-overall-assessment-v100.pdf
 regulation: EURO_NCAP
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # euro-ncap-protocol-overall-assessment-v100
@@ -9,13 +9,14 @@ converter: rapidocr-ppocr
 
 ## Page 1
 
-Version 10.0
-EURO
-NCAP
-June2025
-#FORSAFERCARS
-Overall Assessment
-Protocol
+Version 10.0 
+June 2025 
+ 
+ 
+ 
+Overall Assessment  
+Protocol 
+ 
 Implementation January 2026
 
 

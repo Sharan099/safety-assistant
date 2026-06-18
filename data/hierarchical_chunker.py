@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 import sys
+from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -29,6 +30,10 @@ sys.stdout.reconfigure(line_buffering=True)
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
 CLAUSE_RE = re.compile(
     r"^(?:[-•*]\s*)?(\d+(?:\.\d+)+)[\.\s:_-]+(.+?)\s*$",
+    re.I,
+)
+TEXT_SECTION_RE = re.compile(
+    r"^(Section|Part|Annex|Article|Appendix)\s+([IVXLCDM]+|\d+)\s*[:.]?\s*(.*)$",
     re.I,
 )
 FRONTMATTER_RE = re.compile(r"^---\s*$")
@@ -112,24 +117,77 @@ def _parse_frontmatter(lines: list[str]) -> tuple[dict, list[str]]:
 class SectionNode:
     level: int
     title: str
+    clause_number: str | None = None
+    heading_source: str | None = None
     lines: list[str] = field(default_factory=list)
     children: list["SectionNode"] = field(default_factory=list)
 
 
+def _split_sentences(text: str) -> list[str]:
+    """Split on sentence boundaries: '. ', '? ', '! ', or newline."""
+    parts = re.split(r"(?<=[.!?])\s+|\n+", text)
+    return [p.strip() for p in parts if p.strip()]
+
+
 def _split_words(text: str, size: int, overlap: int) -> list[str]:
-    words = text.split()
-    if len(words) <= size:
-        return [text.strip()] if text.strip() else []
-    chunks = []
-    start = 0
-    while start < len(words):
-        end = min(len(words), start + size)
-        piece = " ".join(words[start:end]).strip()
-        if len(piece.split()) >= HIER_MIN_CHUNK_WORDS or start == 0:
-            chunks.append(piece)
-        if end >= len(words):
-            break
-        start = max(0, end - overlap)
+    text = text.strip()
+    if not text:
+        return []
+
+    if len(text.split()) <= size:
+        return [text]
+
+    sentences = _split_sentences(text)
+    if not sentences:
+        return [text]
+
+    chunks: list[str] = []
+    current: list[str] = []
+    current_words = 0
+
+    def finalize() -> str | None:
+        nonlocal current, current_words
+        if not current:
+            return None
+        chunk = " ".join(current).strip()
+        current = []
+        current_words = 0
+        return chunk or None
+
+    def overlap_prefix(prev_chunk: str) -> list[str]:
+        if overlap <= 0:
+            return []
+        tail_words = prev_chunk.split()[-overlap:]
+        if not tail_words:
+            return []
+        return [" ".join(tail_words)]
+
+    for sent in sentences:
+        sent_words = len(sent.split())
+
+        # Dense single-sentence clause — keep whole, never mid-sentence split.
+        if sent_words > size:
+            finished = finalize()
+            if finished and (len(finished.split()) >= HIER_MIN_CHUNK_WORDS or not chunks):
+                chunks.append(finished)
+            chunks.append(sent)
+            continue
+
+        if current_words + sent_words > size and current:
+            finished = finalize()
+            if finished:
+                if len(finished.split()) >= HIER_MIN_CHUNK_WORDS or not chunks:
+                    chunks.append(finished)
+                current = overlap_prefix(finished)
+                current_words = len(current[0].split()) if current else 0
+
+        current.append(sent)
+        current_words += sent_words
+
+    finished = finalize()
+    if finished and (len(finished.split()) >= HIER_MIN_CHUNK_WORDS or not chunks):
+        chunks.append(finished)
+
     return chunks
 
 
@@ -148,17 +206,29 @@ def _parse_markdown_sections(md_text: str) -> list[SectionNode]:
 
         m = HEADING_RE.match(stripped)
         cm = None if m else CLAUSE_RE.match(stripped)
+        tm = None if (m or cm) else TEXT_SECTION_RE.match(stripped)
 
-        if m or cm:
+        if m or cm or tm:
+            clause_num: str | None = None
+            heading_source: str | None = None
             if m:
                 level = len(m.group(1))
                 title = m.group(2).strip()
-            else:
+            elif cm:
                 clause_num = cm.group(1)
                 level = min(6, clause_num.count(".") + 1)
                 title = f"{clause_num} {cm.group(2).strip()[:100]}"
+            else:
+                title = f"{tm.group(1)} {tm.group(2)}: {tm.group(3)}".strip(": ").strip()
+                level = 2
+                heading_source = "text_section"
 
-            node = SectionNode(level=level, title=title)
+            node = SectionNode(
+                level=level,
+                title=title,
+                clause_number=clause_num,
+                heading_source=heading_source,
+            )
             while len(stack) > 1 and stack[-1].level >= level:
                 stack.pop()
             stack[-1].children.append(node)
@@ -167,13 +237,24 @@ def _parse_markdown_sections(md_text: str) -> list[SectionNode]:
         else:
             current.lines.append(line)
 
-    def flatten(node: SectionNode, path: list[str]) -> list[tuple[list[str], str, int, str]]:
-        out: list[tuple[list[str], str, int, str]] = []
+    def flatten(
+        node: SectionNode, path: list[str]
+    ) -> list[tuple[list[str], str, int, str, str | None, str | None]]:
+        out: list[tuple[list[str], str, int, str, str | None, str | None]] = []
         path = path + [node.title] if node.title != "ROOT" else path
         if node.lines and node.title != "ROOT":
             body = "\n".join(node.lines).strip()
             if body:
-                out.append((path, node.title, node.level, body))
+                out.append(
+                    (
+                        path,
+                        node.title,
+                        node.level,
+                        body,
+                        node.clause_number,
+                        node.heading_source,
+                    )
+                )
         for child in node.children:
             out.extend(flatten(child, path))
         return out
@@ -182,8 +263,11 @@ def _parse_markdown_sections(md_text: str) -> list[SectionNode]:
 
 
 def _file_slug(md_path: Path) -> str:
-    slug = md_path.stem.upper().replace("-", "_").replace(" ", "_")
-    return slug[:24]
+    """Unique per markdown file — avoids collisions when stems share a 24-char prefix."""
+    stem = md_path.stem.upper().replace("-", "_").replace(" ", "_")
+    digest = hashlib.sha1(md_path.name.encode("utf-8")).hexdigest()[:8]
+    prefix = stem[:20]
+    return f"{prefix}_{digest}"
 
 
 def _make_chunk(
@@ -200,6 +284,7 @@ def _make_chunk(
     text: str,
     seq: int,
     section_idx: int,
+    clause_number: str | None = None,
 ) -> dict:
     features = detect_features(text)
     chunk_id = f"{regulation}-{file_slug}-H{section_idx:04d}-C{seq:03d}"
@@ -215,6 +300,7 @@ def _make_chunk(
         "section_id": f"{regulation}-{file_slug}-H{section_idx:04d}",
         "section_title": section_title,
         "section_level": section_level,
+        "clause_number": clause_number,
         "text": text,
         "word_count": len(text.split()),
         "chunk_seq": seq,
@@ -233,14 +319,19 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
     all_chunks: list[dict] = []
     global_seq = 0
 
-    for sec_idx, (path, title, level, body) in enumerate(sections, 1):
+    for sec_idx, (path, title, level, body, clause_number, heading_source) in enumerate(
+        sections, 1
+    ):
         heading_path = " > ".join(path)
         section_chunk_id = f"{regulation}-{file_slug}-H{sec_idx:04d}-SEC"
 
-        # Section-level parent chunk (heading + short preview)
-        preview_words = body.split()[:120]
-        preview = " ".join(preview_words)
-        section_text = f"# {heading_path}\n\n{preview}"
+        body_word_count = len(body.split())
+        is_truncated_parent = body_word_count > HIER_CHUNK_WORDS * 3
+        if is_truncated_parent:
+            section_body = " ".join(body.split()[:120])
+        else:
+            section_body = body
+        section_text = f"# {heading_path}\n\n{section_body}"
         section_chunk = _make_chunk(
             regulation=regulation,
             file_slug=file_slug,
@@ -254,8 +345,12 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
             text=section_text,
             seq=0,
             section_idx=sec_idx,
+            clause_number=clause_number,
         )
         section_chunk["chunk_id"] = section_chunk_id
+        section_chunk["is_truncated_parent"] = is_truncated_parent
+        if heading_source:
+            section_chunk["heading_source"] = heading_source
         all_chunks.append(section_chunk)
 
         # Leaf paragraph chunks under section
@@ -275,6 +370,7 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
                 text=leaf_text,
                 seq=i,
                 section_idx=sec_idx,
+                clause_number=clause_number,
             )
             chunk["global_seq"] = global_seq
             global_seq += 1
@@ -284,6 +380,17 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
 
 
 def run(only_regs: list[str] | None = None) -> dict:
+    before_total = 0
+    before_with_clause = 0
+    if CHUNKS_FILE.exists():
+        try:
+            prev = json.loads(CHUNKS_FILE.read_text(encoding="utf-8"))
+            prev_chunks = prev.get("chunks", [])
+            before_total = len(prev_chunks)
+            before_with_clause = sum(1 for c in prev_chunks if c.get("clause_number"))
+        except (json.JSONDecodeError, OSError):
+            pass
+
     md_files = sorted(MARKDOWN_DIR.glob("*.md"))
     if only_regs:
         allowed = {x.upper() for x in only_regs}
@@ -311,9 +418,24 @@ def run(only_regs: list[str] | None = None) -> dict:
         stats[reg] = stats.get(reg, 0) + len(chunks)
         p(f"[{idx}/{len(md_files)}] {md_path.name} -> {len(chunks)} chunks")
 
+    chunk_ids = [c["chunk_id"] for c in all_chunks if (c.get("text") or "").strip()]
+    unique_ids = set(chunk_ids)
+    if len(chunk_ids) != len(unique_ids):
+        from collections import Counter
+
+        dupes = [cid for cid, n in Counter(chunk_ids).items() if n > 1]
+        p(f"ERROR: {len(chunk_ids) - len(unique_ids)} duplicate chunk_id(s) — aborting save")
+        for cid in dupes[:10]:
+            files = sorted(
+                {c["markdown_file"] for c in all_chunks if c.get("chunk_id") == cid}
+            )
+            p(f"  {cid} <- {files}")
+        sys.exit(1)
+
     dataset = {
         "pipeline": "docling_hierarchical",
         "total_chunks": len(all_chunks),
+        "unique_chunk_ids": len(unique_ids),
         "source_markdown_files": len(md_files),
         "chunks": all_chunks,
         "stats_by_regulation": stats,
@@ -324,6 +446,35 @@ def run(only_regs: list[str] | None = None) -> dict:
         encoding="utf-8",
     )
     p(f"\nSaved {len(all_chunks)} hierarchical chunks -> {CHUNKS_FILE}")
+
+    with_clause = sum(1 for c in all_chunks if c.get("clause_number"))
+    truncated_parents = sum(
+        1
+        for c in all_chunks
+        if c.get("chunk_type") == "section" and c.get("is_truncated_parent")
+    )
+    text_section_by_reg: dict[str, int] = defaultdict(int)
+    for c in all_chunks:
+        if c.get("chunk_type") == "section" and c.get("heading_source") == "text_section":
+            text_section_by_reg[c.get("regulation") or "UNKNOWN"] += 1
+
+    p(f"Sanity check: total_chunks={len(all_chunks)}")
+    p(f"  chunks with clause_number: {with_clause}")
+    p(f"  section chunks is_truncated_parent=true: {truncated_parents}")
+
+    p("\nBefore/after comparison (TEXT_SECTION_RE):")
+    p(f"  total chunks:        {before_total:>6} -> {len(all_chunks):>6}  (delta {len(all_chunks) - before_total:+d})")
+    p(
+        f"  with clause_number:  {before_with_clause:>6} -> {with_clause:>6}  "
+        f"(delta {with_clause - before_with_clause:+d})"
+    )
+    text_section_total = sum(text_section_by_reg.values())
+    p(f"  text_section sections (new): {text_section_total}")
+    if text_section_by_reg:
+        p("  text_section sections by regulation:")
+        for reg, count in sorted(text_section_by_reg.items(), key=lambda x: x[1], reverse=True):
+            p(f"    {reg:<22} {count:>5}")
+
     return dataset
 
 

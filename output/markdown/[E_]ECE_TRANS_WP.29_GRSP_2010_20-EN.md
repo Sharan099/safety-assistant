@@ -1,7 +1,7 @@
 ---
 source_pdf: [E_]ECE_TRANS_WP.29_GRSP_2010_20-EN.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # [E_]ECE_TRANS_WP.29_GRSP_2010_20-EN

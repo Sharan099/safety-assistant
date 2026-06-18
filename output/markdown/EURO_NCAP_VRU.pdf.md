@@ -1,7 +1,7 @@
 ---
 source_pdf: EURO_NCAP_VRU.pdf.pdf
 regulation: EURO_NCAP
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # EURO_NCAP_VRU.pdf
@@ -9,14 +9,14 @@ converter: rapidocr-ppocr
 
 ## Page 1
 
-Version 1.1
-EURO
-NCAP
-September 2025
-#FORSAFERCARS
-Crash Protection
-Vulnerable Road User Impacts
-Protocol
+Version 1.1 
+September 2025 
+ 
+ 
+ 
+Crash Protection 
+Vulnerable Road User Impacts 
+Protocol 
 Implementation January 2026
 
 
@@ -1324,41 +1324,11 @@ to the bonnet at the centreline.
 
 ## Page 40
 
-1.Undeployed simulation:40km/h,centreline,walking posture,5oth%(if nobonnet contact 5th%)
-Allmeasuresaretakenverticallyatheadimpactpointatfirsttimeof headcontact.
-Example:
-z1 =50mm
-EURO
-EURO
-www.euroncap.
-www.euroncap.
-Output:
-a.Z displacement at head contactpoint:z1
-atfirsttime ofhead contact
-2.Deployed simulation:40km/h,centreline,walking posture,5oth%(if nobonnet contact5th%)
-Example:
-z2 =75mm
-h2=100mm
-EURO
-EURO
-www.euroncap.
-www.euroncap.
-Output:
-b.Zdisplacement:z2
-c.Deployment height:h2
-3.Requirement:
-z2 -z1<75%×h2
-Bonnet deflectioninthedeployedstate(z2)
-mustnotexceedbonnetdeflectioninthe
-Example:
-undeployedstate(z1)bymorethan75%
-75mm-50mm<75%×100mm
-ofthedeploymentheight(h2).
-25mm<75mm (=0K)
-Figure23:Bonnetdeflectiondeployed andundeployedcomparison
-Euro NCAP
-Version 1.1—September 2025
-36
+Euro NCAP 
+Version 1.1 — September 2025 
+36 
+ 
+Figure 23: Bonnet deflection deployed and undeployed comparison
 
 
 ## Page 41

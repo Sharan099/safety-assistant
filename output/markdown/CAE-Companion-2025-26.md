@@ -1,22 +1,10 @@
 ---
 source_pdf: CAE-Companion-2025-26.pdf
 regulation: CAE_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # CAE-Companion-2025-26
-
-
-## Page 1
-
-CAE
-AUTOMOTIVE
-COMPANION
-Knowledge for Tomorrow's Automotive Engineering
-2025
-2026
-carhs
-Empowering Engineers
 
 
 ## Page 2
@@ -984,10 +972,9 @@ this course
 
 ## Page 15
 
-ENGINSOFT
-Experts in digitalizing
-vehicle engineering
 www.enginsoft.com
+Experts in digitalizing 
+vehicle engineering
 
 
 ## Page 16
@@ -14633,23 +14620,7 @@ www.carhs.de
 
 ## Page 175
 
-Unmatched In-Design
-Multiphysics Analysis
-solutions
-Our advanced software, processes, and service
-solutions for Engineering Simulation-Driven Design
-empower you to navigate the virtual product
-development process with precision. Gain deeper insight
-into your products from the initial design phase, while
-www.beta-cae.com
-mitigating innovation risks through faster, smarter
-decision-making as you transition from concept to
-reality.
-B
-BeTA
-cadence
-BETA CAE Systems is nowpart of Cadence
-SIMULATION SOLUTIONS
+175
 
 
 ## Page 176

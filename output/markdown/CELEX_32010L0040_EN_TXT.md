@@ -1,7 +1,7 @@
 ---
 source_pdf: CELEX_32010L0040_EN_TXT.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # CELEX_32010L0040_EN_TXT

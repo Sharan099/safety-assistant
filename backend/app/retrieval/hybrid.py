@@ -1,5 +1,5 @@
 """
-Hybrid retriever: semantic (MiniLM) + BM25 with Reciprocal Rank Fusion.
+Hybrid retriever: dense (Nomic) + BM25 with Reciprocal Rank Fusion.
 Vectorized cosine search over precomputed embeddings.
 """
 
@@ -67,7 +67,14 @@ def _load_json_artifact(path: Path, *, label: str) -> dict:
 
 
 class HybridRetriever:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        chunks_file: Path | None = None,
+        embeddings_file: Path | None = None,
+    ) -> None:
+        self._chunks_file = chunks_file or CHUNKS_FILE
+        self._embeddings_file = embeddings_file or EMBEDDINGS_FILE
         self.chunks: list[dict] = []
         self.embeddings: dict[str, list[float]] = {}
         self._chunk_by_id: dict[str, dict] = {}
@@ -83,17 +90,17 @@ class HybridRetriever:
         self._load()
 
     def _load(self) -> None:
-        if CHUNKS_FILE.exists():
-            data = _load_json_artifact(CHUNKS_FILE, label="Chunk index")
+        if self._chunks_file.exists():
+            data = _load_json_artifact(self._chunks_file, label="Chunk index")
             self.chunks = data.get("chunks", [])
             self._chunk_by_id = {
                 c.get("chunk_id", ""): c for c in self.chunks if c.get("chunk_id")
             }
             logger.info(f"Loaded {len(self.chunks)} chunks")
 
-        if EMBEDDINGS_FILE.exists():
+        if self._embeddings_file.exists():
             try:
-                data = _load_json_artifact(EMBEDDINGS_FILE, label="Embedding index")
+                data = _load_json_artifact(self._embeddings_file, label="Embedding index")
                 self.embeddings = data.get("embeddings", {})
                 logger.info(f"Loaded {len(self.embeddings)} embeddings")
             except ValueError as exc:

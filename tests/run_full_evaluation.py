@@ -33,14 +33,15 @@ try:
 except ImportError:
     pass
 
-from config import CHUNKS_FILE, DATA_DIR, EMBEDDINGS_FILE, GROQ_MODEL, MARKDOWN_DIR
+from config import CHUNKS_FILE, DATA_DIR, EMBEDDINGS_FILE, GROQ_MODEL, MARKDOWN_DIR, RAGAS_JUDGE_MAX_TOKENS
 from backend.app.core.settings import EMBEDDING_MODEL, RERANKER_MODEL
 from backend.app.guardrails.validator import SafetyGuardrails
 from backend.app.llm.groq_client import GroqLLM
 from backend.app.retrieval.hybrid import HybridRetriever
 from backend.app.retrieval.reranker import CrossEncoderReranker
 
-EVAL_DIR = ROOT / "output" / "evaluation"
+EVAL_DIR = ROOT / "output" / "evaluation" / "current"
+EVAL_ARCHIVE_DIR = ROOT / "output" / "evaluation" / "archive" / "v3_1"
 TEST_CASES = Path(os.getenv("EVAL_TEST_CASES", str(ROOT / "tests" / "test_cases_20.json")))
 CHECKPOINT = EVAL_DIR / "eval_checkpoint.json"
 RESULTS_JSON = EVAL_DIR / os.getenv("EVAL_RESULTS_NAME", "rag_eval_20_results.json")
@@ -53,6 +54,10 @@ NOT_FOUND_PHRASES = (
     "cannot find",
     "no information",
 )
+
+
+class GroqRateLimitError(RuntimeError):
+    """Raised when Groq rate limit is hit — caller should stop, not fall back."""
 
 
 def p(msg: str) -> None:
@@ -267,7 +272,7 @@ def run_ragas_metrics(rows: list[dict]) -> dict | None:
 
         # Judge LLM = your Groq model (bigger max_tokens so judge JSON isn't truncated)
         evaluator_llm = LangchainLLMWrapper(
-            ChatGroq(model=GROQ_MODEL, temperature=0, max_tokens=2048)
+            ChatGroq(model=GROQ_MODEL, temperature=0, max_tokens=RAGAS_JUDGE_MAX_TOKENS)
         )
         # Embeddings = local + free. REQUIRED by answer_relevancy & context_precision.
         evaluator_emb = LangchainEmbeddingsWrapper(
@@ -475,6 +480,7 @@ def plot_latency(rows: list[dict], path: Path) -> None:
 def main() -> None:
     ensure_test_cases()
     EVAL_DIR.mkdir(parents=True, exist_ok=True)
+    EVAL_ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
 
     with open(TEST_CASES, encoding="utf-8") as f:
         all_cases = json.load(f)
@@ -520,11 +526,8 @@ def main() -> None:
             )
         except Exception as exc:
             if "429" in str(exc) or "rate_limit" in str(exc).lower():
-                llm = None
-                llm_disabled_reason = "Groq rate limit — using retrieval proxy answers"
-                p(f"  {llm_disabled_reason}")
-            else:
-                p(f"  LLM error: {exc}")
+                raise GroqRateLimitError(str(exc)) from exc
+            p(f"  LLM error: {exc}")
             top = (ctx[0] if ctx else "")[:400]
             return (
                 "Information not found in regulations."
@@ -562,7 +565,14 @@ def main() -> None:
         sem_lat.append(sem_ms)
         hyb_lat.append(hyb_ms)
 
-        answer, pt, ct = _generate_answer(q, hyb_ctx)
+        try:
+            answer, pt, ct = _generate_answer(q, hyb_ctx)
+        except GroqRateLimitError as exc:
+            p(
+                f"FATAL: Groq rate limit at regulation question {idx}/{len(reg_cases)} "
+                f"(id={case.get('id')}): {exc}"
+            )
+            sys.exit(1)
         if pt:
             prompt_toks.append(pt)
             completion_toks.append(ct)
@@ -576,7 +586,14 @@ def main() -> None:
             "ground_truth": gt,
         })
 
-        ans_sem, _, _ = _generate_answer(q, sem_ctx)
+        try:
+            ans_sem, _, _ = _generate_answer(q, sem_ctx)
+        except GroqRateLimitError as exc:
+            p(
+                f"FATAL: Groq rate limit at regulation question {idx}/{len(reg_cases)} "
+                f"(semantic pass, id={case.get('id')}): {exc}"
+            )
+            sys.exit(1)
 
         per_reg.append({
             "id": case.get("id"),
@@ -610,7 +627,14 @@ def main() -> None:
             oos_total += 1
             hyb_docs, _ = _hybrid_rerank(q, retriever, reranker)
             ctx = _contexts_from_docs(hyb_docs)
-            ans, _, _ = _generate_answer(q, ctx)
+            try:
+                ans, _, _ = _generate_answer(q, ctx)
+            except GroqRateLimitError as exc:
+                p(
+                    f"FATAL: Groq rate limit at guardrail question "
+                    f"(category={cat}): {exc}"
+                )
+                sys.exit(1)
             # Safe if explicit not-found or weak regulation context for off-topic query
             if _answer_out_of_scope(ans) or _proxy_context_recall(q, ctx, "") < 0.1:
                 oos_safe += 1

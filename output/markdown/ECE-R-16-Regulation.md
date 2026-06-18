@@ -1,7 +1,7 @@
 ---
 source_pdf: ECE-R-16-Regulation.pdf
 regulation: UN_R16
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # ECE-R-16-Regulation
@@ -1941,65 +1941,13 @@ L 313/87
 
 ## Page 31
 
+ANNEX 1A
+COMMUNICATION
+(Maximum format: A4 (210 × 297 mm))
 L 313/88
 EN
 Official Journal of the European Union
 30.11.2007
-ANNEX 1A
-COMMUNICATION
-(Maximum format: A4 (210 x 297 mm))
-issued by:
-Name of administration:
-(1)
-concerning (2):
-APPROVALGRANTED
-APPROVAL EXTENDED
-APPROVALREFUSED
-APPROVALWITHDRAWN
-PRODUCTIONDEFINITELYDISCONTINUED
-ofavehicletypewithregardtosafety-beltpursuant toRegulationNo16
-Approval No: .
-Extension No:
-1.
-General
-1.1.
-Make(trade name of manufacturer):
-1.2.
-Type and general commercial description(s):
-1.3.
-Means of identification of type,if marked on the vehicle:
-1.3.1.
-Location of that marking:
-1.4.
-Category of vehicle:
-1.5.
-Name and address ofmanufacturer:
-1.6.
-Address(es) of assembly plant(s): ...
-2.
-Generalconstructioncharacteristicsof thevehicle
-2.1.
-Photographs and/or drawings of arepresentative vehicle:
-3.
-Bodywork
-3.1.
-Seats
-3.1.1.
-Number:
-3.1.2.
-Position and arrangement:
-3.1.2.1.Seating position(s) designated for use only when the vehicleis stationary:
-3.1.3.
-Characteristics:description and drawings of
-3.1.3.1.the seats and their anchorages:
-3.1.3.2.the adjustment system:
-3.1.3.3.the displacement and locking systems:
-3.1.3.4.theseat belt anchoragesif incorporated in theseat structure:
-()
-Distinguishing number of the country whichhas granted/extended/refused/withdrawn approval (see approval provisions in the
-Regulation).
-(2)
-Strike out what does not apply.
 
 
 ## Page 32
@@ -2008,118 +1956,17 @@ Strike out what does not apply.
 EN
 Official Journal of the European Union
 L 313/89
-3.2.
-Safety-beltsand/orotherrestraintsystems
-3.2.1.
-Number and position of safety-belts and restraint systems and seats on which they can be used:.
-Variant
-Belt adjustment device
-CompleteECEtype-
-(if applicable)
-forheight (indicate
-approval mark
-yes/no/optional)
-R
-First row of seat
-C
-R
-Second row of
-C
-seat
-L
-(R = right-hand seat, C = centre seat, L = left hand seat)
-3.2.2.
-Front airbag
-Side airbag
-Beltpreloadingdevice
-R
-First row of seat
-C
-L
-R
-Secondrow of
-C
-seat
-L
-(R = right-hand seat, C = centre seat, L = left hand seat)
-3.2.3.
-Number and position of safety-belt anchorages and proof of compliance with Regulation No 14 (i.e. ECE type-
-approval number or test report).
-4.
-Place
-5.
-Date
-6.
-Signature
 
 
 ## Page 33
 
+ANNEX 1B
+COMMUNICATION
+(Maximum format: A4 (210 × 297 mm))
 L 313/90
 EN
 Official Journal of the European Union
 30.11.2007
-ANNEX 1B
-COMMUNICATION
-(Maximum format: A4 (210 × 297 mm))
-issued by :
-Nameofadministration:
-(1)
-concerning (2):
-APPROVALGRANTED
-APPROVALEXTENDED
-APPROVALREFUSED
-APPROVALWITHDRAWN
-PRODUCTIONDEFINITELYDISCONTINUED
-of a type of safety-beltor restraint systemforadult occupantsof power-drivenvehiclespursuant toRegulation
-No 16
-Approval No..
-Extension No...
-1.
-Restraintsystem(with)/three-pointbelt/lapbelt/specialtypebelt/fitted(with)energyabsorber/retractor/device
-for height adjustment of the upper pillar loop (3)
-2.
-Trade nameormark...
-3.
-Manufacturer'sdesignationofthetypeofbeltorrestrainingsystem..
-4.
-Manufacturer'sname..
-5.
-If applicable,name of hisrepresentative..
-6.
-Address.....
-7.
-Submittedfor approval on...
-8.
-Technicalserviceresponsibleforconductingapprovaltests.
-9.
-Date of test report issuedby that service ...
-10.
-Numberoftestreportissuedbythatservice
-11.
-Approvalgranted/refused/extended/withdrawn(2)forgeneraluse/foruseinaparticularvehicleorinparticular
-types of vehicles (2) (4)
-12.
-Position andnatureof themarking.
-13.
-Place..
-14.
-Date.
-15.
-Signature
-16.
-Annexed to this communicationisa listof documents inthe approval filedeposited at the administration
-serviceshavingdeliveredtheapprovalandwhichcanbeobtaineduponrequest.
-()
-Regulation).
-(2)
-Strike out what does not apply.
-(3)
-Indicate which type.
-(4)
-If a safety-belt is approved following the provisions of paragraph 6.4.1.3.3.of this Regulation, this safety-belt shall only be
-installed in an outboard frontseating positionprotected by an airbag infront of it,under thecondition that thevehicle concerned
-96/79/EC.
 
 
 ## Page 34
@@ -2198,14 +2045,12 @@ L 313/93
 
 ## Page 37
 
+ANNEX 3
+DIAGRAM OF AN APPARATUS TO TEST DURABILITY OF RETRACTOR MECHANISM
 L 313/94
 EN
-Official Journal of theEuropean Union
+Official Journal of the European Union
 30.11.2007
-ANNEX 3
-DIAGRAMOFANAPPARATUSTOTESTDURABILITYOFRETRACTORMECHANISM
-Retractor
-Gearedmotor
 
 
 ## Page 38
@@ -2232,25 +2077,13 @@ L 313/95
 
 ## Page 39
 
+ANNEX 5
+DIAGRAM OF AN APPARATUS FOR DUST-RESISTANCE TEST
+(dimensions in millimetres)
 L 313/96
 EN
 Official Journal of the European Union
 30.11.2007
-ANNEX 5
-DIAGRAMOFANAPPARATUSFORDUST-RESISTANCETEST
-(dimensions in millimetres)
-500
-retractor
-cyclingattachment
-dustcollector
-500
-retractor
-250
-40°
-orifice
-valveandfiller
-dust
-air
 
 
 ## Page 40
@@ -2406,24 +2239,17 @@ L 313/99
 
 ## Page 43
 
+Figure 4
+Stopping device
+(Olive-shaped knob)
+Surface finish
+ﬃ
+0;4p
+Interference tolerance ± 0,1
 L 313/100
 EN
 Official Journal of the European Union
 30.11.2007
-Figure 4
-Stopping device
-(Olive-shaped knob)
-0,05
-R25
-27 ±0,5
-18 ±0,5
-(*)This dimension can vary between 43 and 49 mm
-Dimensions inmm
-min.30
-min.20
-Dimensionsinmm
-Surface finish
-Interference tolerance ± 0,1
 
 
 ## Page 44
@@ -2747,31 +2573,22 @@ Official Journal of the European Union
 
 ## Page 48
 
+Figure 1
+Figure 2
 30.11.2007
 EN
 Official Journal of the European Union
 L 313/105
-Figure 1
-Figure 2
-3
-12
-10
 
 
 ## Page 49
 
+Figure 3
+Figure 4
 L 313/106
 EN
 Official Journal of the European Union
 30.11.2007
-Figure3
-Figure 4
-20
-34
-24
-20
-26
-22
 
 
 ## Page 50
@@ -2875,18 +2692,12 @@ L 313/109
 
 ## Page 53
 
+ANNEX 10
+DUAL BUCKLE TEST
 L 313/110
 EN
 Official Journal of the European Union
 30.11.2007
-ANNEX 10
-DUALBUCKLE TEST
-W
-1470 daN
-1470 daN
-Angletobeestablishedduringprocedure
-outlined in paragraphs 7.5.5 and 7.7.1.
-W=appliedload
 
 
 ## Page 54
@@ -2906,24 +2717,12 @@ L 313/111
 
 ## Page 55
 
+Figure 2:
+Type 2 procedure
 L 313/112
 EN
 Official Journal of the European Union
 30.11.2007
-Figure 2:
-Type 2 procedure
-30±5
-totaltravel:
-300 ±20 mm
-strapsinhorizontal
-plans
-F = 0,5 daN
-total travel:
-300±20 mm
-25±5°
-25±5°
-Test ina guide orpulley
-F = 5 ± 0,05 daN
 
 
 ## Page 56
@@ -3633,19 +3432,12 @@ The machine corresponds to that described in Standard ISO 6549:1980.
 
 ## Page 68
 
+Figure 2
+Dimensions of the 3-D machine elements and load distribution
 30.11.2007
 EN
 Official Journal of the European Union
 L 313/125
-Figure 2
-Dimensions of the 3-D machine elements and load distribution
-Variablefrom108to424
-Torso weight
-Buttockweight
-Direction and point of
-applicationof load
-Thigh weight
-Leg weight
 
 
 ## Page 69
@@ -3923,40 +3715,25 @@ Official Journal of the European Union
 
 ## Page 74
 
+Figure 1
+Specifications of the fixture
+Figure 2
+Installation of fixture onto vehicle seat (see paragraph 2.6.1.)
 30.11.2007
 EN
 Official Journal of the European Union
 L 313/131
-Figure 1
-Specifications of the fixture
-370
-上0
-R50
-690
-620
-400
-175
-R150
-R50
-Weight 23kg evenlydistributed
-320
-Figure 2
-Installation of fixture onto vehicle seat (see paragraph 2.6.1.)
 
 
 ## Page 75
 
+Figure 3
+Check for compatibility (see paragraphs 2.6.1. and 3.2.)
+Lap belt only shown
 L 313/132
 EN
 Official Journal of the European Union
 30.11.2007
-Figure 3
-Check for compatibility (see paragraphs 2.6.1. and 3.2.)
-Tongue
-Buckle
-Note:Theseatbeltwebbing mustcontact thecurved
-edgeonbothsidesof thefixture
-Lap belt only shown
 
 
 ## Page 76

@@ -492,13 +492,12 @@ $env:EVAL_SKIP_LLM='true'
 conda run -n rag python tests/run_full_evaluation.py
 ```
 
-Outputs under `output/evaluation/`:
+Outputs under `output/evaluation/current/` (legacy runs in `output/evaluation/archive/v3_1/`):
 
 | File | Description |
 |------|-------------|
-| `rag_eval_20_results.json` | 20-question RAGAS results |
-| `eval_*_20.png` | Scorecard, guardrails, latency, ablation charts |
-| `eval_ragas_metrics_20.png` | RAGAS metric charts for the 20-Q set |
+| `rag_eval_20_results.json` | Latest 20-question RAGAS results |
+| `eval_*.png` | Scorecard, guardrails, latency, ablation charts |
 
 ## Project layout
 
@@ -549,6 +548,27 @@ python scripts/run_ingestion_pipeline.py --skip-docling
 `OCR_BACKEND`: `auto` | `paddle` | `rapidocr` (use `rapidocr` on Windows if you see exit code `0xC0000005`).
 
 Alternative: `OCR_ENGINE=docling` or `OCR_ENGINE=pymupdf`.
+
+### OCR benchmark — Docling 2.103 vs PaddleOCR 3.7 (UN R14.pdf)
+
+Run: `.\scripts\compare_ocr_pipeline.ps1` (or `python scripts/compare_ocr_pipeline.py --pdf data/UN_R14.pdf`).
+
+| Metric | Docling 2.103 | **PaddleOCR 3.7 (PP-OCRv6)** |
+|--------|---------------|------------------------------|
+| Extracted chars | 17,121 | **81,990** |
+| Pages covered | partial (OOM on long scan) | **36 / 36** |
+| Chunks | 20 | **394** |
+| Extract time | 480 s | **58 s** |
+| Context recall (proxy) | 0.34 | 0.31 |
+| Context precision (proxy) | 0.24 | **0.25** |
+| R002 test-load recall | 0.41 | **0.59** |
+| Composite score | 0.34 | **0.40** |
+
+**Winner: PaddleOCR 3.7** — full-document coverage, faster extraction, and better
+retrieval on the critical UN R14 test-load question. Docling remains available via
+`OCR_ENGINE=docling` for table-heavy documents when RAM permits (`DOCLING_IMAGES_SCALE=0.75`).
+
+Full report: `output/ocr_compare/ocr_pipeline_comparison.json`
 
 Steps:
 
@@ -607,9 +627,28 @@ The headline gain is **+14.4 pp context precision**. Answer-relevancy deltas in 
 table are unreliable (both 20Q runs hit the Groq rate limit and fell back to proxy
 answers); the 5Q live-Groq run above is the trustworthy quality signal.
 
-### Latest: 20-question run (RAGAS, Groq-judged)
+### Latest: v3.2 — 50-PDF corpus, unique chunk IDs, live Groq (Jun 2026)
 
-`output/evaluation/rag_eval_20_results.json` — **15 regulation + 5 guardrail**.
+`output/evaluation/current/rag_eval_20_results.json` — **15 regulation + 5 guardrail**,  
+**28,341 chunks** / **28,341 embeddings** (slug-collision fix), evaluation mode **`full`**.
+
+| Metric | v3.1 (archive) | v3.2 (current) | Δ |
+|--------|----------------|----------------|---|
+| Faithfulness | 0.800 | **0.880** | +0.080 |
+| Answer relevancy | 0.664 | **0.881** | +0.217 |
+| Context precision | 0.674 | **0.887** | +0.213 |
+| Context recall | 0.733 | **0.867** | +0.133 |
+| **Overall** | 0.718 | **0.879** | +0.161 |
+
+**Ablation:** hybrid context recall **+24.4%** vs semantic-only.  
+**Latency (CPU):** pipeline p95 **~41 s** (Nomic + BM25 + `bge-reranker-v2-m3`).
+
+Charts: `output/evaluation/current/eval_*.png`  
+Prior 1,572-chunk baseline: `output/evaluation/archive/v3_1/`
+
+### v3.1 baseline: 20-question run (RAGAS, partial proxy answers)
+
+`output/evaluation/archive/v3_1/rag_eval_20_results.json` — **15 regulation + 5 guardrail**.
 RAGAS metrics below are **LLM-judged by Groq** (all 60 judge jobs completed).
 
 | Metric | Score |
@@ -626,20 +665,19 @@ RAGAS metrics below are **LLM-judged by Groq** (all 60 judge jobs completed).
 
 > Note: during answer generation the Groq free-tier rate limit was reached after
 > the first few questions, so the remaining answers fell back to retrieval proxies.
-> The RAGAS scoring above still ran fully on Groq. Re-run when the quota resets for
-> all-LLM answers: `conda run -n rag python tests/run_full_evaluation.py`.
+> The RAGAS scoring above still ran fully on Groq.
 
-#### 20-question charts
+#### v3.1 charts (archive)
 
-![RAGAS metrics (20Q)](output/evaluation/eval_ragas_metrics_20.png)
+![RAGAS metrics (20Q)](output/evaluation/archive/v3_1/eval_ragas_metrics_20.png)
 
-![Ablation (20Q)](output/evaluation/eval_ablation_comparison_20.png)
+![Ablation (20Q)](output/evaluation/archive/v3_1/eval_ablation_comparison_20.png)
 
-![Overall scorecard (20Q)](output/evaluation/eval_overall_scorecard_20.png)
+![Overall scorecard (20Q)](output/evaluation/archive/v3_1/eval_overall_scorecard_20.png)
 
-![Guardrails (20Q)](output/evaluation/eval_guardrails_20.png)
+![Guardrails (20Q)](output/evaluation/archive/v3_1/eval_guardrails_20.png)
 
-![Latency distribution (20Q)](output/evaluation/eval_latency_distribution_20.png)
+![Latency distribution (20Q)](output/evaluation/archive/v3_1/eval_latency_distribution_20.png)
 
 ### Prior: 70-question run (retrieval proxy, no Groq quota)
 
@@ -891,16 +929,92 @@ Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 3. Add `NEXT_PUBLIC_API_URL=https://<your-railway-host>/api/v1` (see `frontend/.env.example`).
 4. Deploy. Add the Vercel URL to Railway `CORS_ORIGINS`.
 
-### Manual GitHub push
+### Manual GitHub push (v3.2)
 
-When you are ready to deploy, commit and push manually:
+**Prerequisites:** [Git LFS](https://git-lfs.github.com) installed (`git lfs install` once).
 
-```bash
-git add -A
-git status          # review changes
-git commit -m "Production cleanup: 20Q eval, Railway/Vercel, UI refresh"
+**Stage only what production needs** (do not `git add -A` — skips `output/archive/` and `output/ocr_compare/` via `.gitignore`):
+
+```powershell
+cd H:\AutoSafety_RAG
+
+git lfs install
+
+# Code + config
+git add config.py .env.example .gitattributes .gitignore `
+  backend/ data/hierarchical_chunker.py data/embed_chunks.py `
+  tests/run_full_evaluation.py scripts/diagnose_chunking.py `
+  scripts/organize_artifacts.py scripts/overnight_run.py `
+  railway.toml Dockerfile.backend requirements.txt README.md
+
+# Active corpus (chunks + LFS embeddings + markdown sources)
+git add output/regulation_chunks.json output/regulation_embeddings.json `
+  output/ingest_manifest.json output/markdown/ output/chunking_diagnostics.txt
+
+# Evaluation: current + archived baselines (small JSON/PNG)
+git add output/evaluation/current/ output/evaluation/archive/
+
+git status   # confirm no .env, no output/archive/, no *.log
+
+git commit -m "v3.2: unique chunk IDs, 28k corpus, Nomic embeddings, eval current/archive layout"
+
 git push origin main
+git lfs push origin main --all   # required if LFS upload did not finish with push
 ```
+
+After push, **Railway** and **Vercel** redeploy automatically if GitHub integration is already connected.
+
+**Verify locally before push:**
+
+```powershell
+python -c "import json; c=json.load(open('output/regulation_chunks.json')); e=json.load(open('output/regulation_embeddings.json')); print('chunks',c['total_chunks'],'unique',c.get('unique_chunk_ids')); print('vectors',e['total_vectors'])"
+# Expect: chunks 28341 unique 28341, vectors 28341
+```
+
+### Watch Railway + Vercel deploy in real time
+
+**Railway (backend API)**
+
+1. [railway.app](https://railway.app) → your project → **Deployments** tab.
+2. After `git push`, a new deployment starts automatically (Docker build ~5–15 min; LFS pull + PyTorch layer).
+3. Open **Build logs** to watch `git lfs pull` and the embeddings sanity check (`assert n>1000`).
+4. When **Active**, open **Logs** (runtime) and hit health:
+   ```text
+   GET https://<your-railway-host>/api/v1/health
+   ```
+5. Optional smoke test (first query loads Nomic + reranker — can take 30–60 s):
+   ```powershell
+   curl https://<your-railway-host>/api/v1/health
+   ```
+
+**Railway env checklist** (Settings → Variables):
+
+| Variable | Example |
+|----------|---------|
+| `GROQ_API_KEY` | `gsk_...` |
+| `CORS_ORIGINS` | `https://<your-vercel-app>.vercel.app` |
+| `APP_DB_PATH` | `/app/var/app.db` |
+| `ENABLE_PROMETHEUS_METRICS` | `false` |
+| `ENABLE_RERANKER` | `true` |
+| `EMBEDDING_MODEL` | `nomic-ai/nomic-embed-text-v1.5` |
+| `RERANKER_MODEL` | `BAAI/bge-reranker-v2-m3` |
+
+Mount a **volume** at `/app/var` so user sessions persist across redeploys.
+
+**Vercel (frontend)**
+
+1. [vercel.com](https://vercel.com) → project → **Deployments**.
+2. Each push to `main` triggers a build (~1–3 min). Watch the build log live.
+3. **Settings → Environment Variables:**
+   - `NEXT_PUBLIC_API_URL` = `https://<your-railway-host>/api/v1`
+4. After deploy, open the **Production URL** — sidebar should list regulations from the new 28k corpus once the backend is healthy.
+5. If the UI loads but chat fails: check browser Network tab for CORS — add the exact Vercel URL to Railway `CORS_ORIGINS` and redeploy backend.
+
+**End-to-end check**
+
+1. Vercel UI loads.
+2. Ask: *"What are the UN R14 seat belt anchorage strength requirements?"*
+3. Answer cites retrieved context; Railway logs show `Retrieve done` and `Reranker loaded`.
 
 You control when code reaches GitHub — nothing is pushed automatically from this assistant.
 

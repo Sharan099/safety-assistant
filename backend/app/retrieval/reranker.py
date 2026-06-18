@@ -1,19 +1,18 @@
 """Cross-encoder reranking over hybrid retrieval candidates."""
 
-import os
 import time
 from typing import Any
 
 from loguru import logger
 
-from backend.app.core.settings import RERANKER_MODEL, TOP_K_AFTER_RERANK
+from backend.app.core.settings import ENABLE_RERANKER, RERANKER_MODEL, TOP_K_AFTER_RERANK
 
 
 class CrossEncoderReranker:
     def __init__(self) -> None:
         self._model = None
         self._available = True
-        self._enabled = os.getenv("ENABLE_RERANKER", "false").lower() == "true"
+        self._enabled = ENABLE_RERANKER
 
     def _load(self) -> None:
         if self._model is None and self._enabled:

@@ -1,7 +1,7 @@
 ---
 source_pdf: UsedVehicles_Kigali_Passive_General_Safety.pdf
 regulation: SAFETY_REFERENCE
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # UsedVehicles_Kigali_Passive_General_Safety
@@ -24,13 +24,6 @@ Passive Safety (GRSP)
 
 Helmets
 UN Regulation No. 22
-UNECE
-TheUnited Nations
-Motorcycle Helmet Study
-Partof WP.29,
-“Howitworksandhowtojoinit'series
-SAFERANDCLEANER
-USEDVEHICLES
 
 
 ## Page 3
@@ -64,10 +57,6 @@ release test for the chin strap
 ## Page 5
 
 Example of E-marked (Helmets)
-SAFERANDCLEANER
-E13
-0510243
-USEDVEHICLES
 
 
 ## Page 6
@@ -90,13 +79,6 @@ deaths at 30.4 per cent.
 
 Safety-belts and safety-belt anchorages
 UN Regulations Nos. 16 and 14
-UNECE
-SAFETY-BELTS
-Occupants'guide
-tQwearingsatety-belts
-SAFERANDCLEANER
-USEDVEHICLES
-UNTEOMAIDNS
 
 
 ## Page 8
@@ -627,35 +609,5 @@ front
 
 ## Page 34
 
-UNECE
-UN VehicleRegulationsforroad safety
-Cost-beneftmethodology
-UNECE
-UNECE
-UNRegulationNo129
-Allyouneedtoknowabout
-Increasingthesafetyofchildreninvehicles
-Forpolicymakersand concernedcitizens
-AutomatedVehicles
-nicalprogressandregulatory activities
-UNECE
-Thank
-for
-you
-UN
-UNECE
-SAFETY-BE
-UNECE
-Inland Transport C
-towearing safety-
-WorldForumfor Har
-attention
-lited Nations
-Framework document
-your
-lelmetStudy
-owtojoinitseries
-UNITED NATIONS
-SAFERANDCLEANER
-USEDVEHICLES
-UNITEDNATIONS
+Thank you for 
+your attention !

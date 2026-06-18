@@ -1,7 +1,7 @@
 ---
 source_pdf: EURO_NCAP_SIDE.pdf.pdf
 regulation: EURO_NCAP
-converter: rapidocr-ppocr
+converter: paddleocr-PP-OCRv6
 ---
 
 # EURO_NCAP_SIDE.pdf

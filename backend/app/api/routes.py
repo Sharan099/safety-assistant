@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 
 from backend.app.core import store
 from backend.app.core.services import get_workflow, readiness
-from backend.app.core.security import rate_limit
+from backend.app.core.security import rate_limit, verify_dashboard_key
 from backend.app.metrics import prometheus as prom
 
 router = APIRouter()
@@ -130,6 +130,37 @@ async def submit_feedback(req: FeedbackRequest, request: Request) -> dict:
         logger.exception("Feedback save failed")
         raise HTTPException(status_code=500, detail="Could not save feedback") from exc
     return {"status": "ok", "feedback_id": fid}
+
+
+@router.get("/feedback/dashboard")
+async def feedback_dashboard(
+    request: Request,
+    since: int | None = None,
+    user_id: str | None = None,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """
+    Admin dashboard: all users + feedback (poll with ?since=<unix_ts> for updates).
+    Requires header X-Dashboard-Key matching FEEDBACK_DASHBOARD_KEY.
+    """
+    verify_dashboard_key(request)
+    rate_limit(request, "feedback_dashboard", limit=120, window_s=60)
+    limit = min(max(limit, 1), 500)
+    try:
+        stats = await asyncio.to_thread(store.feedback_stats)
+        users = await asyncio.to_thread(store.list_user_profiles)
+        feedback = await asyncio.to_thread(
+            store.list_feedback, since=since, user_id=user_id, limit=limit
+        )
+    except Exception as exc:
+        logger.exception("Feedback dashboard load failed")
+        raise HTTPException(status_code=500, detail="Could not load dashboard") from exc
+    return {
+        "server_time": int(time.time()),
+        "stats": stats,
+        "users": users,
+        "feedback": feedback,
+    }
 
 
 # ───────────────────────── chat ─────────────────────────

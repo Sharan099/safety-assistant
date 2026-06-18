@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
@@ -442,6 +443,9 @@ export default function Home() {
             reranking → grounded answer with citations. If evidence is weak, the
             assistant says it is not found in the regulations.
           </p>
+          <Link href="/dashboard" className="dash-link">
+            Feedback dashboard →
+          </Link>
         </section>
       </aside>
 
@@ -871,6 +875,15 @@ const appCss = `
   }
   .example-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
   .sidebar-foot p { margin: 0; font-size: 0.76rem; color: var(--muted); line-height: 1.45; }
+  .dash-link {
+    display: inline-block;
+    margin-top: 0.65rem;
+    font-size: 0.78rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .dash-link:hover { text-decoration: underline; }
   .main-col {
     max-width: 900px; width: 100%; margin: 0 auto;
     min-height: 100vh; display: flex; flex-direction: column; padding: 1rem 1.25rem;

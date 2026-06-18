@@ -289,3 +289,82 @@ def feedback_stats() -> dict[str, Any]:
         "thumbs_up": up,
         "thumbs_down": down,
     }
+
+
+def _feedback_row(row: sqlite3.Row) -> dict[str, Any]:
+    reasons_raw = row["reasons"] or ""
+    reasons = [r for r in reasons_raw.split("|") if r.strip()] if reasons_raw else []
+    return {
+        "id": row["id"],
+        "message_id": row["message_id"],
+        "session_id": row["session_id"],
+        "user_id": row["user_id"],
+        "username": row["username"],
+        "rating": row["rating"],
+        "reasons": reasons,
+        "comment": row["comment"] or "",
+        "query": row["query"] or "",
+        "answer": row["answer"] or "",
+        "created_at": row["created_at"],
+    }
+
+
+def list_user_profiles(*, limit: int = 500) -> list[dict[str, Any]]:
+    """All registered users with activity and feedback counts."""
+    conn = _connect()
+    with _lock:
+        rows = conn.execute(
+            """
+            SELECT u.id AS user_id,
+                   u.username,
+                   u.created_at,
+                   COUNT(DISTINCT s.id) AS session_count,
+                   COUNT(DISTINCT m.id) AS message_count,
+                   COALESCE(SUM(CASE WHEN f.rating = 'up' THEN 1 ELSE 0 END), 0) AS thumbs_up,
+                   COALESCE(SUM(CASE WHEN f.rating = 'down' THEN 1 ELSE 0 END), 0) AS thumbs_down
+            FROM users u
+            LEFT JOIN sessions s ON s.user_id = u.id
+            LEFT JOIN messages m ON m.user_id = u.id
+            LEFT JOIN feedback f ON f.user_id = u.id
+            GROUP BY u.id
+            ORDER BY u.created_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def list_feedback(
+    *,
+    since: int | None = None,
+    user_id: str | None = None,
+    limit: int = 200,
+) -> list[dict[str, Any]]:
+    """Feedback rows joined with username for the admin dashboard."""
+    conn = _connect()
+    clauses: list[str] = []
+    params: list[Any] = []
+    if since is not None:
+        clauses.append("f.created_at > ?")
+        params.append(since)
+    if user_id:
+        clauses.append("f.user_id = ?")
+        params.append(user_id)
+    where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+    params.append(limit)
+    with _lock:
+        rows = conn.execute(
+            f"""
+            SELECT f.id, f.message_id, f.session_id, f.user_id, f.rating,
+                   f.reasons, f.comment, f.query, f.answer, f.created_at,
+                   u.username
+            FROM feedback f
+            LEFT JOIN users u ON u.id = f.user_id
+            {where}
+            ORDER BY f.created_at DESC
+            LIMIT ?
+            """,
+            params,
+        ).fetchall()
+    return [_feedback_row(r) for r in rows]

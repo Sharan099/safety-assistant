@@ -45,7 +45,7 @@ app.add_middleware(
     allow_origins=_origins,
     allow_credentials=_allow_credentials,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["Content-Type", "Authorization", "X-Dashboard-Key"],
 )
 app.add_middleware(SecurityHeadersMiddleware)
 

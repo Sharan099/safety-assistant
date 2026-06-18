@@ -115,6 +115,9 @@ ENABLE_RERANKER = os.getenv("ENABLE_RERANKER", "true").lower() == "true"
 # RAGAS judge (run_full_evaluation.py) — separate from answer LLM; needs headroom for JSON
 RAGAS_JUDGE_MAX_TOKENS = int(os.getenv("RAGAS_JUDGE_MAX_TOKENS", "4096"))
 
+# Admin feedback dashboard (GET /api/v1/feedback/dashboard)
+FEEDBACK_DASHBOARD_KEY = os.getenv("FEEDBACK_DASHBOARD_KEY", "")
+
 # Resumable embedding checkpoints
 EMBED_SAVE_EVERY = int(os.getenv("EMBED_SAVE_EVERY", "200"))
 

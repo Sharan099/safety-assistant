@@ -180,6 +180,10 @@ structured feedback to improve the system.
 - **Background storage.** Users, sessions, Q/A messages, and feedback are written
   to a **SQLite** database (`output/app.db`, gitignored) using parameterized
   queries. A `rag_feedback_total{rating}` Prometheus counter is also incremented.
+- **Feedback dashboard (v3.2+).** Admins open **`/dashboard`** on the frontend,
+  enter the `FEEDBACK_DASHBOARD_KEY`, and see all users and feedback in near
+  real time (5 s polling). Data is served by `GET /api/v1/feedback/dashboard`
+  (protected by the same key via `X-Dashboard-Key` header).
 - **Readiness gate.** On load the frontend polls `GET /ready`, which runs **one
   end-to-end self-test query**. The chat box stays disabled (showing "warming
   up…") until the self-test passes — this removes the *"Could not reach the
@@ -194,6 +198,7 @@ structured feedback to improve the system.
 |--------|------|---------|
 | `POST` | `/api/v1/users` | Register / fetch a user, start a session |
 | `POST` | `/api/v1/feedback` | Store 👍/👎 + reasons + comment |
+| `GET`  | `/api/v1/feedback/dashboard` | Admin: users + feedback (requires `X-Dashboard-Key`) |
 | `GET`  | `/api/v1/ready` | Self-test gate (cached after first pass) |
 | `POST` | `/api/v1/chat` | Now accepts `user_id`/`session_id`, returns `message_id` |
 
@@ -206,6 +211,7 @@ structured feedback to improve the system.
 | `READY_SKIP_LLM` | `false` | Self-test retrieval only (skip Groq call) |
 | `CORS_ORIGINS` | `localhost:3000,8080` | Allowed browser origins |
 | `RATE_LIMIT_ENABLED` | `true` | In-process rate limiter |
+| `FEEDBACK_DASHBOARD_KEY` | *(empty)* | Secret for `/dashboard` and `GET /feedback/dashboard` |
 | `ENABLE_HSTS` | `false` | Send HSTS (enable only over HTTPS) |
 
 **Inspect collected feedback**
@@ -213,6 +219,7 @@ structured feedback to improve the system.
 ```powershell
 conda run -n rag python -c "from backend.app.core import store; print(store.feedback_stats())"
 # or open output/app.db with any SQLite browser: tables users / sessions / messages / feedback
+# or use the web dashboard: http://localhost:3000/dashboard (set FEEDBACK_DASHBOARD_KEY in .env)
 ```
 
 **Security limitations (be honest before going to production)**

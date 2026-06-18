@@ -62,6 +62,19 @@ def rate_limit(request: Request, route: str, *, limit: int, window_s: int) -> No
         )
 
 
+def verify_dashboard_key(request: Request) -> None:
+    """Protect admin dashboard routes with FEEDBACK_DASHBOARD_KEY."""
+    expected = os.getenv("FEEDBACK_DASHBOARD_KEY", "").strip()
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="Feedback dashboard is not configured (set FEEDBACK_DASHBOARD_KEY on the backend).",
+        )
+    provided = (request.headers.get("x-dashboard-key") or "").strip()
+    if provided != expected:
+        raise HTTPException(status_code=401, detail="Invalid dashboard key")
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Adds conservative security headers to every response."""
 

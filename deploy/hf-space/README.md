@@ -31,10 +31,11 @@ Set these in the Space **Settings → Variables and secrets** before the app wil
 | `GROQ_MODEL` | Recommended | `llama-3.3-70b-versatile` |
 | `ENABLE_HARD_METADATA_FILTER` | Recommended | `true` |
 | `EMBEDDING_MODEL` | Recommended | `nomic-ai/nomic-embed-text-v1.5` |
+| `EMBEDDING_TRUST_REMOTE_CODE` | Recommended | `true` (required for Nomic) |
 | `RERANKER_MODEL` | Recommended | `BAAI/bge-reranker-v2-m3` |
 | `RERANKER_KIND` | **Yes** | `crossencoder` — must match model (see below) |
 | `ENABLE_RERANKER` | Recommended | `true` |
-| `EMBEDDING_REVISION` | Optional | Pin HF commit to avoid nomic remote-code re-downloads |
+| `EMBEDDING_REVISION` | Optional | Git ref only (`main` or commit hash). **Do not set to `true`** — that is `EMBEDDING_TRUST_REMOTE_CODE` |
 
 **Reranker pairing** — `RERANKER_KIND` is the *loader type*, not the model name:
 

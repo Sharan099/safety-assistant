@@ -24,6 +24,21 @@ try:
 except ImportError:
     pass
 
+
+def _optional_hf_revision(env_name: str) -> str | None:
+    """Git ref for from_pretrained revision= — not a boolean flag."""
+    raw = os.getenv(env_name, "").strip()
+    if not raw:
+        return None
+    if raw.lower() in {"true", "false", "none", "null"}:
+        print(
+            f"WARNING: {env_name}={raw!r} is ignored — "
+            f"set a git ref (e.g. main) or delete the variable; "
+            f"do not confuse with EMBEDDING_TRUST_REMOTE_CODE=true"
+        )
+        return None
+    return raw
+
 # ─────────────────────────────────────────────
 # BASE PATHS
 # ─────────────────────────────────────────────
@@ -111,7 +126,7 @@ EMBEDDING_TRUST_REMOTE_CODE = (
     os.getenv("EMBEDDING_TRUST_REMOTE_CODE", "true").lower() == "true"
 )
 # Pin HF revision to avoid re-downloading remote-code files (nomic-bert). Empty = latest.
-EMBEDDING_REVISION = os.getenv("EMBEDDING_REVISION", "").strip() or None
+EMBEDDING_REVISION = _optional_hf_revision("EMBEDDING_REVISION")
 EMBEDDING_QUERY_PREFIX = os.getenv("EMBEDDING_QUERY_PREFIX", "search_query: ")
 EMBEDDING_DOC_PREFIX = os.getenv("EMBEDDING_DOC_PREFIX", "search_document: ")
 
@@ -119,7 +134,7 @@ EMBEDDING_DOC_PREFIX = os.getenv("EMBEDDING_DOC_PREFIX", "search_document: ")
 RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
 # auto | crossencoder | jina | qwen — use "jina" for jinaai/jina-reranker-v3
 RERANKER_KIND = os.getenv("RERANKER_KIND", "auto")
-RERANKER_REVISION = os.getenv("RERANKER_REVISION", "").strip() or None
+RERANKER_REVISION = _optional_hf_revision("RERANKER_REVISION")
 ENABLE_RERANKER = os.getenv("ENABLE_RERANKER", "true").lower() == "true"
 
 # RAGAS judge (run_full_evaluation.py) — separate from answer LLM; needs headroom for JSON

@@ -117,6 +117,12 @@ _REGISTRY: dict[str, DocumentMeta] = {
         doc_type=LEGAL_REGULATION, authority="UNECE (UN Regulation)",
         indexed_revision=None, verified=False,
     ),
+    "UN_R135": DocumentMeta(
+        code="UN_R135", display_name="UN R135",
+        full_title="Protection of occupants in the event of a pole side impact",
+        doc_type=LEGAL_REGULATION, authority="UNECE (UN Regulation)",
+        indexed_revision=None, verified=False,
+    ),
     "UN_R137": DocumentMeta(
         code="UN_R137", display_name="UN R137",
         full_title="Frontal impact with focus on restraint systems",
@@ -135,22 +141,16 @@ _REGISTRY: dict[str, DocumentMeta] = {
         doc_type=RATING_PROTOCOL, authority="Euro NCAP (consumer programme)",
         indexed_revision=None, verified=False,
     ),
-    "ISO": DocumentMeta(
-        code="ISO", display_name="ISO",
-        full_title="International Organization for Standardization documents",
-        doc_type=ENGINEERING_REFERENCE, authority="ISO",
-        indexed_revision=None, verified=False,
-    ),
     "CAE_REFERENCE": DocumentMeta(
-        code="CAE_REFERENCE", display_name="CAE reference",
-        full_title="Internal crashworthiness / CAE engineering reference",
-        doc_type=ENGINEERING_REFERENCE, authority="Internal",
+        code="CAE_REFERENCE", display_name="CAE Companion",
+        full_title="CAE Companion handbook (engineering reference — not a legal regulation)",
+        doc_type=ENGINEERING_REFERENCE, authority="Internal reference",
         indexed_revision=None, verified=False,
     ),
     "SAFETY_REFERENCE": DocumentMeta(
-        code="SAFETY_REFERENCE", display_name="Safety reference",
-        full_title="Vehicle safety engineering reference",
-        doc_type=ENGINEERING_REFERENCE, authority="Internal",
+        code="SAFETY_REFERENCE", display_name="Safety Companion",
+        full_title="Safety Companion handbook (engineering reference — not a legal regulation)",
+        doc_type=ENGINEERING_REFERENCE, authority="Internal reference",
         indexed_revision=None, verified=False,
     ),
 }

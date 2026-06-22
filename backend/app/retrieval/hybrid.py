@@ -21,6 +21,7 @@ from backend.app.core.settings import (
     EMBEDDING_MODEL,
     EMBEDDING_QUERY_PREFIX,
     EMBEDDING_TRUST_REMOTE_CODE,
+    ENABLE_HARD_METADATA_FILTER,
     ENABLE_METADATA_FILTER,
     ENABLE_MULTI_QUERY,
     ENABLE_PARENT_CHILD,
@@ -37,6 +38,10 @@ from backend.app.retrieval.query_expansion import (
     expand_query,
     generate_multi_queries,
 )
+from backend.app.retrieval.query_intent import (
+    chunk_passes_intent_filter,
+    detect_query_intent,
+)
 
 REG_MAP = {
     "un r14": "UN_R14",
@@ -44,8 +49,11 @@ REG_MAP = {
     "un r17": "UN_R17",
     "un r94": "UN_R94",
     "un r95": "UN_R95",
+    "un r135": "UN_R135",
     "un r137": "UN_R137",
     "fmvss": "FMVSS",
+    "euro ncap": "EURO_NCAP",
+    "ncap": "EURO_NCAP",
 }
 
 _LFS_POINTER_PREFIX = "version https://git-lfs.github.com/spec/v1"
@@ -188,14 +196,31 @@ class HybridRetriever:
         q = query.lower()
         return [v for k, v in REG_MAP.items() if k in q]
 
-    def _filter_chunk_ids(self, regs: list[str]) -> set[str] | None:
-        if not regs:
+    def _filter_chunk_ids(
+        self,
+        regs: list[str],
+        intent=None,
+    ) -> set[str] | None:
+        if not regs and not (intent and ENABLE_HARD_METADATA_FILTER):
             return None
-        return {
-            cid
-            for cid, c in self._chunk_by_id.items()
-            if c.get("regulation", "") in regs
-        }
+        allowed: set[str] = set()
+        for cid, c in self._chunk_by_id.items():
+            if regs and c.get("regulation", "") not in regs:
+                continue
+            if intent and ENABLE_HARD_METADATA_FILTER:
+                if not chunk_passes_intent_filter(c, intent):
+                    continue
+            allowed.add(cid)
+        return allowed if allowed else None
+
+    def _hard_filter_docs(self, docs: list[dict], intent) -> list[dict]:
+        """Remove chunks that violate query intent (post-fusion safety net)."""
+        if not ENABLE_HARD_METADATA_FILTER or intent is None:
+            return docs
+        return [
+            d for d in docs
+            if chunk_passes_intent_filter(self._chunk_by_id.get(d["id"], {}), intent)
+        ]
 
     def _semantic_search(self, query: str, allowed_ids: set[str] | None) -> list[dict]:
         if (
@@ -237,8 +262,6 @@ class HybridRetriever:
                     {
                         "id": cid,
                         "score": sim,
-                        # Preserve raw cosine so it survives RRF/multi-query fusion
-                        # and can be used for the grounding confidence gate.
                         "semantic_score": sim,
                         "text": c.get("text", ""),
                         "title": c.get("section_title", ""),
@@ -246,6 +269,11 @@ class HybridRetriever:
                         "regulation": c.get("regulation", ""),
                         "chunk_type": c.get("chunk_type", ""),
                         "parent_id": c.get("parent_id"),
+                        "doc_type": c.get("doc_type"),
+                        "test_type": c.get("test_type"),
+                        "value_type": c.get("value_type"),
+                        "doc_id": c.get("doc_id"),
+                        "clause": c.get("clause") or c.get("clause_number"),
                         "source": "semantic",
                     }
                 )
@@ -263,6 +291,8 @@ class HybridRetriever:
         tokens = re.sub(r"[^a-z0-9]", " ", q_low).split()
         if any(term in q_low for term in ("strength", "load", "force", "withstand")):
             tokens.extend(["test", "load", "force", "dan", "traction", "tractive"])
+        if any(term in q_low for term in ("chest", "deflection", "thorax", "thcc", "hic", "injury")):
+            tokens.extend(["thorax", "compression", "deflection", "mm", "criterion", "shall", "exceed"])
         all_scores = self._bm25.get_scores(tokens)
 
         ranked = []
@@ -299,6 +329,14 @@ class HybridRetriever:
                     if "as from" in text and "contracting parties" in text:
                         boost *= 0.25
 
+                if any(term in q_low for term in ("chest", "deflection", "thorax", "thcc")):
+                    if "thorax compression" in text or "thcc" in text:
+                        boost += 3.0
+                    if "chest deflection" in text:
+                        boost += 2.5
+                    if "shall not exceed" in text and "mm" in text:
+                        boost += 2.0
+
                 ranked.append((float(score) * boost, i))
 
         ranked.sort(key=lambda x: -x[0])
@@ -315,6 +353,9 @@ class HybridRetriever:
                 "regulation": self._bm25_chunks[i].get("regulation", ""),
                 "chunk_type": self._bm25_chunks[i].get("chunk_type", ""),
                 "parent_id": self._bm25_chunks[i].get("parent_id"),
+                "doc_type": self._bm25_chunks[i].get("doc_type"),
+                "test_type": self._bm25_chunks[i].get("test_type"),
+                "value_type": self._bm25_chunks[i].get("value_type"),
                 "source": "bm25",
             }
             for s, i in ranked
@@ -382,6 +423,8 @@ class HybridRetriever:
             # Prefer concrete paragraph content over section previews.
             if chunk.get("chunk_type") == "section":
                 mult *= 0.85
+            if chunk.get("doc_type") == "reference":
+                mult *= 0.6
             text_low = (chunk.get("text", "") or "").lower()
             if "contents page" in text_low or "application for approval" in text_low:
                 mult *= 0.5
@@ -439,9 +482,10 @@ class HybridRetriever:
         else:
             queries = [query]
 
-        # Metadata filter (regulation scope) applied to all variants.
-        regs = self._detect_regs(query)
-        allowed = self._filter_chunk_ids(regs)
+        # Metadata filter (regulation scope + intent) applied to all variants.
+        intent = detect_query_intent(query)
+        regs = list(dict.fromkeys(self._detect_regs(query) + intent.regulation_codes))
+        allowed = self._filter_chunk_ids(regs, intent)
 
         # 3. Hybrid Retrieval (Dense + BM25 + RRF) per query variant
         per_query: list[list[dict]] = []
@@ -462,6 +506,7 @@ class HybridRetriever:
 
         # 4. Metadata Filtering / boosting by intent
         fused = self._apply_metadata_boost(fused, intent_flags)
+        fused = self._hard_filter_docs(fused, intent)
         fused = fused[:TOP_K_RETRIEVE]
 
         # 5. Parent-Child Retrieval (dedupe + attach parent context)
@@ -485,6 +530,12 @@ class HybridRetriever:
             "semantic_count": semantic_total,
             "bm25_count": bm25_total,
             "intent_flags": intent_flags,
+            "query_intent": {
+                "test_type": intent.test_type,
+                "region": intent.region,
+                "doc_type_intent": intent.doc_type_intent,
+                "value_type_intent": intent.value_type_intent,
+            },
             "top_semantic_score": top_semantic_score,
             "latency_ms": latency_ms,
         }

@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "PSA — Passive Safety Assistant",
   description:
-    "Regulation-aware RAG for UN/ECE, FMVSS, Euro NCAP, ISO 26262, and passive safety engineering",
+    "Regulation-aware RAG for UN/ECE, FMVSS, Euro NCAP, and passive safety engineering",
 };
 
 export default function RootLayout({

@@ -304,3 +304,63 @@ async def chat_stream(req: ChatRequest, request: Request) -> StreamingResponse:
             prom.ACTIVE_REQUESTS.dec()
 
     return StreamingResponse(ndjson(), media_type="application/x-ndjson")
+
+
+# ───────────────────────── documents (upload / manage) ─────────────────────────
+class DocumentUploadMeta(BaseModel):
+    doc_type: str = Field(default="reference", pattern="^(legal|rating|reference|internal)$")
+    authority: str = Field(default="", max_length=120)
+    region: str = Field(default="global", max_length=40)
+    test_type: str = Field(default="general", max_length=40)
+    revision: str = Field(default="", max_length=80)
+
+
+@router.get("/documents")
+async def list_documents() -> dict:
+    from backend.app.core.document_service import list_documents
+
+    return {"documents": list_documents()}
+
+
+@router.get("/documents/{job_id}")
+async def document_job_status(job_id: str) -> dict:
+    from backend.app.core.document_service import get_job
+
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
+
+
+@router.post("/documents")
+async def upload_document(
+    request: Request,
+) -> dict:
+    from backend.app.core.document_service import start_upload
+
+    form = await request.form()
+    upload = form.get("file")
+    if upload is None:
+        raise HTTPException(status_code=400, detail="file is required")
+    file_bytes = await upload.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="empty file")
+    meta = DocumentUploadMeta(
+        doc_type=str(form.get("doc_type", "reference")),
+        authority=str(form.get("authority", "")),
+        region=str(form.get("region", "global")),
+        test_type=str(form.get("test_type", "general")),
+        revision=str(form.get("revision", "")),
+    )
+    job_id = start_upload(file_bytes, upload.filename, meta.model_dump())
+    return {"job_id": job_id, "status": "uploaded"}
+
+
+@router.delete("/documents/{doc_id}")
+async def delete_document(doc_id: str) -> dict:
+    from backend.app.core.document_service import delete_document
+
+    result = delete_document(doc_id)
+    if not result.get("ok"):
+        raise HTTPException(status_code=404, detail=result.get("error", "not found"))
+    return result

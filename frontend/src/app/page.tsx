@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { apiChatStream, apiFetch, formatApiError } from "@/lib/api";
+import { DocumentManager } from "@/components/DocumentManager";
 
 type Doc = {
   id?: string;
@@ -104,9 +105,8 @@ const INDEXED_REGULATIONS = [
   { code: "UN R137", type: "Legal", topic: "Full-width frontal impact" },
   { code: "FMVSS 208", type: "Legal", topic: "US frontal occupant protection" },
   { code: "Euro NCAP", type: "Rating", topic: "Frontal, side, rear & VRU protocols" },
-  { code: "ISO 26262", type: "Reference", topic: "Functional safety (ASIL)" },
-  { code: "CAE Companion", type: "Reference", topic: "Crash simulation & virtual validation" },
-  { code: "Safety Companion", type: "Reference", topic: "Passive safety engineering guide" },
+  { code: "CAE Companion", type: "Reference", topic: "Crash simulation & virtual validation (handbook)" },
+  { code: "Safety Companion", type: "Reference", topic: "Passive safety engineering guide (handbook)" },
 ];
 
 const EXAMPLE_QUESTIONS = [
@@ -114,8 +114,8 @@ const EXAMPLE_QUESTIONS = [
   "What test load applies to belt anchorages for M1 vehicles under UN R14?",
   "What tests apply to safety belts under UN R16?",
   "What frontal impact requirements apply under UN R94?",
+  "What is the chest deflection limit under UN R94?",
   "How does Euro NCAP assess frontal crash protection?",
-  "What is ASIL in ISO 26262?",
 ];
 
 export default function Home() {
@@ -357,7 +357,7 @@ export default function Home() {
             <h3>What&apos;s indexed</h3>
             <p className="muted">
               12 document families (~13,000 text chunks): UN R14/R16/R17/R94/R95/R135/R137,
-              FMVSS 208, Euro NCAP protocols, ISO 26262, CAE Companion, and Safety Companion.
+              FMVSS 208, Euro NCAP protocols, CAE Companion, and Safety Companion.
             </p>
           </section>
           <label htmlFor="buddy">Choose a display name</label>
@@ -429,6 +429,10 @@ export default function Home() {
           </ul>
         </section>
 
+        <section className="sidebar-section">
+          <DocumentManager />
+        </section>
+
         <section className="sidebar-section sidebar-foot">
           <p>
             <strong>How it works:</strong> hybrid retrieval (semantic + keyword) →
@@ -445,7 +449,7 @@ export default function Home() {
       <header className="header">
         <div>
           <h1>Chat</h1>
-          <p>Ask about UN/ECE regulations, FMVSS, Euro NCAP, ISO 26262, and engineering references</p>
+          <p>Ask about UN/ECE regulations, FMVSS, Euro NCAP, and engineering reference handbooks</p>
         </div>
         <div className="who">
           <span className="user-pill">👤 {user.username}</span>
@@ -491,7 +495,7 @@ export default function Home() {
                   <li>Test loads, procedures, and approval criteria (UN R14–R137)</li>
                   <li>US FMVSS 208 frontal protection requirements</li>
                   <li>Euro NCAP crash test protocols and scoring</li>
-                  <li>ISO 26262 functional safety (ASIL)</li>
+                  <li>CAE Companion &amp; Safety Companion handbooks (reference only)</li>
                   <li>CAE / Safety Companion engineering references</li>
                 </ul>
               </div>
@@ -869,6 +873,13 @@ const appCss = `
   }
   .example-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
   .sidebar-foot p { margin: 0; font-size: 0.76rem; color: var(--muted); line-height: 1.45; }
+  .doc-manager h3 { font-size: 0.85rem; margin: 0 0 0.5rem; }
+  .doc-upload-form { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.78rem; }
+  .doc-upload-form input, .doc-upload-form select, .doc-upload-form button { font-size: 0.78rem; }
+  .ingest-status { font-size: 0.75rem; color: var(--muted); margin: 0.4rem 0; }
+  .doc-list { list-style: none; padding: 0; margin: 0.5rem 0 0; font-size: 0.75rem; }
+  .doc-list li { display: flex; gap: 0.35rem; align-items: center; margin-bottom: 0.25rem; flex-wrap: wrap; }
+  .doc-cat { color: var(--muted); font-size: 0.7rem; }
   .dash-link {
     display: inline-block;
     margin-top: 0.65rem;

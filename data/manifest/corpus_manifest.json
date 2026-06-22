@@ -1,0 +1,91 @@
+{
+  "corpus_version": 2,
+  "total_pdfs": 17,
+  "documents": [
+    {
+      "path": "data\\corpus\\legal\\FMVSS_208.pdf.pdf",
+      "name": "FMVSS_208.pdf.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R135.pdf",
+      "name": "UN_R135.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R137.pdf",
+      "name": "UN_R137.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R14.pdf",
+      "name": "UN_R14.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R16.pdf",
+      "name": "UN_R16.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R17.pdf",
+      "name": "UN_R17.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R94.pdf",
+      "name": "UN_R94.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R95.pdf",
+      "name": "UN_R95.pdf",
+      "category": "legal"
+    },
+    {
+      "path": "data\\corpus\\rating\\euro-ncap-protocol-crash-protection-frontal-impact-v11.pdf",
+      "name": "euro-ncap-protocol-crash-protection-frontal-impact-v11.pdf",
+      "category": "rating"
+    },
+    {
+      "path": "data\\corpus\\rating\\euro-ncap-protocol-crash-protection-side-impact-v11.pdf",
+      "name": "euro-ncap-protocol-crash-protection-side-impact-v11.pdf",
+      "category": "rating"
+    },
+    {
+      "path": "data\\corpus\\rating\\euro-ncap-protocol-overall-assessment-v100.pdf",
+      "name": "euro-ncap-protocol-overall-assessment-v100.pdf",
+      "category": "rating"
+    },
+    {
+      "path": "data\\corpus\\rating\\EURO_NCAP_FRONTAL.pdf.pdf",
+      "name": "EURO_NCAP_FRONTAL.pdf.pdf",
+      "category": "rating"
+    },
+    {
+      "path": "data\\corpus\\rating\\EURO_NCAP_REAR.pdf.pdf",
+      "name": "EURO_NCAP_REAR.pdf.pdf",
+      "category": "rating"
+    },
+    {
+      "path": "data\\corpus\\rating\\EURO_NCAP_SIDE.pdf.pdf",
+      "name": "EURO_NCAP_SIDE.pdf.pdf",
+      "category": "rating"
+    },
+    {
+      "path": "data\\corpus\\rating\\EURO_NCAP_VRU.pdf.pdf",
+      "name": "EURO_NCAP_VRU.pdf.pdf",
+      "category": "rating"
+    },
+    {
+      "path": "data\\corpus\\reference\\CAE_COMPANION.pdf.pdf",
+      "name": "CAE_COMPANION.pdf.pdf",
+      "category": "reference"
+    },
+    {
+      "path": "data\\corpus\\reference\\SAFETY_COMPANION.pdf.pdf",
+      "name": "SAFETY_COMPANION.pdf.pdf",
+      "category": "reference"
+    }
+  ]
+}

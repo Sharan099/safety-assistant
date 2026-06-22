@@ -146,3 +146,51 @@ export function formatApiError(err: unknown): string {
   }
   return "Request failed";
 }
+
+export type DocumentMeta = {
+  path?: string;
+  name: string;
+  category?: string;
+};
+
+export type IngestJob = {
+  status: string;
+  progress?: number;
+  chunk_count?: number;
+  error?: string;
+  pdf_name?: string;
+};
+
+export async function apiListDocuments(): Promise<DocumentMeta[]> {
+  const res = await apiFetch("/documents");
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = (await res.json()) as { documents: DocumentMeta[] };
+  return data.documents;
+}
+
+export async function apiUploadDocument(
+  file: File,
+  meta: { doc_type: string; authority?: string; region?: string; test_type?: string; revision?: string },
+): Promise<{ job_id: string }> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("doc_type", meta.doc_type);
+  if (meta.authority) form.append("authority", meta.authority);
+  if (meta.region) form.append("region", meta.region);
+  if (meta.test_type) form.append("test_type", meta.test_type);
+  if (meta.revision) form.append("revision", meta.revision);
+  const res = await apiFetch("/documents", { method: "POST", body: form });
+  if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+  return res.json() as Promise<{ job_id: string }>;
+}
+
+export async function apiIngestStatus(jobId: string): Promise<IngestJob> {
+  const res = await apiFetch(`/documents/${jobId}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json() as Promise<IngestJob>;
+}
+
+export async function apiDeleteDocument(docId: string): Promise<void> {
+  const res = await apiFetch(`/documents/${encodeURIComponent(docId)}`, { method: "DELETE" });
+  if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+}

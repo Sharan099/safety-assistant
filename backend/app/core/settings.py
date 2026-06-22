@@ -44,6 +44,7 @@ __all__ = [
 ENABLE_QUERY_EXPANSION = os.getenv("ENABLE_QUERY_EXPANSION", "true").lower() == "true"
 ENABLE_MULTI_QUERY = os.getenv("ENABLE_MULTI_QUERY", "true").lower() == "true"
 MULTI_QUERY_COUNT = int(os.getenv("MULTI_QUERY_COUNT", "3"))
+ENABLE_HARD_METADATA_FILTER = os.getenv("ENABLE_HARD_METADATA_FILTER", "true").lower() == "true"
 ENABLE_METADATA_FILTER = os.getenv("ENABLE_METADATA_FILTER", "true").lower() == "true"
 METADATA_BOOST = float(os.getenv("METADATA_BOOST", "0.5"))
 ENABLE_PARENT_CHILD = os.getenv("ENABLE_PARENT_CHILD", "true").lower() == "true"

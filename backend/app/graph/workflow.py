@@ -96,11 +96,11 @@ def _build_grounded_context(documents: list[dict], citations: list[dict]) -> str
 
 # User-turn instructions: context delivery (persona + structure live in config.SYSTEM_PROMPT).
 _ANSWER_RULES = (
-    "Answer using ONLY the retrieved [S#] passages below. Follow the six-section "
-    "RESPONSE STRUCTURE from your system instructions (Executive Summary through "
-    "Source Citations). Map each [S#] to Supporting Evidence and Source Citations.\n"
-    "Extract operative values, limits, and test conditions — not descriptions of "
-    "what a document contains. Never blur Legal (UN/ECE, FMVSS) with Rating (Euro NCAP)."
+    "Answer using ONLY the retrieved [S#] passages below. Follow CONDITIONAL FORMAT "
+    "rules from your system instructions.\n"
+    "For a single-value lookup: one line + [S#]. For analysis: use structured sections "
+    "only when content exists — omit empty sections.\n"
+    "Never blur Legal (UN/ECE, FMVSS) with Rating (Euro NCAP) or Reference handbooks."
 )
 
 
@@ -367,11 +367,18 @@ class RAGWorkflow:
                 if out.get(k) is not None
             }
             logger.info(f"LLM answer ready in {out['latency_ms']}ms")
+            from backend.app.guardrails.output_sanitizer import sanitize_model_output
+
+            answer, sanitize_warnings = sanitize_model_output(out["answer"])
+            if sanitize_warnings:
+                meta = {**(state.get("metadata") or {}), "sanitize_warnings": sanitize_warnings}
             return {
                 **state,
-                "answer": out["answer"],
+                "answer": answer,
                 "timing": timing,
-                "metadata": {**(state.get("metadata") or {}), **gw_meta},
+                "metadata": {**(state.get("metadata") or {}), **gw_meta, **(
+                    {"sanitize_warnings": sanitize_warnings} if sanitize_warnings else {}
+                )},
             }
 
     def _node_validate_output(self, state: RAGState) -> RAGState:

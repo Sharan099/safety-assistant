@@ -17,15 +17,19 @@ from rank_bm25 import BM25Okapi
 from backend.app.core.settings import (
     BM25_WEIGHT,
     CHUNKS_FILE,
+    CLUSTER_CHUNKS_PER_REG,
+    COMPARISON_CHUNKS_PER_REG,
     EMBEDDINGS_FILE,
-    EMBEDDING_MODEL,
-    EMBEDDING_QUERY_PREFIX,
-    EMBEDDING_TRUST_REMOTE_CODE,
+    ENABLE_CLUSTER_RETRIEVAL,
+    ENABLE_COMPARISON_RETRIEVAL,
     ENABLE_HARD_METADATA_FILTER,
     ENABLE_METADATA_FILTER,
     ENABLE_MULTI_QUERY,
     ENABLE_PARENT_CHILD,
     ENABLE_QUERY_EXPANSION,
+    EMBEDDING_MODEL,
+    EMBEDDING_QUERY_PREFIX,
+    EMBEDDING_TRUST_REMOTE_CODE,
     METADATA_BOOST,
     RRF_K,
     SEMANTIC_WEIGHT,
@@ -34,9 +38,17 @@ from backend.app.core.settings import (
     TOP_K_VECTOR,
     VECTOR_SCORE_THRESHOLD,
 )
+from backend.app.core.document_registry import (
+    cluster_boost_for_regulation,
+    cluster_member_codes,
+    detect_regulations_in_query,
+    is_indexed_regulation,
+    regulation_matches_corpus,
+)
 from backend.app.retrieval.query_expansion import (
     expand_query,
     generate_multi_queries,
+    is_comparison_query,
 )
 from backend.app.retrieval.query_intent import (
     chunk_passes_intent_filter,
@@ -193,8 +205,134 @@ class HybridRetriever:
         return self._detect_regs(query)
 
     def _detect_regs(self, query: str) -> list[str]:
-        q = query.lower()
-        return [v for k, v in REG_MAP.items() if k in q]
+        """Detect regulation codes via document registry aliases."""
+        return detect_regulations_in_query(query)
+
+    def _chunk_reg_codes(self, chunk: dict) -> set[str]:
+        codes: set[str] = set()
+        for key in ("regulation", "doc_id"):
+            v = chunk.get(key)
+            if v:
+                codes.add(str(v).upper().replace(" ", "_"))
+        return codes
+
+    def _allowed_ids_for_reg(self, reg_code: str) -> set[str]:
+        allowed: set[str] = set()
+        for cid, c in self._chunk_by_id.items():
+            chunk_regs = self._chunk_reg_codes(c)
+            if any(regulation_matches_corpus(reg_code, r) for r in chunk_regs):
+                allowed.add(cid)
+        return allowed
+
+    def _retrieve_hybrid_core(
+        self,
+        query: str,
+        allowed_ids: set[str] | None,
+        intent,
+    ) -> tuple[list[dict], list[str], int, int]:
+        """Run expansion → multi-query → fusion → metadata boost for one allowed set."""
+        exp = expand_query(query) if ENABLE_QUERY_EXPANSION else None
+        intent_flags = exp.intent_flags if exp else []
+
+        if ENABLE_MULTI_QUERY:
+            queries = generate_multi_queries(query, exp)
+        elif exp is not None:
+            queries = [exp.expanded]
+        else:
+            queries = [query]
+
+        per_query: list[list[dict]] = []
+        semantic_total = 0
+        bm25_total = 0
+        for q in queries:
+            semantic = self._semantic_search(q, allowed_ids)
+            bm25 = self._bm25_search(q, allowed_ids)
+            semantic_total += len(semantic)
+            bm25_total += len(bm25)
+            per_query.append(self._rrf_fusion(semantic, bm25, k=RRF_K))
+
+        fused = (
+            self._multi_query_fusion(per_query, k=RRF_K)
+            if len(per_query) > 1
+            else per_query[0]
+        )
+        fused = self._apply_metadata_boost(fused, intent_flags, intent)
+        fused = self._hard_filter_docs(fused, intent)
+        return fused, intent_flags, semantic_total, bm25_total
+
+    def _retrieve_balanced_regs(
+        self,
+        query: str,
+        reg_codes: list[str],
+        intent,
+        per_reg_k: int,
+        tag_key: str = "comparison_reg",
+    ) -> tuple[list[dict], list[str], int, int]:
+        merged: list[dict] = []
+        seen: set[str] = set()
+        intent_flags: list[str] = []
+        semantic_total = 0
+        bm25_total = 0
+
+        for reg in reg_codes:
+            allowed = self._allowed_ids_for_reg(reg)
+            if not allowed:
+                continue
+            fused, flags, sem_n, bm_n = self._retrieve_hybrid_core(query, allowed, intent)
+            semantic_total += sem_n
+            bm25_total += bm_n
+            for f in flags:
+                if f not in intent_flags:
+                    intent_flags.append(f)
+            for doc in fused[:per_reg_k]:
+                if doc["id"] not in seen:
+                    seen.add(doc["id"])
+                    doc = doc.copy()
+                    doc[tag_key] = reg
+                    merged.append(doc)
+
+        if len(merged) < TOP_K_RETRIEVE:
+            global_allowed = self._filter_chunk_ids(reg_codes, intent)
+            extra, flags, sem_n, bm_n = self._retrieve_hybrid_core(
+                query, global_allowed, intent
+            )
+            semantic_total += sem_n
+            bm25_total += bm_n
+            for f in flags:
+                if f not in intent_flags:
+                    intent_flags.append(f)
+            for doc in extra:
+                if doc["id"] not in seen and len(merged) < TOP_K_RETRIEVE:
+                    seen.add(doc["id"])
+                    merged.append(doc)
+
+        merged.sort(key=lambda x: -x.get("score", 0.0))
+        return merged[:TOP_K_RETRIEVE], intent_flags, semantic_total, bm25_total
+
+    def _retrieve_cluster(
+        self,
+        query: str,
+        cluster_name: str,
+        intent,
+    ) -> tuple[list[dict], list[str], int, int]:
+        """Per-member retrieval for requirement clusters (e.g. belt R14+R16+R17)."""
+        members = list(cluster_member_codes(cluster_name))
+        per_k = max(1, CLUSTER_CHUNKS_PER_REG)
+        return self._retrieve_balanced_regs(
+            query, members, intent, per_k, tag_key="cluster_reg"
+        )
+
+    def _retrieve_multi_reg(
+        self,
+        query: str,
+        named_regs: list[str],
+        intent,
+    ) -> tuple[list[dict], list[str], int, int]:
+        """Per-regulation sub-retrieval: guarantee chunks from each named regulation."""
+        per_reg_k = max(1, COMPARISON_CHUNKS_PER_REG)
+        return self._retrieve_balanced_regs(
+            query, named_regs, intent, per_reg_k, tag_key="comparison_reg"
+        )
 
     def _filter_chunk_ids(
         self,
@@ -205,8 +343,12 @@ class HybridRetriever:
             return None
         allowed: set[str] = set()
         for cid, c in self._chunk_by_id.items():
-            if regs and c.get("regulation", "") not in regs:
-                continue
+            if regs:
+                chunk_regs = self._chunk_reg_codes(c)
+                if not any(
+                    regulation_matches_corpus(r, cr) for r in regs for cr in chunk_regs
+                ):
+                    continue
             if intent and ENABLE_HARD_METADATA_FILTER:
                 if not chunk_passes_intent_filter(c, intent):
                     continue
@@ -274,6 +416,7 @@ class HybridRetriever:
                         "value_type": c.get("value_type"),
                         "doc_id": c.get("doc_id"),
                         "clause": c.get("clause") or c.get("clause_number"),
+                        "clause_topic": c.get("clause_topic", "general"),
                         "source": "semantic",
                     }
                 )
@@ -356,6 +499,7 @@ class HybridRetriever:
                 "doc_type": self._bm25_chunks[i].get("doc_type"),
                 "test_type": self._bm25_chunks[i].get("test_type"),
                 "value_type": self._bm25_chunks[i].get("value_type"),
+                "clause_topic": self._bm25_chunks[i].get("clause_topic", "general"),
                 "source": "bm25",
             }
             for s, i in ranked
@@ -406,7 +550,12 @@ class HybridRetriever:
             merged.append(d)
         return merged
 
-    def _apply_metadata_boost(self, docs: list[dict], intent_flags: list[str]) -> list[dict]:
+    def _apply_metadata_boost(
+        self,
+        docs: list[dict],
+        intent_flags: list[str],
+        intent=None,
+    ) -> list[dict]:
         """
         Metadata filtering stage: boost chunks whose metadata flags match the
         query intent and de-prioritize admin / contents / section-preview chunks.
@@ -425,6 +574,11 @@ class HybridRetriever:
                 mult *= 0.85
             if chunk.get("doc_type") == "reference":
                 mult *= 0.6
+            reg = chunk.get("regulation") or chunk.get("doc_id") or ""
+            if intent and intent.requirement_cluster:
+                mult *= cluster_boost_for_regulation(reg, intent.requirement_cluster)
+            if not is_indexed_regulation(reg) and reg and reg not in ("EURO_NCAP",):
+                mult *= 0.15
             text_low = (chunk.get("text", "") or "").lower()
             if "contents page" in text_low or "application for approval" in text_low:
                 mult *= 0.5
@@ -470,46 +624,49 @@ class HybridRetriever:
     def retrieve(self, query: str) -> dict[str, Any]:
         t0 = time.perf_counter()
 
-        # 1. Query Expansion
-        exp = expand_query(query) if ENABLE_QUERY_EXPANSION else None
-        intent_flags = exp.intent_flags if exp else []
-
-        # 2. Multi-Query Generation
-        if ENABLE_MULTI_QUERY:
-            queries = generate_multi_queries(query, exp)
-        elif exp is not None:
-            queries = [exp.expanded]
-        else:
-            queries = [query]
-
-        # Metadata filter (regulation scope + intent) applied to all variants.
         intent = detect_query_intent(query)
-        regs = list(dict.fromkeys(self._detect_regs(query) + intent.regulation_codes))
-        allowed = self._filter_chunk_ids(regs, intent)
+        named_regs = list(dict.fromkeys(
+            self._detect_regs(query) + intent.regulation_codes
+        ))
 
-        # 3. Hybrid Retrieval (Dense + BM25 + RRF) per query variant
-        per_query: list[list[dict]] = []
-        semantic_total = 0
-        bm25_total = 0
-        for q in queries:
-            semantic = self._semantic_search(q, allowed)
-            bm25 = self._bm25_search(q, allowed)
-            semantic_total += len(semantic)
-            bm25_total += len(bm25)
-            per_query.append(self._rrf_fusion(semantic, bm25, k=RRF_K))
-
-        fused = (
-            self._multi_query_fusion(per_query, k=RRF_K)
-            if len(per_query) > 1
-            else per_query[0]
+        use_comparison = (
+            ENABLE_COMPARISON_RETRIEVAL
+            and len(named_regs) >= 2
+            and (is_comparison_query(query) or len(named_regs) >= 2)
+        )
+        use_cluster = (
+            ENABLE_CLUSTER_RETRIEVAL
+            and intent.requirement_cluster
+            and len(cluster_member_codes(intent.requirement_cluster)) >= 2
         )
 
-        # 4. Metadata Filtering / boosting by intent
-        fused = self._apply_metadata_boost(fused, intent_flags)
-        fused = self._hard_filter_docs(fused, intent)
-        fused = fused[:TOP_K_RETRIEVE]
+        if use_comparison:
+            fused, intent_flags, semantic_total, bm25_total = self._retrieve_multi_reg(
+                query, named_regs, intent
+            )
+            queries = [query]
+            use_cluster = False
+        elif use_cluster:
+            fused, intent_flags, semantic_total, bm25_total = self._retrieve_cluster(
+                query, intent.requirement_cluster, intent
+            )
+            queries = [query]
+        else:
+            exp = expand_query(query) if ENABLE_QUERY_EXPANSION else None
+            intent_flags = exp.intent_flags if exp else []
+            if ENABLE_MULTI_QUERY:
+                queries = generate_multi_queries(query, exp)
+            elif exp is not None:
+                queries = [exp.expanded]
+            else:
+                queries = [query]
+            allowed = self._filter_chunk_ids(named_regs, intent)
+            fused, intent_flags, semantic_total, bm25_total = self._retrieve_hybrid_core(
+                query, allowed, intent
+            )
+            fused = fused[:TOP_K_RETRIEVE]
 
-        # 5. Parent-Child Retrieval (dedupe + attach parent context)
+        # Parent-Child Retrieval (dedupe + attach parent context)
         fused = self._expand_parent_child(fused)
 
         # Best raw semantic similarity in the candidate set (grounding signal).
@@ -521,7 +678,8 @@ class HybridRetriever:
         latency_ms = round((time.perf_counter() - t0) * 1000, 2)
         logger.info(
             f"Retrieve done: queries={len(queries)} semantic={semantic_total} "
-            f"bm25={bm25_total} fused={len(fused)} intent={intent_flags} in {latency_ms}ms"
+            f"bm25={bm25_total} fused={len(fused)} intent={intent_flags} "
+            f"comparison={use_comparison} cluster={use_cluster} regs={named_regs} in {latency_ms}ms"
         )
         return {
             "query": query,
@@ -530,6 +688,10 @@ class HybridRetriever:
             "semantic_count": semantic_total,
             "bm25_count": bm25_total,
             "intent_flags": intent_flags,
+            "comparison_retrieval": use_comparison,
+            "cluster_retrieval": use_cluster,
+            "requirement_cluster": intent.requirement_cluster,
+            "named_regulations": named_regs,
             "query_intent": {
                 "test_type": intent.test_type,
                 "region": intent.region,

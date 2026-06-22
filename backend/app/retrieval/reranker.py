@@ -6,7 +6,12 @@ from typing import Any
 
 from loguru import logger
 
-from backend.app.core.settings import ENABLE_RERANKER, RERANKER_MODEL, TOP_K_AFTER_RERANK
+from backend.app.core.settings import (
+    COMPARISON_CHUNKS_PER_REG,
+    ENABLE_RERANKER,
+    RERANKER_MODEL,
+    TOP_K_AFTER_RERANK,
+)
 
 # auto | crossencoder | jina | qwen — "auto" picks from RERANKER_MODEL name
 RERANKER_KIND = os.getenv("RERANKER_KIND", "auto").lower()
@@ -99,6 +104,76 @@ class CrossEncoderReranker:
             "reranker_used": False,
         }
 
+    def _balanced_comparison_select(self, docs_copy: list[dict]) -> list[dict]:
+        """Keep top chunks per regulation when comparison_reg is tagged."""
+        by_reg: dict[str, list[dict]] = {}
+        for d in docs_copy:
+            reg = d.get("comparison_reg") or d.get("regulation") or "unknown"
+            by_reg.setdefault(str(reg), []).append(d)
+        if len(by_reg) < 2:
+            return sorted(
+                docs_copy, key=lambda x: x.get("rerank_score", 0), reverse=True
+            )[:TOP_K_AFTER_RERANK]
+
+        per_reg = max(1, TOP_K_AFTER_RERANK // len(by_reg))
+        per_reg = min(per_reg, max(1, COMPARISON_CHUNKS_PER_REG))
+        selected: list[dict] = []
+        seen: set[str] = set()
+        for items in by_reg.values():
+            items.sort(key=lambda x: x.get("rerank_score", 0), reverse=True)
+            for d in items[:per_reg]:
+                if d["id"] not in seen:
+                    seen.add(d["id"])
+                    selected.append(d)
+        rest = sorted(
+            [d for d in docs_copy if d["id"] not in seen],
+            key=lambda x: x.get("rerank_score", 0),
+            reverse=True,
+        )
+        for d in rest:
+            if len(selected) >= TOP_K_AFTER_RERANK:
+                break
+            selected.append(d)
+        return selected[:TOP_K_AFTER_RERANK]
+
+    def _balanced_cluster_select(self, docs_copy: list[dict]) -> list[dict]:
+        """Keep top chunks per cluster member when cluster_reg is tagged."""
+        by_reg: dict[str, list[dict]] = {}
+        for d in docs_copy:
+            reg = d.get("cluster_reg") or d.get("regulation") or "unknown"
+            by_reg.setdefault(str(reg), []).append(d)
+        if len(by_reg) < 2:
+            return sorted(
+                docs_copy, key=lambda x: x.get("rerank_score", 0), reverse=True
+            )[:TOP_K_AFTER_RERANK]
+
+        per_reg = max(1, TOP_K_AFTER_RERANK // len(by_reg))
+        selected: list[dict] = []
+        seen: set[str] = set()
+        for items in by_reg.values():
+            items.sort(key=lambda x: x.get("rerank_score", 0), reverse=True)
+            for d in items[:per_reg]:
+                if d["id"] not in seen:
+                    seen.add(d["id"])
+                    selected.append(d)
+        rest = sorted(
+            [d for d in docs_copy if d["id"] not in seen],
+            key=lambda x: x.get("rerank_score", 0),
+            reverse=True,
+        )
+        for d in rest:
+            if len(selected) >= TOP_K_AFTER_RERANK:
+                break
+            selected.append(d)
+        return selected[:TOP_K_AFTER_RERANK]
+
+    def _finalize_ranked(self, ranked_docs: list[dict]) -> list[dict]:
+        if any(d.get("comparison_reg") for d in ranked_docs):
+            return self._balanced_comparison_select(ranked_docs)
+        if any(d.get("cluster_reg") for d in ranked_docs):
+            return self._balanced_cluster_select(ranked_docs)
+        return ranked_docs[:TOP_K_AFTER_RERANK]
+
     def rerank(self, query: str, documents: list[dict]) -> dict[str, Any]:
         t0 = time.perf_counter()
         if not documents:
@@ -132,7 +207,7 @@ class CrossEncoderReranker:
                     docs_copy,
                     key=lambda x: x.get("rerank_score", 0),
                     reverse=True,
-                )[:TOP_K_AFTER_RERANK]
+                )
             else:
                 pairs = [(query, t) for t in texts]
                 scores = self._model.predict(pairs, show_progress_bar=False)
@@ -142,7 +217,8 @@ class CrossEncoderReranker:
                     docs_copy,
                     key=lambda x: x.get("rerank_score", 0),
                     reverse=True,
-                )[:TOP_K_AFTER_RERANK]
+                )
+            ranked_docs = self._finalize_ranked(ranked_docs)
         except Exception as exc:
             logger.warning(f"Rerank predict failed: {exc}")
             return self._fallback(documents, t0)

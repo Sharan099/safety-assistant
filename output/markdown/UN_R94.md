@@ -1,7 +1,7 @@
 ---
 source_pdf: UN_R94.pdf
 regulation: UN_R94
-converter: paddleocr-PP-OCRv6
+converter: rapidocr-ppocr
 ---
 
 # UN_R94
@@ -2242,14 +2242,18 @@ the range of variation of speed described in paragraph 1.6. above.
 
 ## Page 39
 
-E/ECE/324/Rev.1/Add.93/Rev.4 
-E/ECE/TRANS/505/Rev.1/Add.93/Rev.4 
-Annex 7 - Appendix 
- 
-39 
-Annex 7 - Appendix 
- 
- Equivalence curve - tolerance band for curve V = f(t)
+E/ECE/324/Rev.1/Add.93/Rev.4
+E/ECE/TRANS/505/Rev.1/Add.93/Rev.4
+Annex7-Appendix
+Annex7-Appendix
+Equivalence curve - tolerance band for curve △V = f(t)
+m/s
+Reference curve
+Vehicle against barrier
+SPEEDVARIATION(△V)
++ 1 m/s
+TIME(t)
+39
 
 
 ## Page 40
@@ -3158,13 +3162,14 @@ If a < 900 mm: x = 1/5 (b – 1,200 mm) and y = ½ (a - 300 mm) (for a ≤ b)
 
 ## Page 52
 
-E/ECE/324/Rev.1/Add.93/Rev.4 
-E/ECE/TRANS/505/Rev.1/Add.93/Rev.4 
-Annex 9 
- 
-52 
-Figure 3 
+E/ECE/324/Rev.1/Add.93/Rev.4
+E/ECE/TRANS/505/Rev.1/Add.93/Rev.4
+Annex9
+Figure 3
 Honeycomb axes and measured dimensions
+e=d/2
+f =0.8mm
+52
 
 
 ## Page 53
@@ -3425,40 +3430,69 @@ Test set-up specifications
 
 ## Page 58
 
-E/ECE/324/Rev.1/Add.93/Rev.4 
-E/ECE/TRANS/505/Rev.1/Add.93/Rev.4 
-Annex 10 
- 
-58 
-Figure 2 
-Lower foot impact test (without shoe) 
+E/ECE/324/Rev.1/Add.93/Rev.4
+E/ECE/TRANS/505/Rev.1/Add.93/Rev.4
+Annex10
+Figure 2
+Lowerfootimpacttest(withoutshoe)
 Test set-up specifications
+vertical plane
+1250±1 mm
+horizontal plane
+1,25 ±0,05 kg
+throughkneejoint
+and ankle joint
+62 ± 2 mm
+two layers of low
+friction material
+vertical plane
+58
 
 
 ## Page 59
 
-E/ECE/324/Rev.1/Add.93/Rev.4 
-E/ECE/TRANS/505/Rev.1/Add.93/Rev.4 
-Annex 10 
- 
-59 
-Figure 3 
-Lower foot impact test (with shoe) 
+E/ECE/324/Rev.1/Add.93/Rev.4
+E/ECE/TRANS/505/Rev.1/Add.93/Rev.4
+Annex10
+Figure 3
+Lower foot impact test (with shoe)
 Test set-up specifications
+vertical plane at
+sole of shoe
+1250 ±1 mm
+horizontal plane
+throughknee joint
+and ankle joint
+1,25 ±0,05 kg
+1
+62 ± 2 mm
+（from heel
+of foot)
+twolayersof
+low friction material
+vertical plane
+59
 
 
 ## Page 60
 
-E/ECE/324/Rev.1/Add.93/Rev.4 
-E/ECE/TRANS/505/Rev.1/Add.93/Rev.4 
-Annex 10 
- 
-60 
-Figure 4 
-Pendulum impactor 
- 
-1250  1 mm 
- 50  2 mm
+E/ECE/324/Rev.1/Add.93/Rev.4
+E/ECE/TRANS/505/Rev.1/Add.93/Rev.4
+Annex10
+Figure 4
+Pendulumimpactor
+Material:alluminium alloy
+Mass of arm:285+/-5g
+Massofimpactcylinder:
+1250+/-20g
+low friction bearing
+1250 ± 1 mm
+19 +1-1 mm O/D tube
+x 1,6 mm wall
+accelerometer
+ 50 ± 2 mm
+235 mm nominal
+60
 
 
 ## Page 61

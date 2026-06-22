@@ -1,7 +1,7 @@
 ---
 source_pdf: euro-ncap-protocol-crash-protection-frontal-impact-v11.pdf
 regulation: EURO_NCAP
-converter: paddleocr-PP-OCRv6
+converter: rapidocr-ppocr
 ---
 
 # euro-ncap-protocol-crash-protection-frontal-impact-v11
@@ -9,15 +9,14 @@ converter: paddleocr-PP-OCRv6
 
 ## Page 1
 
-Version 1.1 
-September 2025 
- 
- 
- 
-Crash Protection 
-Frontal Impact 
-Protocol 
- 
+Version 1.1
+EURO
+NCAP
+September 2025
+#FORSAFERCARS
+Crash Protection
+Frontal Impact
+Protocol
 Implementation January 2026
 
 

@@ -14,7 +14,8 @@ from backend.app.gateway.providers.groq_provider import GroqProvider
 def build_default_registry() -> dict[str, Provider]:
     """Map provider-key -> Provider instance used by the router/fallback chains."""
     return {
-        "groq": GroqProvider(),
+        "groq": GroqProvider(model=cfg.GROQ_TIER_MODEL, key="groq"),
+        "groq_power": GroqProvider(model=cfg.GROQ_TIER_MODEL_POWER, key="groq_power"),
         "anthropic_haiku": make_haiku(),
         "anthropic_sonnet": make_sonnet(),
     }

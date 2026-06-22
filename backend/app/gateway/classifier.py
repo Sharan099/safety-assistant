@@ -56,6 +56,19 @@ def _query_complexity(text: str) -> float:
     return _clamp01(0.5 * length_term + 0.35 * clause_term + 0.15 * question_term)
 
 
+def _routing_tier_floor(ctx: RoutingContext) -> int:
+    """Task-class floors — comparisons/mappings must not use the fast 8B model."""
+    q = (ctx.query or ctx.prompt or "").lower()
+    complex_cues = (
+        "differ", "compare", "comparison", "versus", " vs ", "contrast",
+        "which dummy", "injury criteria", "injury criterion", "which regulations",
+        "which regs", "govern", "mapping", "relate to", "validated by",
+    )
+    if any(c in q for c in complex_cues):
+        return 2
+    return 1
+
+
 def classify(ctx: RoutingContext) -> RouteDecision:
     w = cfg.WEIGHTS
     reasons: list[str] = []
@@ -168,6 +181,7 @@ def classify(ctx: RoutingContext) -> RouteDecision:
     # aligned with the documented tier purposes while the score stays a
     # transparent complexity indicator.
     tier = _tier_for_score(score)
+    tier = max(tier, _routing_tier_floor(ctx))
     has_reasoning = len(hits) >= 1
     if has_code and has_reasoning:
         if tier < 3:

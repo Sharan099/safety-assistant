@@ -61,6 +61,26 @@ ABSTAIN_MESSAGE = os.getenv(
     "upload the relevant document to this chat.",
 )
 
+# Three mutually exclusive response states (Phase 1)
+INJECTION_BLOCKED_MESSAGE = os.getenv(
+    "INJECTION_BLOCKED_MESSAGE",
+    "Request blocked.",
+)
+LOW_GROUNDING_ABSTAIN_MESSAGE = os.getenv(
+    "LOW_GROUNDING_ABSTAIN_MESSAGE",
+    "Not found in the regulations.",
+)
+
+# Per-regulation retrieval for multi-reg comparison queries
+ENABLE_COMPARISON_RETRIEVAL = (
+    os.getenv("ENABLE_COMPARISON_RETRIEVAL", "true").lower() == "true"
+)
+ENABLE_CLUSTER_RETRIEVAL = (
+    os.getenv("ENABLE_CLUSTER_RETRIEVAL", "true").lower() == "true"
+)
+COMPARISON_CHUNKS_PER_REG = int(os.getenv("COMPARISON_CHUNKS_PER_REG", "3"))
+CLUSTER_CHUNKS_PER_REG = int(os.getenv("CLUSTER_CHUNKS_PER_REG", "2"))
+
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY", "")
 LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "autosafety-rag")
 LANGSMITH_TRACING = os.getenv("LANGSMITH_TRACING", "false").lower() == "true"

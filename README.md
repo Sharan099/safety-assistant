@@ -1,6 +1,15 @@
-# PSA AI — Passive Safety RAG (v3.1)
+# PSA AI — Passive Safety RAG (v4.0)
 
-Production RAG stack for passive safety regulations with an **advanced multi-stage retriever** (query expansion → multi-query → hybrid semantic+BM25+RRF → metadata filtering → parent-child → cross-encoder rerank), **LangGraph** orchestration, **Guardrails AI**, **LangSmith** tracing, an **Intelligent Multi-LLM Gateway** (Groq → Claude Haiku → Claude Sonnet), and **Grafana/Prometheus** monitoring. Scanned PDFs are ingested with **PaddleOCR / PP-OCR** and **hierarchical chunking**.
+Production RAG stack for passive safety regulations with **metadata-aware retrieval**
+(hard filters: frontal≠side, legal≠rating), **chunk-level metadata classifier**,
+**conditional answer formatting**, **document upload API**, and **CI regression gate**
+(`tests/golden_set.json`). Scanned PDFs are ingested with **PaddleOCR** and
+**hierarchical chunking** (`ingestion/`).
+
+> **v4.0 — Corpus cleanup + metadata pipeline** (Jun 2026):
+> ISO 26262 and noise docs archived; **17 PDFs** / **14,554 chunks** active corpus.
+> Generation floor model → **`llama-3.3-70b-versatile`**. See
+> [`CLEANUP_REPORT.md`](CLEANUP_REPORT.md) and [`output/model_selection.md`](output/model_selection.md).
 
 > **v3.1 — Retrieval model upgrade** (see [Evaluation results](#evaluation-results)):
 > embeddings upgraded to **`nomic-ai/nomic-embed-text-v1.5`** (task-prefixed, 768-dim)
@@ -92,6 +101,7 @@ React/Next.js Frontend
 | `ENABLE_METADATA_FILTER` | `true` | Boost chunks matching intent flags |
 | `METADATA_BOOST` | `0.5` | Score multiplier per matching flag |
 | `ENABLE_PARENT_CHILD` | `true` | Attach parent section context to child hits |
+| `ENABLE_HARD_METADATA_FILTER` | `true` | Hard pre-filter: frontal≠side, legal≠rating |
 | `ENABLE_LLM_MULTI_QUERY` | `false` | Groq paraphrases (uses API tokens) |
 
 ### Model selection (`.env`) — v3.1 retrieval upgrade
@@ -105,7 +115,8 @@ React/Next.js Frontend
 | `RERANKER_MODEL` | `BAAI/bge-reranker-v2-m3` | Cross-encoder reranker over fused candidates |
 
 > Switching `EMBEDDING_MODEL` requires re-running the embedding build
-> (`python data/embed_chunks.py`) so `output/regulation_embeddings.json` matches.
+> (`conda activate rag` then `python ingestion/embed_chunks.py`) so
+> `output/regulation_embeddings.json` matches.
 > To revert to a plain BGE bi-encoder, set `EMBEDDING_MODEL=BAAI/bge-base-en-v1.5`,
 > `EMBEDDING_TRUST_REMOTE_CODE=false`, and clear both prefixes.
 
@@ -156,7 +167,8 @@ grounding layer on top of retrieval.
 
 ```powershell
 # Retrieval + citation + grounding, no LLM tokens needed:
-conda run -n rag python -c "from backend.app.retrieval.hybrid import HybridRetriever; from backend.app.retrieval.citations import build_citations, assess_grounding; r=HybridRetriever(); res=r.retrieve('UN R14 seat belt anchorage strength'); print(assess_grounding(res['documents'], reranker_used=False, min_semantic=0.45, min_rerank_prob=0.5)); print(build_citations(res['documents'])[0]['label'])"
+conda activate rag
+python -c "from backend.app.retrieval.hybrid import HybridRetriever; from backend.app.retrieval.citations import build_citations, assess_grounding; r=HybridRetriever(); res=r.retrieve('UN R14 seat belt anchorage strength'); print(assess_grounding(res['documents'], reranker_used=False, min_semantic=0.45, min_rerank_prob=0.5)); print(build_citations(res['documents'])[0]['label'])"
 ```
 
 Expected: a grounded query returns `should_abstain: False` with a citation like
@@ -217,7 +229,8 @@ structured feedback to improve the system.
 **Inspect collected feedback**
 
 ```powershell
-conda run -n rag python -c "from backend.app.core import store; print(store.feedback_stats())"
+conda activate rag
+python -c "from backend.app.core import store; print(store.feedback_stats())"
 # or open output/app.db with any SQLite browser: tables users / sessions / messages / feedback
 # or use the web dashboard: http://localhost:3000/dashboard (set FEEDBACK_DASHBOARD_KEY in .env)
 ```
@@ -290,7 +303,8 @@ Or run locally without Docker:
 
 ```powershell
 # Terminal A — backend (gateway reads ENABLE_GATEWAY from .env)
-conda run -n rag uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+conda activate rag
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 # Terminal B — frontend
 cd frontend; npm install; npm run dev
 ```
@@ -404,7 +418,8 @@ metadata block (tier, score, cache_hit, cost).
 ### Gateway tests
 
 ```powershell
-conda run -n rag python -m pytest `
+conda activate rag
+python -m pytest `
   tests/test_gateway_classifier.py tests/test_gateway_cache.py `
   tests/test_gateway_router.py tests/test_gateway_backward_compat.py -q
 ```
@@ -442,7 +457,8 @@ conda activate rag
 pip install -r requirements.txt
 
 # Backend (run inside the rag env)
-conda run -n rag uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+conda activate rag
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 
 # Frontend
 cd frontend && npm install && npm run dev
@@ -460,7 +476,7 @@ You can override this with `NEXT_PUBLIC_API_URL`.
 ### Troubleshooting
 
 **`ModuleNotFoundError: sentence_transformers` / `No module named 'rapidocr'`**
-You are running anaconda *base* instead of the `rag` env. Use `conda run -n rag …`.
+You are running anaconda *base* instead of the `rag` env. Run `conda activate rag` first.
 
 **Crash with exit code `0xC0000005` (Windows access violation)**
 This is a torch/OpenMP DLL clash. The repo `.env` sets the fix:
@@ -496,7 +512,8 @@ If Groq daily token limit is hit, use retrieval-only proxies:
 
 ```powershell
 $env:EVAL_SKIP_LLM='true'
-conda run -n rag python tests/run_full_evaluation.py
+conda activate rag
+python tests/run_full_evaluation.py
 ```
 
 Outputs under `output/evaluation/current/` (legacy runs in `output/evaluation/archive/v3_1/`):
@@ -510,27 +527,51 @@ Outputs under `output/evaluation/current/` (legacy runs in `output/evaluation/ar
 
 ```
 AutoSafety_RAG/
-├── backend/app/          # FastAPI + LangGraph + hybrid retrieval + reranker + guardrails
-│   ├── retrieval/        #   hybrid.py (BM25+semantic+RRF), reranker.py (BGE)
-│   ├── graph/            #   LangGraph workflow
-│   ├── guardrails/       #   input/output validation
-│   ├── core/             #   settings, services, observability (LangSmith)
-│   └── metrics/          #   Prometheus metrics
-├── frontend/             # Next.js UI
-├── gateway/              # nginx API gateway
-├── monitoring/           # Prometheus config + Grafana provisioning/dashboard
-├── data/                 # PDFs + ingestion pipeline (paddle_ocr_converter, hierarchical_chunker, embed_chunks)
-├── scripts/              # run_ingestion_pipeline.py, verify_retrieval.py
-├── output/               # Markdown, chunks, embeddings, evaluation artifacts
-├── config.py             # Shared model & path config
-└── tests/                # RAGAS evaluation + test cases
+├── backend/app/          # FastAPI + LangGraph + hybrid retrieval + document API
+│   ├── retrieval/        #   hybrid.py, query_intent.py, reranker.py, citations.py
+│   ├── graph/            #   LangGraph workflow + output sanitizer hook
+│   ├── guardrails/       #   input/output validation + output_sanitizer.py
+│   └── core/             #   document_registry.py, document_service.py, store
+├── ingestion/            # OCR → chunk → embed pipeline (NOT under data/)
+│   ├── paddle_ocr_converter.py
+│   ├── docling_converter.py
+│   ├── hierarchical_chunker.py
+│   ├── metadata_classifier.py
+│   ├── quality_gate.py
+│   └── embed_chunks.py
+├── frontend/             # Next.js UI + DocumentManager upload panel
+├── data/
+│   ├── corpus/           # Active PDFs only (legal / rating / reference)
+│   └── manifest/         # corpus_manifest.json
+├── archive/              # Removed PDFs (gitignored — local backup only)
+├── scripts/              # run_ingestion_pipeline.py, prepare_hf_space.ps1, …
+├── output/               # markdown, chunks, embeddings, evaluation
+├── config.py             # Models, SYSTEM_PROMPT, paths
+├── tests/                # golden_set.json, regression gate, unit tests
+└── deploy/hf-space/      # HF Docker Space templates
 ```
+
+### What to commit (production) vs keep local
+
+| **Commit to GitHub** | **Do NOT commit** (`.gitignore`) |
+|----------------------|----------------------------------|
+| `backend/`, `ingestion/`, `frontend/`, `config.py` | `.env` (secrets) |
+| `data/corpus/**/*.pdf` (Git LFS) | `archive/` (removed PDFs) |
+| `data/manifest/corpus_manifest.json` | `output/page_cache/`, `output/archive/` |
+| `output/regulation_chunks.json` | `output/*.log`, `output/*.db` |
+| `output/regulation_embeddings.json` (Git LFS) | `hf-space-push/` |
+| `output/ingest_manifest.json`, `output/markdown/` | `frontend/node_modules/`, `.next/` |
+| `tests/`, `scripts/`, `deploy/`, `CLEANUP_REPORT.md` | `output/ocr_compare/` |
+| `.env.example`, `.gitattributes`, `Dockerfile.backend` | Regenerable: `verify_retrieval.json` |
+
+**Corpus today:** 17 PDFs → 14,554 chunks → 14,554 embeddings (1:1).
 
 ## Offline data pipeline (PaddleOCR + hierarchical chunking)
 
 Recommended pipeline for **scanned PDFs** (low memory on Windows):
 
 ```bash
+conda activate rag
 pip install -r requirements.txt
 
 # Full pipeline: PDF -> Markdown (PaddleOCR) -> hierarchical chunks -> embeddings
@@ -558,7 +599,7 @@ Alternative: `OCR_ENGINE=docling` or `OCR_ENGINE=pymupdf`.
 
 ### OCR benchmark — Docling 2.103 vs PaddleOCR 3.7 (UN R14.pdf)
 
-Run: `.\scripts\compare_ocr_pipeline.ps1` (or `python scripts/compare_ocr_pipeline.py --pdf data/UN_R14.pdf`).
+Run: `conda activate rag` then `.\scripts\compare_ocr_pipeline.ps1` (or `python scripts/compare_ocr_pipeline.py --pdf data/corpus/legal/UN_R14.pdf`).
 
 | Metric | Docling 2.103 | **PaddleOCR 3.7 (PP-OCRv6)** |
 |--------|---------------|------------------------------|
@@ -581,9 +622,9 @@ Steps:
 
 | Step | Script | Output |
 |------|--------|--------|
-| 1. OCR → Markdown | `data/docling_converter.py` → `data/paddle_ocr_converter.py` | `output/markdown/*.md` |
-| 2. Hierarchical chunk | `data/hierarchical_chunker.py` | `output/regulation_chunks.json` |
-| 3. Embed | `data/embed_chunks.py` | `output/regulation_embeddings.json` |
+| 1. OCR → Markdown | `ingestion/docling_converter.py` → `ingestion/paddle_ocr_converter.py` | `output/markdown/*.md` |
+| 2. Hierarchical chunk | `ingestion/hierarchical_chunker.py` | `output/regulation_chunks.json` |
+| 3. Embed | `ingestion/embed_chunks.py` | `output/regulation_embeddings.json` |
 
 After ingestion, **restart the backend** to load new artifacts.
 
@@ -744,7 +785,8 @@ Mode: `EVAL_SKIP_LLM=true` (proxy answers). Overall score **0.401**; hybrid reca
 
 ![Overall scorecard](output/evaluation/eval_overall_scorecard.png)
 
-Re-run with live Groq answers for LLM-judged RAGAS: clear `EVAL_SKIP_LLM`, ensure API quota, then `conda run -n rag python tests/run_full_evaluation.py`.
+Re-run with live Groq answers for LLM-judged RAGAS: clear `EVAL_SKIP_LLM`, ensure API quota, then `conda activate rag
+python tests/run_full_evaluation.py`.
 
 ## Observability & monitoring
 
@@ -902,202 +944,177 @@ Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 
 ![Prometheus targets](output/screenshots/Prometheus.png)
 
-## Deploy to Hugging Face Spaces (backend) + Vercel (frontend)
+## Release workflow — GitHub → Hugging Face → Vercel
 
 **Live targets**
 
 | Role | URL |
 |------|-----|
-| Frontend | [safety-assistant-tan.vercel.app](https://safety-assistant-tan.vercel.app/) |
+| GitHub | [github.com/Sharan099/safety-assistant](https://github.com/Sharan099/safety-assistant) |
+| Frontend (Vercel) | [safety-assistant-tan.vercel.app](https://safety-assistant-tan.vercel.app/) |
 | Backend (HF Space) | [sharan099/Passive_safety_assistant](https://huggingface.co/spaces/sharan099/Passive_safety_assistant) |
 
-### 1. Prepare the HF Space repo
+### Prerequisites
 
-Templates live in `deploy/hf-space/`. Sync backend + corpus into a local clone of the Space:
+1. [Git](https://git-scm.com) + [Git LFS](https://git-lfs.github.com) (`git lfs install` once).
+2. Conda env: `conda activate rag`
+3. Secrets ready: `GROQ_API_KEY`, `FEEDBACK_DASHBOARD_KEY` (optional).
+4. Local tests pass:
 
 ```powershell
 cd H:\AutoSafety_RAG
-git lfs install
-.\scripts\prepare_hf_space.ps1
-# default clone: ..\Passive_safety_assistant (sibling of this repo)
+conda activate rag
+python -m pytest tests/test_phase0_audit.py tests/test_metadata_classifier.py `
+  tests/test_retrieval_filtering.py tests/test_regression_gate.py -q
+python scripts/verify_retrieval.py
 ```
 
-### 2. Push to Hugging Face
+---
+
+### Step 1 — Push to GitHub
+
+Stage **only production files** (never `git add -A` — skips secrets and archives via `.gitignore`):
+
+```powershell
+cd H:\AutoSafety_RAG
+conda activate rag
+git lfs install
+
+# Application code
+git add config.py .env.example .gitattributes .gitignore `
+  backend/ ingestion/ frontend/ tests/ scripts/ deploy/ `
+  gateway/ monitoring/ conftest.py `
+  railway.toml Dockerfile.backend requirements.txt requirements.runtime.txt `
+  docker-compose.yml CLEANUP_REPORT.md README.md
+
+# Active corpus (PDFs via LFS)
+git add data/corpus/ data/manifest/
+
+# Retrieval artifacts (embeddings = LFS)
+git add output/regulation_chunks.json output/regulation_embeddings.json `
+  output/ingest_manifest.json output/markdown/ output/chunking_diagnostics.txt `
+  output/model_selection.md output/evaluation/current/ output/evaluation/archive/
+
+git status
+# Confirm: NO .env, NO archive/, NO *.log, embeddings.json shows as LFS
+
+git commit -m "v4: metadata filtering, 17-doc corpus, 14.5k chunks, document upload API"
+
+git push origin main
+git lfs push origin main --all
+```
+
+**Verify LFS uploaded** (embeddings must not be a pointer on GitHub):
+
+```powershell
+conda activate rag
+python -c "import json; e=json.load(open('output/regulation_embeddings.json',encoding='utf-8')); print('vectors', len(e['embeddings']))"
+# Expect: vectors 14554
+```
+
+---
+
+### Step 2 — Push backend to Hugging Face Space
+
+HF Space is a **separate git repo** (not GitHub). Use the sync script:
+
+```powershell
+cd H:\AutoSafety_RAG
+conda activate rag
+git lfs install
+.\scripts\prepare_hf_space.ps1
+# Clones/syncs to ..\Passive_safety_assistant by default
+```
+
+Then push the Space repo:
 
 ```powershell
 cd ..\Passive_safety_assistant
+
 git lfs track output/regulation_embeddings.json
-git add Dockerfile requirements.txt README.md config.py backend output .gitattributes .dockerignore
-git status   # embeddings.json should show as LFS
-git commit -m "Deploy PSA FastAPI backend for Vercel frontend"
+git add Dockerfile requirements.txt README.md config.py `
+  backend ingestion output .gitattributes .dockerignore
+git status
+# regulation_embeddings.json must show as LFS
+
+git commit -m "Deploy PSA backend v4 — metadata filter + 14.5k chunks"
 git push
 ```
 
-Use a [HF write token](https://huggingface.co/settings/tokens) when prompted for password.
+Use a [HF write token](https://huggingface.co/settings/tokens) as the git password.
 
-The Space builds a **Docker** image (port **7860**). First build may take 15–25 min (PyTorch + Nomic + reranker download).
+**HF Space build:** Docker on port **7860**, first build ~15–25 min (PyTorch + Nomic + reranker download).
 
-### 3. HF Space environment variables
-
-**Settings → Variables and secrets** on the Space:
+#### HF Space secrets (Settings → Variables and secrets)
 
 | Variable | Required | Value |
 |----------|----------|--------|
 | `GROQ_API_KEY` | **Yes** | `gsk_...` |
 | `CORS_ORIGINS` | **Yes** | `https://safety-assistant-tan.vercel.app` |
-| `GROQ_MODEL` | Yes | `llama-3.1-8b-instant` |
+| `GROQ_MODEL` | Yes | `llama-3.3-70b-versatile` |
 | `EMBEDDING_MODEL` | Yes | `nomic-ai/nomic-embed-text-v1.5` |
 | `EMBEDDING_TRUST_REMOTE_CODE` | Yes | `true` |
 | `RERANKER_MODEL` | Yes | `BAAI/bge-reranker-v2-m3` |
+| `RERANKER_KIND` | Yes | `crossencoder` (fast on CPU; use `jina` only if GPU) |
 | `ENABLE_RERANKER` | Yes | `true` |
+| `ENABLE_HARD_METADATA_FILTER` | Yes | `true` |
 | `ENABLE_PROMETHEUS_METRICS` | Yes | `false` |
 | `RUN_SELFTEST_ON_STARTUP` | Recommended | `false` |
-| `APP_DB_PATH` | Optional | `/app/var/app.db` |
-| `FEEDBACK_DASHBOARD_KEY` | Optional | admin key for `/dashboard` on Vercel |
-| `HF_TOKEN` | Optional | HF token for faster model hub downloads |
+| `FEEDBACK_DASHBOARD_KEY` | Optional | admin key for `/dashboard` |
+| `HF_TOKEN` | Optional | faster model hub downloads |
 
-> **Note:** HF Space storage is **ephemeral** — SQLite feedback/users reset when the Space rebuilds. For durable feedback, use Railway with a volume instead.
-
-**Smoke test after deploy:**
+**Smoke test:**
 
 ```text
 GET https://sharan099-passive-safety-assistant.hf.space/api/v1/health
+GET https://sharan099-passive-safety-assistant.hf.space/api/v1/ready
 ```
 
-### 4. Vercel frontend
+---
 
-In [Vercel](https://vercel.com) → project **safety-assistant-tan** → **Settings → Environment Variables**:
+### Step 3 — Deploy / redeploy Vercel frontend
+
+Vercel auto-deploys when GitHub `main` updates (if connected). Set env vars:
 
 | Variable | Value |
 |----------|--------|
-| `NEXT_PUBLIC_API_URL` | `https://sharan099-passive-safety-assistant.hf.space/api/v1` |
+| `NEXT_PUBLIC_API_URL` | `/api/v1` |
+| `NEXT_PUBLIC_HF_BACKEND_URL` | `https://sharan099-passive-safety-assistant.hf.space` |
 
-Redeploy Vercel after changing this. The HF Space must list the Vercel origin in `CORS_ORIGINS`.
+Chat streams directly to HF (`/chat/stream` keepalive) to avoid Vercel 60s timeout.
+
+**Manual redeploy:** Vercel → project → **Deployments** → Redeploy latest.
+
+**End-to-end check:**
+
+1. Open [safety-assistant-tan.vercel.app](https://safety-assistant-tan.vercel.app/)
+2. Ask: *"What are the UN R14 seat belt anchorage strength requirements?"*
+3. Answer cites `[S#]` sources; no ISO 26262 content.
+4. Sidebar **Document manager** lists 17 indexed docs.
+
+---
+
+### Step 4 (optional) — Railway backend
+
+Same GitHub repo; use `Dockerfile.backend` + volume at `/app/var` for durable SQLite.
+See [Deploy to Railway](#deploy-to-railway-backend--vercel-frontend) below.
 
 ---
 
 ## Deploy to Railway (backend) + Vercel (frontend)
 
-### Backend — Railway
+Alternative to HF Space when you need **durable SQLite** (feedback/users survive redeploys).
 
-1. Push this repo to GitHub (see [Manual GitHub push](#manual-github-push) below).
-2. In [Railway](https://railway.app), create a project → **Deploy from GitHub** → select the repo.
-3. Set **Root directory** to repo root and use `Dockerfile.backend` (or `railway.toml` which points to it).
-4. Add environment variables from `.env.example` (at minimum `GROQ_API_KEY`, `CORS_ORIGINS`, `ENABLE_PROMETHEUS_METRICS=false`).
-5. Mount a **volume** at `/app/var` so SQLite (`APP_DB_PATH=/app/var/app.db`) persists users, sessions, messages, and feedback.
-6. Note the public URL (e.g. `https://psa-api.up.railway.app`). Health check: `GET /api/v1/health` (lightweight — does not load ML models).
+1. Complete **Step 1** (GitHub push) above.
+2. [Railway](https://railway.app) → **Deploy from GitHub** → select the repo.
+3. Use `Dockerfile.backend` (or `railway.toml`).
+4. Mount a **volume** at `/app/var`; set `APP_DB_PATH=/app/var/app.db`.
+5. Env: `GROQ_API_KEY`, `CORS_ORIGINS`, `GROQ_MODEL=llama-3.3-70b-versatile`, `ENABLE_HARD_METADATA_FILTER=true`.
+6. Vercel: `NEXT_PUBLIC_API_URL=https://<railway-host>/api/v1` (no HF proxy needed).
 
-**Railway env (required):**
+`Dockerfile.backend` runs `git lfs pull` so embeddings are real vectors, not LFS pointers.
 
-| Variable | Value |
-|----------|--------|
-| `GROQ_API_KEY` | your Groq key |
-| `CORS_ORIGINS` | `https://your-app.vercel.app` |
-| `APP_DB_PATH` | `/app/var/app.db` |
-| `ENABLE_PROMETHEUS_METRICS` | `false` |
-| `RUN_SELFTEST_ON_STARTUP` | `false` (optional, faster cold start) |
-
-> **Note:** `prometheus-fastapi-instrumentator` crashes on FastAPI 0.137+ when enabled. Production keeps metrics **off**; FastAPI is pinned `<0.137` in `requirements.runtime.txt` for local docker-compose monitoring.
-
-`output/regulation_chunks.json` and `output/regulation_embeddings.json` are baked into the Docker image. Rebuild after re-ingestion.
-
-**Git LFS (embeddings):** `output/regulation_embeddings.json` (~218 MB) is in [Git LFS](https://git-lfs.github.com). `Dockerfile.backend` runs `git lfs pull` during the image build so Railway gets the real vectors (not the LFS pointer). For private repos, set Docker build arg `GIT_REPO=https://<token>@github.com/<owner>/<repo>.git`.
-
-### Frontend — Vercel
-
-1. Import the same GitHub repo in [Vercel](https://vercel.com).
-2. Set **Root directory** to `frontend`.
-3. Add `NEXT_PUBLIC_API_URL=https://<your-railway-host>/api/v1` (see `frontend/.env.example`).
-4. Deploy. Add the Vercel URL to Railway `CORS_ORIGINS`.
-
-### Manual GitHub push (v3.2)
-
-**Prerequisites:** [Git LFS](https://git-lfs.github.com) installed (`git lfs install` once).
-
-**Stage only what production needs** (do not `git add -A` — skips `output/archive/` and `output/ocr_compare/` via `.gitignore`):
-
-```powershell
-cd H:\AutoSafety_RAG
-
-git lfs install
-
-# Code + config
-git add config.py .env.example .gitattributes .gitignore `
-  backend/ data/hierarchical_chunker.py data/embed_chunks.py `
-  tests/run_full_evaluation.py scripts/diagnose_chunking.py `
-  scripts/organize_artifacts.py scripts/overnight_run.py `
-  railway.toml Dockerfile.backend requirements.txt README.md
-
-# Active corpus (chunks + LFS embeddings + markdown sources)
-git add output/regulation_chunks.json output/regulation_embeddings.json `
-  output/ingest_manifest.json output/markdown/ output/chunking_diagnostics.txt
-
-# Evaluation: current + archived baselines (small JSON/PNG)
-git add output/evaluation/current/ output/evaluation/archive/
-
-git status   # confirm no .env, no output/archive/, no *.log
-
-git commit -m "v3.2: unique chunk IDs, 28k corpus, Nomic embeddings, eval current/archive layout"
-
-git push origin main
-git lfs push origin main --all   # required if LFS upload did not finish with push
-```
-
-After push, **Railway** and **Vercel** redeploy automatically if GitHub integration is already connected.
-
-**Verify locally before push:**
-
-```powershell
-python -c "import json; c=json.load(open('output/regulation_chunks.json')); e=json.load(open('output/regulation_embeddings.json')); print('chunks',c['total_chunks'],'unique',c.get('unique_chunk_ids')); print('vectors',e['total_vectors'])"
-# Expect: chunks 28341 unique 28341, vectors 28341
-```
-
-### Watch Railway + Vercel deploy in real time
-
-**Railway (backend API)**
-
-1. [railway.app](https://railway.app) → your project → **Deployments** tab.
-2. After `git push`, a new deployment starts automatically (Docker build ~5–15 min; LFS pull + PyTorch layer).
-3. Open **Build logs** to watch `git lfs pull` and the embeddings sanity check (`assert n>1000`).
-4. When **Active**, open **Logs** (runtime) and hit health:
-   ```text
-   GET https://<your-railway-host>/api/v1/health
-   ```
-5. Optional smoke test (first query loads Nomic + reranker — can take 30–60 s):
-   ```powershell
-   curl https://<your-railway-host>/api/v1/health
-   ```
-
-**Railway env checklist** (Settings → Variables):
-
-| Variable | Example |
-|----------|---------|
-| `GROQ_API_KEY` | `gsk_...` |
-| `CORS_ORIGINS` | `https://<your-vercel-app>.vercel.app` |
-| `APP_DB_PATH` | `/app/var/app.db` |
-| `ENABLE_PROMETHEUS_METRICS` | `false` |
-| `ENABLE_RERANKER` | `true` |
-| `EMBEDDING_MODEL` | `nomic-ai/nomic-embed-text-v1.5` |
-| `RERANKER_MODEL` | `BAAI/bge-reranker-v2-m3` |
-
-Mount a **volume** at `/app/var` so user sessions persist across redeploys.
-
-**Vercel (frontend)**
-
-1. [vercel.com](https://vercel.com) → project → **Deployments**.
-2. Each push to `main` triggers a build (~1–3 min). Watch the build log live.
-3. **Settings → Environment Variables:**
-   - `NEXT_PUBLIC_API_URL` = `https://<your-railway-host>/api/v1`
-4. After deploy, open the **Production URL** — sidebar should list regulations from the new 28k corpus once the backend is healthy.
-5. If the UI loads but chat fails: check browser Network tab for CORS — add the exact Vercel URL to Railway `CORS_ORIGINS` and redeploy backend.
-
-**End-to-end check**
-
-1. Vercel UI loads.
-2. Ask: *"What are the UN R14 seat belt anchorage strength requirements?"*
-3. Answer cites retrieved context; Railway logs show `Retrieve done` and `Reranker loaded`.
-
-You control when code reaches GitHub — nothing is pushed automatically from this assistant.
+---
 
 ## License
 

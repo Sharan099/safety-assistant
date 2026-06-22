@@ -1,0 +1,32 @@
+[
+  {
+    "id": "R001",
+    "category": "regulation",
+    "question": "What are the UN R14 requirements for seat belt anchorage strength?",
+    "ground_truth": "UN R14 specifies static strength tests on safety-belt anchorages with defined test loads in daN for different vehicle categories."
+  },
+  {
+    "id": "R002",
+    "category": "regulation",
+    "question": "What test load applies to belt anchorages in configuration 6.4.1 for M1 vehicles?",
+    "ground_truth": "A test load of 1350 daN ± 20 daN is applied to traction devices on belt anchorages for M1 and N1 vehicles under section 6.4."
+  },
+  {
+    "id": "R016",
+    "category": "regulation",
+    "question": "What tests apply to safety belts under UN R16?",
+    "ground_truth": "UN R16 covers safety belts and restraint systems including dynamic tests, geometry, buckle tests, and performance requirements."
+  },
+  {
+    "id": "R094",
+    "category": "regulation",
+    "question": "What frontal impact occupant protection requirements apply under UN R94?",
+    "ground_truth": "UN R94 defines frontal impact test conditions and occupant injury/performance limits for vehicle approval."
+  },
+  {
+    "id": "R095",
+    "category": "regulation",
+    "question": "What side impact occupant protection requirements apply under UN R95?",
+    "ground_truth": "UN R95 defines lateral collision test conditions and occupant injury/performance limits for vehicle approval."
+  }
+]

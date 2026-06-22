@@ -1,0 +1,6 @@
+{
+  "recall_at_10": 0.55,
+  "context_precision": 0.50,
+  "correctness": 0.50,
+  "note": "CI fails if metrics drop below these values. Update only after verified improvement."
+}

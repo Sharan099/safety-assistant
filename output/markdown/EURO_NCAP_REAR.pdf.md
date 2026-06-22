@@ -1,7 +1,7 @@
 ---
 source_pdf: EURO_NCAP_REAR.pdf.pdf
 regulation: EURO_NCAP
-converter: paddleocr-PP-OCRv6
+converter: rapidocr-ppocr
 ---
 
 # EURO_NCAP_REAR.pdf
@@ -9,14 +9,14 @@ converter: paddleocr-PP-OCRv6
 
 ## Page 1
 
-Version 1.1 
-September 2025 
- 
- 
- 
-Crash Protection 
-Rear Impact 
-Protocol 
+Version 1.1
+EURO
+NCAP
+September 2025
+#FORSAFERCARS
+Crash Protection
+Rear lmpact
+Protocol
 Implementation January 2026
 
 
@@ -1299,12 +1299,12 @@ Using the measuring device in APPENDIX E determine the thickness (S).
 
 ## Page 36
 
-Euro NCAP 
-Version 1.1 — September 2025 
-32 
- 
- 
+torsoline
+R-Point
 Figure 23: Discomfort Metric Geometric Requirements.
+EuroNCAP
+Version 1.1—September 2025
+32
 
 
 ## Page 37

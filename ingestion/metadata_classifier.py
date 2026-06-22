@@ -94,6 +94,9 @@ _UNIT_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:mm|g|kN|daN|m/s|ms|kPa|N)", re.I)
 _CLAUSE_RE = re.compile(r"(?:§|section|paragraph|annex)\s*[\d.]+", re.I)
 
 
+from backend.app.retrieval.clause_topic import detect_clause_topic
+
+
 def _registry_doc_type(regulation: str) -> str:
     meta = get_document_meta(regulation)
     return _DOC_TYPE_MAP.get(meta.doc_type, DOC_TYPE_REFERENCE)
@@ -187,6 +190,7 @@ def classify_chunk(
     text: str,
     clause_number: str | None = None,
     heading_path: str = "",
+    section_title: str = "",
 ) -> dict[str, Any]:
     """Return full metadata dict for a chunk."""
     meta = get_document_meta(regulation)
@@ -195,6 +199,9 @@ def classify_chunk(
     test_type = _detect_test_type(text, pdf_name, regulation)
     value_type = _detect_value_type(text, doc_type, regulation)
     dummy = _detect_dummy(text)
+    clause_topic = detect_clause_topic(
+        text, heading_path=heading_path, section_title=section_title
+    )
 
     clause = clause_number
     if not clause and _CLAUSE_RE.search(text):
@@ -218,6 +225,7 @@ def classify_chunk(
         "value_type": value_type,
         "clause": clause,
         "revision": revision,
+        "clause_topic": clause_topic,
     }
 
 

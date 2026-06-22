@@ -1,0 +1,155 @@
+"""Build combined evaluation reports (markdown + JSON)."""
+
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from config import EVALUATION_CURRENT
+
+
+def format_scorecard_table(rows: list[dict]) -> str:
+    lines = [
+        "| id | type | recall | must_not | behavior | contains | forbidden | PASS/FAIL |",
+        "|----|------|--------|----------|----------|----------|-----------|-----------|",
+    ]
+    for r in rows:
+        status = "PASS" if r.get("pass") else "FAIL"
+        lines.append(
+            f"| {r['id']} | {r.get('query_type', '')} | {r.get('recall')} | "
+            f"{r.get('must_not')} | {r.get('behavior')} | {r.get('contains')} | "
+            f"{r.get('forbidden')} | **{status}** |"
+        )
+    return "\n".join(lines)
+
+
+def top_failures(rows: list[dict]) -> list[dict]:
+    out = []
+    for r in rows:
+        if not r.get("pass"):
+            out.append({
+                "id": r["id"],
+                "query_type": r.get("query_type"),
+                "failures": r.get("failures", []),
+                "details": r.get("details", {}),
+            })
+    return out
+
+
+def build_eval_report(
+    deterministic: dict[str, Any],
+    ragas: dict[str, Any] | None,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    rows = deterministic.get("items", [])
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "meta": meta or {},
+        "deterministic": deterministic,
+        "ragas": ragas,
+        "top_failures": top_failures(rows),
+    }
+
+
+def write_eval_report(
+    report: dict[str, Any],
+    out_dir: Path | None = None,
+) -> tuple[Path, Path]:
+    out_dir = out_dir or EVALUATION_CURRENT
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    json_path = out_dir / "eval_report.json"
+    md_path = out_dir / "eval_report.md"
+
+    json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    det = report.get("deterministic", {})
+    agg = det.get("aggregate", {})
+    rows = det.get("items", [])
+    ragas = report.get("ragas") or {}
+    token = (ragas.get("token_summary") or {}) if ragas else {}
+    failures = report.get("top_failures", [])
+
+    md_parts = [
+        "# PSA AI Passive Safety — Evaluation Report",
+        "",
+        f"Generated: {report.get('generated_at', '')}",
+        "",
+        "## Stage A — Deterministic (zero tokens)",
+        "",
+        f"**Overall pass rate:** {agg.get('overall', {}).get('pass', 0)}/"
+        f"{agg.get('overall', {}).get('total', 0)} "
+        f"({agg.get('overall', {}).get('rate', 0):.1%})",
+        "",
+        "### Pass rate by query_type",
+        "",
+    ]
+
+    for qt, stats in (agg.get("by_query_type") or {}).items():
+        md_parts.append(f"- **{qt}**: {stats['pass']}/{stats['total']} ({stats['rate']:.1%})")
+
+    md_parts.extend([
+        "",
+        "### Per-question scorecard",
+        "",
+        format_scorecard_table(rows),
+        "",
+        "## Stage B — RAGAS (budgeted)",
+        "",
+    ])
+
+    if ragas:
+        ar = ragas.get("answer_relevancy", {})
+        jm = ragas.get("judge_metrics", {})
+        md_parts.extend([
+            f"- **answer_relevancy** (local embeddings, all non-abstention): "
+            f"mean={ar.get('mean')} — {ar.get('note', '')}",
+            f"- **faithfulness** (judge subset): mean={jm.get('faithfulness_mean')}",
+            f"- **context_precision** (judge subset): mean={jm.get('context_precision_mean')}",
+            f"- Judge subset IDs: `{', '.join(jm.get('subset_ids', []))}`",
+            f"- Excluded abstention IDs: `{', '.join(ragas.get('excluded_from_ragas', []))}`",
+            f"- Not run via RAGAS: `{', '.join(ragas.get('not_run_via_ragas', []))}` "
+            f"— {ragas.get('not_run_note', '')}",
+            "",
+        ])
+        if token:
+            md_parts.extend([
+                "### Token + call summary",
+                "",
+                f"- Groq judge calls: {token.get('groq_calls', 0)}",
+                f"- Prompt tokens: {token.get('prompt_tokens', 0)}",
+                f"- Completion tokens: {token.get('completion_tokens', 0)}",
+                f"- Total tokens: {token.get('total_tokens', 0)} / budget {token.get('budget', 0)}",
+                f"- Stopped on budget: {token.get('stopped_on_budget', False)}",
+                f"- Skipped (rate limit): {token.get('skipped_rate_limit', [])}",
+                "",
+            ])
+        skipped = []
+        for iid, scores in (jm.get("per_id") or {}).items():
+            for metric, val in scores.items():
+                if val == "skipped_rate_limit":
+                    skipped.append(f"{iid}/{metric}")
+        if skipped:
+            md_parts.append(f"- Rate-limit skips: {', '.join(skipped)}")
+            md_parts.append("")
+    else:
+        md_parts.append("_RAGAS stage skipped._")
+        md_parts.append("")
+
+    md_parts.extend([
+        "## Top failures",
+        "",
+    ])
+    if failures:
+        for f in failures:
+            md_parts.append(
+                f"- **{f['id']}** ({f.get('query_type')}): failed checks — "
+                f"{', '.join(f.get('failures', []))}"
+            )
+    else:
+        md_parts.append("_No failures — all items passed Stage A._")
+
+    md_path.write_text("\n".join(md_parts) + "\n", encoding="utf-8")
+    return json_path, md_path

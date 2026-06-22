@@ -13,7 +13,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 
-from config import GROQ_MODEL  # reuse the existing, already-configured Groq model
+from config import GROQ_MODEL, GROQ_MODEL_FAST  # reuse configured Groq models
 
 
 def _flag(name: str, default: str = "false") -> bool:
@@ -46,7 +46,8 @@ ENABLE_SEMANTIC_CACHE = _flag("ENABLE_SEMANTIC_CACHE", "true")
 
 
 # ───────────────────────── providers / tiers ─────────────────────────
-GROQ_TIER_MODEL = os.getenv("GROQ_TIER_MODEL", GROQ_MODEL)
+GROQ_TIER_MODEL = os.getenv("GROQ_TIER_MODEL", GROQ_MODEL_FAST)
+GROQ_TIER_MODEL_POWER = os.getenv("GROQ_TIER_MODEL_POWER", GROQ_MODEL)
 # Exact Anthropic slugs are env-pinned (production teams set the current ids).
 CLAUDE_HAIKU_MODEL = os.getenv("CLAUDE_HAIKU_MODEL", "claude-haiku-4-5")
 CLAUDE_SONNET_MODEL = os.getenv("CLAUDE_SONNET_MODEL", "claude-sonnet-4-5")
@@ -73,17 +74,17 @@ TIERS: dict[int, TierSpec] = {
         tier=1,
         provider="groq",
         model=GROQ_TIER_MODEL,
-        purpose="simple retrieval questions (definitions, lookup, citation)",
+        purpose="simple single-value lookups (definitions, limits, citation)",
         price_in_per_m=_f("PRICE_GROQ_IN", 0.59),
         price_out_per_m=_f("PRICE_GROQ_OUT", 0.79),
     ),
     2: TierSpec(
         tier=2,
-        provider="anthropic",
-        model=CLAUDE_HAIKU_MODEL,
-        purpose="moderate reasoning (comparisons, summaries, extraction)",
-        price_in_per_m=_f("PRICE_HAIKU_IN", 1.00),
-        price_out_per_m=_f("PRICE_HAIKU_OUT", 5.00),
+        provider="groq",
+        model=GROQ_TIER_MODEL_POWER,
+        purpose="comparisons, dummy/criteria mapping, multi-regulation reasoning",
+        price_in_per_m=_f("PRICE_GROQ_POWER_IN", 0.59),
+        price_out_per_m=_f("PRICE_GROQ_POWER_OUT", 0.79),
     ),
     3: TierSpec(
         tier=3,
@@ -94,6 +95,8 @@ TIERS: dict[int, TierSpec] = {
         price_out_per_m=_f("PRICE_SONNET_OUT", 15.00),
     ),
 }
+
+# Tier 2 (legacy) used Anthropic Haiku — kept as optional escalation via failover.
 
 # Baseline tier used to compute "cost saved" when we route DOWN from the most
 # capable model. cost_saved = baseline_cost - actual_cost (never negative).
@@ -156,14 +159,10 @@ BACKOFF_MAX_S = _f("GATEWAY_BACKOFF_MAX_S", 8.0)
 
 # Fallback chains keyed by the originally-selected provider.
 FALLBACK_CHAINS: dict[str, list[str]] = {
-    # provider -> ordered providers to try (first is the primary)
-    "groq": ["groq", "anthropic_haiku", "anthropic_sonnet"],
-    "anthropic_haiku": ["anthropic_haiku", "anthropic_sonnet", "groq"],
-    # Keep Groq as the final fail-open provider even for Tier 3. Anthropic can be
-    # blocked by local Docker networking, corporate proxy, quota, or regional API
-    # issues; the chat path should still return an answer from the existing Groq
-    # integration rather than surfacing an LLM error to the user.
-    "anthropic_sonnet": ["anthropic_sonnet", "anthropic_haiku", "groq"],
+    "groq": ["groq", "groq_power", "anthropic_haiku", "anthropic_sonnet"],
+    "groq_power": ["groq_power", "groq", "anthropic_haiku", "anthropic_sonnet"],
+    "anthropic_haiku": ["anthropic_haiku", "groq_power", "groq", "anthropic_sonnet"],
+    "anthropic_sonnet": ["anthropic_sonnet", "groq_power", "groq", "anthropic_haiku"],
 }
 
 
@@ -193,11 +192,14 @@ def provider_key_for_tier(tier: int) -> str:
     if tier == 1:
         return "groq"
     if tier == 2:
-        return "anthropic_haiku"
+        return "groq_power"
     return "anthropic_sonnet"
 
 
 def tier_for_provider_key(provider_key: str) -> int:
-    return {"groq": 1, "anthropic_haiku": 2, "anthropic_sonnet": 3}.get(
-        provider_key, 1
-    )
+    return {
+        "groq": 1,
+        "groq_power": 2,
+        "anthropic_haiku": 2,
+        "anthropic_sonnet": 3,
+    }.get(provider_key, 1)

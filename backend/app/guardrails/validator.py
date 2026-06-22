@@ -1,31 +1,51 @@
 """
 Guardrails: prompt injection, jailbreak, PII leakage, unsafe content.
 Uses pattern checks + optional guardrails-ai hub validators.
+
+Three input outcomes (Phase 1):
+  - injection_blocked — genuine prompt-injection / jailbreak only
+  - answerable        — normal regulatory questions (including comparisons)
 """
+
+from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 from loguru import logger
 
+InputState = Literal["injection_blocked", "answerable"]
+
+# Genuine injection — instruction override directed at the model, not domain language.
 INJECTION_PATTERNS = [
-    r"ignore\s+(all\s+)?(previous|prior)\s+instructions",
-    r"disregard\s+(the\s+)?(system|above)",
-    r"you\s+are\s+now\s+(dan|evil|unrestricted)",
-    r"pretend\s+you\s+are\s+not",
-    r"jailbreak",
-    r"developer\s+mode",
+    r"ignore\s+(all\s+)?(previous|prior|above)\s+instructions",
+    r"disregard\s+(all\s+)?(previous|prior|the\s+)?(system|above)\s+instructions",
+    r"you\s+are\s+now\s+(dan|evil|unrestricted|jailbroken)",
+    r"pretend\s+you\s+are\s+not\s+(an?\s+)?(ai|assistant|chatbot)",
+    r"\bjailbreak\b",
+    r"\bdeveloper\s+mode\b",
     r"reveal\s+(the\s+)?(system\s+)?prompt",
-    r"bypass\s+(safety|guardrails|filters)",
+    r"bypass\s+(safety|guardrails|filters|restrictions)",
+    r"override\s+(your\s+)?(system|safety)\s+(prompt|rules|instructions)",
 ]
 
 JAILBREAK_PATTERNS = [
-    r"do\s+anything\s+now",
+    r"do\s+anything\s+now\b",
     r"no\s+ethical\s+restrictions",
     r"without\s+limitations",
     r"act\s+as\s+if\s+you\s+have\s+no\s+rules",
 ]
+
+# Legitimate regulatory query signals — never classify as injection.
+_LEGITIMATE_REGULATORY_RE = re.compile(
+    r"(?:"
+    r"how\s+does|how\s+do|differ(?:s|ence)?|compare|comparison|contrast|versus|\bvs\.?\b|"
+    r"what\s+(?:is|are)|which|explain|describe|list|govern|require|specify|"
+    r"under\s+un\s+r|fmvss|regulation|impact\s+test|dummy|belt|restraint|anchorage"
+    r")",
+    re.I,
+)
 
 PII_PATTERNS = [
     (r"\b\d{3}-\d{2}-\d{4}\b", "SSN-like"),
@@ -40,12 +60,30 @@ UNSAFE_PATTERNS = [
 ]
 
 
+def is_legitimate_regulatory_query(query: str) -> bool:
+    """
+    Comparison, contrast, listing, and lookup questions about regulations
+    must never be treated as prompt injection.
+    """
+    return bool(_LEGITIMATE_REGULATORY_RE.search(query))
+
+
+def classify_input_state(query: str) -> InputState:
+    """Classify user input: injection_blocked or answerable."""
+    if is_legitimate_regulatory_query(query):
+        return "answerable"
+    guard = SafetyGuardrails()
+    result = guard.validate_input(query)
+    return "injection_blocked" if result.blocked else "answerable"
+
+
 @dataclass
 class GuardrailResult:
     passed: bool = True
     warnings: list[str] = field(default_factory=list)
     blocked: bool = False
     block_reason: str = ""
+    input_state: InputState = "answerable"
 
 
 class SafetyGuardrails:
@@ -72,11 +110,17 @@ class SafetyGuardrails:
 
     def validate_input(self, query: str) -> GuardrailResult:
         result = GuardrailResult()
+
+        if is_legitimate_regulatory_query(query):
+            result.input_state = "answerable"
+            return result
+
         hit = self._match_any(query, INJECTION_PATTERNS)
         if hit:
             result.blocked = True
             result.block_reason = "prompt_injection"
             result.passed = False
+            result.input_state = "injection_blocked"
             result.warnings.append(
                 "Potential prompt injection detected. Query blocked."
             )
@@ -87,9 +131,11 @@ class SafetyGuardrails:
             result.blocked = True
             result.block_reason = "jailbreak"
             result.passed = False
+            result.input_state = "injection_blocked"
             result.warnings.append("Potential jailbreak attempt detected.")
             return result
 
+        result.input_state = "answerable"
         return result
 
     def validate_output(self, text: str) -> GuardrailResult:
@@ -115,5 +161,6 @@ class SafetyGuardrails:
             "passed": result.passed,
             "blocked": result.blocked,
             "block_reason": result.block_reason,
+            "input_state": result.input_state,
             "warnings": result.warnings,
         }

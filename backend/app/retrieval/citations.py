@@ -15,6 +15,7 @@ than generating an answer.
 from __future__ import annotations
 
 import math
+import os
 import re
 from typing import Any
 
@@ -118,6 +119,17 @@ def _sigmoid(x: float) -> float:
         return 0.0 if x < 0 else 1.0
 
 
+def confidence_band(confidence: float) -> str:
+    """Map grounding confidence to high / medium / low bands."""
+    high = float(os.getenv("CONFIDENCE_BAND_HIGH", "0.65"))
+    medium = float(os.getenv("CONFIDENCE_BAND_MEDIUM", "0.45"))
+    if confidence >= high:
+        return "high"
+    if confidence >= medium:
+        return "medium"
+    return "low"
+
+
 def assess_grounding(
     documents: list[dict[str, Any]],
     *,
@@ -140,6 +152,7 @@ def assess_grounding(
         return {
             "should_abstain": True,
             "confidence": 0.0,
+            "confidence_band": "low",
             "reason": "no_documents",
             "best_semantic": None,
             "best_rerank_prob": None,
@@ -177,6 +190,7 @@ def assess_grounding(
     return {
         "should_abstain": should_abstain,
         "confidence": round(confidence, 4),
+        "confidence_band": confidence_band(confidence),
         "reason": reason,
         "best_semantic": round(best_sem, 4) if best_sem is not None else None,
         "best_rerank_prob": (

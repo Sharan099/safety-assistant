@@ -75,6 +75,16 @@ class ExpandedQuery:
     keywords: list[str] = field(default_factory=list)
 
 
+def is_comparison_query(query: str) -> bool:
+    """True when the user is comparing or contrasting regulations/tests."""
+    q = query.lower()
+    return bool(re.search(
+        r"\b(?:differ(?:s|ence)?|compare|comparison|contrast|versus|\bvs\.?\b|"
+        r"how\s+does|how\s+do|distinguish|between)\b",
+        q,
+    ))
+
+
 def _tokens(text: str) -> list[str]:
     return re.sub(r"[^a-z0-9.]", " ", text.lower()).split()
 

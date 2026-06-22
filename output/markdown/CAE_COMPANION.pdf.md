@@ -1,10 +1,22 @@
 ---
 source_pdf: CAE_COMPANION.pdf.pdf
 regulation: CAE_REFERENCE
-converter: paddleocr-PP-OCRv6
+converter: rapidocr-ppocr
 ---
 
 # CAE_COMPANION.pdf
+
+
+## Page 1
+
+CAE
+AUTOMOTIVE
+COMPANION
+Knowledge for Tomorrow's Automotive Engineering
+2026
+2027
+carhs
+Empowering Engineers
 
 
 ## Page 2
@@ -14661,6 +14673,27 @@ May 27
 SafetyWeek
 Find the latest information on our seminar program at
 www.carhs.de
+
+
+## Page 179
+
+B
+BETA
+SIMULATION SOLUTIONS
+Unmatched In-Design
+Multiphysics Analysis
+solutions
+Our advanced software, processes, and service
+solutions for Engineering Simulation-Driven Design
+empower you to navigate the virtual product
+development process with precision. Gain deeper insight
+into your products from the initial design phase, while
+www.beta-cae.com
+mitigating innovation risks through faster, smarter
+decision-making as you transition from concept to
+reality.
+cadence
+BETACAESystemsis nowpart of Cadence
 
 
 ## Page 180

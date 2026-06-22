@@ -28,7 +28,8 @@ Set these in the Space **Settings → Variables and secrets** before the app wil
 |----------|----------|-----------------|
 | `GROQ_API_KEY` | **Yes** | `gsk_...` from [Groq console](https://console.groq.com) |
 | `CORS_ORIGINS` | **Yes** | `https://safety-assistant-tan.vercel.app` |
-| `GROQ_MODEL` | Recommended | `llama-3.1-8b-instant` |
+| `GROQ_MODEL` | Recommended | `llama-3.3-70b-versatile` |
+| `ENABLE_HARD_METADATA_FILTER` | Recommended | `true` |
 | `EMBEDDING_MODEL` | Recommended | `nomic-ai/nomic-embed-text-v1.5` |
 | `RERANKER_MODEL` | Recommended | `BAAI/bge-reranker-v2-m3` |
 | `ENABLE_RERANKER` | Recommended | `true` |

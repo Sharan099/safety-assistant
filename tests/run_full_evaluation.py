@@ -51,6 +51,7 @@ NOT_FOUND_PHRASES = (
     "information not found",
     "not found in regulations",
     "not found in the regulation",
+    "insufficient data in knowledge base",
     "cannot find",
     "no information",
 )
@@ -123,17 +124,12 @@ def _contexts_from_docs(docs: list[dict], k: int = 5) -> list[str]:
 
 
 def _build_prompt(query: str, context: str) -> str:
-    return f"""You are PSA AI, a passive safety regulation assistant.
-
-USER QUESTION
-{query}
-
-RETRIEVED REGULATION CONTEXT
+    return f"""RETRIEVED CONTEXT (each passage tagged [S#])
 {context}
 
-Answer using ONLY the context above. Use clear markdown.
-If information is missing, say: Information not found in regulations.
-"""
+QUESTION: {query}
+
+Follow the six-section RESPONSE STRUCTURE from your system instructions."""
 
 
 def _answer_out_of_scope(answer: str) -> bool:

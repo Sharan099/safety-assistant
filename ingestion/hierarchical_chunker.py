@@ -297,6 +297,7 @@ def _make_chunk(
         text=text,
         clause_number=clause_number,
         heading_path=heading_path,
+        section_title=section_title,
     )
     return {
         "chunk_id": chunk_id,

@@ -9,6 +9,10 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from backend.app.core.document_registry import get_document_meta
+from backend.app.retrieval.clause_topic import (
+    chunk_passes_topic_filter,
+    detect_allowed_clause_topics,
+)
 
 DOC_TYPE_LEGAL = "legal"
 DOC_TYPE_RATING = "rating"
@@ -24,6 +28,8 @@ class QueryIntent:
     regulation_codes: list[str] = field(default_factory=list)
     exclude_doc_types: list[str] = field(default_factory=list)
     exclude_value_types: list[str] = field(default_factory=list)
+    allowed_clause_topics: frozenset[str] | None = None
+    requirement_cluster: str | None = None
     raw_query: str = ""
 
 
@@ -65,10 +71,16 @@ def detect_query_intent(query: str) -> QueryIntent:
             intent.test_type = test_type
             break
 
-    # Region
-    if any(k in q for k in ("europe", "eu ", " unece", "ece ", "un r")):
+    # Region — if query spans EU + US regulations, do not hard-filter by region.
+    eu_hit = any(k in q for k in ("europe", "eu ", " unece", "ece ", "un r"))
+    us_hit = any(k in q for k in ("us ", "usa", "nhtsa", "fmvss", "united states"))
+    named_eu = any(c.startswith("UN_") for c in intent.regulation_codes)
+    named_us = "FMVSS" in intent.regulation_codes
+    if (eu_hit and us_hit) or (named_eu and named_us):
+        intent.region = None
+    elif eu_hit:
         intent.region = "EU"
-    elif any(k in q for k in ("us ", "usa", "nhtsa", "fmvss", "united states")):
+    elif us_hit:
         intent.region = "US"
 
     # Doc type intent
@@ -97,7 +109,15 @@ def detect_query_intent(query: str) -> QueryIntent:
         intent.exclude_doc_types = [DOC_TYPE_REFERENCE, DOC_TYPE_RATING]
         intent.exclude_value_types = ["rating_threshold", "target"]
 
+    intent.allowed_clause_topics = detect_allowed_clause_topics(query)
+    intent.requirement_cluster = _detect_requirement_cluster(query)
+
     return intent
+
+
+def _detect_requirement_cluster(query: str) -> str | None:
+    from backend.app.core.document_registry import match_requirement_cluster
+    return match_requirement_cluster(query)
 
 
 def chunk_passes_intent_filter(chunk: dict[str, Any], intent: QueryIntent) -> bool:
@@ -129,5 +149,8 @@ def chunk_passes_intent_filter(chunk: dict[str, Any], intent: QueryIntent) -> bo
         if intent.doc_type_intent == DOC_TYPE_LEGAL and chunk.get("doc_type") == DOC_TYPE_REFERENCE:
             if intent.value_type_intent == "legal_limit":
                 return False
+
+    if not chunk_passes_topic_filter(chunk, intent.allowed_clause_topics):
+        return False
 
     return True

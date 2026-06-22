@@ -19,9 +19,8 @@ from backend.app.gateway.types import ProviderResponse
 
 
 class GroqProvider(Provider):
-    key = "groq"
-
-    def __init__(self, model: str | None = None) -> None:
+    def __init__(self, model: str | None = None, *, key: str = "groq") -> None:
+        self.key = key
         self._model = model or cfg.TIERS[1].model
         self._client = None
 

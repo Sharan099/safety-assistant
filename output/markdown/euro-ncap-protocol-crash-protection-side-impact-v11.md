@@ -1,7 +1,7 @@
 ---
 source_pdf: euro-ncap-protocol-crash-protection-side-impact-v11.pdf
 regulation: EURO_NCAP
-converter: paddleocr-PP-OCRv6
+converter: rapidocr-ppocr
 ---
 
 # euro-ncap-protocol-crash-protection-side-impact-v11

@@ -1,0 +1,219 @@
+{
+  "_meta": {
+    "name": "PSA AI — Passive Safety RAG golden set",
+    "version": "1.0",
+    "corpus": ["UN_R14", "UN_R16", "UN_R17", "UN_R94", "UN_R95", "UN_R135", "UN_R137", "FMVSS_208"],
+    "size": 15,
+    "purpose": "Regression test for the specific failure modes observed: context mixing, false-positive guardrail block, lexical-but-wrong retrieval (evacuation manikin), and missing abstention.",
+    "groq_free_tier_notes": "Scoring is two-tier. Tier A (retrieval + string match) uses ZERO LLM tokens — run with EVAL_SKIP_LLM=true. Tier B (one generation pass) is ~15 calls total; add a delay between calls to respect requests-per-minute limits. Do NOT use RAGAS LLM-as-judge on free tier — it multiplies calls 4-6x per question. Use the deterministic checks below instead."
+  },
+  "_scoring_guide": {
+    "tier_A_zero_tokens": {
+      "retrieval_recall": "PASS if every doc_id in expected_source_docs appears in the retrieved/reranked set.",
+      "must_not_retrieve": "FAIL if any chunk whose topic/text matches a must_not_retrieve entry is used as a primary source. This catches the Q3 evacuation-manikin error.",
+      "behavior_check": "PASS if the system's state (answer / abstain / compare) matches expected_behavior. 'Request blocked' on an answerable question is an automatic FAIL."
+    },
+    "tier_B_one_pass": {
+      "answer_contains": "PASS if the generated answer text contains at least one string from EACH group in expected_answer_contains (groups are AND; strings within a group are OR). Case-insensitive, strip commas/spaces.",
+      "no_forbidden_values": "FAIL if the answer contains any string in forbidden_in_answer (e.g. a side-impact value in a frontal question)."
+    },
+    "verify_against_source": "Items flagged verify_against_source:true contain revision-dependent numbers. Confirm them against YOUR indexed PDF revision before trusting the pass/fail — the expected value may differ by amendment series."
+  },
+  "items": [
+    {
+      "id": "Q01_lookup_r94_chest",
+      "query_type": "value_lookup",
+      "question": "What is the thorax (chest) deflection limit for the Hybrid III dummy in UN R94?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R94"],
+      "expected_clause": "§5.2.1 (ThCC)",
+      "expected_answer_contains": [["42 mm", "42mm"]],
+      "forbidden_in_answer": ["34 mm", "44 mm", "50 mm", "rib deflection", "≥ 41"],
+      "must_not_retrieve": ["side impact rib deflection", "Euro NCAP scoring threshold"],
+      "verify_against_source": true,
+      "notes": "Confirmed in user's corpus (ThCC ≤ 42 mm). Forbidden values are side-impact / NCAP figures that earlier got mixed in."
+    },
+    {
+      "id": "Q02_lookup_r94_dummy",
+      "query_type": "value_lookup",
+      "question": "Which dummy is used in the UN R94 frontal impact test?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R94"],
+      "expected_clause": "§2.1 / Annex",
+      "expected_answer_contains": [["Hybrid III", "Hybrid-III", "HIII"], ["50th", "fiftieth", "50 %"]],
+      "forbidden_in_answer": ["ES-2", "WorldSID", "manikin"],
+      "must_not_retrieve": ["evacuation manikin"],
+      "verify_against_source": false,
+      "notes": "Hybrid III 50th percentile male. Forbidding ES-2/WorldSID catches frontal/side dummy confusion."
+    },
+    {
+      "id": "Q03_mapping_r95_dummy_criteria",
+      "query_type": "dummy_criteria_mapping",
+      "question": "Which dummy and injury criteria are used in UN R95 side impact?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R95"],
+      "expected_clause": "Annex (injury criteria)",
+      "expected_answer_contains": [["ES-2", "EUROSID", "ES2"], ["rib deflection", "thorax", "viscous", "abdomen", "pelvis", "pubic symphysis"]],
+      "forbidden_in_answer": ["Hybrid III", "WorldSID", "50th percentile manikin"],
+      "must_not_retrieve": ["evacuation", "50th percentile manikin can be evacuated", "egress"],
+      "verify_against_source": true,
+      "notes": "THE key regression test. Earlier system returned the evacuation-clause '50th percentile manikin'. must_not_retrieve targets that exact wrong chunk. R95 dummy is ES-2 (older revs: EUROSID-1)."
+    },
+    {
+      "id": "Q04_comparison_r94_vs_fmvss208",
+      "query_type": "comparison",
+      "question": "How does the frontal impact test in UN R94 differ from FMVSS 208?",
+      "expected_behavior": "compare",
+      "expected_source_docs": ["UN_R94", "FMVSS_208"],
+      "expected_clause": "test setup clauses of both",
+      "expected_answer_contains": [["offset", "deformable barrier", "40 %"], ["full-width", "full width", "rigid barrier", "oblique"]],
+      "forbidden_in_answer": ["Request blocked", "Out of scope"],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "Earlier system returned 'Request blocked' (false-positive guardrail) AND retrieved only R94. PASS requires BOTH docs retrieved and NO block. R94 = 40% offset deformable barrier; FMVSS 208 = full-width rigid + oblique, belted/unbelted, multiple dummy sizes."
+    },
+    {
+      "id": "Q05_mapping_belt_restraint_regs",
+      "query_type": "cross_reg_mapping",
+      "question": "Which regulations govern seat belt and restraint system design for a new vehicle?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R14", "UN_R16", "UN_R17"],
+      "expected_clause": "scope clauses",
+      "expected_answer_contains": [["R16", "R 16"], ["R14", "R 14"], ["R17", "R 17"]],
+      "forbidden_in_answer": ["ISO 26262"],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "Earlier system named FMVSS 210 and missed R14+R17. Belt-design cluster = R16 (belts) + R14 (anchorages) + R17 (seats/head restraints), validated by crash regs R94/R137/R95."
+    },
+    {
+      "id": "Q06_lookup_r14_anchorage_load",
+      "query_type": "value_lookup",
+      "question": "What anchorage strength test load does UN R14 require for a three-point belt (M1/N1)?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R14"],
+      "expected_clause": "§6.4 / §6.4.2",
+      "expected_answer_contains": [["1350", "1,350"], ["daN"]],
+      "forbidden_in_answer": [],
+      "must_not_retrieve": [],
+      "verify_against_source": true,
+      "notes": "Confirmed: 1,350 daN ± 20 (M1/N1). Other categories 1,110 daN; M3/N3 740 daN. A complete answer may mention the category split."
+    },
+    {
+      "id": "Q07_disambig_r135_dummy",
+      "query_type": "value_lookup",
+      "question": "Which dummy is used in the UN R135 pole side impact test?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R135"],
+      "expected_clause": "test conditions",
+      "expected_answer_contains": [["WorldSID", "World SID", "WS"]],
+      "forbidden_in_answer": ["ES-2", "Hybrid III"],
+      "must_not_retrieve": [],
+      "verify_against_source": true,
+      "notes": "R135 uses WorldSID. Pairs with Q03 to test side-vs-pole-side disambiguation — the two most easily confused side dummies."
+    },
+    {
+      "id": "Q08_lookup_r137_testtype",
+      "query_type": "value_lookup",
+      "question": "What type of frontal impact test does UN R137 specify?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R137"],
+      "expected_clause": "scope / test setup",
+      "expected_answer_contains": [["full-width", "full width"], ["rigid barrier", "frontal"]],
+      "forbidden_in_answer": ["offset", "40 %"],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "R137 = full-width rigid-barrier frontal. Forbidding 'offset' catches R94/R137 confusion (both frontal, different barriers)."
+    },
+    {
+      "id": "Q09_lookup_fmvss208_hic",
+      "query_type": "value_lookup",
+      "question": "What is the HIC head injury limit in FMVSS 208?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["FMVSS_208"],
+      "expected_clause": "S6 head injury criteria",
+      "expected_answer_contains": [["700", "1000", "1,000", "500"]],
+      "forbidden_in_answer": [],
+      "must_not_retrieve": ["Euro NCAP"],
+      "verify_against_source": true,
+      "notes": "FMVSS 208 head criteria are HIC-based (HIC36 ≤ 1000; HIC15 ≤ 700/500 depending on dummy size/condition). Confirm exact figure for the asked condition against your PDF."
+    },
+    {
+      "id": "Q10_scope_r16_revision",
+      "query_type": "value_lookup",
+      "question": "What is the scope of UN R16, and which revision is indexed?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R16"],
+      "expected_clause": "§1 Scope",
+      "expected_answer_contains": [["safety-belt", "safety belt", "restraint system"]],
+      "forbidden_in_answer": [],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "Should also surface the revision flag (e.g. Rev.10 / 07 series). Tests that multi-revision flagging works."
+    },
+    {
+      "id": "Q11_mapping_r17_governs",
+      "query_type": "value_lookup",
+      "question": "What does UN R17 govern?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R17"],
+      "expected_clause": "§1 Scope",
+      "expected_answer_contains": [["seat", "seats"], ["head restraint", "head-restraint", "anchorage"]],
+      "forbidden_in_answer": [],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "R17 = seats, their anchorages, and head restraints (strength)."
+    },
+    {
+      "id": "Q12_lookup_r94_femur",
+      "query_type": "value_lookup",
+      "question": "What is the femur force criterion in UN R94?",
+      "expected_behavior": "answer",
+      "expected_source_docs": ["UN_R94"],
+      "expected_clause": "Annex (femur force criterion)",
+      "expected_answer_contains": [["femur", "femoral"], ["kN", "daN"]],
+      "forbidden_in_answer": [],
+      "must_not_retrieve": [],
+      "verify_against_source": true,
+      "notes": "Femur Force Criterion (FFC) is force-vs-time. Confirm exact kN threshold and duration against your PDF revision."
+    },
+    {
+      "id": "Q13_abstain_internal_target",
+      "query_type": "abstention",
+      "question": "What is our internal chest deflection target for this program?",
+      "expected_behavior": "abstain",
+      "expected_source_docs": [],
+      "expected_clause": null,
+      "expected_answer_contains": [["not found", "not in the regulations", "no internal", "out of scope", "cannot find"]],
+      "forbidden_in_answer": ["34 mm", "42 mm"],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "CRITICAL abstention test. The corpus has NO internal documents. The system MUST abstain, not borrow an external number and present it as an internal target. Returning any mm value here is a hallucination FAIL."
+    },
+    {
+      "id": "Q14_abstain_root_cause",
+      "query_type": "abstention",
+      "question": "Why is the chest deflection high in our latest simulation?",
+      "expected_behavior": "abstain",
+      "expected_source_docs": [],
+      "expected_clause": null,
+      "expected_answer_contains": [["not found", "no simulation", "not in the regulations", "cannot", "out of scope"]],
+      "forbidden_in_answer": ["pretensioner firing", "load limiter too high", "92%", "confidence"],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "Root-cause needs sim/test data not in corpus. MUST abstain. Fabricating ranked causes with confidence % is a FAIL — this is exactly the over-confident behavior to prevent."
+    },
+    {
+      "id": "Q15_out_of_scope",
+      "query_type": "out_of_scope",
+      "question": "Who won the FIFA World Cup in 2022?",
+      "expected_behavior": "abstain",
+      "expected_source_docs": [],
+      "expected_clause": null,
+      "expected_answer_contains": [["out of scope", "regulations only", "not found"]],
+      "forbidden_in_answer": ["Argentina", "France"],
+      "must_not_retrieve": [],
+      "verify_against_source": false,
+      "notes": "Scope-boundary guardrail check. Should reply 'Out of scope — regulations only.' Costs near-zero (abstains pre-LLM)."
+    }
+  ]
+}

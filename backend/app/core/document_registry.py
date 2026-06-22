@@ -25,6 +25,7 @@ Fields marked `verified=False` must be confirmed before they are trusted.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 
 # Document type taxonomy. Keep legal vs rating strictly separated.
@@ -155,6 +156,97 @@ _REGISTRY: dict[str, DocumentMeta] = {
     ),
 }
 
+
+# ── Indexed corpus lock (Phase 3) ───────────────────────────────────────────
+# Exact set of legal crash/restraint regulations in the indexed corpus.
+INDEXED_LEGAL_CORPUS: frozenset[str] = frozenset({
+    "UN_R14", "UN_R16", "UN_R17", "UN_R94", "UN_R95", "UN_R135", "UN_R137", "FMVSS",
+})
+
+# FMVSS_210 is NOT indexed — answers must not cite it.
+GHOST_REGULATIONS: frozenset[str] = frozenset({"FMVSS_210", "UN_R210"})
+
+
+@dataclass(frozen=True)
+class RequirementCluster:
+    name: str
+    members: tuple[str, ...]
+    validated_by: tuple[str, ...] = ()
+    query_triggers: tuple[str, ...] = ()
+
+
+REQUIREMENT_CLUSTERS: dict[str, RequirementCluster] = {
+    "belt_restraint_design": RequirementCluster(
+        name="belt_restraint_design",
+        members=("UN_R14", "UN_R16", "UN_R17"),
+        validated_by=("UN_R94", "UN_R137", "UN_R95"),
+        query_triggers=(
+            "belt", "restraint", "seat belt", "seatbelt", "anchorage",
+            "govern", "which regulations", "which regs",
+        ),
+    ),
+    "frontal": RequirementCluster(
+        name="frontal",
+        members=("UN_R94", "UN_R137", "FMVSS"),
+        validated_by=(),
+        query_triggers=("frontal", "head-on", "odb", "full-width frontal"),
+    ),
+    "side": RequirementCluster(
+        name="side",
+        members=("UN_R95", "UN_R135"),
+        validated_by=(),
+        query_triggers=("side impact", "lateral", "pole side"),
+    ),
+}
+
+
+def is_indexed_regulation(code: str | None) -> bool:
+    if not code:
+        return False
+    norm = code.upper().replace(" ", "_")
+    if norm in GHOST_REGULATIONS:
+        return False
+    if norm in INDEXED_LEGAL_CORPUS:
+        return True
+    return norm in _REGISTRY
+
+
+def match_requirement_cluster(query: str) -> str | None:
+    q = query.lower()
+    best: str | None = None
+    best_hits = 0
+    for name, cluster in REQUIREMENT_CLUSTERS.items():
+        hits = sum(1 for t in cluster.query_triggers if t in q)
+        if hits > best_hits:
+            best_hits = hits
+            best = name
+    return best if best_hits > 0 else None
+
+
+def cluster_member_codes(cluster_name: str | None) -> tuple[str, ...]:
+    if not cluster_name:
+        return ()
+    c = REQUIREMENT_CLUSTERS.get(cluster_name)
+    return c.members if c else ()
+
+
+def cluster_boost_for_regulation(reg_code: str, cluster_name: str | None) -> float:
+    """Return metadata multiplier for cluster-aware ranking."""
+    if not cluster_name:
+        return 1.0
+    cluster = REQUIREMENT_CLUSTERS.get(cluster_name)
+    if not cluster:
+        return 1.0
+    norm = (reg_code or "").upper().replace(" ", "_")
+    if norm in cluster.members:
+        return float(os.getenv("CLUSTER_MEMBER_BOOST", "2.0"))
+    if norm in cluster.validated_by:
+        return float(os.getenv("CLUSTER_VALIDATED_BOOST", "1.3"))
+    if norm in GHOST_REGULATIONS:
+        return 0.0
+    return 1.0
+
+
 _UNKNOWN = DocumentMeta(
     code="UNKNOWN",
     display_name="Unknown document",
@@ -175,3 +267,67 @@ def get_document_meta(regulation_code: str | None) -> DocumentMeta:
 
 def doc_type_label(doc_type: str) -> str:
     return DOC_TYPE_LABEL.get(doc_type, doc_type)
+
+
+# Aliases for regulation detection in user queries (longest match first at runtime).
+REG_QUERY_ALIASES: dict[str, str] = {
+    "fmvss 208": "FMVSS",
+    "fmvss208": "FMVSS",
+    "fmvss 210": "FMVSS",
+    "fmvss": "FMVSS",
+    "un regulation no. 14": "UN_R14",
+    "regulation no. 14": "UN_R14",
+    "un r14": "UN_R14",
+    "r14": "UN_R14",
+    "un regulation no. 16": "UN_R16",
+    "un r16": "UN_R16",
+    "r16": "UN_R16",
+    "un regulation no. 17": "UN_R17",
+    "un r17": "UN_R17",
+    "r17": "UN_R17",
+    "un regulation no. 94": "UN_R94",
+    "un r94": "UN_R94",
+    "r94": "UN_R94",
+    "un regulation no. 95": "UN_R95",
+    "un r95": "UN_R95",
+    "r95": "UN_R95",
+    "un regulation no. 135": "UN_R135",
+    "un r135": "UN_R135",
+    "r135": "UN_R135",
+    "un regulation no. 137": "UN_R137",
+    "un r137": "UN_R137",
+    "r137": "UN_R137",
+    "euro ncap": "EURO_NCAP",
+    "euroncap": "EURO_NCAP",
+    "ncap": "EURO_NCAP",
+}
+
+# Golden-set / external ids that map to indexed corpus regulation codes.
+REG_CORPUS_ALIASES: dict[str, tuple[str, ...]] = {
+    "FMVSS_208": ("FMVSS",),
+    "FMVSS_210": ("FMVSS",),
+}
+
+
+def detect_regulations_in_query(query: str) -> list[str]:
+    """Return unique indexed regulation codes named in the query (registry order)."""
+    q = query.lower()
+    found: list[str] = []
+    for alias, code in sorted(REG_QUERY_ALIASES.items(), key=lambda x: -len(x[0])):
+        if alias in q and code not in found:
+            found.append(code)
+    return found
+
+
+def regulation_matches_corpus(expected: str, chunk_reg: str) -> bool:
+    """True if chunk regulation satisfies an expected doc id (e.g. FMVSS_208 → FMVSS)."""
+    exp = expected.upper().replace(" ", "_")
+    reg = (chunk_reg or "").upper().replace(" ", "_")
+    if not reg:
+        return False
+    if exp == reg or exp in reg or reg in exp:
+        return True
+    for alias, codes in REG_CORPUS_ALIASES.items():
+        if exp == alias.upper() and reg in [c.upper() for c in codes]:
+            return True
+    return False

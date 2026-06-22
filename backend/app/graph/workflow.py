@@ -15,6 +15,8 @@ from backend.app.core.settings import (
     ENABLE_GROUNDING_GATE,
     GROUNDING_MIN_RERANK_PROB,
     GROUNDING_MIN_SEMANTIC,
+    INJECTION_BLOCKED_MESSAGE,
+    LOW_GROUNDING_ABSTAIN_MESSAGE,
 )
 from backend.app.guardrails.validator import SafetyGuardrails
 from backend.app.llm.groq_client import GroqLLM
@@ -26,13 +28,11 @@ from backend.app.retrieval.citations import (
 from backend.app.retrieval.hybrid import HybridRetriever
 from backend.app.retrieval.reranker import CrossEncoderReranker
 
-# Exact reply emitted when retrieval cannot ground an answer. Kept as a single
-# constant so the abstain text is identical across the gate and the no-context
-# path, and matches the prompt's abstention instruction.
-# Hard abstain when retrieval confidence is too low or context is empty.
-ABSTAIN_REPLY = """## 1. EXECUTIVE SUMMARY
+# Low-grounding abstain — short, distinct from injection block.
+LOW_GROUNDING_ABSTAIN_REPLY = LOW_GROUNDING_ABSTAIN_MESSAGE
 
-Insufficient data in knowledge base — no relevant passages were retrieved above the confidence threshold. Recommend rephrasing the question or naming a specific regulation (e.g. UN R14, UN R94)."""
+# Legacy alias kept for imports/tests that reference ABSTAIN_REPLY.
+ABSTAIN_REPLY = LOW_GROUNDING_ABSTAIN_REPLY
 
 
 class RAGState(TypedDict, total=False):
@@ -218,11 +218,16 @@ class RAGWorkflow:
             gr = self.guardrails.validate_input(state["query"])
             span["outputs"] = self.guardrails.to_dict(gr)
             timing = state.get("timing", {})
+            response_state = gr.input_state  # injection_blocked | answerable
             return {
                 **state,
                 "guardrails_input": self.guardrails.to_dict(gr),
                 "timing": timing,
-                "metadata": {**(state.get("metadata") or {}), "input_blocked": gr.blocked},
+                "metadata": {
+                    **(state.get("metadata") or {}),
+                    "input_blocked": gr.blocked,
+                    "response_state": response_state,
+                },
             }
 
     def _node_retrieve(self, state: RAGState) -> RAGState:
@@ -296,31 +301,40 @@ class RAGWorkflow:
             logger.warning("No documents after retrieval/rerank")
         # Answer-level flags are derived in run() once the final answer is known,
         # so they can be scoped to the markers the answer actually cited.
-        return {
-            **state,
-            "context": context,
-            "prompt": prompt,
-            "citations": citations,
-            "flags": [],
-            "grounding": grounding,
-            "metadata": {**meta, "abstain": abstain},
-        }
+            return {
+                **state,
+                "context": context,
+                "prompt": prompt,
+                "citations": citations,
+                "flags": [],
+                "grounding": grounding,
+                "metadata": {
+                    **meta,
+                    "abstain": abstain,
+                    "response_state": "low_grounding_abstain" if abstain else "answerable",
+                },
+            }
 
     def _node_generate(self, state: RAGState) -> RAGState:
         meta = state.get("metadata") or {}
         if meta.get("input_blocked"):
-            reason = state.get("guardrails_input", {}).get("block_reason", "blocked")
             return {
                 **state,
-                "answer": (
-                    "Your query was blocked by safety guardrails "
-                    f"({reason}). Please rephrase your question."
-                ),
+                "answer": INJECTION_BLOCKED_MESSAGE,
+                "metadata": {**meta, "response_state": "injection_blocked"},
             }
         if meta.get("abstain"):
-            return {**state, "answer": ABSTAIN_REPLY}
+            return {
+                **state,
+                "answer": LOW_GROUNDING_ABSTAIN_REPLY,
+                "metadata": {**meta, "response_state": "low_grounding_abstain"},
+            }
         if not state.get("context"):
-            return {**state, "answer": ABSTAIN_REPLY}
+            return {
+                **state,
+                "answer": LOW_GROUNDING_ABSTAIN_REPLY,
+                "metadata": {**meta, "response_state": "low_grounding_abstain"},
+            }
         logger.info("Calling LLM...")
         with trace_span("generate", {"prompt_len": len(state.get("prompt", ""))}) as span:
             try:

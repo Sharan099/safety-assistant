@@ -1,11 +1,12 @@
 # Sync backend artifacts into a local HF Space clone, ready to git push.
 #
 # Usage:
+#   conda activate rag
 #   .\scripts\prepare_hf_space.ps1
 #   .\scripts\prepare_hf_space.ps1 -TargetDir H:\Passive_safety_assistant
 #
 # Then in TargetDir:
-#   git add -A
+#   git add Dockerfile requirements.txt README.md config.py backend ingestion output .gitattributes .dockerignore
 #   git status   # confirm regulation_embeddings.json is LFS
 #   git commit -m "Deploy PSA backend API"
 #   git push
@@ -68,28 +69,33 @@ foreach ($f in $files) {
     Write-Host "  copied $($f.Dst)"
 }
 
-# backend/ tree
-$backendSrc = Join-Path $Root "backend"
-$backendDst = Join-Path $TargetDir "backend"
-if (Test-Path $backendDst) { Remove-Item -Recurse -Force $backendDst }
-Copy-Item -Recurse -Force $backendSrc $backendDst
-Write-Host "  copied backend/"
+# backend/ and ingestion/ trees (upload API + document ingest)
+foreach ($tree in @("backend", "ingestion")) {
+    $treeSrc = Join-Path $Root $tree
+    $treeDst = Join-Path $TargetDir $tree
+    if (-not (Test-Path $treeSrc)) {
+        Write-Error "Missing required folder: $treeSrc"
+    }
+    if (Test-Path $treeDst) { Remove-Item -Recurse -Force $treeDst }
+    Copy-Item -Recurse -Force $treeSrc $treeDst
+    Write-Host "  copied $tree/"
+}
 
 # Verify embeddings count
 $embPath = Join-Path $TargetDir "output\regulation_embeddings.json"
-$check = conda run -n rag python -c "import json; d=json.load(open(r'$embPath')); print(len(d.get('embeddings',{})))"
+$check = python -c "import json; d=json.load(open(r'$embPath',encoding='utf-8')); print(len(d.get('embeddings',{})))"
 Write-Host ""
-Write-Host "Embeddings vectors: $check (expect 28341)"
+Write-Host "Embeddings vectors: $check (expect 14554)"
 
 Write-Host ""
 Write-Host "=== Next: push to Hugging Face ==="
 Write-Host "  cd `"$TargetDir`""
-Write-Host "  git add Dockerfile requirements.txt README.md config.py backend output .gitattributes .dockerignore"
-Write-Host "  git lfs track output/regulation_chunks.json output/regulation_embeddings.json"
-Write-Host "  git add output/regulation_embeddings.json"
+Write-Host "  git lfs track output/regulation_embeddings.json"
+Write-Host "  git add Dockerfile requirements.txt README.md config.py backend ingestion output .gitattributes .dockerignore"
 Write-Host "  git status"
-Write-Host "  git commit -m `"Deploy PSA FastAPI backend for Vercel frontend`""
+Write-Host "  git commit -m `"Deploy PSA FastAPI backend (v4 corpus + metadata filtering)`""
 Write-Host "  git push"
 Write-Host ""
 Write-Host "Then set Space secrets (see deploy/hf-space/README.md) and Vercel:"
-Write-Host "  NEXT_PUBLIC_API_URL=https://sharan099-passive-safety-assistant.hf.space/api/v1"
+Write-Host "  NEXT_PUBLIC_API_URL=/api/v1"
+Write-Host "  NEXT_PUBLIC_HF_BACKEND_URL=https://sharan099-passive-safety-assistant.hf.space"

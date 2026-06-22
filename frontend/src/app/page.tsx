@@ -32,7 +32,12 @@ type Citation = {
 };
 
 type Flag = { type: string; regulation?: string; message: string };
-type Grounding = { should_abstain?: boolean; confidence?: number; reason?: string };
+type Grounding = {
+  should_abstain?: boolean;
+  confidence?: number;
+  confidence_band?: "high" | "medium" | "low";
+  reason?: string;
+};
 
 type Gateway = {
   model?: string;
@@ -543,6 +548,30 @@ export default function Home() {
               <p>{msg.content}</p>
             )}
 
+            {msg.role === "assistant" &&
+              !shouldAbstain &&
+              msg.grounding?.confidence_band && (
+                <div className="confidence-row">
+                  <span
+                    className={`confidence-badge confidence-${msg.grounding.confidence_band}`}
+                    title={`Grounding confidence: ${(
+                      (msg.grounding.confidence ?? 0) * 100
+                    ).toFixed(0)}%`}
+                  >
+                    {msg.grounding.confidence_band === "high"
+                      ? "High confidence"
+                      : msg.grounding.confidence_band === "medium"
+                      ? "Medium confidence"
+                      : "Low confidence"}
+                  </span>
+                  {msg.grounding.confidence_band === "low" && (
+                    <span className="confidence-caution">
+                      Low confidence — verify against the cited source.
+                    </span>
+                  )}
+                </div>
+              )}
+
             {showExtras && dedupedFlags.length > 0 && (
               <div className="flags">
                 {dedupedFlags.map((f, j) => (
@@ -974,6 +1003,18 @@ const appCss = `
   .badge-legal { background: #16a34a; color: #fff; }
   .badge-rating { background: var(--accent); color: #fff; }
   .badge-unverified { background: #a8a29e; color: #fff; }
+  .confidence-row { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .confidence-badge {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .confidence-high { background: #16a34a; color: #fff; }
+  .confidence-medium { background: #ca8a04; color: #fff; }
+  .confidence-low { background: #dc2626; color: #fff; }
+  .confidence-caution { font-size: 0.75rem; color: #b45309; font-weight: 600; }
   .clabel { font-weight: 600; }
   .csnippet { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
   .timing { display: block; margin-top: 0.5rem; color: var(--muted); font-size: 0.78rem; }

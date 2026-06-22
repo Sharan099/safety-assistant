@@ -1,7 +1,7 @@
 ---
 source_pdf: UN_R16.pdf
 regulation: UN_R16
-converter: paddleocr-PP-OCRv6
+converter: rapidocr-ppocr
 ---
 
 # UN_R16
@@ -3815,16 +3815,15 @@ AIRBAG
 
 ## Page 55
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 3 
- 
- 
-55 
-Annex 3 
- 
- Diagram of an apparatus to test durability of retractor 
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex3
+Annex 3
+Diagram of an apparatus to test durability of retractor
 mechanism
+RETRACTOR
+GEAREDMOTOR
+55
 
 
 ## Page 56
@@ -3858,15 +3857,24 @@ _
 
 ## Page 57
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 5 
- 
- 
-57 
-Annex 5 
-Diagram of an apparatus for dust-resistance test 
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex5
+Annex 5
+Diagram of an apparatus for dust-resistance test
 (dimensions in millimetres)
+500
+retradtar
+Cydingattachment
+dustoollector
+retradtor
+250
+40°
+orifice
+valveandfilter
+dust
+ar
+57
 
 
 ## Page 58
@@ -4122,20 +4130,21 @@ All dimensions in mm
 
 ## Page 63
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 6 
- 
- 
-63 
-Figure 4 
-Stopping device 
-(Olive-shaped knob) 
- 
-Surface finish 
-0 4.
- 
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex6
+Figure 4
+Stopping device
+(Olive-shaped knob)
+27±0.5
+18±0.5
+*This dimension canvarybetween 43and 49mm
+Dimensions in mm
+min.20
+Dimensions in mm
+Surface finish
 Interference tolerance ±0.1
+63
 
 
 ## Page 64
@@ -4607,44 +4616,79 @@ Lower leg and foot
 
 ## Page 68
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 7 
- 
-68 
-Components of manikin 
-Mass in kg 
-Total mass including correction weights 
-75.5 ± 1.0 
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex7
+Componentsofmanikin
+Mass in kg
+Total mass including correction weights
+75.5 ± 1.0
 Figure 1
+13
+12
+11
+10
+5
+9
+32
+31
+68
 
 
 ## Page 69
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 7 
- 
- 
-69 
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex7
 Figure 2
+13
+17
+12
+11
+16
+16
+18
+18
+14
+14
+10
+15
+9
+5
+8
+69
 
 
 ## Page 70
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 7 
- 
-70 
-Figure 3 
- 
- 
- 
- 
- 
- 
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex7
+Figure 3
 Figure 4
+20
+34
+19
+24
+19
+25
+20
+23
+21
+21
+21
+21-
+26
+22
+22
+27
+28
+29
+22
+29
+30
+30
+70
 
 
 ## Page 71
@@ -4856,41 +4900,70 @@ installation in all vehicles where an installation is provided for.
 
 ## Page 75
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 10 
- 
- 
-75 
-Annex 10 
- 
- Dual buckle test
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex 10
+Annex 10
+Dual buckle test
+W
+1470 daN
+1470daN
+Angle tobe established
+during procedure outlined
+in paragraphs 7.5.5.
+and 7.7.1.
+W = applied load
+75
 
 
 ## Page 76
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 11 
- 
-76 
-Annex 11 
- 
- Abrasion and micro-slip test 
-Figure 1 
-Type I procedure
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex 11
+Annex 11
+Abrasion and micro-slip test
+Figure 1
+TypeI procedure
+total travel:
+300±20mm
+protective strap
+for inner bar
+support
+F = 2.5 daN
+Example a
+total travel:
+300±20mm
+rotating
+pin
+lower stop
+Exampleb
+Examplesof test arrangementscorresponding
+F=2.5daN
+to thetypeof adjusting device
+76
 
 
 ## Page 77
 
-E/ECE/324/Rev.1/Add.15/Rev.10 
-E/ECE/TRANS/505/Rev.1/Add.15/Rev.10 
-Annex 11 
- 
- 
-77 
-Figure 2 
+E/ECE/324/Rev.1/Add.15/Rev.10
+E/ECE/TRANS/505/Rev.1/Add.15/Rev.10
+Annex 11
+Figure 2
 Type 2 procedure
+30±5°
+total travel:
+300±20mm
+strapsinhorizontalplans
+F = 0.5 daN
+total tra/el:
+300±20mm
+25±5°
+25±5°
+Test ina guide or pulley
+F=5±0.05N
+All dimensions in mm
+77
 
 
 ## Page 78

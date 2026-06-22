@@ -1,15 +1,15 @@
 /**
  * API routing for Vercel frontend + Hugging Face backend.
  *
- * Fast endpoints (/ready, /users, /feedback) → same-origin Vercel proxy (/api/v1).
- * Chat (/chat) → browser calls HF Space directly (CORS allowed) because Vercel's
- * proxy times out ~60s while Jina rerank + RAG can take 90–120s.
+ * Fast endpoints → Vercel proxy (/api/v1).
+ * Chat → direct HF + NDJSON stream (/chat/stream) with keepalive pings so the
+ * HF gateway does not kill connections during 60–120s Jina rerank.
  */
 const HF_BACKEND =
   process.env.NEXT_PUBLIC_HF_BACKEND_URL?.replace(/\/$/, "") ||
   "https://sharan099-passive-safety-assistant.hf.space";
 
-const CHAT_TIMEOUT_MS = 180_000; // 3 min — Jina rerank on CPU can exceed 60s
+const CHAT_TIMEOUT_MS = 180_000;
 
 function isVercelHost(): boolean {
   if (typeof window === "undefined") return false;
@@ -17,7 +17,6 @@ function isVercelHost(): boolean {
   return host.endsWith(".vercel.app") || host === "safety-assistant-tan.vercel.app";
 }
 
-/** Proxied base for fast endpoints (ready, users, feedback). */
 export function getApiBase(): string {
   if (typeof window !== "undefined") {
     if (isVercelHost()) return "/api/v1";
@@ -29,7 +28,6 @@ export function getApiBase(): string {
   return "http://localhost:8000/api/v1";
 }
 
-/** Direct HF base for long-running chat (bypasses Vercel 60s proxy limit). */
 export function getChatApiBase(): string {
   if (typeof window !== "undefined" && isVercelHost()) {
     return `${HF_BACKEND}/api/v1`;
@@ -37,15 +35,10 @@ export function getChatApiBase(): string {
   return getApiBase();
 }
 
-export function getHfBackendUrl(): string {
-  return HF_BACKEND;
-}
-
 function buildUrl(base: string, path: string): string {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-/** Fetch with optional retry (for /ready, /users, etc.). */
 export async function apiFetch(
   path: string,
   init?: RequestInit,
@@ -64,22 +57,77 @@ export async function apiFetch(
   throw lastErr;
 }
 
-/** Chat fetch — direct to HF on Vercel, long timeout for slow rerankers. */
-export async function apiFetchChat(
-  path: string,
-  init?: RequestInit,
-): Promise<Response> {
-  const url = buildUrl(getChatApiBase(), path);
+export type ChatPayload = {
+  query: string;
+  answer: string;
+  message_id?: string | null;
+  documents?: unknown[];
+  citations?: unknown[];
+  flags?: unknown[];
+  grounding?: Record<string, unknown>;
+  gateway?: Record<string, unknown>;
+  timing?: Record<string, number>;
+  warnings?: string[];
+};
+
+/** Stream chat with keepalive pings (fixes HF ~60s gateway timeout). */
+export async function apiChatStream(
+  body: { query: string; user_id?: string; session_id?: string },
+  onProgress?: (elapsedSec: number) => void,
+): Promise<ChatPayload> {
+  const url = buildUrl(getChatApiBase(), "/chat/stream");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
+
   try {
-    const res = await fetch(url, { ...init, signal: controller.signal });
-    return res;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/x-ndjson",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      throw new Error((await res.text()) || `HTTP ${res.status}`);
+    }
+    if (!res.body) {
+      throw new Error("Empty response body from chat stream");
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const msg = JSON.parse(line) as {
+          type: string;
+          elapsed_s?: number;
+          data?: ChatPayload;
+          detail?: string;
+        };
+        if (msg.type === "ping" && msg.elapsed_s != null) {
+          onProgress?.(msg.elapsed_s);
+        } else if (msg.type === "result" && msg.data) {
+          return msg.data;
+        } else if (msg.type === "error") {
+          throw new Error(msg.detail || "Chat stream failed");
+        }
+      }
+    }
+    throw new Error("Chat stream ended without a result");
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new Error(
-        "Request timed out after 3 minutes. The backend reranker is slow on CPU — " +
-          "retry once, or set RERANKER_MODEL=BAAI/bge-reranker-v2-m3 on the HF Space.",
+        "Request timed out after 3 minutes. Try again or switch to BGE reranker on HF Space.",
       );
     }
     throw err;
@@ -92,8 +140,8 @@ export function formatApiError(err: unknown): string {
   if (err instanceof Error) return err.message;
   if (err instanceof TypeError) {
     return (
-      "Could not reach the backend. If the Hugging Face Space was sleeping, " +
-      "wait 30s and retry. Chat requests go directly to HF (not via Vercel proxy)."
+      "Failed to fetch — connection dropped (HF gateway timeout or CORS). " +
+      "Redeploy frontend + backend with /chat/stream support."
     );
   }
   return "Request failed";

@@ -1,11 +1,13 @@
 """FastAPI routes: chat, health, readiness, users, and feedback."""
 
 import asyncio
+import json
 import os
 import time
-from typing import Any
+from typing import Any, AsyncIterator
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from loguru import logger
 from pydantic import BaseModel, Field
 
@@ -164,96 +166,141 @@ async def feedback_dashboard(
 
 
 # ───────────────────────── chat ─────────────────────────
+async def _workflow_result_to_response(
+    req: ChatRequest, result: dict[str, Any], t0: float, *, endpoint: str
+) -> ChatResponse:
+    status = "error" if result.get("error") else "success"
+    if result.get("error"):
+        prom.ERRORS_TOTAL.labels(error_type="workflow").inc()
+
+    gr_out = result.get("guardrails", {}).get("output", {})
+    warnings = gr_out.get("warnings", [])
+    gr_in = result.get("guardrails", {}).get("input", {})
+    if gr_in.get("blocked"):
+        prom.GUARDRAIL_BLOCKS.labels(
+            reason=gr_in.get("block_reason", "unknown")
+        ).inc()
+
+    prompt = result.get("prompt", "")
+    answer = result.get("answer", "")
+    prom.record_llm_usage(prompt, answer, (time.perf_counter() - t0))
+    prom.RETRIEVAL_LATENCY.observe(
+        (result.get("timing", {}).get("retrieval_ms", 0) or 0) / 1000
+    )
+    prom.REQUEST_LATENCY.labels(endpoint=endpoint, status=status).observe(
+        time.perf_counter() - t0
+    )
+
+    message_id = None
+    grounding = result.get("grounding", {})
+    try:
+        if req.user_id and req.session_id:
+            await asyncio.to_thread(store.create_session, req.user_id, req.session_id)
+        gateway_meta = result.get("gateway", {})
+        from config import GROQ_MODEL
+
+        message_id = await asyncio.to_thread(
+            store.record_message,
+            session_id=req.session_id,
+            user_id=req.user_id,
+            query=result["query"],
+            answer=answer,
+            grounding=str(grounding) if grounding else None,
+            model=gateway_meta.get("model") or GROQ_MODEL,
+        )
+    except Exception as exc:
+        logger.warning(f"Message persistence failed: {exc}")
+
+    should_abstain = bool(grounding.get("should_abstain"))
+    citations = [] if should_abstain else result.get("citations", [])
+    flags = [] if should_abstain else result.get("flags", [])
+
+    return ChatResponse(
+        query=result["query"],
+        answer=result["answer"],
+        message_id=message_id,
+        documents=[
+            {
+                "id": d.get("id"),
+                "title": d.get("title"),
+                "heading_path": d.get("heading_path"),
+                "regulation": d.get("regulation"),
+                "source": d.get("source"),
+                "rerank_score": d.get("rerank_score"),
+            }
+            for d in result.get("documents", [])
+        ],
+        citations=citations,
+        flags=flags,
+        grounding=result.get("grounding", {}),
+        guardrails=result.get("guardrails", {}),
+        gateway=result.get("gateway", {}),
+        timing=result.get("timing", {}),
+        warnings=warnings,
+    )
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, request: Request) -> ChatResponse:
     rate_limit(request, "chat", limit=30, window_s=60)
     prom.ACTIVE_REQUESTS.inc()
     t0 = time.perf_counter()
-    status = "success"
     try:
         logger.info(f"POST /chat query={req.query[:80]}...")
         result = await asyncio.to_thread(
             get_workflow().run, req.query, req.user_id, req.session_id
         )
-        if result.get("error"):
-            status = "error"
-            prom.ERRORS_TOTAL.labels(error_type="workflow").inc()
-
-        gr_out = result.get("guardrails", {}).get("output", {})
-        warnings = gr_out.get("warnings", [])
-        gr_in = result.get("guardrails", {}).get("input", {})
-        if gr_in.get("blocked"):
-            prom.GUARDRAIL_BLOCKS.labels(
-                reason=gr_in.get("block_reason", "unknown")
-            ).inc()
-
-        prompt = result.get("prompt", "")
-        answer = result.get("answer", "")
-        prom.record_llm_usage(prompt, answer, (time.perf_counter() - t0))
-        prom.RETRIEVAL_LATENCY.observe(
-            (result.get("timing", {}).get("retrieval_ms", 0) or 0) / 1000
-        )
-        prom.REQUEST_LATENCY.labels(endpoint="chat", status=status).observe(
-            time.perf_counter() - t0
-        )
-
-        # Persist the turn so feedback can reference it by message_id.
-        message_id = None
-        grounding = result.get("grounding", {})
-        try:
-            if req.user_id and req.session_id:
-                await asyncio.to_thread(
-                    store.create_session, req.user_id, req.session_id
-                )
-            gateway_meta = result.get("gateway", {})
-            from config import GROQ_MODEL
-
-            message_id = await asyncio.to_thread(
-                store.record_message,
-                session_id=req.session_id,
-                user_id=req.user_id,
-                query=result["query"],
-                answer=answer,
-                grounding=str(grounding) if grounding else None,
-                model=gateway_meta.get("model") or GROQ_MODEL,
-            )
-        except Exception as exc:  # never fail the chat because of logging
-            logger.warning(f"Message persistence failed: {exc}")
-
-        # On abstention there is no grounded answer: never surface sources/flags.
-        should_abstain = bool(grounding.get("should_abstain"))
-        citations = [] if should_abstain else result.get("citations", [])
-        flags = [] if should_abstain else result.get("flags", [])
-
-        return ChatResponse(
-            query=result["query"],
-            answer=result["answer"],
-            message_id=message_id,
-            documents=[
-                {
-                    "id": d.get("id"),
-                    "title": d.get("title"),
-                    "heading_path": d.get("heading_path"),
-                    "regulation": d.get("regulation"),
-                    "source": d.get("source"),
-                    "rerank_score": d.get("rerank_score"),
-                }
-                for d in result.get("documents", [])
-            ],
-            citations=citations,
-            flags=flags,
-            grounding=result.get("grounding", {}),
-            guardrails=result.get("guardrails", {}),
-            gateway=result.get("gateway", {}),
-            timing=result.get("timing", {}),
-            warnings=warnings,
-        )
+        return await _workflow_result_to_response(req, result, t0, endpoint="chat")
     except Exception as exc:
-        status = "error"
         prom.ERRORS_TOTAL.labels(error_type=type(exc).__name__).inc()
-        prom.REQUEST_LATENCY.labels(endpoint="chat", status=status).observe(
+        prom.REQUEST_LATENCY.labels(endpoint="chat", status="error").observe(
             time.perf_counter() - t0
         )
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     finally:
         prom.ACTIVE_REQUESTS.dec()
+
+
+@router.post("/chat/stream")
+async def chat_stream(req: ChatRequest, request: Request) -> StreamingResponse:
+    """
+    NDJSON stream with keepalive pings every ~10s so HF/Vercel gateways do not
+    close the connection during slow CPU reranking (60–120s).
+    """
+    rate_limit(request, "chat", limit=30, window_s=60)
+    prom.ACTIVE_REQUESTS.inc()
+    t0 = time.perf_counter()
+    logger.info(f"POST /chat/stream query={req.query[:80]}...")
+
+    async def ndjson() -> AsyncIterator[str]:
+        task = asyncio.create_task(
+            asyncio.to_thread(
+                get_workflow().run, req.query, req.user_id, req.session_id
+            )
+        )
+        try:
+            while not task.done():
+                yield json.dumps(
+                    {"type": "ping", "elapsed_s": round(time.perf_counter() - t0, 1)}
+                ) + "\n"
+                try:
+                    await asyncio.wait_for(asyncio.shield(task), timeout=10.0)
+                except asyncio.TimeoutError:
+                    continue
+            result = await task
+            response = await _workflow_result_to_response(
+                req, result, t0, endpoint="chat_stream"
+            )
+            yield json.dumps(
+                {"type": "result", "data": response.model_dump()}, default=str
+            ) + "\n"
+        except Exception as exc:
+            prom.ERRORS_TOTAL.labels(error_type=type(exc).__name__).inc()
+            prom.REQUEST_LATENCY.labels(endpoint="chat_stream", status="error").observe(
+                time.perf_counter() - t0
+            )
+            yield json.dumps({"type": "error", "detail": str(exc)}) + "\n"
+        finally:
+            prom.ACTIVE_REQUESTS.dec()
+
+    return StreamingResponse(ndjson(), media_type="application/x-ndjson")

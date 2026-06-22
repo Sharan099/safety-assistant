@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { apiFetch, apiFetchChat, formatApiError } from "@/lib/api";
+import { apiChatStream, apiFetch, formatApiError } from "@/lib/api";
 
 type Doc = {
   id?: string;
@@ -130,7 +130,9 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingSec, setLoadingSec] = useState(0);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const sendLockRef = useRef(false);
 
   // Load saved user (session memory) on first paint.
   useEffect(() => {
@@ -222,33 +224,32 @@ export default function Home() {
 
   async function send() {
     const q = input.trim();
-    if (!q || !canChat) return;
+    if (!q || !canChat || sendLockRef.current) return;
+    sendLockRef.current = true;
     setInput("");
     setMessages((m) => [...m, { role: "user", content: q }]);
     setLoading(true);
+    setLoadingSec(0);
     try {
-      const res = await apiFetchChat("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const data = await apiChatStream(
+        {
           query: q,
           user_id: user?.user_id,
           session_id: user?.session_id,
-        }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
+        },
+        (elapsed) => setLoadingSec(Math.round(elapsed)),
+      );
       setMessages((m) => [
         ...m,
         {
           role: "assistant",
           content: data.answer,
-          messageId: data.message_id,
-          docs: data.documents,
-          citations: data.citations,
-          flags: data.flags,
-          grounding: data.grounding,
-          gateway: data.gateway,
+          messageId: data.message_id ?? undefined,
+          docs: data.documents as Doc[] | undefined,
+          citations: data.citations as Citation[] | undefined,
+          flags: data.flags as Flag[] | undefined,
+          grounding: data.grounding as Grounding | undefined,
+          gateway: data.gateway as Gateway | undefined,
           timing: data.timing,
           warnings: data.warnings,
           feedback: { reasons: [], comment: "" },
@@ -264,6 +265,8 @@ export default function Home() {
       ]);
     } finally {
       setLoading(false);
+      setLoadingSec(0);
+      sendLockRef.current = false;
     }
   }
 
@@ -701,8 +704,9 @@ export default function Home() {
 
         {loading && (
           <p className="loading">
-            Retrieving, reranking, and generating answer… this can take 1–2 minutes on
-            the Hugging Face CPU backend. Please keep this tab open.
+            Retrieving, reranking, and generating answer…{" "}
+            {loadingSec > 0 ? `(${loadingSec}s — still working)` : "(starting)"}
+            . Slow CPU rerank can take 1–2 minutes — do not resend.
           </p>
         )}
         <div ref={chatEndRef} />

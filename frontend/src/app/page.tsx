@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { apiFetch, getApiBase } from "@/lib/api";
 
 type Doc = {
   id?: string;
@@ -116,14 +118,6 @@ const EXAMPLE_QUESTIONS = [
   "What is ASIL in ISO 26262?",
 ];
 
-function getApiBase() {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (typeof window !== "undefined" && window.location.port === "8080") {
-    return "/api/v1";
-  }
-  return "http://localhost:8000/api/v1";
-}
-
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [nameInput, setNameInput] = useState("");
@@ -153,7 +147,7 @@ export default function Home() {
   // Poll readiness until the backend self-test passes.
   const pollReady = useCallback(async () => {
     try {
-      const res = await fetch(`${apiBase}/ready`);
+      const res = await apiFetch("/ready");
       if (!res.ok) throw new Error("not ready");
       const data: Ready = await res.json();
       setReady(data);
@@ -192,7 +186,7 @@ export default function Home() {
     setRegistering(true);
     setNameError("");
     try {
-      const res = await fetch(`${apiBase}/users`, {
+      const res = await apiFetch("/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username }),
@@ -212,7 +206,7 @@ export default function Home() {
     } catch (e) {
       setNameError(
         e instanceof TypeError
-          ? "Could not reach the backend. Please try again in a moment."
+          ? "Could not reach the backend — the API may be waking up (HF Space). Wait 30s and retry."
           : "Could not register that name. Try a different one."
       );
     } finally {
@@ -235,7 +229,7 @@ export default function Home() {
     setMessages((m) => [...m, { role: "user", content: q }]);
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/chat`, {
+      const res = await apiFetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -269,7 +263,7 @@ export default function Home() {
           role: "assistant",
           content:
             e instanceof TypeError
-              ? `Error: Could not reach the backend at ${apiBase}.`
+              ? "Error: Could not reach the backend. If using Hugging Face, wait ~30s for the Space to wake up, then retry."
               : `Error: ${e instanceof Error ? e.message : "Request failed"}`,
         },
       ]);
@@ -292,7 +286,7 @@ export default function Home() {
     const msg = messages[idx];
     const fb = msg.feedback || { reasons: [], comment: "" };
     try {
-      const res = await fetch(`${apiBase}/feedback`, {
+      const res = await apiFetch("/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -489,8 +483,8 @@ export default function Home() {
               This assistant answers <strong>passive safety</strong> questions using
               only the indexed regulation text — not general web knowledge. Every
               grounded answer shows sources (document, section, revision). If the
-              corpus does not contain enough evidence, you will see{" "}
-              <em>Not found in the regulations.</em>
+              corpus does not contain enough evidence, you will see an executive
+              summary stating insufficient data in the knowledge base.
             </p>
             <div className="empty-grid">
               <div className="empty-card">
@@ -542,7 +536,7 @@ export default function Home() {
             className={`bubble ${msg.role === "user" ? "user" : "assistant"}`}
           >
             {msg.role === "assistant" ? (
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
             ) : (
               <p>{msg.content}</p>
             )}
@@ -945,6 +939,15 @@ const appCss = `
     background: #fff; border: 1px solid var(--border);
     box-shadow: 0 1px 8px rgba(0,0,0,0.04);
   }
+  .bubble.assistant :global(table) {
+    width: 100%; border-collapse: collapse; margin: 0.65rem 0;
+    font-size: 0.82rem;
+  }
+  .bubble.assistant :global(th), .bubble.assistant :global(td) {
+    border: 1px solid var(--border); padding: 0.4rem 0.55rem; text-align: left;
+  }
+  .bubble.assistant :global(th) { background: var(--surface); font-weight: 600; }
+  .bubble.assistant :global(h2) { font-size: 1rem; margin: 1rem 0 0.35rem; }
   .flags { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
   .flag {
     padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.82rem;

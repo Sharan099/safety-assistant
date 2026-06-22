@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 const KEY_STORAGE = "psa_dashboard_key";
 const POLL_MS = 5000;
@@ -43,14 +44,6 @@ type DashboardPayload = {
   users: UserProfile[];
   feedback: FeedbackItem[];
 };
-
-function getApiBase() {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (typeof window !== "undefined" && window.location.port === "8080") {
-    return "/api/v1";
-  }
-  return "http://localhost:8000/api/v1";
-}
 
 function fmtTime(ts: number) {
   if (!ts) return "—";
@@ -108,7 +101,7 @@ export default function FeedbackDashboard() {
       if (incremental && newestTsRef.current > 0) {
         params.set("since", String(newestTsRef.current));
       }
-      const res = await fetch(`${getApiBase()}/feedback/dashboard?${params}`, {
+      const res = await apiFetch(`/feedback/dashboard?${params}`, {
         headers: { "X-Dashboard-Key": dashboardKey },
       });
       if (res.status === 401) {

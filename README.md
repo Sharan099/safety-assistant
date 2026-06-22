@@ -902,6 +902,80 @@ Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 
 ![Prometheus targets](output/screenshots/Prometheus.png)
 
+## Deploy to Hugging Face Spaces (backend) + Vercel (frontend)
+
+**Live targets**
+
+| Role | URL |
+|------|-----|
+| Frontend | [safety-assistant-tan.vercel.app](https://safety-assistant-tan.vercel.app/) |
+| Backend (HF Space) | [sharan099/Passive_safety_assistant](https://huggingface.co/spaces/sharan099/Passive_safety_assistant) |
+
+### 1. Prepare the HF Space repo
+
+Templates live in `deploy/hf-space/`. Sync backend + corpus into a local clone of the Space:
+
+```powershell
+cd H:\AutoSafety_RAG
+git lfs install
+.\scripts\prepare_hf_space.ps1
+# default clone: ..\Passive_safety_assistant (sibling of this repo)
+```
+
+### 2. Push to Hugging Face
+
+```powershell
+cd ..\Passive_safety_assistant
+git lfs track output/regulation_embeddings.json
+git add Dockerfile requirements.txt README.md config.py backend output .gitattributes .dockerignore
+git status   # embeddings.json should show as LFS
+git commit -m "Deploy PSA FastAPI backend for Vercel frontend"
+git push
+```
+
+Use a [HF write token](https://huggingface.co/settings/tokens) when prompted for password.
+
+The Space builds a **Docker** image (port **7860**). First build may take 15–25 min (PyTorch + Nomic + reranker download).
+
+### 3. HF Space environment variables
+
+**Settings → Variables and secrets** on the Space:
+
+| Variable | Required | Value |
+|----------|----------|--------|
+| `GROQ_API_KEY` | **Yes** | `gsk_...` |
+| `CORS_ORIGINS` | **Yes** | `https://safety-assistant-tan.vercel.app` |
+| `GROQ_MODEL` | Yes | `llama-3.1-8b-instant` |
+| `EMBEDDING_MODEL` | Yes | `nomic-ai/nomic-embed-text-v1.5` |
+| `EMBEDDING_TRUST_REMOTE_CODE` | Yes | `true` |
+| `RERANKER_MODEL` | Yes | `BAAI/bge-reranker-v2-m3` |
+| `ENABLE_RERANKER` | Yes | `true` |
+| `ENABLE_PROMETHEUS_METRICS` | Yes | `false` |
+| `RUN_SELFTEST_ON_STARTUP` | Recommended | `false` |
+| `APP_DB_PATH` | Optional | `/app/var/app.db` |
+| `FEEDBACK_DASHBOARD_KEY` | Optional | admin key for `/dashboard` on Vercel |
+| `HF_TOKEN` | Optional | HF token for faster model hub downloads |
+
+> **Note:** HF Space storage is **ephemeral** — SQLite feedback/users reset when the Space rebuilds. For durable feedback, use Railway with a volume instead.
+
+**Smoke test after deploy:**
+
+```text
+GET https://sharan099-passive-safety-assistant.hf.space/api/v1/health
+```
+
+### 4. Vercel frontend
+
+In [Vercel](https://vercel.com) → project **safety-assistant-tan** → **Settings → Environment Variables**:
+
+| Variable | Value |
+|----------|--------|
+| `NEXT_PUBLIC_API_URL` | `https://sharan099-passive-safety-assistant.hf.space/api/v1` |
+
+Redeploy Vercel after changing this. The HF Space must list the Vercel origin in `CORS_ORIGINS`.
+
+---
+
 ## Deploy to Railway (backend) + Vercel (frontend)
 
 ### Backend — Railway

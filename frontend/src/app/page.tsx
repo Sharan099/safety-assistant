@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { apiFetch, getApiBase } from "@/lib/api";
+import { apiFetch, apiFetchChat, formatApiError } from "@/lib/api";
 
 type Doc = {
   id?: string;
@@ -132,8 +132,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
-  const apiBase = getApiBase();
-
   // Load saved user (session memory) on first paint.
   useEffect(() => {
     try {
@@ -157,7 +155,7 @@ export default function Home() {
       setReadyError(true);
       return false;
     }
-  }, [apiBase]);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -229,7 +227,7 @@ export default function Home() {
     setMessages((m) => [...m, { role: "user", content: q }]);
     setLoading(true);
     try {
-      const res = await apiFetch("/chat", {
+      const res = await apiFetchChat("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -261,10 +259,7 @@ export default function Home() {
         ...m,
         {
           role: "assistant",
-          content:
-            e instanceof TypeError
-              ? "Error: Could not reach the backend. If using Hugging Face, wait ~30s for the Space to wake up, then retry."
-              : `Error: ${e instanceof Error ? e.message : "Request failed"}`,
+          content: `Error: ${formatApiError(e)}`,
         },
       ]);
     } finally {
@@ -706,7 +701,8 @@ export default function Home() {
 
         {loading && (
           <p className="loading">
-            Retrieving regulations and generating a grounded answer…
+            Retrieving, reranking, and generating answer… this can take 1–2 minutes on
+            the Hugging Face CPU backend. Please keep this tab open.
           </p>
         )}
         <div ref={chatEndRef} />

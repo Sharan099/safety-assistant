@@ -32,7 +32,18 @@ Set these in the Space **Settings → Variables and secrets** before the app wil
 | `ENABLE_HARD_METADATA_FILTER` | Recommended | `true` |
 | `EMBEDDING_MODEL` | Recommended | `nomic-ai/nomic-embed-text-v1.5` |
 | `RERANKER_MODEL` | Recommended | `BAAI/bge-reranker-v2-m3` |
+| `RERANKER_KIND` | **Yes** | `crossencoder` — must match model (see below) |
 | `ENABLE_RERANKER` | Recommended | `true` |
+| `EMBEDDING_REVISION` | Optional | Pin HF commit to avoid nomic remote-code re-downloads |
+
+**Reranker pairing** — `RERANKER_KIND` is the *loader type*, not the model name:
+
+| `RERANKER_MODEL` | `RERANKER_KIND` |
+|------------------|-----------------|
+| `BAAI/bge-reranker-v2-m3` | `crossencoder` |
+| `jinaai/jina-reranker-v3` | `jina` |
+
+Wrong pairing (e.g. Jina model + `crossencoder` kind, or putting the model id in `RERANKER_KIND`) causes `Rerank predict failed` and falls back to RRF scores only.
 | `ENABLE_PROMETHEUS_METRICS` | Recommended | `false` |
 | `RUN_SELFTEST_ON_STARTUP` | Recommended | `false` (faster cold start on free tier) |
 | `APP_DB_PATH` | Optional | `/app/var/app.db` (ephemeral on HF — feedback resets on rebuild) |

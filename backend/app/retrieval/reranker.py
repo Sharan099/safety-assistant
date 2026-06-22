@@ -15,6 +15,9 @@ from backend.app.core.settings import (
 
 # auto | crossencoder | jina | qwen — "auto" picks from RERANKER_MODEL name
 RERANKER_KIND = os.getenv("RERANKER_KIND", "auto").lower()
+RERANKER_REVISION = os.getenv("RERANKER_REVISION", "").strip() or None
+
+_VALID_KINDS = frozenset({"auto", "crossencoder", "jina", "qwen"})
 
 
 def _doc_text(doc: dict) -> str:
@@ -26,12 +29,20 @@ def _doc_text(doc: dict) -> str:
 
 
 def _resolve_kind() -> str:
-    if RERANKER_KIND != "auto":
-        return RERANKER_KIND
-    name = RERANKER_MODEL.lower()
-    if "jina" in name:
+    kind = os.getenv("RERANKER_KIND", RERANKER_KIND).lower()
+    model_name = os.getenv("RERANKER_MODEL", RERANKER_MODEL).lower()
+    if kind not in _VALID_KINDS:
+        # Common HF misconfig: model id pasted into RERANKER_KIND instead of RERANKER_MODEL
+        logger.warning(
+            f"RERANKER_KIND={kind!r} is invalid (use auto|crossencoder|jina|qwen); "
+            f"inferring loader from RERANKER_MODEL={model_name!r}"
+        )
+        kind = "auto"
+    if kind != "auto":
+        return kind
+    if "jina" in model_name:
         return "jina"
-    if "qwen" in name:
+    if "qwen" in model_name:
         return "qwen"
     return "crossencoder"
 
@@ -43,28 +54,36 @@ class CrossEncoderReranker:
         self._model = None
         self._available = True
         self._enabled = ENABLE_RERANKER
-        self._kind = _resolve_kind()
+        self._kind: str | None = None
+
+    @property
+    def kind(self) -> str:
+        if self._kind is None:
+            self._kind = _resolve_kind()
+        return self._kind
 
     def _load(self) -> None:
         if self._model is not None or not self._enabled:
             return
         try:
-            if self._kind == "jina":
+            model_id = os.getenv("RERANKER_MODEL", RERANKER_MODEL)
+            if self.kind == "jina":
                 from transformers import AutoModel
 
                 self._model = AutoModel.from_pretrained(
-                    RERANKER_MODEL,
+                    model_id,
                     trust_remote_code=True,
+                    revision=RERANKER_REVISION,
                 )
                 self._model.eval()
             else:
                 from sentence_transformers import CrossEncoder
 
-                trust = self._kind == "qwen"
-                self._model = CrossEncoder(
-                    RERANKER_MODEL,
-                    trust_remote_code=trust,
-                )
+                trust = self.kind == "qwen"
+                kwargs: dict[str, Any] = {"trust_remote_code": trust}
+                if RERANKER_REVISION:
+                    kwargs["revision"] = RERANKER_REVISION
+                self._model = CrossEncoder(model_id, **kwargs)
                 if trust and getattr(self._model, "tokenizer", None) is not None:
                     tok = self._model.tokenizer
                     if tok.pad_token is None and tok.eos_token:
@@ -73,7 +92,7 @@ class CrossEncoderReranker:
                         self._model.model, "config"
                     ):
                         self._model.model.config.pad_token_id = tok.pad_token_id
-            logger.info(f"Reranker loaded: {RERANKER_MODEL} (kind={self._kind})")
+            logger.info(f"Reranker loaded: {model_id} (kind={self.kind})")
         except Exception as exc:
             logger.warning(f"Reranker unavailable ({RERANKER_MODEL}): {exc}")
             self._available = False
@@ -84,7 +103,7 @@ class CrossEncoderReranker:
         self._load()
         if self._model is None:
             return
-        if self._kind == "jina":
+        if self.kind == "jina":
             self._model.rerank(
                 query="warmup",
                 documents=["warmup document"],
@@ -190,7 +209,7 @@ class CrossEncoderReranker:
         texts = [_doc_text(d) for d in docs_copy]
 
         try:
-            if self._kind == "jina":
+            if self.kind == "jina":
                 ranked = self._model.rerank(
                     query=query,
                     documents=texts,

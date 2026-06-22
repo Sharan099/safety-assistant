@@ -110,6 +110,8 @@ EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "768"))
 EMBEDDING_TRUST_REMOTE_CODE = (
     os.getenv("EMBEDDING_TRUST_REMOTE_CODE", "true").lower() == "true"
 )
+# Pin HF revision to avoid re-downloading remote-code files (nomic-bert). Empty = latest.
+EMBEDDING_REVISION = os.getenv("EMBEDDING_REVISION", "").strip() or None
 EMBEDDING_QUERY_PREFIX = os.getenv("EMBEDDING_QUERY_PREFIX", "search_query: ")
 EMBEDDING_DOC_PREFIX = os.getenv("EMBEDDING_DOC_PREFIX", "search_document: ")
 
@@ -117,6 +119,7 @@ EMBEDDING_DOC_PREFIX = os.getenv("EMBEDDING_DOC_PREFIX", "search_document: ")
 RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
 # auto | crossencoder | jina | qwen — use "jina" for jinaai/jina-reranker-v3
 RERANKER_KIND = os.getenv("RERANKER_KIND", "auto")
+RERANKER_REVISION = os.getenv("RERANKER_REVISION", "").strip() or None
 ENABLE_RERANKER = os.getenv("ENABLE_RERANKER", "true").lower() == "true"
 
 # RAGAS judge (run_full_evaluation.py) — separate from answer LLM; needs headroom for JSON

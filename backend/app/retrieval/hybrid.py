@@ -29,6 +29,7 @@ from backend.app.core.settings import (
     ENABLE_QUERY_EXPANSION,
     EMBEDDING_MODEL,
     EMBEDDING_QUERY_PREFIX,
+    EMBEDDING_REVISION,
     EMBEDDING_TRUST_REMOTE_CODE,
     METADATA_BOOST,
     RRF_K,
@@ -169,10 +170,10 @@ class HybridRetriever:
                 from sentence_transformers import SentenceTransformer
 
                 logger.info(f"Loading embedding model (first query may take ~30-60s): {EMBEDDING_MODEL}")
-                self._model = SentenceTransformer(
-                    EMBEDDING_MODEL,
-                    trust_remote_code=EMBEDDING_TRUST_REMOTE_CODE,
-                )
+                st_kwargs: dict = {"trust_remote_code": EMBEDDING_TRUST_REMOTE_CODE}
+                if EMBEDDING_REVISION:
+                    st_kwargs["revision"] = EMBEDDING_REVISION
+                self._model = SentenceTransformer(EMBEDDING_MODEL, **st_kwargs)
                 logger.info("Embedding model ready")
             except Exception as exc:
                 logger.error(f"Embedding model failed: {exc}")

@@ -301,19 +301,19 @@ class RAGWorkflow:
             logger.warning("No documents after retrieval/rerank")
         # Answer-level flags are derived in run() once the final answer is known,
         # so they can be scoped to the markers the answer actually cited.
-            return {
-                **state,
-                "context": context,
-                "prompt": prompt,
-                "citations": citations,
-                "flags": [],
-                "grounding": grounding,
-                "metadata": {
-                    **meta,
-                    "abstain": abstain,
-                    "response_state": "low_grounding_abstain" if abstain else "answerable",
-                },
-            }
+        return {
+            **state,
+            "context": context,
+            "prompt": prompt,
+            "citations": citations,
+            "flags": [],
+            "grounding": grounding,
+            "metadata": {
+                **meta,
+                "abstain": abstain,
+                "response_state": "low_grounding_abstain" if abstain else "answerable",
+            },
+        }
 
     def _node_generate(self, state: RAGState) -> RAGState:
         meta = state.get("metadata") or {}

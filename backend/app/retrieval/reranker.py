@@ -113,8 +113,9 @@ class CrossEncoderReranker:
             self._model.predict([("warmup", "warmup document")])
         logger.info("Reranker warmed up")
 
-    def _fallback(self, documents: list[dict], t0: float) -> dict[str, Any]:
-        top = documents[:TOP_K_AFTER_RERANK]
+    def _fallback(self, documents: list[dict], t0: float, *, top_k: int | None = None) -> dict[str, Any]:
+        limit = top_k or TOP_K_AFTER_RERANK
+        top = documents[:limit]
         for d in top:
             d["rerank_score"] = d.get("rrf_score", d.get("score", 0))
         return {
@@ -123,8 +124,11 @@ class CrossEncoderReranker:
             "reranker_used": False,
         }
 
-    def _balanced_comparison_select(self, docs_copy: list[dict]) -> list[dict]:
+    def _balanced_comparison_select(
+        self, docs_copy: list[dict], *, top_k: int | None = None
+    ) -> list[dict]:
         """Keep top chunks per regulation when comparison_reg is tagged."""
+        limit = top_k or TOP_K_AFTER_RERANK
         by_reg: dict[str, list[dict]] = {}
         for d in docs_copy:
             reg = d.get("comparison_reg") or d.get("regulation") or "unknown"
@@ -132,9 +136,9 @@ class CrossEncoderReranker:
         if len(by_reg) < 2:
             return sorted(
                 docs_copy, key=lambda x: x.get("rerank_score", 0), reverse=True
-            )[:TOP_K_AFTER_RERANK]
+            )[:limit]
 
-        per_reg = max(1, TOP_K_AFTER_RERANK // len(by_reg))
+        per_reg = max(1, limit // len(by_reg))
         per_reg = min(per_reg, max(1, COMPARISON_CHUNKS_PER_REG))
         selected: list[dict] = []
         seen: set[str] = set()
@@ -150,13 +154,16 @@ class CrossEncoderReranker:
             reverse=True,
         )
         for d in rest:
-            if len(selected) >= TOP_K_AFTER_RERANK:
+            if len(selected) >= limit:
                 break
             selected.append(d)
-        return selected[:TOP_K_AFTER_RERANK]
+        return selected[:limit]
 
-    def _balanced_cluster_select(self, docs_copy: list[dict]) -> list[dict]:
+    def _balanced_cluster_select(
+        self, docs_copy: list[dict], *, top_k: int | None = None
+    ) -> list[dict]:
         """Keep top chunks per cluster member when cluster_reg is tagged."""
+        limit = top_k or TOP_K_AFTER_RERANK
         by_reg: dict[str, list[dict]] = {}
         for d in docs_copy:
             reg = d.get("cluster_reg") or d.get("regulation") or "unknown"
@@ -164,9 +171,9 @@ class CrossEncoderReranker:
         if len(by_reg) < 2:
             return sorted(
                 docs_copy, key=lambda x: x.get("rerank_score", 0), reverse=True
-            )[:TOP_K_AFTER_RERANK]
+            )[:limit]
 
-        per_reg = max(1, TOP_K_AFTER_RERANK // len(by_reg))
+        per_reg = max(1, limit // len(by_reg))
         selected: list[dict] = []
         seen: set[str] = set()
         for items in by_reg.values():
@@ -181,17 +188,20 @@ class CrossEncoderReranker:
             reverse=True,
         )
         for d in rest:
-            if len(selected) >= TOP_K_AFTER_RERANK:
+            if len(selected) >= limit:
                 break
             selected.append(d)
-        return selected[:TOP_K_AFTER_RERANK]
+        return selected[:limit]
 
-    def _finalize_ranked(self, ranked_docs: list[dict]) -> list[dict]:
+    def _finalize_ranked(
+        self, ranked_docs: list[dict], *, top_k: int | None = None
+    ) -> list[dict]:
+        limit = top_k or TOP_K_AFTER_RERANK
         if any(d.get("comparison_reg") for d in ranked_docs):
-            return self._balanced_comparison_select(ranked_docs)
+            return self._balanced_comparison_select(ranked_docs, top_k=limit)
         if any(d.get("cluster_reg") for d in ranked_docs):
-            return self._balanced_cluster_select(ranked_docs)
-        return ranked_docs[:TOP_K_AFTER_RERANK]
+            return self._balanced_cluster_select(ranked_docs, top_k=limit)
+        return ranked_docs[:limit]
 
     def rerank(
         self,
@@ -199,19 +209,22 @@ class CrossEncoderReranker:
         documents: list[dict],
         *,
         force_strong: bool = False,
+        top_k: int | None = None,
     ) -> dict[str, Any]:
         t0 = time.perf_counter()
         if not documents:
             return {"documents": [], "latency_ms": 0, "reranker_used": False}
 
         if not self._enabled:
-            return self._fallback(documents, t0)
+            return self._fallback(documents, t0, top_k=top_k)
 
         margin_threshold = float(os.getenv("RERANKER_MARGIN_THRESHOLD", "0.15"))
         base_model = os.getenv("RERANKER_MODEL_BASE", "BAAI/bge-reranker-base")
         strong_model = os.getenv("RERANKER_MODEL_STRONG", RERANKER_MODEL)
 
-        result = self._rerank_with_model(query, documents, model_id=base_model)
+        result = self._rerank_with_model(
+            query, documents, model_id=base_model, top_k=top_k
+        )
         ranked = result.get("documents", [])
         if ranked and len(ranked) >= 2:
             margin = ranked[0].get("rerank_score", 0) - ranked[1].get("rerank_score", 0)
@@ -221,13 +234,16 @@ class CrossEncoderReranker:
             logger.info(
                 f"Escalating reranker (margin={margin:.3f}, force={force_strong})"
             )
-            result = self._rerank_with_model(query, documents, model_id=strong_model)
+            result = self._rerank_with_model(
+                query, documents, model_id=strong_model, top_k=top_k
+            )
         return result
 
     def _rerank_with_model(
-        self, query: str, documents: list[dict], *, model_id: str
+        self, query: str, documents: list[dict], *, model_id: str, top_k: int | None = None
     ) -> dict[str, Any]:
         t0 = time.perf_counter()
+        limit = top_k or TOP_K_AFTER_RERANK
         if not documents:
             return {"documents": [], "latency_ms": 0, "reranker_used": False}
 
@@ -240,13 +256,13 @@ class CrossEncoderReranker:
         if not self._enabled:
             if prev_model:
                 os.environ["RERANKER_MODEL"] = prev_model
-            return self._fallback(documents, t0)
+            return self._fallback(documents, t0, top_k=limit)
 
         self._load()
         if not self._available or self._model is None:
             if prev_model:
                 os.environ["RERANKER_MODEL"] = prev_model
-            return self._fallback(documents, t0)
+            return self._fallback(documents, t0, top_k=limit)
 
         docs_copy = [dict(d) for d in documents]
         texts = [_doc_text(d) for d in docs_copy]
@@ -256,7 +272,7 @@ class CrossEncoderReranker:
                 ranked = self._model.rerank(
                     query=query,
                     documents=texts,
-                    top_n=TOP_K_AFTER_RERANK,
+                    top_n=min(limit, len(texts)),
                 )
                 for r in ranked:
                     idx = int(r.get("index", r.get("corpus_id", 0)))
@@ -280,12 +296,12 @@ class CrossEncoderReranker:
                     key=lambda x: x.get("rerank_score", 0),
                     reverse=True,
                 )
-            ranked_docs = self._finalize_ranked(ranked_docs)
+            ranked_docs = self._finalize_ranked(ranked_docs, top_k=limit)
         except Exception as exc:
             logger.warning(f"Rerank predict failed: {exc}")
             if prev_model:
                 os.environ["RERANKER_MODEL"] = prev_model
-            return self._fallback(documents, t0)
+            return self._fallback(documents, t0, top_k=limit)
 
         if prev_model:
             os.environ["RERANKER_MODEL"] = prev_model

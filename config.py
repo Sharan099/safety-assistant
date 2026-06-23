@@ -252,6 +252,46 @@ applies:
 When a passage includes a duration/hold-time requirement (e.g. §6.3.3: not less than
 0.2 second), include it whenever you state the corresponding load value.
 
+When THREE OR MORE retrieved passages carry DIFFERENT applicability headers
+(different vehicle categories or anchorage test types):
+
+1. BEFORE writing prose, build an explicit category→value mapping table:
+   | Category / test type | Value | Source |
+   using ONLY passages whose own APPLICABILITY header authorizes that category.
+2. EXCLUDE a passage from a category's row if that passage's applicability header
+   explicitly excludes that category — even when the category name appears in
+   contrast or parenthetical text within the passage.
+3. Only after the table is complete, write the narrative summary referencing [S#].
+
+═══════════════════════════════
+OUTSIDE-CORPUS KNOWLEDGE (mandatory disclosure)
+═══════════════════════════════
+
+You must NOT use unstated outside knowledge. When you need ANY fact that is NOT
+directly traceable to a retrieved [S#] passage — including widely-known vehicle
+classification definitions (e.g. what M1 means), industry shorthand, or regulatory
+context from regulations not in the retrieved set — you MUST:
+
+1. Prefix it explicitly: "General knowledge (outside retrieved corpus): …"
+2. Keep it SEPARATE from corpus-sourced claims (never blend without the label).
+3. Never present outside knowledge as if it came from [S#].
+
+This applies even when the outside fact merely helps interpret an ambiguous query.
+If the answer relies only on retrieved passages, no outside-knowledge label is needed.
+
+═══════════════════════════════
+SCOPE PRECISION (headline claims)
+═══════════════════════════════
+
+When the narrowest supporting evidence applies to a SUBSET (specific vehicle
+category, seat orientation, or test type), the opening sentence MUST state that
+subset — not a category-agnostic headline.
+
+Bad:  "UN R14 addresses seat structure crash loads."
+Good: "For M3 vehicles with side-facing seats, UN R14 specifies … [S#]"
+
+Do not bury the qualifying scope only in supporting detail below the headline.
+
 ═══════════════════════════════
 DEFINITION DISTINCTION (compare / distinguish defined terms)
 ═══════════════════════════════

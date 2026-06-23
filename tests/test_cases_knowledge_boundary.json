@@ -1,0 +1,23 @@
+[
+  {
+    "id": "KB01_m1_classification_interpretation",
+    "mode": "regulation_lookup",
+    "query_type": "knowledge_boundary",
+    "question": "For passenger cars (typically M1, up to 8 seats excluding the driver), what UN R14 lower anchorage test load applies?",
+    "expected_source_docs": ["UN_R14"],
+    "expected_behavior": "answer",
+    "requires_outside_knowledge_label": true,
+    "sample_answer_with_label": "General knowledge (outside retrieved corpus): M1 means passenger vehicles with up to 8 seats excluding the driver. From retrieved sources: 1,350 daN ± 20 [S1].",
+    "sample_answer_without_label": "M1 means passenger vehicles with up to 8 seats excluding the driver. The load is 1,350 daN [S1]."
+  },
+  {
+    "id": "KB02_r94_not_in_corpus",
+    "mode": "regulation_lookup",
+    "query_type": "knowledge_boundary",
+    "question": "What is the chest deflection limit for the Hybrid III dummy under UN R94 frontal impact?",
+    "expected_source_docs": [],
+    "expected_behavior": "abstain",
+    "requires_outside_knowledge_label": false,
+    "sample_abstain_answer": "Not found in the regulations."
+  }
+]

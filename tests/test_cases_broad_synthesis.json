@@ -1,0 +1,20 @@
+[
+  {
+    "id": "B01_m1_complete_summary",
+    "mode": "regulation_lookup",
+    "query_type": "broad_synthesis",
+    "question": "Give a complete summary of all UN R14 and UN R16 belt anchorage requirements that apply to M1 vehicles, including test loads, hold times, angles, and geometric constraints.",
+    "expected_source_docs": ["UN_R14", "UN_R16"],
+    "expected_behavior": "broad_synthesis",
+    "min_retrieved_chunks": 10,
+    "expected_retrieval_contains": [
+      ["1350", "1,350"],
+      ["0.2"],
+      ["M1"]
+    ],
+    "required_retrieval_signals": ["load", "duration", "angle", "geometric"],
+    "forbidden_retrieval_attribution": {
+      "M1_N1": ["675 daN for M1", "450 daN for M1"]
+    }
+  }
+]

@@ -24,6 +24,9 @@ from backend.app.retrieval.citations import (
     assess_grounding,
     build_citations,
     derive_answer_flags,
+    detect_category_value_misattribution,
+    detect_knowledge_boundary_flags,
+    detect_scope_overclaim_flags,
     enrich_doc_provenance,
     validate_category_citation_authority,
 )
@@ -136,6 +139,14 @@ _ANSWER_RULES = (
     "For definition/compare queries: quote each term's clause separately; verify text "
     "differs before claiming definitions are identical; do not convert units unless "
     "the source states the converted value.\n"
+    "When 3+ passages have DIFFERENT applicability headers: build a category→value "
+    "mapping table FIRST (category: value [S#]) using ONLY passages whose applicability "
+    "header matches that category — then write prose. Exclude any passage whose header "
+    "explicitly excludes the category, even if the category name appears in contrast text.\n"
+    "Label ANY claim not traceable to [S#] as 'General knowledge (outside retrieved corpus):' "
+    "— including vehicle-classification facts used to interpret the question.\n"
+    "State the narrowest applicable scope (vehicle category, seat type, test direction) "
+    "in the opening sentence when evidence is subset-specific.\n"
     "For a single-value lookup: one line + [S#]. For analysis: use structured sections "
     "only when content exists — omit empty sections.\n"
     "Never blur Legal (UN/ECE, FMVSS) with Rating (Euro NCAP) or Reference handbooks."
@@ -291,9 +302,15 @@ class RAGWorkflow:
                 "bm25": result["bm25_count"],
                 "queries": result.get("queries", []),
                 "intent_flags": result.get("intent_flags", []),
+                "query_breadth": result.get("query_breadth", {}),
             }
             timing = {**state.get("timing", {}), "retrieval_ms": result["latency_ms"]}
-            return {**state, "documents": result["documents"], "timing": timing}
+            meta = {
+                **(state.get("metadata") or {}),
+                "query_breadth": result.get("query_breadth", {}),
+                "retrieved_chunk_count": len(result["documents"]),
+            }
+            return {**state, "documents": result["documents"], "timing": timing, "metadata": meta}
 
     def _node_rerank(self, state: RAGState) -> RAGState:
         if state.get("metadata", {}).get("input_blocked"):
@@ -305,16 +322,23 @@ class RAGWorkflow:
             from backend.app.core.modes import get_mode
 
             mode_cfg = get_mode(mode_name)
+            from backend.app.retrieval.query_breadth import assess_query_breadth, effective_rerank_k
+
+            breadth = assess_query_breadth(state["query"])
+            rerank_k = effective_rerank_k(breadth)
             result = self.reranker.rerank(
                 state["query"],
                 state.get("documents", []),
                 force_strong=mode_cfg.force_strong_reranker,
+                top_k=rerank_k,
             )
             span["outputs"] = {"top_k": len(result["documents"])}
             timing = {**state.get("timing", {}), "rerank_ms": result["latency_ms"]}
             meta = {
                 **(state.get("metadata") or {}),
                 "reranker_used": result.get("reranker_used", False),
+                "rerank_k": rerank_k,
+                "post_rerank_chunk_count": len(result["documents"]),
             }
             return {
                 **state,
@@ -559,6 +583,26 @@ class RAGWorkflow:
                     getattr(self.retriever, "_chunk_by_id", {}),
                 )
                 flags.extend(cat_flags)
+                flags.extend(
+                    detect_category_value_misattribution(
+                        query,
+                        answer,
+                        citations,
+                        final.get("documents", []),
+                        getattr(self.retriever, "_chunk_by_id", {}),
+                    )
+                )
+                flags.extend(
+                    detect_knowledge_boundary_flags(query, answer, should_abstain=False)
+                )
+                flags.extend(
+                    detect_scope_overclaim_flags(
+                        answer,
+                        citations,
+                        final.get("documents", []),
+                        getattr(self.retriever, "_chunk_by_id", {}),
+                    )
+                )
 
             # Additive gateway routing summary (empty dict when gateway is off).
             gateway = {

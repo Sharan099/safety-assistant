@@ -466,3 +466,154 @@ def validate_category_citation_authority(
                 ),
             })
     return flags
+
+
+_OUTSIDE_DISCLOSURE_RE = re.compile(
+    r"general knowledge\s*\(outside retrieved corpus\)|outside retrieved corpus|"
+    r"\[outside corpus\]|outside-corpus knowledge|not from (?:the )?retrieved",
+    re.I,
+)
+_CLASSIFICATION_FACT_RE = re.compile(
+    r"(?:≤|<=)\s*8\s*seats|8\s*passenger\s*seats|excluding\s+(?:the\s+)?driver|"
+    r"M1\s*(?:=|means|refers to|is\s+(?:a|the))|passenger car(?:s)?\s+(?:with|having)|"
+    r"vehicle\s+category\s+M1\s+(?:means|is|refers)",
+    re.I,
+)
+_SCOPE_NARROW_RE = re.compile(
+    r"\b(M1|N1|M2|M3|N2|N3|side[- ]facing|rearward[- ]facing|outboard|"
+    r"front\s+centre|upper\s+deck)\b",
+    re.I,
+)
+_BROAD_HEADLINE_RE = re.compile(
+    r"(?:^|\n)\s*(?:UN\s+R\d+|the\s+regulation)\s+(?:addresses|covers|requires|"
+    r"specifies)\s+(?:seat|anchorage|crash|structural)",
+    re.I,
+)
+
+
+def detect_knowledge_boundary_flags(
+    query: str,
+    answer: str,
+    *,
+    should_abstain: bool = False,
+) -> list[dict[str, Any]]:
+    """Flag undisclosed outside-corpus knowledge (classification facts, etc.)."""
+    if should_abstain or not answer:
+        return []
+    low = answer.lower()
+    if any(m in low for m in ("not found in the regulations", "insufficient data", "not in the corpus")):
+        return []
+
+    flags: list[dict[str, Any]] = []
+    has_outside_fact = bool(_CLASSIFICATION_FACT_RE.search(answer))
+    disclosed = bool(_OUTSIDE_DISCLOSURE_RE.search(answer))
+
+    if has_outside_fact and not disclosed:
+        flags.append({
+            "type": "outside_knowledge_undisclosed",
+            "message": (
+                "Answer appears to use general/outside-corpus knowledge (e.g. vehicle "
+                "classification) without the required 'General knowledge (outside "
+                "retrieved corpus):' label."
+            ),
+        })
+    elif has_outside_fact and disclosed:
+        flags.append({
+            "type": "outside_knowledge_disclosed",
+            "message": "Outside-corpus knowledge is explicitly labeled (expected for interpretive facts).",
+        })
+    return flags
+
+
+def detect_scope_overclaim_flags(
+    answer: str,
+    citations: list[dict[str, Any]],
+    documents: list[dict[str, Any]],
+    chunk_lookup: dict[str, dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Flag when the headline generalizes beyond cited subset-specific evidence."""
+    if not answer or not citations:
+        return []
+
+    cited_markers = extract_cited_markers(answer)
+    if not cited_markers:
+        return []
+
+    narrow_tokens: set[str] = set()
+    for cite, doc in zip(citations, documents):
+        if cite.get("marker") not in cited_markers:
+            continue
+        enriched = enrich_doc_provenance(doc, chunk_lookup)
+        applies = enriched.get("applies_to_category") or []
+        if isinstance(applies, str):
+            applies = [applies]
+        text = (enriched.get("text") or "").lower()
+        for cat in applies:
+            if cat not in ("ALL", "GENERAL"):
+                narrow_tokens.add(cat.replace("_", "/"))
+        for tok in ("side-facing", "side facing", "rearward", "outboard", "upper deck"):
+            if tok in text:
+                narrow_tokens.add(tok)
+
+    if not narrow_tokens:
+        return []
+
+    headline = re.split(r"\n\s*\n", answer.strip())[0][:250]
+    headline_has_scope = any(
+        tok.lower() in headline.lower() for tok in narrow_tokens
+    ) or bool(_SCOPE_NARROW_RE.search(headline))
+
+    if headline_has_scope:
+        return []
+
+    if _BROAD_HEADLINE_RE.search(headline):
+        return [{
+            "type": "scope_overclaim",
+            "message": (
+                "Opening claim may generalize beyond subset-specific cited evidence "
+                f"({', '.join(sorted(narrow_tokens)[:4])}). State the narrowest scope "
+                "in the headline."
+            ),
+        }]
+    return []
+
+
+def detect_category_value_misattribution(
+    query: str,
+    answer: str,
+    citations: list[dict[str, Any]],
+    documents: list[dict[str, Any]],
+    chunk_lookup: dict[str, dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Flag when answer assigns a category-specific value from an excluding chunk."""
+    q_cats = detect_query_vehicle_categories(query)
+    if not q_cats or not answer:
+        return []
+
+    flags: list[dict[str, Any]] = []
+    cited_markers = extract_cited_markers(answer)
+
+    if "M1_N1" in q_cats:
+        if re.search(r"M1[^.\n]{0,60}\b675\b", answer, re.I) and not re.search(
+            r"1[,.]?350|1350", answer
+        ):
+            flags.append({
+                "type": "category_value_misattribution",
+                "message": "M1/N1 query: 675 daN is typically for categories other than M1/N1 — verify attribution.",
+            })
+
+    for cite, doc in zip(citations, documents):
+        if cite.get("marker") not in cited_markers:
+            continue
+        enriched = enrich_doc_provenance(doc, chunk_lookup)
+        if not chunk_authority_for_categories(enriched, q_cats):
+            flags.append({
+                "type": "category_value_misattribution",
+                "regulation": cite.get("document"),
+                "message": (
+                    f"Value cited via [{cite.get('marker')}] may be misattributed — "
+                    f"chunk applicability ({enriched.get('applies_to_category')}) "
+                    f"does not authorize the queried vehicle category."
+                ),
+            })
+    return flags

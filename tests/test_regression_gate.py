@@ -113,3 +113,12 @@ def test_regression_gate_imports_gateway_tier_metric():
     assert tier.test_fast_tier_usage_rate_regression_gate is not None
     stats = aggregate_gateway_tier_stats({})
     assert stats["gate_pass"] is True
+
+
+def test_regression_gate_imports_retrieval_breadth_metric():
+    import tests.test_retrieval_breadth as breadth
+    from tests.eval_harness.retrieval_breadth_stats import aggregate_retrieval_breadth_stats
+
+    assert breadth.test_q20_style_query_detected_broad is not None
+    stats = aggregate_retrieval_breadth_stats([])
+    assert stats["gate_pass"] is True

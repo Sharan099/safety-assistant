@@ -273,7 +273,10 @@ class HybridRetriever:
         intent,
         per_reg_k: int,
         tag_key: str = "comparison_reg",
+        *,
+        pool_cap: int | None = None,
     ) -> tuple[list[dict], list[str], int, int]:
+        cap = pool_cap or TOP_K_RETRIEVE
         merged: list[dict] = []
         seen: set[str] = set()
         intent_flags: list[str] = []
@@ -297,7 +300,7 @@ class HybridRetriever:
                     doc[tag_key] = reg
                     merged.append(doc)
 
-        if len(merged) < TOP_K_RETRIEVE:
+        if len(merged) < cap:
             global_allowed = self._filter_chunk_ids(reg_codes, intent)
             extra, flags, sem_n, bm_n = self._retrieve_hybrid_core(
                 query, global_allowed, intent
@@ -308,24 +311,27 @@ class HybridRetriever:
                 if f not in intent_flags:
                     intent_flags.append(f)
             for doc in extra:
-                if doc["id"] not in seen and len(merged) < TOP_K_RETRIEVE:
+                if doc["id"] not in seen and len(merged) < cap:
                     seen.add(doc["id"])
                     merged.append(doc)
 
         merged.sort(key=lambda x: -x.get("score", 0.0))
-        return merged[:TOP_K_RETRIEVE], intent_flags, semantic_total, bm25_total
+        return merged[:cap], intent_flags, semantic_total, bm25_total
 
     def _retrieve_cluster(
         self,
         query: str,
         cluster_name: str,
         intent,
+        *,
+        per_reg_k: int | None = None,
+        pool_cap: int | None = None,
     ) -> tuple[list[dict], list[str], int, int]:
         """Per-member retrieval for requirement clusters (e.g. belt R14+R16+R17)."""
         members = list(cluster_member_codes(cluster_name))
-        per_k = max(1, CLUSTER_CHUNKS_PER_REG)
+        per_k = per_reg_k if per_reg_k is not None else max(1, CLUSTER_CHUNKS_PER_REG)
         return self._retrieve_balanced_regs(
-            query, members, intent, per_k, tag_key="cluster_reg"
+            query, members, intent, per_k, tag_key="cluster_reg", pool_cap=pool_cap
         )
 
     def _retrieve_multi_reg(
@@ -333,11 +339,14 @@ class HybridRetriever:
         query: str,
         named_regs: list[str],
         intent,
+        *,
+        per_reg_k: int | None = None,
+        pool_cap: int | None = None,
     ) -> tuple[list[dict], list[str], int, int]:
         """Per-regulation sub-retrieval: guarantee chunks from each named regulation."""
-        per_reg_k = max(1, COMPARISON_CHUNKS_PER_REG)
+        per_k = per_reg_k if per_reg_k is not None else max(1, COMPARISON_CHUNKS_PER_REG)
         return self._retrieve_balanced_regs(
-            query, named_regs, intent, per_reg_k, tag_key="comparison_reg"
+            query, named_regs, intent, per_k, tag_key="comparison_reg", pool_cap=pool_cap
         )
 
     def _filter_chunk_ids(
@@ -730,8 +739,15 @@ class HybridRetriever:
             mode_soft_boost,
         )
         from backend.app.retrieval.applicability_boost import applicability_soft_boost
+        from backend.app.retrieval.query_breadth import (
+            assess_query_breadth,
+            effective_fusion_pool_k,
+            effective_retrieval_k,
+        )
 
         mode_cfg = get_mode(mode)
+        breadth = assess_query_breadth(query)
+        fusion_cap = effective_fusion_pool_k(breadth, default_k=TOP_K_RETRIEVE)
         t0 = time.perf_counter()
 
         intent = detect_query_intent(query)
@@ -751,14 +767,29 @@ class HybridRetriever:
         )
 
         if use_comparison:
+            per_reg_k = max(1, COMPARISON_CHUNKS_PER_REG)
+            if breadth.is_broad:
+                per_reg_k = max(per_reg_k, fusion_cap // max(len(named_regs), 1))
             fused, intent_flags, semantic_total, bm25_total = self._retrieve_multi_reg(
-                query, named_regs, intent
+                query,
+                named_regs,
+                intent,
+                per_reg_k=per_reg_k,
+                pool_cap=fusion_cap,
             )
             queries = [query]
             use_cluster = False
         elif use_cluster:
+            per_reg_k = max(1, CLUSTER_CHUNKS_PER_REG)
+            if breadth.is_broad:
+                members = list(cluster_member_codes(intent.requirement_cluster))
+                per_reg_k = max(per_reg_k, fusion_cap // max(len(members), 1))
             fused, intent_flags, semantic_total, bm25_total = self._retrieve_cluster(
-                query, intent.requirement_cluster, intent
+                query,
+                intent.requirement_cluster,
+                intent,
+                per_reg_k=per_reg_k,
+                pool_cap=fusion_cap,
             )
             queries = [query]
         else:
@@ -774,10 +805,17 @@ class HybridRetriever:
             fused, intent_flags, semantic_total, bm25_total = self._retrieve_hybrid_core(
                 query, allowed, intent
             )
-            fused = fused[:TOP_K_RETRIEVE]
+            fusion_cap = effective_fusion_pool_k(
+                breadth, default_k=TOP_K_RETRIEVE
+            )
+            fused = fused[:fusion_cap]
 
         pre_dedup_pool = list(fused)
-        target_k = mode_cfg.retrieval_k or TOP_K_RETRIEVE
+        target_k = effective_retrieval_k(
+            mode_cfg.retrieval_k or TOP_K_RETRIEVE,
+            breadth,
+            default_pool=TOP_K_RETRIEVE,
+        )
 
         # Mode hard filters
         fused = [
@@ -792,10 +830,15 @@ class HybridRetriever:
                 d["score"] = d.get("score", 0.0) * mult
         fused.sort(key=lambda x: -x.get("score", 0.0))
 
+        dedup_input = fused if breadth.is_broad else fused[:target_k]
+        dup_thr = NEAR_DUP_SIMILARITY_THRESHOLD
+        if breadth.is_broad:
+            dup_thr = min(0.98, dup_thr + 0.04)
         fused = self._suppress_near_duplicates(
-            fused[:target_k],
+            dedup_input,
             pool=pre_dedup_pool,
             target_k=target_k,
+            threshold=dup_thr,
         )
         fused = self._attach_related_clauses(fused)
 
@@ -812,7 +855,8 @@ class HybridRetriever:
         logger.info(
             f"Retrieve done: queries={len(queries)} semantic={semantic_total} "
             f"bm25={bm25_total} fused={len(fused)} intent={intent_flags} "
-            f"comparison={use_comparison} cluster={use_cluster} regs={named_regs} in {latency_ms}ms"
+            f"comparison={use_comparison} cluster={use_cluster} regs={named_regs} "
+            f"broad={breadth.is_broad} target_k={target_k} in {latency_ms}ms"
         )
         return {
             "query": query,
@@ -830,6 +874,13 @@ class HybridRetriever:
                 "region": intent.region,
                 "doc_type_intent": intent.doc_type_intent,
                 "value_type_intent": intent.value_type_intent,
+            },
+            "query_breadth": {
+                "is_broad": breadth.is_broad,
+                "signals": list(breadth.signals),
+                "retrieval_k": target_k,
+                "rerank_k": breadth.rerank_k if breadth.is_broad else None,
+                "fusion_pool_k": fusion_cap if not use_comparison and not use_cluster else target_k,
             },
             "top_semantic_score": top_semantic_score,
             "latency_ms": latency_ms,

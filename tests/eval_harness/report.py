@@ -127,6 +127,19 @@ def write_eval_report(
             "",
         ])
 
+    rb = (report.get("meta") or {}).get("retrieval_breadth_stats") or {}
+    if rb.get("samples"):
+        md_parts.extend([
+            "## Retrieval breadth (broad synthesis)",
+            "",
+            f"- **Cases:** {rb.get('pass', 0)}/{rb.get('samples', 0)} passed",
+            f"- **Mean chunk count:** {rb.get('mean_chunk_count', 0)}",
+            f"- **Mean applicability match rate:** "
+            f"{rb.get('mean_applicability_match_rate', 0):.1%}",
+            f"- **Regression gate:** {'PASS' if rb.get('gate_pass') else 'FAIL'}",
+            "",
+        ])
+
     md_parts.extend([
         "## Stage B — RAGAS (budgeted)",
         "",

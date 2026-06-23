@@ -32,6 +32,10 @@ from tests.eval_harness.golden import (
 )
 from tests.eval_harness.ragas_budget import run_ragas_budgeted
 from tests.eval_harness.gateway_stats import aggregate_gateway_tier_stats
+from tests.eval_harness.retrieval_breadth_stats import (
+    aggregate_retrieval_breadth_stats,
+    score_retrieval_breadth,
+)
 from tests.eval_harness.report import build_eval_report, plot_eval_charts, write_eval_report
 from tests.score_golden_set import run_deterministic_scorecard
 
@@ -105,6 +109,26 @@ def main() -> int:
 
     gateway_stats = aggregate_gateway_tier_stats(cache.get("items") or {})
 
+    retrieval_breadth_stats = {"samples": 0, "gate_pass": True}
+    try:
+        import json as _json
+        from backend.app.core.services import get_retriever
+
+        breadth_path = ROOT / "tests" / "test_cases_broad_synthesis.json"
+        if breadth_path.is_file():
+            retriever = get_retriever()
+            breadth_rows = []
+            for case in _json.loads(breadth_path.read_text(encoding="utf-8")):
+                docs = retriever.retrieve(
+                    case["question"], mode=case.get("mode")
+                )["documents"]
+                breadth_rows.append(
+                    score_retrieval_breadth(case, docs, retriever._chunk_by_id)
+                )
+            retrieval_breadth_stats = aggregate_retrieval_breadth_stats(breadth_rows)
+    except Exception as exc:
+        retrieval_breadth_stats = {"samples": 0, "gate_pass": True, "error": str(exc)}
+
     # Stage B — local answer_relevancy always; judge metrics unless --skip-judge / EVAL_SKIP_LLM
     ragas_result = run_ragas_budgeted(
         items,
@@ -125,6 +149,7 @@ def main() -> int:
             "force_llm": args.force_llm,
             "subset_ids": subset_ids,
             "gateway_tier_stats": gateway_stats,
+            "retrieval_breadth_stats": retrieval_breadth_stats,
         },
     )
     json_path, md_path = write_eval_report(report)

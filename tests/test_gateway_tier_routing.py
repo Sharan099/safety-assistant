@@ -43,36 +43,67 @@ def test_regulation_lookup_routes_tier2_power():
     assert not is_fast_groq_model(decision.model)
 
 
-def test_arithmetic_query_escalates_to_tier3():
+def test_arithmetic_query_escalates_to_tier2_not_sonnet_by_default():
     cap = assess_query_capability(
         "Convert 1350 daN to kN for UN R14 M1 anchorage load",
-        prompt="context",
     )
     assert cap.requires_arithmetic
     base = classify(RoutingContext(query="convert daN to kN", prompt="ctx"))
     escalated, reasons = apply_capability_escalation(base, cap)
-    assert escalated.tier >= 3
-    assert "anthropic" in escalated.provider
+    assert escalated.tier == 2
+    assert not is_fast_groq_model(escalated.model)
     assert reasons
 
 
-def test_definition_distinction_escalates_to_tier3():
+def test_definition_distinction_escalates_to_tier2():
     cap = assess_query_capability(
         "How does anchorage differ from belt anchorage under UN R14?",
-        prompt="context",
     )
     assert cap.requires_definition_distinction
     base = classify(RoutingContext(query="compare anchorage vs belt anchorage", prompt="ctx"))
     escalated, reasons = apply_capability_escalation(base, cap)
-    assert escalated.tier >= 3
-    assert escalated.model == cfg.CLAUDE_SONNET_MODEL
+    assert escalated.tier == 2
+    assert escalated.model == cfg.GROQ_TIER_MODEL_POWER
     assert reasons
+
+
+def test_rag_prompt_with_dan_and_terms_does_not_force_tier3():
+    """Production bug: scanning retrieved context triggered Sonnet on every query."""
+    rag_prompt = (
+        "RETRIEVED CONTEXT\n"
+        + " ".join(
+            [
+                "1,350 daN",
+                "675 daN",
+                "anchorage",
+                "belt anchorage",
+                "retractor",
+                "compare",
+                "±",
+                "mm",
+            ]
+            * 400
+        )
+    )
+    query = "What is the UN R14 M1/N1 anchorage strength test load?"
+    cap = assess_query_capability(query, rag_prompt)
+    assert not cap.unsafe_for_fast_tier
+    ctx = RoutingContext(
+        query=query,
+        prompt=rag_prompt,
+        grounding={"confidence": 0.85},
+        mode="regulation_lookup",
+        llm_tier_floor=2,
+    )
+    decision, escalations = apply_capability_escalation(classify(ctx), cap)
+    assert decision.tier == 2
+    assert decision.model == cfg.GROQ_TIER_MODEL_POWER
+    assert "anthropic" not in decision.provider
 
 
 def test_simple_lookup_stays_below_tier3_without_capability_escalation():
     cap = assess_query_capability(
         "What anchorage strength test load does UN R14 require for M1/N1?",
-        prompt="short context",
     )
     assert not cap.unsafe_for_fast_tier
     ctx = RoutingContext(
@@ -125,8 +156,9 @@ def test_annex6_chunk_enrichment():
 
 
 def test_fast_tier_usage_rate_regression_gate():
-    """Simulated distribution — primary 70B must be majority under normal routing."""
-    samples = []
+    """Simulated distribution — primary 70B must be majority; long RAG prompt must not force Sonnet."""
+    samples: list[bool] = []
+    tiers: list[int] = []
     for q in (
         "UN R14 M1/N1 anchorage load?",
         "Compare anchorage vs belt anchorage UN R14",
@@ -134,13 +166,15 @@ def test_fast_tier_usage_rate_regression_gate():
     ):
         ctx = RoutingContext(
             query=q,
-            prompt="ctx",
+            prompt="x" * 8000,
             grounding={"confidence": 0.75},
             mode="regulation_lookup",
             llm_tier_floor=2,
         )
-        cap = assess_query_capability(q, "ctx")
+        cap = assess_query_capability(q)
         d, _ = apply_capability_escalation(classify(ctx), cap)
         samples.append(is_fast_groq_model(d.model))
+        tiers.append(d.tier)
     fast_rate = sum(samples) / len(samples)
     assert fast_rate < 0.5, f"fast-tier routing rate {fast_rate:.0%} too high"
+    assert max(tiers) <= 2, f"unexpected Sonnet routing tiers={tiers}"

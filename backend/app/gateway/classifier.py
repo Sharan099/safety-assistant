@@ -78,19 +78,24 @@ def _routing_tier_floor(ctx: RoutingContext) -> int:
     return floor
 
 
+def _routing_text(ctx: RoutingContext) -> str:
+    """User question only — never score tier from the grounded RAG context blob."""
+    return (ctx.query or ctx.prompt or "").strip()
+
+
 def classify(ctx: RoutingContext) -> RouteDecision:
     w = cfg.WEIGHTS
     reasons: list[str] = []
     signals: dict[str, float] = {}
 
-    text = ctx.prompt or ctx.query
+    text = _routing_text(ctx)
 
-    # 1. Prompt length ------------------------------------------------------
+    # 1. Query length (not full RAG prompt) ---------------------------------
     tokens = _estimate_tokens(text)
     s_len = _clamp01(tokens / max(1, cfg.PROMPT_TOKENS_SATURATION))
     signals["prompt_length"] = s_len
     if s_len > 0.5:
-        reasons.append(f"long prompt (~{tokens} tokens)")
+        reasons.append(f"long query (~{tokens} tokens)")
 
     # 2. Query complexity ---------------------------------------------------
     s_complex = _query_complexity(text)

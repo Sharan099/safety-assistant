@@ -9,9 +9,10 @@ from backend.app.gateway import config as cfg
 from backend.app.gateway.fallback_safeguards import is_fast_groq_model
 from backend.app.gateway.types import RouteDecision
 
-_UNIT_RE = re.compile(
-    r"\b(convert|conversion|kN|daN|newton|pound|lb|kg|mm|cm|m\b|mph|km/h|"
-    r"percent|%|tolerance|±|plus or minus|arithmetic|calculate|compute)\b",
+# Explicit conversion / calculation intent — NOT bare regulatory units (daN, mm, etc.).
+_ARITH_INTENT_RE = re.compile(
+    r"\b(convert|conversion|calculate|computed?|compute|arithmetic|"
+    r"how many|express .+ in|what is .+ in (?:kN|daN|newtons?))\b",
     re.I,
 )
 _ARITH_RE = re.compile(
@@ -20,7 +21,7 @@ _ARITH_RE = re.compile(
 )
 _DEFINE_DISTINGUISH_RE = re.compile(
     r"\b(differ|difference|distinguish|compare|versus|vs\.?|contrast|"
-    r"definition|defined as|what is the difference|how does .+ differ from)\b",
+    r"defined as|what is the difference|how does .+ differ from)\b",
     re.I,
 )
 _TERM_PAIRS_RE = re.compile(
@@ -42,20 +43,35 @@ class QueryCapability:
 
 
 def assess_query_capability(query: str, prompt: str = "") -> QueryCapability:
-    text = f"{query}\n{prompt}".lower()
+    """Assess capability from the user question only.
+
+    The optional ``prompt`` arg is ignored for routing. RAG workflows pass a long
+    grounded prompt full of daN values, anchorage terms, and "compare" language
+    from retrieved regulations — scanning it caused every production query to
+    escalate to Tier 3 (Sonnet).
+    """
+    del prompt  # intentionally query-only; kept for call-site compatibility
+    text = (query or "").lower()
+    if not text:
+        return QueryCapability()
+
     signals: list[str] = []
-    arith = bool(_UNIT_RE.search(text) or _ARITH_RE.search(text))
+    arith = bool(_ARITH_INTENT_RE.search(text) or _ARITH_RE.search(text))
     if arith:
         signals.append("unit_conversion_or_arithmetic")
+
     def_dist = bool(_DEFINE_DISTINGUISH_RE.search(text))
     term_hits = len(set(_TERM_PAIRS_RE.findall(text)))
-    if term_hits >= 2 and def_dist:
+    needs_def = def_dist and term_hits >= 2
+    if needs_def:
         signals.append("multi_term_definition_distinction")
     elif def_dist and "definition" in text:
         signals.append("definition_distinction")
+        needs_def = True
+
     return QueryCapability(
         requires_arithmetic=arith,
-        requires_definition_distinction=def_dist or term_hits >= 2,
+        requires_definition_distinction=needs_def,
         matched_signals=tuple(signals),
     )
 
@@ -73,11 +89,11 @@ def apply_capability_escalation(
     escalations: list[str] = []
 
     if capability.requires_arithmetic:
-        tier = max(tier, 3)
-        escalations.append("arithmetic/unit conversion → minimum tier 3 (Sonnet)")
+        tier = max(tier, 2)
+        escalations.append("arithmetic/unit conversion → minimum tier 2 (70B+)")
     if capability.requires_definition_distinction:
-        tier = max(tier, 3)
-        escalations.append("definition distinction → minimum tier 3 (Sonnet)")
+        tier = max(tier, 2)
+        escalations.append("definition distinction → minimum tier 2 (70B+)")
 
     if is_fast_groq_model(decision.model):
         tier = max(tier, 2)

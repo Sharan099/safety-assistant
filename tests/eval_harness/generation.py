@@ -59,6 +59,8 @@ def generate_answer_for_item(item: dict, workflow=None, retriever=None, reranker
         contexts = [out["context"][:4000]]
 
     gw = out.get("gateway") or {}
+    rd = gw.get("routing_diagnostic") or {}
+    served_model = rd.get("served_model") or gw.get("model") or ""
     tokens = {
         "prompt": int(gw.get("prompt_tokens") or 0),
         "completion": int(gw.get("completion_tokens") or 0),
@@ -71,4 +73,8 @@ def generate_answer_for_item(item: dict, workflow=None, retriever=None, reranker
         "tokens": tokens,
         "grounding": out.get("grounding"),
         "guardrails": out.get("guardrails"),
+        "gateway": gw,
+        "served_model": served_model,
+        "fallback_used": bool(gw.get("fallback_used")),
+        "routing_diagnostic": rd,
     }

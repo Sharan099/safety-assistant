@@ -17,6 +17,7 @@ def build_default_registry() -> dict[str, Provider]:
     return {
         "groq": GroqProvider(model=cfg.GROQ_TIER_MODEL, key="groq"),
         "groq_power": GroqProvider(model=cfg.GROQ_TIER_MODEL_POWER, key="groq_power"),
+        "groq_fast": GroqProvider(model=cfg.GROQ_TIER_MODEL_FAST, key="groq_fast"),
         "anthropic_haiku": make_haiku(),
         "anthropic_sonnet": make_sonnet(),
     }

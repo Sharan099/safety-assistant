@@ -1,0 +1,19 @@
+[
+  {
+    "id": "A01_dan_to_newton",
+    "mode": "regulation_lookup",
+    "question": "Convert the UN R14 M1/N1 lower anchorage test load of 1,350 daN to kilonewtons.",
+    "expected_source_docs": ["UN_R14"],
+    "expected_behavior": "arithmetic_safe",
+    "expected_answer_contains": [["13.5", "13,5"], ["kN"]],
+    "forbidden_in_answer": ["13500 N", "135000"]
+  },
+  {
+    "id": "A02_tolerance_preserved",
+    "mode": "regulation_lookup",
+    "question": "What is the M3/N3 lower anchorage test load under UN R14, including tolerance?",
+    "expected_source_docs": ["UN_R14"],
+    "expected_behavior": "answer",
+    "expected_answer_contains": [["450"], ["20", "±"]]
+  }
+]

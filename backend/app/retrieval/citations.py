@@ -403,20 +403,66 @@ def validate_citation_attribution(citation: dict[str, Any]) -> list[str]:
     return failures
 
 
-def validate_citation_attribution(citation: dict[str, Any]) -> list[str]:
-    """Return failure codes when a citation lacks real provenance."""
-    failures: list[str] = []
-    reg = (citation.get("regulation") or "").upper()
-    if not reg or reg == "UNKNOWN":
-        failures.append("missing_regulation")
-    if citation.get("document") == "Unknown document":
-        failures.append("unknown_document")
-    rev = str(citation.get("revision") or "")
-    if not rev or rev.lower() == "revision unverified":
-        failures.append("unverified_revision")
-    label = str(citation.get("doc_type_label") or "")
-    if not label or label.lower() == "unknown":
-        failures.append("invalid_doc_type")
-    if "unverified" in str(citation.get("label") or "").lower():
-        failures.append("unverified_label")
-    return failures
+def detect_query_vehicle_categories(query: str) -> set[str]:
+    from backend.app.retrieval.applicability_boost import detect_query_categories
+
+    return detect_query_categories(query)
+
+
+def chunk_authority_for_categories(
+    doc: dict[str, Any],
+    query_categories: set[str],
+) -> bool:
+    """
+    True when a chunk's applicability header supports citing it as authority for
+    the requested vehicle category — not merely because the category is mentioned
+    in contrast text.
+    """
+    if not query_categories:
+        return True
+    applies = doc.get("applies_to_category") or []
+    if isinstance(applies, str):
+        applies = [applies]
+    if not applies:
+        return True
+
+    app_set = set(applies)
+    if "M1_N1" in query_categories:
+        if "M1_N1" in app_set:
+            return True
+        if "NOT_M1_N1" in app_set and "M1_N1" not in app_set:
+            return False
+    if "M3_N3" in query_categories:
+        return "M3_N3" in app_set or ("NOT_M1_N1" in app_set and "M1_N1" not in app_set)
+    if "M2_N2" in query_categories:
+        return "M2_N2" in app_set or "NOT_M1_N1" in app_set
+    if "NOT_M1_N1" in query_categories:
+        return "NOT_M1_N1" in app_set or bool(app_set - {"M1_N1"})
+    return bool(app_set.intersection(query_categories))
+
+
+def validate_category_citation_authority(
+    query: str,
+    citations: list[dict[str, Any]],
+    documents: list[dict[str, Any]],
+    chunk_lookup: dict[str, dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Return flags when cited sources lack applicability authority for query category."""
+    q_cats = detect_query_vehicle_categories(query)
+    if not q_cats:
+        return []
+
+    flags: list[dict[str, Any]] = []
+    for cite, doc in zip(citations, documents):
+        enriched = enrich_doc_provenance(doc, chunk_lookup)
+        if not chunk_authority_for_categories(enriched, q_cats):
+            flags.append({
+                "type": "applicability_mismatch",
+                "regulation": cite.get("document"),
+                "message": (
+                    f"Citation [{cite.get('marker')}] applicability "
+                    f"({enriched.get('applies_to_category')}) may not be authoritative "
+                    f"for the vehicle category in this query — verify clause match."
+                ),
+            })
+    return flags

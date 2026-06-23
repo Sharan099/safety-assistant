@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import random
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from loguru import logger
 
@@ -29,6 +29,7 @@ class RouteOutcome:
     provider_key: str
     fallback_used: bool
     attempts: int
+    failover_steps: list[dict] = field(default_factory=list)
 
 
 class Router:
@@ -75,13 +76,23 @@ class Router:
         *,
         temperature: float,
         max_tokens: int,
+        block_fast_tier: bool = False,
     ) -> RouteOutcome:
         chain = cfg.FALLBACK_CHAINS.get(primary_key, [primary_key])
+        if block_fast_tier:
+            chain = [k for k in chain if k != "groq_fast"] or chain
         attempts = 0
         prev_key = primary_key
+        steps: list[dict] = []
         for idx, key in enumerate(chain):
             provider = self._providers.get(key)
             if provider is None or not provider.available():
+                steps.append({
+                    "provider": key,
+                    "model": provider.model if provider else key,
+                    "outcome": "skipped_unavailable",
+                    "detail": "provider missing or no API key",
+                })
                 logger.info(f"Skipping unavailable provider '{key}'")
                 continue
             try:
@@ -92,6 +103,12 @@ class Router:
                     temperature=temperature,
                     max_tokens=max_tokens,
                 )
+                steps.append({
+                    "provider": key,
+                    "model": resp.model,
+                    "outcome": "success",
+                    "detail": "",
+                })
                 fallback_used = key != primary_key
                 if fallback_used:
                     gm.GATEWAY_FALLBACK_TOTAL.labels(
@@ -102,10 +119,18 @@ class Router:
                     provider_key=key,
                     fallback_used=fallback_used,
                     attempts=attempts,
+                    failover_steps=steps,
                 )
             except ProviderError as exc:
+                detail = str(exc)
+                steps.append({
+                    "provider": key,
+                    "model": provider.model,
+                    "outcome": "retryable_error" if exc.retryable else "fatal_error",
+                    "detail": detail,
+                })
                 logger.warning(
-                    f"Provider '{key}' exhausted ({exc}); "
+                    f"Provider '{key}' ({provider.model}) exhausted: {detail}; "
                     f"failing over to next in chain"
                 )
                 gm.GATEWAY_FALLBACK_TOTAL.labels(

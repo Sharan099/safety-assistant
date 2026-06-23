@@ -46,8 +46,10 @@ ENABLE_SEMANTIC_CACHE = _flag("ENABLE_SEMANTIC_CACHE", "true")
 
 
 # ───────────────────────── providers / tiers ─────────────────────────
-GROQ_TIER_MODEL = os.getenv("GROQ_TIER_MODEL", GROQ_MODEL_FAST)
+# Tier 1 = primary Groq (70B). Fast 8B is emergency-only (groq_fast provider).
+GROQ_TIER_MODEL = os.getenv("GROQ_TIER_MODEL", GROQ_MODEL)
 GROQ_TIER_MODEL_POWER = os.getenv("GROQ_TIER_MODEL_POWER", GROQ_MODEL)
+GROQ_TIER_MODEL_FAST = os.getenv("GROQ_TIER_MODEL_FAST", GROQ_MODEL_FAST)
 # Exact Anthropic slugs are env-pinned (production teams set the current ids).
 CLAUDE_HAIKU_MODEL = os.getenv("CLAUDE_HAIKU_MODEL", "claude-haiku-4-5")
 CLAUDE_SONNET_MODEL = os.getenv("CLAUDE_SONNET_MODEL", "claude-sonnet-4-5")
@@ -163,11 +165,13 @@ FAST_FALLBACK_MAX_TOKENS_LIST = _i("FAST_FALLBACK_MAX_TOKENS_LIST", 550)
 FAST_FALLBACK_FREQUENCY_PENALTY = _f("FAST_FALLBACK_FREQUENCY_PENALTY", 0.35)
 
 # Fallback chains keyed by the originally-selected provider.
+# Fallback chains — never downgrade from 70B to 8B; fast tier is last resort only.
 FALLBACK_CHAINS: dict[str, list[str]] = {
-    "groq": ["groq", "groq_power", "anthropic_haiku", "anthropic_sonnet"],
-    "groq_power": ["groq_power", "groq", "anthropic_haiku", "anthropic_sonnet"],
-    "anthropic_haiku": ["anthropic_haiku", "groq_power", "groq", "anthropic_sonnet"],
-    "anthropic_sonnet": ["anthropic_sonnet", "groq_power", "groq", "anthropic_haiku"],
+    "groq": ["groq", "anthropic_haiku", "anthropic_sonnet", "groq_fast"],
+    "groq_power": ["groq_power", "groq", "anthropic_haiku", "anthropic_sonnet", "groq_fast"],
+    "anthropic_haiku": ["anthropic_haiku", "anthropic_sonnet", "groq", "groq_fast"],
+    "anthropic_sonnet": ["anthropic_sonnet", "anthropic_haiku", "groq", "groq_fast"],
+    "groq_fast": ["groq_fast"],
 }
 
 
@@ -205,6 +209,7 @@ def tier_for_provider_key(provider_key: str) -> int:
     return {
         "groq": 1,
         "groq_power": 2,
+        "groq_fast": 1,
         "anthropic_haiku": 2,
         "anthropic_sonnet": 3,
     }.get(provider_key, 1)

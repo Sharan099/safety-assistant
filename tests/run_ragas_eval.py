@@ -31,6 +31,7 @@ from tests.eval_harness.golden import (
     load_items,
 )
 from tests.eval_harness.ragas_budget import run_ragas_budgeted
+from tests.eval_harness.gateway_stats import aggregate_gateway_tier_stats
 from tests.eval_harness.report import build_eval_report, plot_eval_charts, write_eval_report
 from tests.score_golden_set import run_deterministic_scorecard
 
@@ -102,6 +103,8 @@ def main() -> int:
     )
     scorecard = run_deterministic_scorecard(require_answer=has_answers)
 
+    gateway_stats = aggregate_gateway_tier_stats(cache.get("items") or {})
+
     # Stage B — local answer_relevancy always; judge metrics unless --skip-judge / EVAL_SKIP_LLM
     ragas_result = run_ragas_budgeted(
         items,
@@ -121,6 +124,7 @@ def main() -> int:
             "skip_judge": args.skip_judge,
             "force_llm": args.force_llm,
             "subset_ids": subset_ids,
+            "gateway_tier_stats": gateway_stats,
         },
     )
     json_path, md_path = write_eval_report(report)

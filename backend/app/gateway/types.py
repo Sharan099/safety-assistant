@@ -106,6 +106,7 @@ class GatewayResult:
     grounding: dict[str, Any] | None = None
     error: str | None = None
     generation_failed: bool = False
+    routing_diagnostic: dict | None = None
 
     def as_legacy_dict(self) -> dict[str, Any]:
         """Superset of GroqLLM.generate() — safe drop-in for the workflow."""
@@ -127,4 +128,5 @@ class GatewayResult:
             "cost_saved_usd": self.cost_saved_usd,
             "error": self.error,
             "generation_failed": self.generation_failed,
+            "routing_diagnostic": self.routing_diagnostic,
         }

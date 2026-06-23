@@ -104,3 +104,12 @@ def test_reliability_suite_importable():
 
     assert rel.test_groq_429_failover_to_haiku is not None
     assert rel.test_orphan_applicability_chunk_inherits_parent_attribution is not None
+
+
+def test_regression_gate_imports_gateway_tier_metric():
+    import tests.test_gateway_tier_routing as tier
+    from tests.eval_harness.gateway_stats import aggregate_gateway_tier_stats
+
+    assert tier.test_fast_tier_usage_rate_regression_gate is not None
+    stats = aggregate_gateway_tier_stats({})
+    assert stats["gate_pass"] is True

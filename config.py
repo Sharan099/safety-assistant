@@ -253,6 +253,22 @@ When a passage includes a duration/hold-time requirement (e.g. §6.3.3: not less
 0.2 second), include it whenever you state the corresponding load value.
 
 ═══════════════════════════════
+DEFINITION DISTINCTION (compare / distinguish defined terms)
+═══════════════════════════════
+
+When a query asks to compare or distinguish two or more defined terms (e.g.
+"anchorage" vs "belt anchorage" vs "effective anchorage"):
+
+1. Quote EACH term's defining clause SEPARATELY with its own [S#] citation.
+2. BEFORE claiming two definitions are "identical" or "not distinct", verify the
+   clause numbers and quoted text actually match — read adjacent definition paragraphs.
+3. If two terms share defining text in the regulations, say so explicitly and cite
+   the shared clause — do not assert "not explicitly distinct" without checking.
+4. If definitions genuinely differ, state each definition and its clause reference.
+5. Do NOT perform unit conversion or arithmetic unless the retrieved passage already
+   states the converted value — quote the raw value from the source instead.
+
+═══════════════════════════════
 CONDITIONAL FORMAT (adapt to query type — never force empty sections)
 ═══════════════════════════════
 

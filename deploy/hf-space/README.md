@@ -28,7 +28,17 @@ Set these in the Space **Settings → Variables and secrets** before the app wil
 |----------|----------|-----------------|
 | `GROQ_API_KEY` | **Yes** | `gsk_...` from [Groq console](https://console.groq.com) |
 | `CORS_ORIGINS` | **Yes** | `https://safety-assistant-tan.vercel.app` |
-| `GROQ_MODEL` | Recommended | `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | Recommended | `llama-3.3-70b-versatile` — primary answer model |
+| `GROQ_MODEL_FAST` | Recommended | `llama-3.1-8b-instant` — **emergency fallback only** |
+| `ENABLE_GATEWAY` | Recommended | `true` — multi-tier routing with Anthropic failover |
+| `GROQ_TIER_MODEL` | **Critical** | Must match `GROQ_MODEL` (70B). **Do not set to 8B** — that routes all Tier-1 traffic to `llama-3.1-8b-instant`. |
+| `GROQ_TIER_MODEL_POWER` | Recommended | `llama-3.3-70b-versatile` — regulation lookups / comparisons (Tier 2) |
+| `GROQ_TIER_MODEL_FAST` | Optional | `llama-3.1-8b-instant` — last-resort only after Groq + Anthropic fail |
+| `ANTHROPIC_API_KEY` | Recommended | Enables Haiku/Sonnet failover when Groq rate-limits |
+| `CLAUDE_HAIKU_MODEL` | Optional | e.g. `claude-haiku-4-5` |
+| `CLAUDE_SONNET_MODEL` | Optional | e.g. `claude-sonnet-4-5` — Tier 3 advanced reasoning |
+| `GATEWAY_SHADOW_MODE` | Optional | `false` — when `true`, logs routing but answers with Tier 1 |
+| `GATEWAY_CANARY_PCT` | Optional | `100` — % of traffic eligible for gateway routing |
 | `ENABLE_HARD_METADATA_FILTER` | Recommended | `true` |
 | `EMBEDDING_MODEL` | Recommended | `nomic-ai/nomic-embed-text-v1.5` |
 | `EMBEDDING_TRUST_REMOTE_CODE` | Recommended | `true` (required for Nomic) |

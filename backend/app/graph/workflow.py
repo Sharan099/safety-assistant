@@ -25,6 +25,7 @@ from backend.app.retrieval.citations import (
     build_citations,
     derive_answer_flags,
     enrich_doc_provenance,
+    validate_category_citation_authority,
 )
 from backend.app.gateway.errors import (
     GENERATION_UNAVAILABLE_MESSAGE,
@@ -132,6 +133,9 @@ _ANSWER_RULES = (
     "Before quoting any load/duration number: verify vehicle category and anchorage "
     "test type match the question; if ambiguous, ask or break down by category — "
     "never pick one clause arbitrarily.\n"
+    "For definition/compare queries: quote each term's clause separately; verify text "
+    "differs before claiming definitions are identical; do not convert units unless "
+    "the source states the converted value.\n"
     "For a single-value lookup: one line + [S#]. For analysis: use structured sections "
     "only when content exists — omit empty sections.\n"
     "Never blur Legal (UN/ECE, FMVSS) with Rating (Euro NCAP) or Reference handbooks."
@@ -438,6 +442,7 @@ class RAGWorkflow:
                     "cost_saved_usd",
                     "prompt_tokens",
                     "completion_tokens",
+                    "routing_diagnostic",
                 )
                 if out.get(k) is not None
             }
@@ -547,6 +552,13 @@ class RAGWorkflow:
                 # Scope answer-level flags to the markers the answer actually
                 # cited (deduplicated by regulation inside derive_answer_flags).
                 flags = derive_answer_flags(citations, answer_text=answer)
+                cat_flags = validate_category_citation_authority(
+                    query,
+                    citations,
+                    final.get("documents", []),
+                    getattr(self.retriever, "_chunk_by_id", {}),
+                )
+                flags.extend(cat_flags)
 
             # Additive gateway routing summary (empty dict when gateway is off).
             gateway = {
@@ -563,6 +575,7 @@ class RAGWorkflow:
                     "cost_saved_usd",
                     "prompt_tokens",
                     "completion_tokens",
+                    "routing_diagnostic",
                 )
                 if k in meta
             }

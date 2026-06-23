@@ -63,8 +63,10 @@ def test_primary_success_no_fallback():
 def test_failover_to_next_provider():
     providers = {
         "groq": FakeProvider("groq", behaviour="retryable"),
+        "groq_power": FakeProvider("groq_power", behaviour="retryable"),
         "anthropic_haiku": FakeProvider("anthropic_haiku", behaviour="ok"),
         "anthropic_sonnet": FakeProvider("anthropic_sonnet", behaviour="ok"),
+        "groq_fast": FakeProvider("groq_fast", behaviour="ok"),
     }
     outcome = Router(providers).route("groq", _msgs(), temperature=0, max_tokens=10)
     assert outcome.provider_key == "anthropic_haiku"

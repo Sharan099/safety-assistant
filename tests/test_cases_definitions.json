@@ -1,0 +1,18 @@
+[
+  {
+    "id": "D01_anchorage_vs_belt_anchorage",
+    "mode": "regulation_lookup",
+    "question": "Under UN R14, how does the definition of 'anchorage' differ from 'belt anchorage'?",
+    "expected_source_docs": ["UN_R14"],
+    "expected_behavior": "definition_distinction",
+    "forbidden_in_answer": ["not explicitly distinct", "identical without citation"]
+  },
+  {
+    "id": "D02_effective_anchorage",
+    "mode": "regulation_lookup",
+    "question": "What is the difference between belt anchorage and effective anchorage under UN R14?",
+    "expected_source_docs": ["UN_R14"],
+    "expected_behavior": "definition_distinction",
+    "expected_answer_contains": [["[S"]]
+  }
+]

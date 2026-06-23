@@ -88,6 +88,7 @@ def test_groq_429_failover_to_haiku():
         "groq_power": RateLimitProvider("groq_power"),
         "anthropic_haiku": RateLimitProvider("anthropic_haiku", behaviour="ok"),
         "anthropic_sonnet": RateLimitProvider("anthropic_sonnet", behaviour="ok"),
+        "groq_fast": RateLimitProvider("groq_fast", behaviour="ok"),
     }
     outcome = Router(providers).route("groq", _msgs(), temperature=0, max_tokens=64)
     assert outcome.provider_key == "anthropic_haiku"
@@ -101,6 +102,7 @@ def test_all_providers_failed_returns_clean_message():
         "groq_power": RateLimitProvider("groq_power"),
         "anthropic_haiku": RateLimitProvider("anthropic_haiku"),
         "anthropic_sonnet": RateLimitProvider("anthropic_sonnet"),
+        "groq_fast": RateLimitProvider("groq_fast"),
     }
     gw = LLMGateway(providers=providers, cache=None)
     with patch("backend.app.gateway.gateway.classifier.classify") as mock_cls:

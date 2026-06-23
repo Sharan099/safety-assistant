@@ -411,6 +411,8 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
     all_chunks: list[dict] = []
     global_seq = 0
 
+    from ingestion.annex_table_enrichment import enrich_annex_chunks
+
     for sec_idx, (path, title, level, body, clause_number, heading_source) in enumerate(
         sections, 1
     ):
@@ -492,7 +494,7 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
             global_seq += 1
             all_chunks.append(chunk)
 
-    return all_chunks
+    return enrich_annex_chunks(all_chunks, md_path)
 
 
 def run(only_regs: list[str] | None = None) -> dict:

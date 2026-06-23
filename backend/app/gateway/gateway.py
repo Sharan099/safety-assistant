@@ -30,16 +30,23 @@ from backend.app.gateway import config as cfg
 from backend.app.gateway import metrics as gm
 from backend.app.gateway.cache import SemanticCache
 from backend.app.gateway.providers import build_default_registry
-from backend.app.gateway.providers.base import ProviderError
+from backend.app.gateway.providers.base import Provider, ProviderError
 from backend.app.gateway.errors import (
     GENERATION_UNAVAILABLE_MESSAGE,
     is_raw_provider_error,
     sanitize_user_answer,
 )
 from backend.app.gateway.fallback_safeguards import (
+    LIST_STYLE_RE,
     effective_max_tokens,
     sanitize_fast_model_output,
 )
+from backend.app.gateway.query_capability import (
+    apply_capability_escalation,
+    assess_query_capability,
+    fast_tier_blocked_for_capability,
+)
+from backend.app.gateway.routing_diagnostics import FailoverStep, RoutingDiagnostic
 from backend.app.gateway.router import Router
 from backend.app.gateway.types import GatewayResult, RouteDecision, RoutingContext
 
@@ -77,7 +84,9 @@ class LLMGateway:
         ctx.prompt = ctx.prompt or prompt
 
         # 1. Semantic cache --------------------------------------------------
-        decision = classifier.classify(ctx)  # needed for cost-saved accounting
+        capability = assess_query_capability(ctx.query, ctx.prompt)
+        decision = classifier.classify(ctx)
+        decision, cap_escalations = apply_capability_escalation(decision, capability)
         if self._cache is not None:
             hit = self._cache.lookup(prompt, ctx.scope)
             if hit:
@@ -112,6 +121,13 @@ class LLMGateway:
 
         # 2/3. Shadow & canary gating ---------------------------------------
         effective = self._apply_gating(decision)
+        diag = RoutingDiagnostic(
+            intended_tier=effective.tier,
+            intended_provider=effective.provider,
+            intended_model=effective.model,
+            route_reasons=list(effective.reasons),
+            capability_escalation=cap_escalations,
+        )
 
         gm.GATEWAY_ROUTE_SCORE.labels(tier=str(decision.tier)).observe(decision.score)
 
@@ -135,6 +151,7 @@ class LLMGateway:
                 messages,
                 temperature=LLM_TEMPERATURE,
                 max_tokens=max_tok,
+                block_fast_tier=fast_tier_blocked_for_capability(capability),
             )
         except ProviderError as exc:
             latency_ms = round((time.perf_counter() - t0) * 1000, 2)
@@ -159,6 +176,20 @@ class LLMGateway:
 
         resp = outcome.response
         served_tier = cfg.tier_for_provider_key(outcome.provider_key)
+        diag.served_tier = served_tier
+        diag.served_provider = outcome.provider_key
+        diag.served_model = resp.model
+        diag.fallback_used = outcome.fallback_used
+        diag.failover_steps = [
+            FailoverStep(
+                provider_key=s["provider"],
+                model=s["model"],
+                outcome=s["outcome"],
+                detail=s.get("detail", ""),
+            )
+            for s in outcome.failover_steps
+        ]
+        diag.log_summary()
         answer, safeguard_meta = sanitize_fast_model_output(
             resp.answer,
             provider_key=outcome.provider_key,
@@ -221,6 +252,7 @@ class LLMGateway:
             cost_usd=cost,
             cost_saved_usd=saved,
             generation_failed=False,
+            routing_diagnostic=diag.to_dict(),
         )
 
     # ───────────────────────── helpers ─────────────────────────

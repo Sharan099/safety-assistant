@@ -111,6 +111,23 @@ def write_eval_report(
         "",
         format_scorecard_table(rows),
         "",
+    ])
+
+    gw = (report.get("meta") or {}).get("gateway_tier_stats") or {}
+    if gw.get("samples_with_model"):
+        md_parts.extend([
+            "## Gateway tier routing",
+            "",
+            f"- **Fast-tier (8B) rate:** {gw.get('fast_tier_rate', 0):.1%} "
+            f"({gw.get('fast_tier_count', 0)}/{gw.get('samples_with_model', 0)})",
+            f"- **Failover rate:** {gw.get('fallback_rate', 0):.1%}",
+            f"- **Model distribution:** `{gw.get('model_distribution', {})}`",
+            f"- **Regression gate:** {'PASS' if gw.get('gate_pass') else 'FAIL'} "
+            f"(fast-tier rate must stay below 50%)",
+            "",
+        ])
+
+    md_parts.extend([
         "## Stage B — RAGAS (budgeted)",
         "",
     ])

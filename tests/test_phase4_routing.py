@@ -13,8 +13,11 @@ from backend.app.gateway import config as cfg
 from backend.app.gateway.types import RoutingContext
 
 
-def test_default_models_not_all_fast():
-  assert cfg.GROQ_TIER_MODEL != cfg.GROQ_TIER_MODEL_POWER or "8b" in cfg.GROQ_TIER_MODEL
+def test_default_models_primary_is_70b():
+  assert not (
+      cfg.GROQ_TIER_MODEL != cfg.GROQ_TIER_MODEL_POWER
+      and "8b" in (cfg.GROQ_TIER_MODEL or "").lower()
+  ), "GROQ_TIER_MODEL must not default to 8B — set GROQ_TIER_MODEL=llama-3.3-70b-versatile on HF"
 
 
 def test_comparison_routes_to_tier2_groq_power():
@@ -28,12 +31,15 @@ def test_comparison_routes_to_tier2_groq_power():
     assert decision.model == cfg.GROQ_TIER_MODEL_POWER
 
 
-def test_simple_lookup_stays_tier1():
+def test_simple_lookup_uses_primary_groq():
     ctx = RoutingContext(
         query="What anchorage strength test load does UN R14 require?",
         prompt="context",
         grounding={"confidence": 0.8},
+        mode="regulation_lookup",
+        llm_tier_floor=2,
     )
     decision = classify(ctx)
-    assert decision.tier == 1
-    assert decision.model == cfg.GROQ_TIER_MODEL
+    assert decision.tier >= 2
+    from backend.app.gateway.fallback_safeguards import is_fast_groq_model
+    assert not is_fast_groq_model(decision.model)

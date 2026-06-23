@@ -140,6 +140,12 @@ def test_scope_overclaim_flags_broad_headline():
     assert flags[0]["type"] == "scope_overclaim"
 
 
+def test_effective_rerank_k_accepts_default():
+    from backend.app.retrieval.query_breadth import effective_rerank_k, assess_query_breadth
+
+    assert effective_rerank_k(assess_query_breadth("M1 load?"), default_k=5) == 5
+
+
 def test_narrow_query_retrieval_k_unchanged(retriever):
     q = "What lower anchorage test load applies to M3/N3 vehicles under UN R14?"
     result = retriever.retrieve(q, mode="regulation_lookup")

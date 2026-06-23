@@ -322,10 +322,11 @@ class RAGWorkflow:
             from backend.app.core.modes import get_mode
 
             mode_cfg = get_mode(mode_name)
+            from backend.app.core.settings import TOP_K_AFTER_RERANK
             from backend.app.retrieval.query_breadth import assess_query_breadth, effective_rerank_k
 
             breadth = assess_query_breadth(state["query"])
-            rerank_k = effective_rerank_k(breadth)
+            rerank_k = effective_rerank_k(breadth, default_k=TOP_K_AFTER_RERANK)
             result = self.reranker.rerank(
                 state["query"],
                 state.get("documents", []),

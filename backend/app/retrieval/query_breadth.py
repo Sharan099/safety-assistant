@@ -91,13 +91,13 @@ def effective_retrieval_k(mode_k: int, breadth: QueryBreadth, *, default_pool: i
     return mode_k or default_pool
 
 
-def effective_rerank_k(breadth: QueryBreadth, *, default_k: int) -> int:
+def effective_rerank_k(breadth: QueryBreadth, *, default_k: int = 5) -> int:
     if breadth.is_broad and breadth.rerank_k:
         return max(default_k, breadth.rerank_k)
     return default_k
 
 
-def effective_fusion_pool_k(breadth: QueryBreadth, *, default_k: int) -> int:
+def effective_fusion_pool_k(breadth: QueryBreadth, *, default_k: int = 12) -> int:
     if breadth.is_broad and breadth.fusion_pool_k:
         return max(default_k, breadth.fusion_pool_k)
     return default_k

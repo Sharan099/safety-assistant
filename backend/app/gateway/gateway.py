@@ -258,7 +258,10 @@ class LLMGateway:
     # ───────────────────────── helpers ─────────────────────────
     def route_preview(self, ctx: RoutingContext) -> RouteDecision:
         """Expose the routing decision without calling a provider (shadow/debug)."""
-        return classifier.classify(ctx)
+        capability = assess_query_capability(ctx.query, ctx.prompt)
+        decision = classifier.classify(ctx)
+        decision, _ = apply_capability_escalation(decision, capability)
+        return decision
 
     def _apply_gating(self, decision: RouteDecision) -> RouteDecision:
         """Shadow mode and canary keep traffic on Tier 1 (Groq) for safety."""

@@ -26,6 +26,7 @@ from backend.app.retrieval.citations import (
     derive_answer_flags,
     detect_category_value_misattribution,
     detect_knowledge_boundary_flags,
+    detect_corpus_uncertainty_flags,
     detect_scope_overclaim_flags,
     enrich_doc_provenance,
     validate_category_citation_authority,
@@ -83,18 +84,42 @@ def _generation_failed_state(state: RAGState, answer: str, error_code: str) -> R
     }
 
 
-def _build_grounded_context(documents: list[dict], citations: list[dict]) -> str:
+def _build_grounded_context(
+    documents: list[dict],
+    citations: list[dict],
+    *,
+    chunk_lookup: dict | None = None,
+    breadth_label: str | None = None,
+) -> str:
     """
     Build context where every passage is prefixed with a citation marker [S#]
     and its provenance, grouped so the LLM never blurs legal regulations with
     rating protocols.
     """
     from config import MAX_CONTEXT_TOKENS
+    from backend.app.retrieval.applicability_grouping import (
+        format_grouped_context,
+        should_use_grouped_context,
+    )
+
+    char_cap = passage_char_budget(MAX_CONTEXT_TOKENS, len(documents), overhead_tokens=120)
+
+    if should_use_grouped_context(documents, breadth_label=breadth_label):
+        grouped = format_grouped_context(
+            documents,
+            citations,
+            char_cap=char_cap,
+            chunk_lookup=chunk_lookup,
+        )
+        if grouped:
+            return (
+                "=== RETRIEVED PASSAGES (grouped by applicability — do not mix groups) ===\n"
+                + grouped
+            )
 
     legal: list[str] = []
     rating: list[str] = []
     reference: list[str] = []
-    char_cap = passage_char_budget(MAX_CONTEXT_TOKENS, len(documents), overhead_tokens=120)
 
     for d, c in zip(documents, citations):
         raw = strip_chunk_boilerplate(d.get("text", "") or "")
@@ -372,7 +397,12 @@ class RAGWorkflow:
         )
         abstain = ENABLE_GROUNDING_GATE and grounding.get("should_abstain", False)
 
-        context = _build_grounded_context(docs, citations) if docs else ""
+        context = _build_grounded_context(
+            docs,
+            citations,
+            chunk_lookup=chunk_lookup,
+            breadth_label=(meta.get("query_breadth") or {}).get("label"),
+        ) if docs else ""
         if abstain:
             logger.warning(
                 f"Grounding gate abstaining: reason={grounding.get('reason')} "
@@ -595,6 +625,9 @@ class RAGWorkflow:
                 )
                 flags.extend(
                     detect_knowledge_boundary_flags(query, answer, should_abstain=False)
+                )
+                flags.extend(
+                    detect_corpus_uncertainty_flags(query, answer, should_abstain=False)
                 )
                 flags.extend(
                     detect_scope_overclaim_flags(

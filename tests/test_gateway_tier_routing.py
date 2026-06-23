@@ -43,7 +43,7 @@ def test_regulation_lookup_routes_tier2_power():
     assert not is_fast_groq_model(decision.model)
 
 
-def test_arithmetic_query_escalates_off_fast_tier():
+def test_arithmetic_query_escalates_to_tier3():
     cap = assess_query_capability(
         "Convert 1350 daN to kN for UN R14 M1 anchorage load",
         prompt="context",
@@ -51,9 +51,40 @@ def test_arithmetic_query_escalates_off_fast_tier():
     assert cap.requires_arithmetic
     base = classify(RoutingContext(query="convert daN to kN", prompt="ctx"))
     escalated, reasons = apply_capability_escalation(base, cap)
-    assert escalated.tier >= 2
-    assert not is_fast_groq_model(escalated.model)
+    assert escalated.tier >= 3
+    assert "anthropic" in escalated.provider
     assert reasons
+
+
+def test_definition_distinction_escalates_to_tier3():
+    cap = assess_query_capability(
+        "How does anchorage differ from belt anchorage under UN R14?",
+        prompt="context",
+    )
+    assert cap.requires_definition_distinction
+    base = classify(RoutingContext(query="compare anchorage vs belt anchorage", prompt="ctx"))
+    escalated, reasons = apply_capability_escalation(base, cap)
+    assert escalated.tier >= 3
+    assert escalated.model == cfg.CLAUDE_SONNET_MODEL
+    assert reasons
+
+
+def test_simple_lookup_stays_below_tier3_without_capability_escalation():
+    cap = assess_query_capability(
+        "What anchorage strength test load does UN R14 require for M1/N1?",
+        prompt="short context",
+    )
+    assert not cap.unsafe_for_fast_tier
+    ctx = RoutingContext(
+        query="What anchorage strength test load does UN R14 require for M1/N1?",
+        prompt="context",
+        grounding={"confidence": 0.85},
+        mode="regulation_lookup",
+        llm_tier_floor=2,
+    )
+    decision, _ = apply_capability_escalation(classify(ctx), cap)
+    assert decision.tier == 2
+    assert decision.model == cfg.GROQ_TIER_MODEL_POWER
 
 
 def test_failover_chain_does_not_downgrade_to_8b_before_anthropic():

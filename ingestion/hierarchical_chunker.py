@@ -494,7 +494,44 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
             global_seq += 1
             all_chunks.append(chunk)
 
-    return enrich_annex_chunks(all_chunks, md_path)
+        # Self-sufficient combined-context chunk for §6.4 load clauses (angle + duration inline).
+        if regulation == "UN_R14" and clause_number and str(clause_number).startswith("6.4"):
+            from ingestion.clause_dependencies import build_denormalized_block
+
+            denorm = build_denormalized_block(clause_number, regulation)
+            if denorm:
+                combined_body = f"{denorm}\n\n{body}"
+                combined_text = f"[{heading_path}]\n\n{combined_body}"
+                combined = _make_chunk(
+                    regulation=regulation,
+                    file_slug=file_slug,
+                    pdf_name=pdf_name,
+                    markdown_file=md_path.name,
+                    chunk_type="combined_context",
+                    parent_id=section_chunk_id,
+                    heading_path=heading_path,
+                    section_title=title,
+                    section_level=level,
+                    text=_prepend_chunk_header(
+                        combined_text,
+                        doc_id=regulation,
+                        revision=meta.get("revision"),
+                        clause_number=clause_number,
+                        section_title=title,
+                    ),
+                    seq=0,
+                    section_idx=sec_idx,
+                    clause_number=clause_number,
+                )
+                if applicability_meta:
+                    combined.update(applicability_meta)
+                combined["global_seq"] = global_seq
+                global_seq += 1
+                all_chunks.append(combined)
+
+    from ingestion.table_structure_enrichment import enrich_table_chunks
+
+    return enrich_table_chunks(enrich_annex_chunks(all_chunks, md_path), md_path)
 
 
 def run(only_regs: list[str] | None = None) -> dict:

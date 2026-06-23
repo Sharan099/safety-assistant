@@ -525,6 +525,49 @@ def detect_knowledge_boundary_flags(
     return flags
 
 
+_CORPUS_UNCERTAINTY_DENIAL_RE = re.compile(
+    r"(?:not (?:found|present|included|in)|(?:does not|doesn't) (?:appear|exist|contain)|"
+    r"no (?:evidence|mention|requirement)|is not (?:in|addressed|covered)|"
+    r"cannot find|not in (?:the )?(?:regulation|corpus|retrieved))",
+    re.I,
+)
+_CORPUS_UNCERTAINTY_DISCLOSED_RE = re.compile(
+    r"not confident|cannot verify in (?:the )?corpus|uncertain whether|"
+    r"may appear in a section not retrieved|based on (?:the )?retrieved passages",
+    re.I,
+)
+_PILOT_CORPUS_RE = re.compile(r"UN\s*R(?:14|16)|regulation\s+(?:14|16)", re.I)
+
+
+def detect_corpus_uncertainty_flags(
+    query: str,
+    answer: str,
+    *,
+    should_abstain: bool = False,
+) -> list[dict[str, Any]]:
+    """Flag definitive corpus denials without disclosed uncertainty (Part F)."""
+    if should_abstain or not answer:
+        return []
+    if not _PILOT_CORPUS_RE.search(query):
+        return []
+    if not _CORPUS_UNCERTAINTY_DENIAL_RE.search(answer):
+        return []
+    if _CORPUS_UNCERTAINTY_DISCLOSED_RE.search(answer):
+        return [{
+            "type": "corpus_uncertainty_disclosed",
+            "message": (
+                "Answer appropriately discloses uncertainty about corpus coverage."
+            ),
+        }]
+    return [{
+        "type": "corpus_uncertainty_undisclosed",
+        "message": (
+            "Answer denies or negates a corpus requirement without the required "
+            "'not confident based on retrieved passages' uncertainty disclosure."
+        ),
+    }]
+
+
 def detect_scope_overclaim_flags(
     answer: str,
     citations: list[dict[str, Any]],

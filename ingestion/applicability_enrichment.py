@@ -213,6 +213,8 @@ def build_applicability_meta(
     if not is_anchorage_clause_family(clause_number, regulation):
         return {}
 
+    from ingestion.clause_dependencies import enrich_clause_dependency_meta
+
     test_type = resolve_anchorage_test_type(clause_number, section_title)
     categories = _category_tokens_from_text(body)
     display = _category_display_from_text(body, clause_number)
@@ -220,7 +222,7 @@ def build_applicability_meta(
     related: list[str] = []
     c = _clause_prefix(clause_number)
     if c.startswith("6.4") and regulation == "UN_R14":
-        related.append("6.3.3")
+        related.extend(["6.3.2", "6.3.3"])
     if c == "6.3.3":
         related.append("6.4")
 
@@ -230,8 +232,9 @@ def build_applicability_meta(
         "anchorage_test_label": ANCHORAGE_TEST_LABELS.get(test_type or "", test_type),
         "applicability_display": display,
     }
+    meta.update(enrich_clause_dependency_meta(regulation=regulation, clause_number=clause_number))
     if related:
-        meta["related_clause_ids"] = related
+        meta["related_clause_ids"] = sorted(set(related + meta.get("related_clause_ids", [])))
     if duration_snippet and LOAD_RE.search(body) and not DURATION_RE.search(body):
         meta["has_duration_link"] = True
     if DURATION_RE.search(body) or "0.2 second" in body.lower():
@@ -272,8 +275,13 @@ def enrich_section_body(
     if not meta:
         return body, {}
 
+    from ingestion.clause_dependencies import build_denormalized_block
+
     enriched = body
-    if (
+    denorm = build_denormalized_block(clause_number, regulation)
+    if denorm and _clause_prefix(clause_number).startswith("6.4"):
+        enriched = enriched.rstrip() + "\n\n" + denorm
+    elif (
         duration_snippet
         and LOAD_RE.search(body)
         and not DURATION_RE.search(body)

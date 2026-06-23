@@ -1,0 +1,36 @@
+[
+  {
+    "id": "FV01",
+    "query": "What is the UN R14 anchorage strength test load for M1/N1 vehicles?",
+    "expected_contains": ["1,350", "daN"],
+    "expected_citations": ["UN_R14"],
+    "category": "single_value_lookup"
+  },
+  {
+    "id": "FV02",
+    "query": "For an M1 rear centre seat without retractor, which UN R14 test configuration and load apply?",
+    "expected_contains": ["6.4.2", "0.2 second"],
+    "expected_citations": ["UN_R14"],
+    "category": "multi_hop_configuration"
+  },
+  {
+    "id": "FV03",
+    "query": "How do anchorage and belt anchorage differ under UN R14?",
+    "expected_contains": ["§"],
+    "expected_citations": ["UN_R14"],
+    "category": "definition_distinction"
+  },
+  {
+    "id": "FV04",
+    "query": "What abrasion test parameters does UN R16 specify for Procedure 1?",
+    "expected_contains": ["2.5", "Hz"],
+    "expected_citations": ["UN_R16"],
+    "category": "numeric_lookup"
+  },
+  {
+    "id": "FV05",
+    "query": "Does UN R95 specify chest deflection limits for side impact?",
+    "expected_abstain_or_boundary": true,
+    "category": "out_of_corpus"
+  }
+]

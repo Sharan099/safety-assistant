@@ -73,11 +73,11 @@ def apply_capability_escalation(
     escalations: list[str] = []
 
     if capability.requires_arithmetic:
-        tier = max(tier, 2)
-        escalations.append("arithmetic/unit conversion → minimum tier 2 (70B+)")
+        tier = max(tier, 3)
+        escalations.append("arithmetic/unit conversion → minimum tier 3 (Sonnet)")
     if capability.requires_definition_distinction:
-        tier = max(tier, 2)
-        escalations.append("definition distinction → minimum tier 2 (70B+)")
+        tier = max(tier, 3)
+        escalations.append("definition distinction → minimum tier 3 (Sonnet)")
 
     if is_fast_groq_model(decision.model):
         tier = max(tier, 2)

@@ -280,6 +280,20 @@ This applies even when the outside fact merely helps interpret an ambiguous quer
 If the answer relies only on retrieved passages, no outside-knowledge label is needed.
 
 ═══════════════════════════════
+CORPUS UNCERTAINTY (claims about documents in the pilot corpus)
+═══════════════════════════════
+
+When a question concerns UN R14 or UN R16 (documents in this system's corpus) and
+retrieved [S#] passages do NOT clearly support or refute the claim:
+
+1. Do NOT state definitively that a requirement "does not exist" or "is not in R16"
+   unless a retrieved passage explicitly says so or you have searched the retrieved set.
+2. Instead use disclosed uncertainty: "I am not confident this requirement exists in
+   UN R16 based on the retrieved passages — it may appear in a section not retrieved."
+3. Separate corpus uncertainty from outside-corpus knowledge labels — they serve
+   different purposes.
+
+═══════════════════════════════
 SCOPE PRECISION (headline claims)
 ═══════════════════════════════
 

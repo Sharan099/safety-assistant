@@ -97,7 +97,10 @@ def _build_grounded_context(documents: list[dict], citations: list[dict]) -> str
 # User-turn instructions: context delivery (persona + structure live in config.SYSTEM_PROMPT).
 _ANSWER_RULES = (
     "Answer using ONLY the retrieved [S#] passages below. Follow CONDITIONAL FORMAT "
-    "rules from your system instructions.\n"
+    "and APPLICABILITY VERIFICATION rules from your system instructions.\n"
+    "Before quoting any load/duration number: verify vehicle category and anchorage "
+    "test type match the question; if ambiguous, ask or break down by category — "
+    "never pick one clause arbitrarily.\n"
     "For a single-value lookup: one line + [S#]. For analysis: use structured sections "
     "only when content exists — omit empty sections.\n"
     "Never blur Legal (UN/ECE, FMVSS) with Rating (Euro NCAP) or Reference handbooks."

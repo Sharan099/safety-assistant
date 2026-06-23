@@ -64,6 +64,28 @@ def _looks_like_abstain(answer: str) -> bool:
     return any(m in low for m in _ABSTAIN_MARKERS) or "executive summary" in low and "insufficient" in low
 
 
+def _looks_like_clarify_or_breakdown(answer: str) -> bool:
+    low = (answer or "").lower()
+    clarify_markers = (
+        "which vehicle",
+        "which category",
+        "please specify",
+        "depends on",
+        "varies by",
+        "ambiguous",
+        "clarif",
+        "specify the vehicle",
+        "multiple categories",
+        "breakdown",
+    )
+    if any(m in low for m in clarify_markers):
+        return True
+    if "?" in answer and any(c in low for c in ("category", "m1", "m3", "vehicle")):
+        return True
+    cats = sum(1 for c in ("m1", "m2", "m3", "n1", "n2", "n3") if c in low)
+    return cats >= 2 and ("dan" in low or "load" in low or "anchorage" in low)
+
+
 def behavior_match(answer: str, expected_behavior: str) -> tuple[bool, str]:
     """
     Compare actual answer to expected_behavior: answer | compare | abstain.
@@ -86,6 +108,15 @@ def behavior_match(answer: str, expected_behavior: str) -> tuple[bool, str]:
         if _is_blocked_answer(answer):
             return False, "blocked_on_compare"
         return True, "compare_ok"
+
+    if expected == "clarify_or_breakdown":
+        if _is_blocked_answer(answer):
+            return False, "blocked_on_clarify"
+        if _looks_like_abstain(answer):
+            return False, "expected_clarify_got_abstain"
+        if _looks_like_clarify_or_breakdown(answer):
+            return True, "clarify_or_breakdown_ok"
+        return False, "expected_clarify_or_breakdown"
 
     # answer
     if _looks_like_abstain(answer) and not _is_blocked_answer(answer):
@@ -160,6 +191,31 @@ def must_not_retrieve(
     return "PASS", "clean"
 
 
+def retrieval_contains_groups(
+    documents: list[dict],
+    groups: list[list[str]],
+    chunk_lookup: dict | None = None,
+    top_n: int = 5,
+) -> tuple[str, list[str]]:
+    """PASS if top-N chunk texts satisfy OR-within-group, AND-across-groups."""
+    if not groups:
+        return "skip", []
+    combined_texts: list[str] = []
+    for d in documents[:top_n]:
+        text = d.get("text") or ""
+        if chunk_lookup and d.get("id") in chunk_lookup:
+            text = chunk_lookup[d["id"]].get("text") or text
+        combined_texts.append(normalize_text(text))
+    blob = "".join(combined_texts)
+    failed: list[str] = []
+    for group in groups:
+        if not group:
+            continue
+        if not any(normalize_text(opt) in blob for opt in group):
+            failed.append(" | ".join(group))
+    return ("PASS" if not failed else "FAIL"), failed
+
+
 def score_item(
     item: dict[str, Any],
     answer: str,
@@ -195,6 +251,11 @@ def score_item(
         documents,
         chunk_lookup,
     )
+    retr_contains_status, retr_contains_failed = retrieval_contains_groups(
+        documents,
+        item.get("expected_retrieval_contains") or [],
+        chunk_lookup,
+    )
 
     if answer:
         beh_ok, beh_detail = behavior_match(answer, item.get("expected_behavior", "answer"))
@@ -223,6 +284,7 @@ def score_item(
     checks = {
         "recall": recall_status,
         "must_not": must_status,
+        "retrieval_contains": retr_contains_status,
         "behavior": behavior_status,
         "contains": contains_status,
         "forbidden": forbidden_status,
@@ -245,6 +307,7 @@ def score_item(
         "query_type": qtype,
         "recall": recall_status,
         "must_not": must_status,
+        "retrieval_contains": retr_contains_status,
         "behavior": behavior_status,
         "contains": contains_status,
         "forbidden": forbidden_status,
@@ -253,6 +316,7 @@ def score_item(
         "details": {
             "recall": recall_detail,
             "must_not": must_detail,
+            "retrieval_contains_failed_groups": retr_contains_failed,
             "behavior": beh_detail,
             "contains_failed_groups": contains_failed,
             "forbidden_matched": forb_matched,

@@ -25,6 +25,7 @@ from backend.app.core.settings import (
     ENABLE_HARD_METADATA_FILTER,
     ENABLE_METADATA_FILTER,
     ENABLE_MULTI_QUERY,
+    ENABLE_NEAR_DUP_SUPPRESSION,
     ENABLE_PARENT_CHILD,
     ENABLE_QUERY_EXPANSION,
     EMBEDDING_MODEL,
@@ -32,6 +33,7 @@ from backend.app.core.settings import (
     EMBEDDING_REVISION,
     EMBEDDING_TRUST_REMOTE_CODE,
     METADATA_BOOST,
+    NEAR_DUP_SIMILARITY_THRESHOLD,
     RRF_K,
     SEMANTIC_WEIGHT,
     TOP_K_CHUNKS,
@@ -106,6 +108,7 @@ class HybridRetriever:
         self._emb_matrix: np.ndarray | None = None
         self._emb_norms: np.ndarray | None = None
         self._matrix_chunk_ids: list[str] = []
+        self._chunk_id_to_emb_idx: dict[str, int] = {}
         self._semantic_disabled = (
             os.getenv("DISABLE_SEMANTIC", "false").lower() == "true"
         )
@@ -163,6 +166,7 @@ class HybridRetriever:
         self._emb_matrix = mat
         self._emb_norms = mat / norms
         self._matrix_chunk_ids = ids
+        self._chunk_id_to_emb_idx = {cid: i for i, cid in enumerate(ids)}
         logger.info(f"Vector index ready: {len(ids)} vectors")
 
     def _get_model(self):
@@ -625,12 +629,107 @@ class HybridRetriever:
             deduped.append(d)
         return deduped
 
+    def _chunk_embedding(self, chunk_id: str) -> np.ndarray | None:
+        if self._emb_norms is None:
+            return None
+        idx = self._chunk_id_to_emb_idx.get(chunk_id)
+        if idx is None:
+            return None
+        return self._emb_norms[idx]
+
+    def _suppress_near_duplicates(
+        self,
+        docs: list[dict],
+        *,
+        pool: list[dict] | None = None,
+        threshold: float | None = None,
+        target_k: int | None = None,
+    ) -> list[dict]:
+        """
+        Drop near-duplicate candidates (high cosine on stored embeddings).
+        Backfills from pool so distinct chunks fill freed slots.
+        """
+        if not ENABLE_NEAR_DUP_SUPPRESSION or len(docs) < 2:
+            return docs
+        if self._emb_norms is None:
+            return docs
+
+        thr = threshold if threshold is not None else NEAR_DUP_SIMILARITY_THRESHOLD
+        k = target_k or len(docs)
+        seen_ids = {d["id"] for d in docs}
+        candidates = list(docs)
+        if pool:
+            for d in pool:
+                if d["id"] not in seen_ids:
+                    candidates.append(d)
+                    seen_ids.add(d["id"])
+        candidates.sort(key=lambda x: -x.get("score", 0.0))
+
+        kept: list[dict] = []
+        kept_vecs: list[np.ndarray] = []
+        for d in candidates:
+            if len(kept) >= k:
+                break
+            vec = self._chunk_embedding(d["id"])
+            if vec is not None and kept_vecs:
+                sims = [float(np.dot(vec, kv)) for kv in kept_vecs]
+                if max(sims) >= thr:
+                    continue
+            kept.append(d)
+            if vec is not None:
+                kept_vecs.append(vec)
+        return kept if kept else docs
+
+    def _attach_related_clauses(self, docs: list[dict], max_extra: int = 2) -> list[dict]:
+        """Pull linked duration/applicability chunks (e.g. §6.3.3 with §6.4 loads)."""
+        if not docs:
+            return docs
+        present = {d["id"] for d in docs}
+        extras: list[dict] = []
+        for d in docs:
+            chunk = self._chunk_by_id.get(d["id"], {})
+            related = chunk.get("related_clause_ids") or []
+            if not related:
+                continue
+            for rel_clause in related:
+                if len(extras) >= max_extra:
+                    break
+                rel_prefix = str(rel_clause).rstrip(".")
+                for cid, c in self._chunk_by_id.items():
+                    if cid in present or any(e["id"] == cid for e in extras):
+                        continue
+                    cn = (c.get("clause_number") or "").rstrip(".")
+                    if not cn.startswith(rel_prefix):
+                        continue
+                    if rel_prefix == "6.3.3" and not c.get("has_duration_requirement"):
+                        if "0.2 second" not in (c.get("text") or "").lower():
+                            continue
+                    extras.append({
+                        "id": cid,
+                        "text": c.get("text", ""),
+                        "score": d.get("score", 0.0) * 0.92,
+                        "semantic_score": d.get("semantic_score"),
+                        "related_to": d["id"],
+                        "related_clause": rel_clause,
+                    })
+                    break
+        if not extras:
+            return docs
+        merged = list(docs)
+        for e in extras:
+            if e["id"] not in present:
+                merged.append(e)
+                present.add(e["id"])
+        merged.sort(key=lambda x: -x.get("score", 0.0))
+        return merged
+
     def retrieve(self, query: str, mode: str | None = None) -> dict[str, Any]:
         from backend.app.core.modes import get_mode
         from backend.app.retrieval.mode_filter import (
             chunk_passes_mode_filter,
             mode_soft_boost,
         )
+        from backend.app.retrieval.applicability_boost import applicability_soft_boost
 
         mode_cfg = get_mode(mode)
         t0 = time.perf_counter()
@@ -677,6 +776,9 @@ class HybridRetriever:
             )
             fused = fused[:TOP_K_RETRIEVE]
 
+        pre_dedup_pool = list(fused)
+        target_k = mode_cfg.retrieval_k or TOP_K_RETRIEVE
+
         # Mode hard filters
         fused = [
             d for d in fused
@@ -685,10 +787,17 @@ class HybridRetriever:
         for d in fused:
             chunk = self._chunk_by_id.get(d["id"], d)
             mult = mode_soft_boost(chunk, mode_cfg, query)
+            mult *= applicability_soft_boost(chunk, query)
             if mult != 1.0:
                 d["score"] = d.get("score", 0.0) * mult
         fused.sort(key=lambda x: -x.get("score", 0.0))
-        fused = fused[: mode_cfg.retrieval_k or TOP_K_RETRIEVE]
+
+        fused = self._suppress_near_duplicates(
+            fused[:target_k],
+            pool=pre_dedup_pool,
+            target_k=target_k,
+        )
+        fused = self._attach_related_clauses(fused)
 
         # Parent-Child Retrieval (dedupe + attach parent context)
         fused = self._expand_parent_child(fused)

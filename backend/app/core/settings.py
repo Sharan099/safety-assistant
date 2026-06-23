@@ -31,6 +31,8 @@ from config import (  # noqa: E402
     TOP_K_RETRIEVE,
     TOP_K_VECTOR,
     VECTOR_SCORE_THRESHOLD,
+    NEAR_DUP_SIMILARITY_THRESHOLD,
+    ENABLE_NEAR_DUP_SUPPRESSION,
 )
 
 __all__ = [

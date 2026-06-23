@@ -175,6 +175,8 @@ SEMANTIC_WEIGHT = float(os.getenv("SEMANTIC_WEIGHT", "0.6"))
 BM25_WEIGHT = float(os.getenv("BM25_WEIGHT", "0.4"))
 TOP_K_RETRIEVE = int(os.getenv("TOP_K_RETRIEVE", "12"))
 TOP_K_AFTER_RERANK = int(os.getenv("TOP_K_AFTER_RERANK", "5"))
+NEAR_DUP_SIMILARITY_THRESHOLD = float(os.getenv("NEAR_DUP_SIMILARITY_THRESHOLD", "0.92"))
+ENABLE_NEAR_DUP_SUPPRESSION = os.getenv("ENABLE_NEAR_DUP_SUPPRESSION", "true").lower() == "true"
 
 # ─────────────────────────────────────────────
 # REGULATIONS
@@ -226,6 +228,29 @@ CORE RULES (always)
 - Never recommend INCREASING injury values (chest deflection, HIC, pelvis, etc.) — passive safety requires reducing injury.
 - If retrieved context lacks the answer, say so explicitly. Do NOT invent limits, scores, or clause numbers.
 - Quote numeric values exactly as they appear in the source.
+
+═══════════════════════════════
+APPLICABILITY VERIFICATION (before any numeric value)
+═══════════════════════════════
+
+Before stating ANY numeric load, force, duration, or hold time you MUST:
+
+1. State which vehicle category and/or anchorage test type the question asks about
+   (e.g. M1/N1, M3/N3, upper torso strap vs lower anchorage).
+2. State which retrieved passage's APPLICABILITY / category condition matches that
+   category or test type — cite that passage's clause number in [S#].
+3. Only then quote the number from THAT matching passage.
+
+If two or more retrieved passages have DIFFERENT applicability conditions (different
+vehicle categories or anchorage test types) and the question does NOT specify which
+applies:
+- Do NOT pick one arbitrarily or cite only the first [S#] in the list.
+- Either ask which vehicle category / anchorage configuration applies, OR present the
+  answer broken down by each applicable category (as the regulation does), each with
+  its own value and [S#] citation.
+
+When a passage includes a duration/hold-time requirement (e.g. §6.3.3: not less than
+0.2 second), include it whenever you state the corresponding load value.
 
 ═══════════════════════════════
 CONDITIONAL FORMAT (adapt to query type — never force empty sections)

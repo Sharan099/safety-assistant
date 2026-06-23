@@ -32,6 +32,11 @@ CLAUSE_RE = re.compile(
     r"^(?:[-•*]\s*)?(\d+(?:\.\d+)+)[\.\s:_-]+(.+?)\s*$",
     re.I,
 )
+# Docling sometimes emits "6.4.1 3." instead of "6.4.1.3."
+CLAUSE_SPACED_RE = re.compile(
+    r"^(?:[-•*]\s*)?((?:\d+\.)+\d+)\s+(\d+)\.?\s*(.*)$",
+    re.I,
+)
 TEXT_SECTION_RE = re.compile(
     r"^(Section|Part|Annex|Article|Appendix)\s+([IVXLCDM]+|\d+)\s*[:.]?\s*(.*)$",
     re.I,
@@ -146,6 +151,9 @@ def _split_words(text: str, size: int, overlap: int) -> list[str]:
         return [text]
 
     sentences = _split_sentences(text)
+    from ingestion.applicability_enrichment import bond_load_duration_sentences
+
+    sentences = bond_load_duration_sentences(sentences)
     if not sentences:
         return [text]
 
@@ -214,9 +222,10 @@ def _parse_markdown_sections(md_text: str) -> list[SectionNode]:
 
         m = HEADING_RE.match(stripped)
         cm = None if m else CLAUSE_RE.match(stripped)
-        tm = None if (m or cm) else TEXT_SECTION_RE.match(stripped)
+        csm = None if (m or cm) else CLAUSE_SPACED_RE.match(stripped)
+        tm = None if (m or cm or csm) else TEXT_SECTION_RE.match(stripped)
 
-        if m or cm or tm:
+        if m or cm or csm or tm:
             clause_num: str | None = None
             heading_source: str | None = None
             if m:
@@ -226,6 +235,11 @@ def _parse_markdown_sections(md_text: str) -> list[SectionNode]:
                 clause_num = cm.group(1)
                 level = min(6, clause_num.count(".") + 1)
                 title = f"{clause_num} {cm.group(2).strip()[:100]}"
+            elif csm:
+                clause_num = f"{csm.group(1).rstrip('.')}.{csm.group(2)}"
+                level = min(6, clause_num.count(".") + 1)
+                tail = csm.group(3).strip()[:100]
+                title = f"{clause_num} {tail}".strip()
             else:
                 title = f"{tm.group(1)} {tm.group(2)}: {tm.group(3)}".strip(": ").strip()
                 level = 2
@@ -343,6 +357,14 @@ def _prepend_chunk_header(
     return header + text
 
 
+def _normalize_clause_number(clause_number: str | None, section_title: str) -> str | None:
+    """Fix Docling headings like '6.4.1 3.' -> clause 6.4.1.3."""
+    spaced = re.match(r"^(\d+(?:\.\d+)+)\s+(\d+)\.?\s*", section_title or "")
+    if spaced:
+        return f"{spaced.group(1).rstrip('.')}.{spaced.group(2)}"
+    return clause_number
+
+
 def chunk_markdown_file(md_path: Path) -> list[dict]:
     text = md_path.read_text(encoding="utf-8", errors="ignore")
     meta, _ = _parse_frontmatter(text.splitlines())
@@ -377,12 +399,30 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
             return events
 
     sections = _parse_markdown_sections(text)
+    from ingestion.applicability_enrichment import (
+        enrich_section_body,
+        extract_r14_duration_snippet,
+        prepend_applicability_to_chunk_text,
+    )
+
+    duration_snippet = (
+        extract_r14_duration_snippet(sections) if regulation == "UN_R14" else None
+    )
     all_chunks: list[dict] = []
     global_seq = 0
 
     for sec_idx, (path, title, level, body, clause_number, heading_source) in enumerate(
         sections, 1
     ):
+        enriched_body, applicability_meta = enrich_section_body(
+            regulation=regulation,
+            clause_number=_normalize_clause_number(clause_number, title),
+            section_title=title,
+            body=body,
+            duration_snippet=duration_snippet,
+        )
+        clause_number = _normalize_clause_number(clause_number, title)
+        body = enriched_body
         heading_path = " > ".join(path)
         section_chunk_id = f"{regulation}-{file_slug}-H{sec_idx:04d}-SEC"
 
@@ -412,12 +452,19 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
         section_chunk["is_truncated_parent"] = is_truncated_parent
         if heading_source:
             section_chunk["heading_source"] = heading_source
+        if applicability_meta:
+            section_chunk.update(applicability_meta)
         all_chunks.append(section_chunk)
 
         # Leaf paragraph chunks under section
         leaf_parts = _split_words(body, HIER_CHUNK_WORDS, HIER_CHUNK_OVERLAP)
         for i, part in enumerate(leaf_parts, 1):
-            leaf_text = f"[{heading_path}]\n\n{part}"
+            leaf_part = part
+            if applicability_meta and "APPLICABILITY:" not in part[:120]:
+                leaf_part = prepend_applicability_to_chunk_text(
+                    part, applicability_meta, duration_snippet
+                )
+            leaf_text = f"[{heading_path}]\n\n{leaf_part}"
             chunk = _make_chunk(
                 regulation=regulation,
                 file_slug=file_slug,
@@ -439,6 +486,8 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
                 section_idx=sec_idx,
                 clause_number=clause_number,
             )
+            if applicability_meta:
+                chunk.update(applicability_meta)
             chunk["global_seq"] = global_seq
             global_seq += 1
             all_chunks.append(chunk)

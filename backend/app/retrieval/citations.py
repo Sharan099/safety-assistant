@@ -67,11 +67,17 @@ def _snippet(text: str, limit: int = 240) -> str:
 
 def build_citation(doc: dict[str, Any], index: int) -> dict[str, Any]:
     """Turn one retrieved doc into a structured, displayable citation."""
-    reg_code = doc.get("regulation", "")
+    reg_code = doc.get("regulation") or doc.get("doc_id") or ""
     meta: DocumentMeta = get_document_meta(reg_code)
     heading = doc.get("heading_path", "") or ""
     page = parse_page(heading)
-    section = parse_section(heading, doc.get("title", ""))
+    section = parse_section(
+        heading,
+        doc.get("title", "") or doc.get("section_title", "") or "",
+    )
+    clause_num = doc.get("clause_number") or doc.get("clause")
+    if clause_num and section and str(clause_num) not in str(section):
+        section = str(clause_num)
 
     # Human-readable locator: prefer clause/section; include page when known.
     locator_parts: list[str] = []
@@ -81,7 +87,13 @@ def build_citation(doc: dict[str, Any], index: int) -> dict[str, Any]:
         locator_parts.append(f"p.{page}")
     locator = ", ".join(locator_parts) or (heading or "n/a")
 
-    rev = meta.indexed_revision or "revision unverified"
+    chunk_rev = doc.get("revision")
+    if chunk_rev and str(chunk_rev).lower() not in ("unknown", "n/a", "synthetic"):
+        rev = str(chunk_rev)
+        revision_verified = meta.verified
+    else:
+        rev = meta.indexed_revision or "revision unverified"
+        revision_verified = meta.verified
     label = f"{meta.display_name} ({rev}), {locator}"
 
     return {
@@ -94,8 +106,8 @@ def build_citation(doc: dict[str, Any], index: int) -> dict[str, Any]:
         "doc_type_label": doc_type_label(meta.doc_type),
         "is_legal": meta.is_legal,
         "authority": meta.authority,
-        "revision": meta.indexed_revision,
-        "revision_verified": meta.verified,
+        "revision": meta.indexed_revision or chunk_rev,
+        "revision_verified": revision_verified,
         "legal_reference": meta.legal_reference,
         "page": page,
         "section": section,
@@ -109,8 +121,7 @@ def build_citation(doc: dict[str, Any], index: int) -> dict[str, Any]:
     }
 
 
-def build_citations(documents: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [build_citation(d, i + 1) for i, d in enumerate(documents)]
+# build_citations defined after enrich_doc_provenance (below)
 
 
 def _sigmoid(x: float) -> float:
@@ -204,6 +215,92 @@ def assess_grounding(
 # to cite them inline. We use this to tie answer-level flags to the sources the
 # answer ACTUALLY used, not to every retrieved passage.
 _MARKER_RE = re.compile(r"\[S(\d+)\]")
+_CHUNK_HEADER_RE = re.compile(
+    r"^\[([A-Z0-9_]+)\s*\|\s*([^|\]]+)\s*\|\s*([^\]]+)\]",
+    re.I,
+)
+_APPLICABILITY_BLOCK_RE = re.compile(
+    r"^APPLICABILITY:.*?\n---\n",
+    re.S | re.I,
+)
+
+
+def _parse_chunk_header(text: str) -> dict[str, str]:
+    """Extract doc_id / revision / clause from chunker prepend header."""
+    m = _CHUNK_HEADER_RE.search(text or "")
+    if not m:
+        return {}
+    return {
+        "regulation": m.group(1).strip().upper(),
+        "revision": m.group(2).strip(),
+        "clause": m.group(3).strip(),
+    }
+
+
+def enrich_doc_provenance(
+    doc: dict[str, Any],
+    chunk_lookup: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """
+    Merge chunk-index metadata and parent provenance so citations never show
+    as 'Unknown document' when only the APPLICABILITY sub-chunk was retrieved.
+    """
+    enriched = dict(doc)
+    cid = doc.get("id") or doc.get("chunk_id")
+    chunk = (chunk_lookup or {}).get(cid, {}) if cid else {}
+
+    for key in (
+        "regulation",
+        "doc_id",
+        "heading_path",
+        "section_title",
+        "clause_number",
+        "clause",
+        "revision",
+        "doc_type",
+        "parent_id",
+        "title",
+    ):
+        if not enriched.get(key) and chunk.get(key):
+            enriched[key] = chunk[key]
+
+    header = _parse_chunk_header(enriched.get("text", "") or chunk.get("text", ""))
+    if not enriched.get("regulation") and header.get("regulation"):
+        enriched["regulation"] = header["regulation"]
+    if not enriched.get("revision") and header.get("revision"):
+        rev = header["revision"]
+        if rev.lower() not in ("unknown", "n/a"):
+            enriched["revision"] = rev
+    if not enriched.get("clause_number") and header.get("clause"):
+        enriched["clause_number"] = header["clause"]
+
+    parent_id = enriched.get("parent_id") or chunk.get("parent_id")
+    if parent_id and chunk_lookup and parent_id in chunk_lookup:
+        parent = chunk_lookup[parent_id]
+        for key in ("regulation", "doc_id", "revision", "doc_type", "heading_path"):
+            if not enriched.get(key) and parent.get(key):
+                enriched[key] = parent[key]
+        if not enriched.get("section_title") and parent.get("section_title"):
+            enriched["section_title"] = parent["section_title"]
+
+    related_to = enriched.get("related_to")
+    if related_to and chunk_lookup and related_to in chunk_lookup:
+        src = chunk_lookup[related_to]
+        for key in ("regulation", "doc_id", "revision", "doc_type"):
+            if not enriched.get(key) and src.get(key):
+                enriched[key] = src[key]
+
+    return enriched
+
+
+def build_citations(
+    documents: list[dict[str, Any]],
+    chunk_lookup: dict[str, dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    return [
+        build_citation(enrich_doc_provenance(d, chunk_lookup), i + 1)
+        for i, d in enumerate(documents)
+    ]
 
 
 def extract_cited_markers(answer_text: str) -> set[str]:
@@ -285,3 +382,41 @@ def derive_answer_flags(
             ),
         })
     return flags
+
+
+def validate_citation_attribution(citation: dict[str, Any]) -> list[str]:
+    """Return failure codes when a citation lacks real provenance."""
+    failures: list[str] = []
+    reg = (citation.get("regulation") or "").upper()
+    if not reg or reg == "UNKNOWN":
+        failures.append("missing_regulation")
+    if citation.get("document") == "Unknown document":
+        failures.append("unknown_document")
+    rev = str(citation.get("revision") or "")
+    if not rev or rev.lower() == "revision unverified":
+        failures.append("unverified_revision")
+    label = str(citation.get("doc_type_label") or "")
+    if not label or label.lower() == "unknown":
+        failures.append("invalid_doc_type")
+    if "unverified" in str(citation.get("label") or "").lower():
+        failures.append("unverified_label")
+    return failures
+
+
+def validate_citation_attribution(citation: dict[str, Any]) -> list[str]:
+    """Return failure codes when a citation lacks real provenance."""
+    failures: list[str] = []
+    reg = (citation.get("regulation") or "").upper()
+    if not reg or reg == "UNKNOWN":
+        failures.append("missing_regulation")
+    if citation.get("document") == "Unknown document":
+        failures.append("unknown_document")
+    rev = str(citation.get("revision") or "")
+    if not rev or rev.lower() == "revision unverified":
+        failures.append("unverified_revision")
+    label = str(citation.get("doc_type_label") or "")
+    if not label or label.lower() == "unknown":
+        failures.append("invalid_doc_type")
+    if "unverified" in str(citation.get("label") or "").lower():
+        failures.append("unverified_label")
+    return failures

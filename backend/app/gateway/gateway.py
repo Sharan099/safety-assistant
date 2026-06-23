@@ -30,7 +30,16 @@ from backend.app.gateway import config as cfg
 from backend.app.gateway import metrics as gm
 from backend.app.gateway.cache import SemanticCache
 from backend.app.gateway.providers import build_default_registry
-from backend.app.gateway.providers.base import Provider, ProviderError
+from backend.app.gateway.providers.base import ProviderError
+from backend.app.gateway.errors import (
+    GENERATION_UNAVAILABLE_MESSAGE,
+    is_raw_provider_error,
+    sanitize_user_answer,
+)
+from backend.app.gateway.fallback_safeguards import (
+    effective_max_tokens,
+    sanitize_fast_model_output,
+)
 from backend.app.gateway.router import Router
 from backend.app.gateway.types import GatewayResult, RouteDecision, RoutingContext
 
@@ -108,12 +117,24 @@ class LLMGateway:
 
         # 4. Route with failover --------------------------------------------
         messages = self._build_messages(prompt, ctx)
+        from backend.app.gateway.fallback_safeguards import LIST_STYLE_RE
+
+        if LIST_STYLE_RE.search(prompt or ""):
+            max_tok = effective_max_tokens(
+                LLM_MAX_TOKENS,
+                provider_key="groq",
+                model=cfg.GROQ_TIER_MODEL,
+                prompt=prompt,
+                fallback_used=True,
+            )
+        else:
+            max_tok = LLM_MAX_TOKENS
         try:
             outcome = self._router.route(
                 effective.provider,
                 messages,
                 temperature=LLM_TEMPERATURE,
-                max_tokens=LLM_MAX_TOKENS,
+                max_tokens=max_tok,
             )
         except ProviderError as exc:
             latency_ms = round((time.perf_counter() - t0) * 1000, 2)
@@ -123,20 +144,28 @@ class LLMGateway:
                 tier=str(effective.tier),
                 outcome="error",
             ).inc()
-            logger.error(f"Gateway routing failed: {exc}")
+            logger.error(f"Gateway routing failed (all tiers): {exc}")
             return GatewayResult(
-                answer=f"LLM error: {exc}",
+                answer=GENERATION_UNAVAILABLE_MESSAGE,
                 model=effective.model,
                 provider=effective.provider,
                 tier=effective.tier,
                 latency_ms=latency_ms,
                 route_score=decision.score,
                 route_reasons=decision.reasons,
-                error=str(exc),
+                error="all_providers_failed",
+                generation_failed=True,
             )
 
         resp = outcome.response
         served_tier = cfg.tier_for_provider_key(outcome.provider_key)
+        answer, safeguard_meta = sanitize_fast_model_output(
+            resp.answer,
+            provider_key=outcome.provider_key,
+            model=resp.model,
+        )
+        if is_raw_provider_error(answer):
+            answer = GENERATION_UNAVAILABLE_MESSAGE
         latency_ms = round((time.perf_counter() - t0) * 1000, 2)
 
         # 5. Cache store + accounting + metrics -----------------------------
@@ -176,7 +205,7 @@ class LLMGateway:
             f"in {latency_ms}ms"
         )
         return GatewayResult(
-            answer=resp.answer,
+            answer=answer,
             model=resp.model,
             provider=resp.provider,
             tier=served_tier,
@@ -184,11 +213,14 @@ class LLMGateway:
             cache_hit=False,
             fallback_used=outcome.fallback_used,
             route_score=decision.score,
-            route_reasons=decision.reasons,
+            route_reasons=decision.reasons + (
+                ["fast_fallback_safeguard"] if safeguard_meta.get("repetition_truncated") else []
+            ),
             prompt_tokens=resp.prompt_tokens,
             completion_tokens=resp.completion_tokens,
             cost_usd=cost,
             cost_saved_usd=saved,
+            generation_failed=False,
         )
 
     # ───────────────────────── helpers ─────────────────────────

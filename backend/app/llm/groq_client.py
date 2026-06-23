@@ -7,6 +7,12 @@ from loguru import logger
 
 from config import GROQ_MODEL, LLM_MAX_TOKENS, LLM_TEMPERATURE, SYSTEM_PROMPT
 
+from backend.app.gateway.errors import GENERATION_UNAVAILABLE_MESSAGE, is_raw_provider_error
+from backend.app.gateway.fallback_safeguards import (
+    is_fast_groq_model,
+    sanitize_fast_model_output,
+)
+
 
 class GroqLLM:
     def __init__(self) -> None:
@@ -26,16 +32,37 @@ class GroqLLM:
 
     def generate(self, prompt: str) -> dict:
         t0 = time.perf_counter()
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=LLM_TEMPERATURE,
-            max_tokens=LLM_MAX_TOKENS,
-        )
+        try:
+            kwargs: dict = {
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": LLM_TEMPERATURE,
+                "max_tokens": LLM_MAX_TOKENS,
+            }
+            if is_fast_groq_model(self.model):
+                from backend.app.gateway import config as gw_cfg
+                kwargs["frequency_penalty"] = gw_cfg.FAST_FALLBACK_FREQUENCY_PENALTY
+            response = self.client.chat.completions.create(**kwargs)
+        except Exception as exc:
+            latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+            logger.error(f"LLM failed: {exc}")
+            return {
+                "answer": GENERATION_UNAVAILABLE_MESSAGE,
+                "latency_ms": latency_ms,
+                "model": self.model,
+                "error": "provider_failed",
+                "generation_failed": True,
+            }
         answer = (response.choices[0].message.content or "").strip()
+        if is_fast_groq_model(self.model):
+            answer, _ = sanitize_fast_model_output(
+                answer, provider_key="groq", model=self.model
+            )
+        if is_raw_provider_error(answer):
+            answer = GENERATION_UNAVAILABLE_MESSAGE
         usage = getattr(response, "usage", None)
         latency_ms = round((time.perf_counter() - t0) * 1000, 2)
         logger.info(f"LLM completed in {latency_ms}ms")

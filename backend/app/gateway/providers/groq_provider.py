@@ -14,6 +14,7 @@ import time
 from loguru import logger
 
 from backend.app.gateway import config as cfg
+from backend.app.gateway.fallback_safeguards import is_fast_groq_model
 from backend.app.gateway.providers.base import Provider, ProviderError
 from backend.app.gateway.types import ProviderResponse
 
@@ -65,13 +66,16 @@ class GroqProvider(Provider):
         t0 = time.perf_counter()
         try:
             client = self._get_client()
-            resp = client.chat.completions.create(
-                model=self._model,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                timeout=timeout_s,
-            )
+            create_kwargs: dict = {
+                "model": self._model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "timeout": timeout_s,
+            }
+            if is_fast_groq_model(self._model):
+                create_kwargs["frequency_penalty"] = cfg.FAST_FALLBACK_FREQUENCY_PENALTY
+            resp = client.chat.completions.create(**create_kwargs)
         except ProviderError:
             raise
         except Exception as exc:  # SDK raises various transient errors

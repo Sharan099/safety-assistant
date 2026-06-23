@@ -160,7 +160,7 @@ def _is_retryable(exc: Exception) -> bool:
 
 
 def make_haiku() -> AnthropicProvider:
-    return AnthropicProvider(cfg.TIERS[2].model, key="anthropic_haiku")
+    return AnthropicProvider(cfg.CLAUDE_HAIKU_MODEL, key="anthropic_haiku")
 
 
 def make_sonnet() -> AnthropicProvider:

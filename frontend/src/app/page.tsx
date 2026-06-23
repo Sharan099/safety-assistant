@@ -38,6 +38,7 @@ type Grounding = {
   confidence?: number;
   confidence_band?: "high" | "medium" | "low";
   reason?: string;
+  generation_failed?: boolean;
 };
 
 type Gateway = {
@@ -79,6 +80,7 @@ type Message = {
   gateway?: Gateway;
   timing?: Record<string, number>;
   warnings?: string[];
+  generation_failed?: boolean;
   feedback?: Feedback;
 };
 
@@ -299,6 +301,7 @@ export default function Home() {
           gateway: data.gateway as Gateway | undefined,
           timing: data.timing,
           warnings: data.warnings,
+          generation_failed: Boolean(data.generation_failed),
           feedback: { reasons: [], comment: "" },
         },
       ]);
@@ -599,9 +602,14 @@ export default function Home() {
           // answer: render only the one-line answer — no sources, revision
           // banners, or warning blocks.
           const shouldAbstain = !!msg.grounding?.should_abstain;
+          const generationFailed =
+            !!msg.generation_failed || !!msg.grounding?.generation_failed;
           const hasCitations = !!(msg.citations && msg.citations.length > 0);
           const showExtras =
-            msg.role === "assistant" && !shouldAbstain && hasCitations;
+            msg.role === "assistant" &&
+            !shouldAbstain &&
+            !generationFailed &&
+            hasCitations;
 
           // Revision/answer-level flags: render once per regulation as a single
           // compact banner (deduplicated by regulation id).
@@ -651,6 +659,7 @@ export default function Home() {
 
             {msg.role === "assistant" &&
               !shouldAbstain &&
+              !generationFailed &&
               msg.grounding?.confidence_band && (
                 <div className="confidence-row">
                   <span

@@ -40,6 +40,7 @@ class ChatResponse(BaseModel):
     gateway: dict[str, Any] = {}
     timing: dict[str, Any] = {}
     warnings: list[str] = []
+    generation_failed: bool = False
 
 
 class UserRequest(BaseModel):
@@ -214,8 +215,11 @@ async def _workflow_result_to_response(
         logger.warning(f"Message persistence failed: {exc}")
 
     should_abstain = bool(grounding.get("should_abstain"))
-    citations = [] if should_abstain else result.get("citations", [])
-    flags = [] if should_abstain else result.get("flags", [])
+    generation_failed = bool(result.get("generation_failed") or grounding.get("generation_failed"))
+    citations = [] if (should_abstain or generation_failed) else result.get("citations", [])
+    flags = [] if (should_abstain or generation_failed) else result.get("flags", [])
+    if generation_failed:
+        grounding = {**grounding, "confidence_band": None, "generation_failed": True}
 
     return ChatResponse(
         query=result["query"],
@@ -239,6 +243,7 @@ async def _workflow_result_to_response(
         gateway=result.get("gateway", {}),
         timing=result.get("timing", {}),
         warnings=warnings,
+        generation_failed=generation_failed,
     )
 
 

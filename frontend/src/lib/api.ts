@@ -65,6 +65,7 @@ export type ChatPayload = {
   citations?: unknown[];
   flags?: unknown[];
   grounding?: Record<string, unknown>;
+  generation_failed?: boolean;
   gateway?: Record<string, unknown>;
   timing?: Record<string, number>;
   warnings?: string[];

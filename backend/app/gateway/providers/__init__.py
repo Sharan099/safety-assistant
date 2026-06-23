@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from backend.app.gateway import config as cfg
 from backend.app.gateway.providers.anthropic_provider import (
     AnthropicProvider,
     make_haiku,

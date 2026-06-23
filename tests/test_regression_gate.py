@@ -96,3 +96,11 @@ def test_abstention_cases_not_in_corpus(retriever):
             text = (chunk.get("text") or "").lower()
             if "iso 26262" in text or "asil" in text:
                 pytest.fail(f"ISO content retrieved for abstention case: {case['id']}")
+
+
+def test_reliability_suite_importable():
+    """Ensure deployment-readiness reliability tests are collected with the gate."""
+    import tests.test_reliability as rel
+
+    assert rel.test_groq_429_failover_to_haiku is not None
+    assert rel.test_orphan_applicability_chunk_inherits_parent_attribution is not None

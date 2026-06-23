@@ -24,6 +24,17 @@ from backend.app.retrieval.citations import (
     assess_grounding,
     build_citations,
     derive_answer_flags,
+    enrich_doc_provenance,
+)
+from backend.app.gateway.errors import (
+    GENERATION_UNAVAILABLE_MESSAGE,
+    is_raw_provider_error,
+    sanitize_user_answer,
+)
+from backend.app.graph.prompt_budget import (
+    estimate_tokens,
+    passage_char_budget,
+    strip_chunk_boilerplate,
 )
 from backend.app.retrieval.hybrid import HybridRetriever
 from backend.app.retrieval.reranker import CrossEncoderReranker
@@ -51,26 +62,46 @@ class RAGState(TypedDict, total=False):
     error: str
 
 
+def _generation_failed_state(state: RAGState, answer: str, error_code: str) -> RAGState:
+    """Strip misleading grounding/citations when generation did not succeed."""
+    meta = {**(state.get("metadata") or {}), "response_state": "generation_failed"}
+    grounding = dict(state.get("grounding") or {})
+    grounding.pop("confidence_band", None)
+    grounding["generation_failed"] = True
+    return {
+        **state,
+        "answer": sanitize_user_answer(answer, generation_failed=True),
+        "error": error_code,
+        "citations": [],
+        "flags": [],
+        "grounding": grounding,
+        "metadata": meta,
+    }
+
+
 def _build_grounded_context(documents: list[dict], citations: list[dict]) -> str:
     """
     Build context where every passage is prefixed with a citation marker [S#]
     and its provenance, grouped so the LLM never blurs legal regulations with
     rating protocols.
     """
+    from config import MAX_CONTEXT_TOKENS
+
     legal: list[str] = []
     rating: list[str] = []
     reference: list[str] = []
+    char_cap = passage_char_budget(MAX_CONTEXT_TOKENS, len(documents), overhead_tokens=120)
 
     for d, c in zip(documents, citations):
-        text = (d.get("text", "") or "")[:700]
-        parent = (d.get("parent_context", "") or "").strip()
+        raw = strip_chunk_boilerplate(d.get("text", "") or "")
+        text = raw[:char_cap]
+        parent = strip_chunk_boilerplate((d.get("parent_context", "") or "").strip())
         block = (
-            f"[{c['marker']}] {c['label']}\n"
-            f"(type: {c['doc_type_label']})\n"
+            f"[{c['marker']}] {c['label']} ({c['doc_type_label']})\n"
             f"{text}"
         )
         if parent and parent[:60] not in text:
-            block += f"\n[section context] {parent[:400]}"
+            block += f"\n[section context] {parent[: min(300, char_cap // 2)]}"
 
         if c["doc_type"] == "legal_regulation":
             legal.append(block)
@@ -297,9 +328,11 @@ class RAGWorkflow:
         from backend.app.core.modes import get_mode
 
         mode_cfg = get_mode(mode_name)
+        chunk_lookup = getattr(self.retriever, "_chunk_by_id", {}) or {}
+        docs = [enrich_doc_provenance(d, chunk_lookup) for d in docs]
 
         # Build structured citations for every retrieved passage.
-        citations = build_citations(docs) if docs else []
+        citations = build_citations(docs, chunk_lookup) if docs else []
 
         # Grounding gate: abstain if retrieval confidence is too low.
         grounding = assess_grounding(
@@ -373,11 +406,8 @@ class RAGWorkflow:
                     out = llm.generate(state["prompt"])
             except Exception as exc:
                 logger.exception("LLM generation failed")
-                return {
-                    **state,
-                    "answer": f"LLM error: {exc}",
-                    "error": str(exc),
-                }
+                return _generation_failed_state(state, str(exc), "llm_exception")
+
             span["outputs"] = {
                 "answer_len": len(out["answer"]),
                 "model": out.get("model"),
@@ -385,8 +415,12 @@ class RAGWorkflow:
                 "tier": out.get("tier"),
                 "cache_hit": out.get("cache_hit"),
             }
-            if out.get("error"):
-                return {**state, "answer": out["answer"], "error": out["error"]}
+            if out.get("generation_failed") or out.get("error"):
+                return _generation_failed_state(
+                    state, out.get("answer", ""), out.get("error", "generation_failed")
+                )
+            if is_raw_provider_error(out.get("answer", "")):
+                return _generation_failed_state(state, out["answer"], "raw_provider_error")
 
             timing = {**state.get("timing", {}), "llm_ms": out["latency_ms"]}
             # Additive routing metadata (only present when the gateway is active).
@@ -494,8 +528,18 @@ class RAGWorkflow:
             meta = final.get("metadata", {}) or {}
             citations = final.get("citations", [])
             should_abstain = bool(grounding.get("should_abstain"))
+            generation_failed = bool(
+                final.get("error")
+                or meta.get("response_state") == "generation_failed"
+                or grounding.get("generation_failed")
+            )
 
-            if should_abstain or meta.get("abstain"):
+            if generation_failed:
+                citations = []
+                flags = []
+                grounding = {**grounding, "confidence_band": None, "generation_failed": True}
+                answer = sanitize_user_answer(answer, generation_failed=True)
+            elif should_abstain or meta.get("abstain"):
                 # Abstention: no grounded answer -> no sources, no flags.
                 citations = []
                 flags: list[dict[str, Any]] = []
@@ -532,6 +576,8 @@ class RAGWorkflow:
                 "grounding": grounding,
                 "context": final.get("context", ""),
                 "prompt": final.get("prompt", ""),
+                "generation_failed": generation_failed,
+                "error": final.get("error") if generation_failed else None,
                 "guardrails": {
                     "input": final.get("guardrails_input", {}),
                     "output": final.get("guardrails_output", {}),
@@ -543,8 +589,12 @@ class RAGWorkflow:
             logger.exception("Workflow failed")
             return {
                 "query": query,
-                "answer": f"Error: {exc}",
+                "answer": GENERATION_UNAVAILABLE_MESSAGE,
                 "documents": [],
+                "citations": [],
+                "flags": [],
+                "grounding": {"generation_failed": True},
+                "generation_failed": True,
                 "error": str(exc),
                 "timing": {"total_ms": round((time.perf_counter() - t0) * 1000, 2)},
             }

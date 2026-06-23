@@ -157,6 +157,11 @@ MAX_RETRIES = _i("GATEWAY_MAX_RETRIES", 1)          # retries per provider
 BACKOFF_BASE_S = _f("GATEWAY_BACKOFF_BASE_S", 0.5)  # exponential base
 BACKOFF_MAX_S = _f("GATEWAY_BACKOFF_MAX_S", 8.0)
 
+# Fast-tier (8B) generation caps when failover lands on Groq instant.
+FAST_FALLBACK_MAX_TOKENS_DEFAULT = _i("FAST_FALLBACK_MAX_TOKENS_DEFAULT", 900)
+FAST_FALLBACK_MAX_TOKENS_LIST = _i("FAST_FALLBACK_MAX_TOKENS_LIST", 550)
+FAST_FALLBACK_FREQUENCY_PENALTY = _f("FAST_FALLBACK_FREQUENCY_PENALTY", 0.35)
+
 # Fallback chains keyed by the originally-selected provider.
 FALLBACK_CHAINS: dict[str, list[str]] = {
     "groq": ["groq", "groq_power", "anthropic_haiku", "anthropic_sonnet"],

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "REL01_groq_429_failover",
+    "category": "gateway_failover",
+    "description": "Simulated Groq 429 must failover to next tier with a clean user answer",
+    "test_type": "unit",
+    "expected_provider_not": "groq",
+    "forbidden_in_answer": ["429", "rate limit", "LLM error", "upsell"]
+  },
+  {
+    "id": "REL02_fast_fallback_no_loop",
+    "category": "fallback_safeguard",
+    "description": "Fast-tier design-review style prompt must not loop repetitively",
+    "test_type": "unit",
+    "prompt_style": "design_review_multi_clause",
+    "max_repeated_sentences": 2
+  },
+  {
+    "id": "REL03_citation_attribution",
+    "category": "citation_attribution",
+    "description": "Regulation lookup citations must have legal doc_type and verified revision",
+    "test_type": "integration",
+    "mode": "regulation_lookup",
+    "question": "What lower anchorage test load applies to M3/N3 vehicles under UN R14?",
+    "forbidden_citation_patterns": ["Unknown document", "revision unverified", "RefUnknown"]
+  }
+]

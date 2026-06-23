@@ -47,7 +47,7 @@ BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 CORPUS_DIR = DATA_DIR / "corpus"
 ARCHIVE_DIR = BASE_DIR / "archive" / "corpus_removed"
-CORPUS_VERSION = int(os.getenv("CORPUS_VERSION", "2"))
+CORPUS_VERSION = int(os.getenv("CORPUS_VERSION", "3"))  # 3 = pilot (UN R14 + R16 only)
 OUTPUT_DIR = BASE_DIR / "output"
 CACHE_DIR = OUTPUT_DIR / ".cache"
 
@@ -120,6 +120,11 @@ GROQ_MODEL_ANALYSIS = os.getenv("GROQ_MODEL_ANALYSIS", "claude-sonnet-4-20250514
 
 # Dense bi-encoder (hybrid.py semantic leg + embed_chunks.py)
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
+# Selectable A/B: BAAI/bge-m3 (dense+sparse+multi-vector) — run eval before switching default
+EMBEDDING_MODEL_BGE = os.getenv("EMBEDDING_MODEL_BGE", "BAAI/bge-m3")
+EMBEDDING_USE_BGE = os.getenv("EMBEDDING_USE_BGE", "false").lower() == "true"
+if EMBEDDING_USE_BGE:
+    EMBEDDING_MODEL = EMBEDDING_MODEL_BGE
 EMBEDDING_BATCH = int(os.getenv("EMBEDDING_BATCH", "2"))
 EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "768"))
 EMBEDDING_TRUST_REMOTE_CODE = (
@@ -132,6 +137,9 @@ EMBEDDING_DOC_PREFIX = os.getenv("EMBEDDING_DOC_PREFIX", "search_document: ")
 
 # Cross-encoder reranker (reranker.py — CrossEncoder or Jina-v3)
 RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
+RERANKER_MODEL_BASE = os.getenv("RERANKER_MODEL_BASE", "BAAI/bge-reranker-base")
+RERANKER_MODEL_STRONG = os.getenv("RERANKER_MODEL_STRONG", RERANKER_MODEL)
+RERANKER_MARGIN_THRESHOLD = float(os.getenv("RERANKER_MARGIN_THRESHOLD", "0.15"))
 # auto | crossencoder | jina | qwen — use "jina" for jinaai/jina-reranker-v3
 RERANKER_KIND = os.getenv("RERANKER_KIND", "auto")
 RERANKER_REVISION = _optional_hf_revision("RERANKER_REVISION")

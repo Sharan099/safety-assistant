@@ -1,0 +1,9 @@
+[
+  {
+    "id": "DR01_retractor",
+    "mode": "design_review",
+    "question": "Which PROG_X design review requirements are not met?",
+    "expected_source_docs": ["PROG_X_DR"],
+    "expected_answer_contains": [["not met", "needs review"], ["retractor", "DR-05"]]
+  }
+]

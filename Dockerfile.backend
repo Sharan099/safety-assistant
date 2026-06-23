@@ -24,6 +24,7 @@ RUN pip install -r /app/backend/requirements.runtime.txt
 
 COPY config.py /app/config.py
 COPY backend /app/backend
+COPY ingestion /app/ingestion
 COPY output/regulation_chunks.json output/ingest_manifest.json /app/output/
 
 # Embeddings (~218 MB) live in Git LFS. Railway/docker COPY often ships only the

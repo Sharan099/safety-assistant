@@ -193,7 +193,115 @@ class CrossEncoderReranker:
             return self._balanced_cluster_select(ranked_docs)
         return ranked_docs[:TOP_K_AFTER_RERANK]
 
-    def rerank(self, query: str, documents: list[dict]) -> dict[str, Any]:
+    def rerank(
+        self,
+        query: str,
+        documents: list[dict],
+        *,
+        force_strong: bool = False,
+    ) -> dict[str, Any]:
+        t0 = time.perf_counter()
+        if not documents:
+            return {"documents": [], "latency_ms": 0, "reranker_used": False}
+
+        if not self._enabled:
+            return self._fallback(documents, t0)
+
+        margin_threshold = float(os.getenv("RERANKER_MARGIN_THRESHOLD", "0.15"))
+        base_model = os.getenv("RERANKER_MODEL_BASE", "BAAI/bge-reranker-base")
+        strong_model = os.getenv("RERANKER_MODEL_STRONG", RERANKER_MODEL)
+
+        result = self._rerank_with_model(query, documents, model_id=base_model)
+        ranked = result.get("documents", [])
+        if ranked and len(ranked) >= 2:
+            margin = ranked[0].get("rerank_score", 0) - ranked[1].get("rerank_score", 0)
+        else:
+            margin = 1.0
+        if force_strong or margin < margin_threshold:
+            logger.info(
+                f"Escalating reranker (margin={margin:.3f}, force={force_strong})"
+            )
+            result = self._rerank_with_model(query, documents, model_id=strong_model)
+        return result
+
+    def _rerank_with_model(
+        self, query: str, documents: list[dict], *, model_id: str
+    ) -> dict[str, Any]:
+        t0 = time.perf_counter()
+        if not documents:
+            return {"documents": [], "latency_ms": 0, "reranker_used": False}
+
+        prev_model = os.environ.get("RERANKER_MODEL")
+        os.environ["RERANKER_MODEL"] = model_id
+        self._model = None
+        self._available = True
+        self._kind = None
+
+        if not self._enabled:
+            if prev_model:
+                os.environ["RERANKER_MODEL"] = prev_model
+            return self._fallback(documents, t0)
+
+        self._load()
+        if not self._available or self._model is None:
+            if prev_model:
+                os.environ["RERANKER_MODEL"] = prev_model
+            return self._fallback(documents, t0)
+
+        docs_copy = [dict(d) for d in documents]
+        texts = [_doc_text(d) for d in docs_copy]
+
+        try:
+            if self.kind == "jina":
+                ranked = self._model.rerank(
+                    query=query,
+                    documents=texts,
+                    top_n=TOP_K_AFTER_RERANK,
+                )
+                for r in ranked:
+                    idx = int(r.get("index", r.get("corpus_id", 0)))
+                    score = float(
+                        r.get("relevance_score", r.get("score", r.get("relevance", 0)))
+                    )
+                    if 0 <= idx < len(docs_copy):
+                        docs_copy[idx]["rerank_score"] = score
+                ranked_docs = sorted(
+                    docs_copy,
+                    key=lambda x: x.get("rerank_score", 0),
+                    reverse=True,
+                )
+            else:
+                pairs = [(query, t) for t in texts]
+                scores = self._model.predict(pairs, show_progress_bar=False)
+                for doc, score in zip(docs_copy, scores):
+                    doc["rerank_score"] = float(score)
+                ranked_docs = sorted(
+                    docs_copy,
+                    key=lambda x: x.get("rerank_score", 0),
+                    reverse=True,
+                )
+            ranked_docs = self._finalize_ranked(ranked_docs)
+        except Exception as exc:
+            logger.warning(f"Rerank predict failed: {exc}")
+            if prev_model:
+                os.environ["RERANKER_MODEL"] = prev_model
+            return self._fallback(documents, t0)
+
+        if prev_model:
+            os.environ["RERANKER_MODEL"] = prev_model
+        self._model = None
+
+        latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+        logger.info(f"Rerank done ({model_id}): top={len(ranked_docs)} in {latency_ms}ms")
+        return {
+            "documents": ranked_docs,
+            "latency_ms": latency_ms,
+            "reranker_used": True,
+            "reranker_model": model_id,
+        }
+
+    def rerank_legacy(self, query: str, documents: list[dict]) -> dict[str, Any]:
+        """Original single-pass rerank (tests/back-compat)."""
         t0 = time.perf_counter()
         if not documents:
             return {"documents": [], "latency_ms": 0, "reranker_used": False}

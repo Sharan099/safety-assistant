@@ -72,7 +72,7 @@ export type ChatPayload = {
 
 /** Stream chat with keepalive pings (fixes HF ~60s gateway timeout). */
 export async function apiChatStream(
-  body: { query: string; user_id?: string; session_id?: string },
+  body: { query: string; user_id?: string; session_id?: string; mode?: string; role?: string },
   onProgress?: (elapsedSec: number) => void,
 ): Promise<ChatPayload> {
   const url = buildUrl(getChatApiBase(), "/chat/stream");

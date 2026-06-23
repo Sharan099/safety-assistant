@@ -1,0 +1,9 @@
+[
+  {
+    "id": "PT01_ft002",
+    "mode": "post_test_analysis",
+    "question": "Did FT-PROG-X-002 pass UN R14 lower anchorage requirements?",
+    "expected_source_docs": ["PROG_X_FT_002", "UN_R14"],
+    "expected_answer_contains": [["1,428", "1428"], ["1,350", "1350"]]
+  }
+]

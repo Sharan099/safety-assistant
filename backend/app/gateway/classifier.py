@@ -57,16 +57,25 @@ def _query_complexity(text: str) -> float:
 
 
 def _routing_tier_floor(ctx: RoutingContext) -> int:
-    """Task-class floors — comparisons/mappings must not use the fast 8B model."""
+    """Task-class floors — mode override is a minimum tier."""
+    floor = max(1, int(getattr(ctx, "llm_tier_floor", 1) or 1))
+    mode = (getattr(ctx, "mode", None) or "").lower()
+    if mode == "root_cause_analysis":
+        floor = max(floor, 3)
+    elif mode == "crash_investigation":
+        floor = max(floor, 3)
+    elif mode == "management_view":
+        floor = max(floor, 2)
     q = (ctx.query or ctx.prompt or "").lower()
     complex_cues = (
         "differ", "compare", "comparison", "versus", " vs ", "contrast",
         "which dummy", "injury criteria", "injury criterion", "which regulations",
         "which regs", "govern", "mapping", "relate to", "validated by",
+        "root cause", "why is", "causal",
     )
     if any(c in q for c in complex_cues):
-        return 2
-    return 1
+        floor = max(floor, 2)
+    return floor
 
 
 def classify(ctx: RoutingContext) -> RouteDecision:

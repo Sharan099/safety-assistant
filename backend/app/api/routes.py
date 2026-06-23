@@ -24,6 +24,8 @@ class ChatRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=4000)
     user_id: str | None = Field(default=None, max_length=64)
     session_id: str | None = Field(default=None, max_length=64)
+    mode: str | None = Field(default=None, max_length=64)
+    role: str | None = Field(default="engineer", pattern="^(engineer|manager)$")
 
 
 class ChatResponse(BaseModel):
@@ -240,6 +242,13 @@ async def _workflow_result_to_response(
     )
 
 
+@router.get("/modes")
+async def list_modes() -> dict:
+    from backend.app.core.modes import get_default_mode, list_modes as _list
+
+    return {"default": get_default_mode(), "modes": _list()}
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, request: Request) -> ChatResponse:
     rate_limit(request, "chat", limit=30, window_s=60)
@@ -248,7 +257,12 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
     try:
         logger.info(f"POST /chat query={req.query[:80]}...")
         result = await asyncio.to_thread(
-            get_workflow().run, req.query, req.user_id, req.session_id
+            get_workflow().run,
+            req.query,
+            req.user_id,
+            req.session_id,
+            req.mode,
+            req.role,
         )
         return await _workflow_result_to_response(req, result, t0, endpoint="chat")
     except Exception as exc:
@@ -275,7 +289,12 @@ async def chat_stream(req: ChatRequest, request: Request) -> StreamingResponse:
     async def ndjson() -> AsyncIterator[str]:
         task = asyncio.create_task(
             asyncio.to_thread(
-                get_workflow().run, req.query, req.user_id, req.session_id
+                get_workflow().run,
+                req.query,
+                req.user_id,
+                req.session_id,
+                req.mode,
+                req.role,
             )
         )
         try:

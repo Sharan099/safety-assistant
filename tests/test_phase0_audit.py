@@ -1,4 +1,4 @@
-"""Phase 0 audit tests — corpus layout and ISO removal."""
+"""Phase 0 audit tests — pilot corpus (UN R14 + UN R16 only)."""
 
 from __future__ import annotations
 
@@ -12,26 +12,30 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from config import CORPUS_DIR, DATA_DIR  # noqa: E402
-from backend.app.core.document_registry import get_document_meta  # noqa: E402
+from config import CORPUS_DIR, CORPUS_VERSION, DATA_DIR  # noqa: E402
+from backend.app.core.document_registry import (  # noqa: E402
+    INDEXED_LEGAL_CORPUS,
+    get_document_meta,
+)
 
 
-CORE_PDFS = {
-    "UN_R14.pdf", "UN_R16.pdf", "UN_R17.pdf", "UN_R94.pdf", "UN_R95.pdf",
-    "UN_R135.pdf", "UN_R137.pdf", "FMVSS_208.pdf.pdf",
-    "EURO_NCAP_FRONTAL.pdf.pdf", "EURO_NCAP_SIDE.pdf.pdf",
-    "EURO_NCAP_REAR.pdf.pdf", "EURO_NCAP_VRU.pdf.pdf",
-}
+PILOT_PDFS = {"UN_R14.pdf", "UN_R16.pdf"}
+EXPECTED_PDF_COUNT = 2
 
 
-def test_corpus_has_seventeen_pdfs():
+def test_corpus_has_two_pilot_pdfs():
     pdfs = list(CORPUS_DIR.rglob("*.pdf"))
-    assert len(pdfs) == 17
+    assert len(pdfs) == EXPECTED_PDF_COUNT
 
 
-def test_core_pdfs_present():
+def test_pilot_pdfs_present():
     names = {p.name for p in CORPUS_DIR.rglob("*.pdf")}
-    assert CORE_PDFS <= names
+    assert PILOT_PDFS <= names
+
+
+def test_no_non_pilot_pdfs_in_corpus():
+    names = {p.name for p in CORPUS_DIR.rglob("*.pdf")}
+    assert names <= PILOT_PDFS
 
 
 def test_iso_not_in_corpus():
@@ -61,18 +65,29 @@ def test_document_registry_no_iso():
     assert meta.code == "UNKNOWN"
 
 
+def test_document_registry_pilot_entries():
+    for code in ("UN_R14", "UN_R16"):
+        meta = get_document_meta(code)
+        assert meta.doc_type == "legal_regulation"
+        assert meta.authority == "UN-ECE"
+        assert meta.indexed_revision is not None
+        assert meta.has_multiple_revisions
+        assert code in INDEXED_LEGAL_CORPUS
+
+
 def test_corpus_manifest():
     manifest = DATA_DIR / "manifest" / "corpus_manifest.json"
     assert manifest.is_file()
     data = json.loads(manifest.read_text(encoding="utf-8"))
-    assert data["corpus_version"] == 2
-    assert data["total_pdfs"] == 17
+    assert data["corpus_version"] == CORPUS_VERSION
+    assert data["total_pdfs"] == EXPECTED_PDF_COUNT
+    assert data.get("pilot") is True
 
 
 def test_audit_script_passes():
     rc = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "audit_corpus.py"),
-         "--assert-no-iso", "--assert-core", "--assert-layout"],
+         "--assert-no-iso", "--assert-pilot", "--assert-layout"],
         cwd=ROOT,
         capture_output=True,
         text=True,

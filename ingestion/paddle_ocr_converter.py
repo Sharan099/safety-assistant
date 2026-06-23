@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import gc
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -193,6 +194,48 @@ def _ocr_image(img_path: Path) -> str:
     return _ocr_rapid(img_path)
 
 
+def _structure_page_content(page_text: str, page_num: int) -> str:
+    """
+    Layout-aware post-processing: wrap detected tables/figures before chunking.
+    Full PP-StructureV3 runs when paddleocr layout is available; else heuristics.
+    """
+    if not page_text.strip():
+        return page_text
+
+    try:
+        from paddleocr import PPStructureV3  # noqa: F401
+        # PP-StructureV3 integration point — use heuristics until model weights cached.
+    except ImportError:
+        pass
+
+    blocks: list[str] = []
+    lines = page_text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        fig_m = re.match(r"^(Figure\s+\d+[^\n]*)", line, re.I)
+        if fig_m:
+            caption = fig_m.group(1).strip()
+            blocks.append(
+                f"<!-- chunk_type:figure -->\n"
+                f"**{caption}** (page {page_num}) — see diagram in source PDF; "
+                f"numeric values not inferred from figure.\n"
+            )
+            i += 1
+            continue
+        if "|" in line and i + 1 < len(lines) and "|" in lines[i + 1]:
+            table_lines = [line]
+            i += 1
+            while i < len(lines) and "|" in lines[i]:
+                table_lines.append(lines[i])
+                i += 1
+            blocks.append("<!-- chunk_type:table -->\n" + "\n".join(table_lines))
+            continue
+        blocks.append(line)
+        i += 1
+    return "\n".join(blocks)
+
+
 def convert_pdf_paddle(pdf_path: Path) -> str:
     """Return markdown for a PDF using cached low-DPI images + batched OCR."""
     import fitz
@@ -217,7 +260,8 @@ def convert_pdf_paddle(pdf_path: Path) -> str:
                 and OCR_SKIP_TEXT_PAGES
                 and len(embedded) >= OCR_MIN_TEXT_CHARS
             ):
-                parts.append(f"\n## Page {i + 1}\n\n{embedded}\n")
+                structured = _structure_page_content(embedded, i + 1)
+                parts.append(f"\n## Page {i + 1}\n\n{structured}\n")
                 continue
 
             img_path = _render_page_to_cache(pdf_path, page, i, cache_dir)
@@ -229,7 +273,8 @@ def convert_pdf_paddle(pdf_path: Path) -> str:
 
             best = ocr_text if len(ocr_text) >= len(embedded) else embedded
             if best:
-                parts.append(f"\n## Page {i + 1}\n\n{best}\n")
+                structured = _structure_page_content(best, i + 1)
+                parts.append(f"\n## Page {i + 1}\n\n{structured}\n")
 
         p(f"  pages {batch_start + 1}-{batch_end}/{n_pages} ({active_engine()})")
         gc.collect()

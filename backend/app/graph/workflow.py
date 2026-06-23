@@ -104,8 +104,13 @@ _ANSWER_RULES = (
 )
 
 
-def _build_prompt(query: str, context: str) -> str:
+def _build_prompt(query: str, context: str, mode_name: str | None = None) -> str:
+    from backend.app.graph.prompt_templates import template_for
+
+    mode_rules = template_for(mode_name)
     return f"""{_ANSWER_RULES}
+
+MODE INSTRUCTIONS: {mode_rules}
 
 RETRIEVED CONTEXT (each passage tagged [S#])
 {context}
@@ -211,6 +216,8 @@ class RAGWorkflow:
             feedback_downvote_rate=downvote,
             model_performance=perf,
             scope=scope,
+            mode=meta.get("mode"),
+            llm_tier_floor=int(meta.get("llm_tier_floor") or 1),
         )
 
     def _node_validate_input(self, state: RAGState) -> RAGState:
@@ -233,9 +240,13 @@ class RAGWorkflow:
     def _node_retrieve(self, state: RAGState) -> RAGState:
         if state.get("metadata", {}).get("input_blocked"):
             return state
+        meta = state.get("metadata") or {}
         logger.info(f"Retrieving for: {state['query'][:80]}...")
         with trace_span("retrieve", {"query": state["query"]}) as span:
-            result = self.retriever.retrieve(state["query"])
+            result = self.retriever.retrieve(
+                state["query"],
+                mode=meta.get("mode"),
+            )
             span["outputs"] = {
                 "doc_count": len(result["documents"]),
                 "semantic": result["semantic_count"],
@@ -251,7 +262,15 @@ class RAGWorkflow:
             return state
         logger.info(f"Reranking {len(state.get('documents', []))} candidates...")
         with trace_span("rerank", {"candidates": len(state.get("documents", []))}) as span:
-            result = self.reranker.rerank(state["query"], state.get("documents", []))
+            mode_name = meta.get("mode")
+            from backend.app.core.modes import get_mode
+
+            mode_cfg = get_mode(mode_name)
+            result = self.reranker.rerank(
+                state["query"],
+                state.get("documents", []),
+                force_strong=mode_cfg.force_strong_reranker,
+            )
             span["outputs"] = {"top_k": len(result["documents"])}
             timing = {**state.get("timing", {}), "rerank_ms": result["latency_ms"]}
             meta = {
@@ -270,6 +289,10 @@ class RAGWorkflow:
             return state
         docs = state.get("documents", [])
         meta = state.get("metadata") or {}
+        mode_name = meta.get("mode")
+        from backend.app.core.modes import get_mode
+
+        mode_cfg = get_mode(mode_name)
 
         # Build structured citations for every retrieved passage.
         citations = build_citations(docs) if docs else []
@@ -278,8 +301,8 @@ class RAGWorkflow:
         grounding = assess_grounding(
             docs,
             reranker_used=bool(meta.get("reranker_used")),
-            min_semantic=GROUNDING_MIN_SEMANTIC,
-            min_rerank_prob=GROUNDING_MIN_RERANK_PROB,
+            min_semantic=mode_cfg.grounding_min_semantic,
+            min_rerank_prob=mode_cfg.grounding_min_rerank_prob,
         )
         abstain = ENABLE_GROUNDING_GATE and grounding.get("should_abstain", False)
 
@@ -293,7 +316,7 @@ class RAGWorkflow:
             citations = []
 
         prompt = (
-            _build_prompt(state["query"], context)
+            _build_prompt(state["query"], context, mode_name=mode_name)
             if context and not abstain
             else ""
         )
@@ -432,15 +455,30 @@ class RAGWorkflow:
         query: str,
         user_id: str | None = None,
         session_id: str | None = None,
+        mode: str | None = None,
+        role: str | None = None,
     ) -> dict[str, Any]:
+        from backend.app.core.modes import get_default_mode, get_mode
+
+        if role == "manager" and not mode:
+            mode = "management_view"
+        mode = mode or get_default_mode()
+        mode_cfg = get_mode(mode)
         t0 = time.perf_counter()
-        logger.info(f"Chat workflow start: {query[:80]}...")
+        logger.info(f"Chat workflow start [{mode}]: {query[:80]}...")
         try:
             final = self.graph.invoke(
                 {
                     "query": query,
                     "timing": {},
-                    "metadata": {"user_id": user_id, "session_id": session_id},
+                    "metadata": {
+                        "user_id": user_id,
+                        "session_id": session_id,
+                        "mode": mode,
+                        "role": role or "engineer",
+                        "llm_temperature": mode_cfg.temperature,
+                        "llm_tier_floor": mode_cfg.llm_tier_override,
+                    },
                 }
             )
             total_ms = round((time.perf_counter() - t0) * 1000, 2)

@@ -31,7 +31,7 @@ from tests.eval_harness.golden import (
     load_items,
 )
 from tests.eval_harness.ragas_budget import run_ragas_budgeted
-from tests.eval_harness.report import build_eval_report, write_eval_report
+from tests.eval_harness.report import build_eval_report, plot_eval_charts, write_eval_report
 from tests.score_golden_set import run_deterministic_scorecard
 
 
@@ -48,6 +48,11 @@ def main() -> int:
     parser.add_argument("--token-budget", type=int, default=int(os.getenv("RAGAS_TOKEN_BUDGET", "8000")))
     parser.add_argument("--from-cache", action="store_true", help="Do not generate missing answers")
     parser.add_argument("--skip-judge", action="store_true", help="Skip LLM-judged RAGAS metrics")
+    parser.add_argument(
+        "--force-llm",
+        action="store_true",
+        help="Generate answers and run judge even when EVAL_SKIP_LLM=true in env",
+    )
     parser.add_argument("--subset-ids", type=str, default=os.getenv("RAGAS_SUBSET_IDS", ""))
     parser.add_argument("--golden", type=Path, default=None)
     args = parser.parse_args()
@@ -56,6 +61,8 @@ def main() -> int:
     subset_ids = _parse_subset_ids(args.subset_ids or None, args.ragas_subset)
 
     skip_llm = os.getenv("EVAL_SKIP_LLM", "").lower() in ("1", "true", "yes")
+    if args.force_llm:
+        skip_llm = False
     gen_delay = args.judge_delay if not args.from_cache else 0.0
 
     if not skip_llm and not args.from_cache:
@@ -88,8 +95,12 @@ def main() -> int:
             skip_llm=skip_llm,
         )
 
-    # Stage A
-    scorecard = run_deterministic_scorecard(require_answer=False)
+    # Stage A — require cached answers when generation ran
+    has_answers = any(
+        bool((cache.get("items") or {}).get(i["id"], {}).get("answer"))
+        for i in items
+    )
+    scorecard = run_deterministic_scorecard(require_answer=has_answers)
 
     # Stage B — local answer_relevancy always; judge metrics unless --skip-judge / EVAL_SKIP_LLM
     ragas_result = run_ragas_budgeted(
@@ -99,7 +110,7 @@ def main() -> int:
         abstention_ids=ABSTENTION_IDS,
         token_budget=args.token_budget,
         judge_delay=args.judge_delay,
-        skip_judge=args.skip_judge or skip_llm,
+        skip_judge=args.skip_judge or (skip_llm and not args.force_llm),
     )
 
     report = build_eval_report(
@@ -108,12 +119,17 @@ def main() -> int:
         meta={
             "from_cache": args.from_cache,
             "skip_judge": args.skip_judge,
+            "force_llm": args.force_llm,
             "subset_ids": subset_ids,
         },
     )
     json_path, md_path = write_eval_report(report)
     print(f"Wrote {json_path}")
     print(f"Wrote {md_path}")
+
+    png_paths = plot_eval_charts(report)
+    for p in png_paths:
+        print(f"Wrote {p}")
 
     if ragas_result:
         ts = ragas_result.get("token_summary", {})
@@ -127,4 +143,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except Exception as exc:
+        print(f"Evaluation failed: {exc}", file=sys.stderr)
+        raise

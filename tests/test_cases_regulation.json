@@ -1,0 +1,16 @@
+[
+  {
+    "id": "R01_r14_anchorage",
+    "mode": "regulation_lookup",
+    "question": "What anchorage strength test load does UN R14 require for M1/N1 vehicles?",
+    "expected_source_docs": ["UN_R14"],
+    "expected_answer_contains": [["1350", "1,350"], ["daN"]]
+  },
+  {
+    "id": "R02_r16_tests",
+    "mode": "regulation_lookup",
+    "question": "What tests apply to safety belts under UN R16?",
+    "expected_source_docs": ["UN_R16"],
+    "expected_answer_contains": [["dynamic", "belt"]]
+  }
+]

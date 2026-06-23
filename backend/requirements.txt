@@ -28,3 +28,4 @@ huggingface_hub>=0.21.0
 # Testing
 pytest>=8.0.0
 fakeredis>=2.20.0
+PyYAML>=6.0.0

@@ -1,30 +1,10 @@
 {
-  "converted": [
-    {
-      "pdf": "data\\corpus\\legal\\FMVSS_208.pdf.pdf",
-      "markdown": "FMVSS_208.pdf.md",
-      "chars": 3223932,
-      "engine": "rapidocr-ppocr",
-      "seconds": 2377.6
-    }
-  ],
+  "converted": [],
   "skipped": [
-    "data\\corpus\\legal\\UN_R135.pdf",
-    "data\\corpus\\legal\\UN_R137.pdf",
-    "data\\corpus\\legal\\UN_R14.pdf",
-    "data\\corpus\\legal\\UN_R16.pdf",
-    "data\\corpus\\legal\\UN_R17.pdf",
-    "data\\corpus\\legal\\UN_R94.pdf",
-    "data\\corpus\\legal\\UN_R95.pdf",
-    "data\\corpus\\rating\\euro-ncap-protocol-crash-protection-frontal-impact-v11.pdf",
-    "data\\corpus\\rating\\euro-ncap-protocol-crash-protection-side-impact-v11.pdf",
-    "data\\corpus\\rating\\euro-ncap-protocol-overall-assessment-v100.pdf",
-    "data\\corpus\\rating\\EURO_NCAP_FRONTAL.pdf.pdf",
-    "data\\corpus\\rating\\EURO_NCAP_REAR.pdf.pdf",
-    "data\\corpus\\rating\\EURO_NCAP_SIDE.pdf.pdf",
-    "data\\corpus\\rating\\EURO_NCAP_VRU.pdf.pdf",
-    "data\\corpus\\reference\\CAE_COMPANION.pdf.pdf",
-    "data\\corpus\\reference\\SAFETY_COMPANION.pdf.pdf"
+    "data/corpus/legal/UN_R14.pdf",
+    "data/corpus/legal/UN_R16.pdf"
   ],
-  "errors": []
+  "errors": [],
+  "pilot": true,
+  "note": "Markdown reused from prior conversion; OCR_SKIP_TEXT_PAGES=true"
 }

@@ -26,10 +26,10 @@ Q05_QUESTION = (
 
 class TestCorpusLock:
     def test_indexed_corpus_defined(self):
-        assert "UN_R14" in INDEXED_LEGAL_CORPUS
-        assert "FMVSS" in INDEXED_LEGAL_CORPUS
+        assert INDEXED_LEGAL_CORPUS == frozenset({"UN_R14", "UN_R16"})
         assert "FMVSS_210" in GHOST_REGULATIONS
         assert not is_indexed_regulation("FMVSS_210")
+        assert not is_indexed_regulation("UN_R94")
 
 
 class TestRequirementClusters:
@@ -55,11 +55,11 @@ def reranker():
 
 
 class TestQ05Retrieval:
-    def test_q05_retrieves_r14_r16_r17(self, retriever, reranker):
+    def test_q05_retrieves_r14_r16(self, retriever, reranker):
         docs = retriever.retrieve(Q05_QUESTION)["documents"]
         docs = reranker.rerank(Q05_QUESTION, docs)["documents"]
         status, detail = retrieval_recall(
-            ["UN_R14", "UN_R16", "UN_R17"],
+            ["UN_R14", "UN_R16"],
             docs,
             retriever._chunk_by_id,
         )

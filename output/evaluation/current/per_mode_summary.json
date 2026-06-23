@@ -1,0 +1,21 @@
+{
+  "modes": [
+    {
+      "mode": "regulation_lookup",
+      "context_recall_proxy": 1.0
+    },
+    {
+      "mode": "root_cause_analysis",
+      "context_recall_proxy": 1.0
+    },
+    {
+      "mode": "design_review",
+      "context_recall_proxy": 1.0
+    },
+    {
+      "mode": "post_test_analysis",
+      "context_recall_proxy": 1.0
+    }
+  ],
+  "note": "Synthetic-doc modes use synthetic ground truth \u2014 re-validate when real data arrives."
+}

@@ -66,6 +66,13 @@ def detect_regulation_type(filename: str) -> str:
         "EURO_NCAP": ["euro-ncap", "euroncap", "euro_ncap", "ncap"],
         "CAE_REFERENCE": ["cae_companion", "cae-companion", "cae companion"],
         "SAFETY_REFERENCE": ["safety_companion", "safety-companion", "safety companion"],
+        "PROG_X_FT_001": ["prog_x_ft_001", "ft-prog-x-001"],
+        "PROG_X_FT_002": ["prog_x_ft_002", "ft-prog-x-002"],
+        "PROG_X_CAE_001": ["prog_x_cae_001"],
+        "PROG_X_CAE_002": ["prog_x_cae_002"],
+        "PROG_X_RCA_001": ["prog_x_rca", "rca-prog-x"],
+        "PROG_X_DR": ["prog_x_dr", "design_review"],
+        "PROG_X_STATUS": ["prog_x_status", "project_status"],
     }
     for reg, keys in mapping.items():
         if any(k in fname for k in keys):
@@ -320,12 +327,54 @@ def _make_chunk(
     }
 
 
+def _prepend_chunk_header(
+    text: str,
+    *,
+    doc_id: str,
+    revision: str | None,
+    clause_number: str | None,
+    section_title: str,
+) -> str:
+    rev = revision or "unknown"
+    clause = clause_number or section_title or "n/a"
+    header = f"[{doc_id} | {rev} | {clause}]\n"
+    if header.strip() in text[:80]:
+        return text
+    return header + text
+
+
 def chunk_markdown_file(md_path: Path) -> list[dict]:
     text = md_path.read_text(encoding="utf-8", errors="ignore")
     meta, _ = _parse_frontmatter(text.splitlines())
     pdf_name = meta.get("source_pdf", md_path.stem + ".pdf")
     regulation = meta.get("regulation") or detect_regulation_type(pdf_name)
+    if regulation == "SAFETY_REFERENCE" and meta.get("regulation"):
+        regulation = meta["regulation"]
     file_slug = _file_slug(md_path)
+
+    from ingestion.synthetic_chunker import chunk_synthetic_events, is_synthetic_markdown
+
+    if is_synthetic_markdown(md_path, meta):
+        def _mk(**kwargs):
+            c = _make_chunk(**kwargs)
+            c["text"] = _prepend_chunk_header(
+                c["text"],
+                doc_id=regulation,
+                revision=meta.get("revision", "synthetic"),
+                clause_number=kwargs.get("clause_number"),
+                section_title=kwargs.get("section_title", ""),
+            )
+            return c
+
+        events = chunk_synthetic_events(
+            md_path, text, meta,
+            make_chunk=_mk,
+            regulation=regulation,
+            file_slug=file_slug,
+            pdf_name=pdf_name,
+        )
+        if events:
+            return events
 
     sections = _parse_markdown_sections(text)
     all_chunks: list[dict] = []
@@ -379,7 +428,13 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
                 heading_path=heading_path,
                 section_title=title,
                 section_level=level,
-                text=leaf_text,
+                text=_prepend_chunk_header(
+                    leaf_text,
+                    doc_id=regulation,
+                    revision=meta.get("revision"),
+                    clause_number=clause_number,
+                    section_title=title,
+                ),
                 seq=i,
                 section_idx=sec_idx,
                 clause_number=clause_number,
@@ -404,6 +459,13 @@ def run(only_regs: list[str] | None = None) -> dict:
             pass
 
     md_files = sorted(MARKDOWN_DIR.glob("*.md"))
+    synthetic_dir = Path(__file__).resolve().parents[1] / "data" / "corpus" / "synthetic"
+    if synthetic_dir.is_dir():
+        for syn_path in sorted(synthetic_dir.glob("*.md")):
+            dest = MARKDOWN_DIR / syn_path.name
+            if not dest.exists():
+                dest.write_text(syn_path.read_text(encoding="utf-8"), encoding="utf-8")
+        md_files = sorted(set(md_files) | set(MARKDOWN_DIR.glob("PROG_X_*.md")))
     if only_regs:
         allowed = {x.upper() for x in only_regs}
         md_files = [

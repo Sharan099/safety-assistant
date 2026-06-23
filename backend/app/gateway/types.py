@@ -33,6 +33,8 @@ class RoutingContext:
     model_performance: dict[str, float] = field(default_factory=dict)
     # Detected regulation scope (for cache namespacing); e.g. ["UN_R14"].
     scope: list[str] = field(default_factory=list)
+    mode: str | None = None
+    llm_tier_floor: int = 1
 
     @property
     def grounding_confidence(self) -> float:

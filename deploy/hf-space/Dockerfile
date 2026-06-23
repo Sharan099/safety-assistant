@@ -25,6 +25,7 @@ RUN pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.1.0" 
     && pip install -r /app/requirements.txt
 
 COPY config.py /app/config.py
+COPY config /app/config
 COPY backend /app/backend
 COPY ingestion /app/ingestion
 COPY output/regulation_chunks.json output/ingest_manifest.json /app/output/

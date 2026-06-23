@@ -105,6 +105,7 @@ def build_citation(doc: dict[str, Any], index: int) -> dict[str, Any]:
         "rerank_score": doc.get("rerank_score"),
         "semantic_score": doc.get("semantic_score"),
         "source": doc.get("source"),
+        "is_synthetic": bool(doc.get("is_synthetic")),
     }
 
 

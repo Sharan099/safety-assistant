@@ -23,6 +23,7 @@ type Citation = {
   doc_type?: string;
   doc_type_label?: string;
   is_legal?: boolean;
+  is_synthetic?: boolean;
   authority?: string;
   revision?: string;
   revision_verified?: boolean;
@@ -98,7 +99,36 @@ const PROBLEM_OPTIONS = [
   "Confusing, unclear, or badly formatted response",
 ];
 
+const MODE_OPTIONS = [
+  { id: "regulation_lookup", label: "Regulation lookup" },
+  { id: "design_review", label: "Design review" },
+  { id: "crash_investigation", label: "Crash investigation" },
+  { id: "root_cause_analysis", label: "Root cause analysis" },
+  { id: "test_preparation", label: "Test preparation" },
+  { id: "post_test_analysis", label: "Post-test analysis" },
+  { id: "knowledge_reuse", label: "Knowledge reuse" },
+  { id: "management_view", label: "Management view" },
+];
+
+const MODE_FEEDBACK: Record<string, string[]> = {
+  root_cause_analysis: [
+    "Wrong causal chain",
+    "Missing evidence step",
+    "Incorrect conclusion",
+    "Wrong or missing sources",
+  ],
+  management_view: [
+    "Too much technical detail",
+    "Missing risk summary",
+    "Incorrect status",
+    "Wrong or missing sources",
+  ],
+  default: PROBLEM_OPTIONS,
+};
+
 const USER_KEY = "psa_user";
+const MODE_KEY = "psa_mode";
+const ROLE_KEY = "psa_role";
 
 const INDEXED_REGULATIONS = [
   { code: "UN R14", type: "Legal", topic: "Seat belt anchorages & strength" },
@@ -134,6 +164,8 @@ export default function Home() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [mode, setMode] = useState("regulation_lookup");
+  const [role, setRole] = useState<"engineer" | "manager">("engineer");
   const [loading, setLoading] = useState(false);
   const [loadingSec, setLoadingSec] = useState(0);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -144,6 +176,14 @@ export default function Home() {
     try {
       const raw = localStorage.getItem(USER_KEY);
       if (raw) setUser(JSON.parse(raw));
+      const savedMode = localStorage.getItem(MODE_KEY);
+      const savedRole = localStorage.getItem(ROLE_KEY) as "engineer" | "manager" | null;
+      if (savedRole === "manager") {
+        setRole("manager");
+        setMode(savedMode || "management_view");
+      } else if (savedMode) {
+        setMode(savedMode);
+      }
     } catch {
       /* ignore */
     }
@@ -241,6 +281,8 @@ export default function Home() {
           query: q,
           user_id: user?.user_id,
           session_id: user?.session_id,
+          mode,
+          role,
         },
         (elapsed) => setLoadingSec(Math.round(elapsed)),
       );
@@ -422,6 +464,40 @@ export default function Home() {
         </section>
 
         <section className="sidebar-section">
+          <h2>Use-case mode</h2>
+          <label className="mode-label" htmlFor="mode-select">Active mode</label>
+          <select
+            id="mode-select"
+            className="mode-select"
+            value={mode}
+            onChange={(e) => {
+              const v = e.target.value;
+              setMode(v);
+              localStorage.setItem(MODE_KEY, v);
+            }}
+          >
+            {MODE_OPTIONS.map((m) => (
+              <option key={m.id} value={m.id}>{m.label}</option>
+            ))}
+          </select>
+          <label className="mode-label" htmlFor="role-select">Role</label>
+          <select
+            id="role-select"
+            className="mode-select"
+            value={role}
+            onChange={(e) => {
+              const v = e.target.value as "engineer" | "manager";
+              setRole(v);
+              localStorage.setItem(ROLE_KEY, v);
+              if (v === "manager") setMode("management_view");
+            }}
+          >
+            <option value="engineer">Engineer</option>
+            <option value="manager">Manager</option>
+          </select>
+        </section>
+
+        <section className="sidebar-section">
           <h2>Good questions to ask</h2>
           <ul className="example-list">
             {EXAMPLE_QUESTIONS.map((q) => (
@@ -543,7 +619,32 @@ export default function Home() {
             className={`bubble ${msg.role === "user" ? "user" : "assistant"}`}
           >
             {msg.role === "assistant" ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              mode === "management_view" && role === "manager" ? (
+                <div className="mgmt-view">
+                  <div className="mgmt-summary">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                  </div>
+                  {showExtras && (
+                    <details className="mgmt-detail">
+                      <summary>Show clause detail</summary>
+                      <ul className="citation-list compact">
+                        {msg.citations!.map((c, j) => (
+                          <li key={j}>{c.label}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                </div>
+              ) : mode === "root_cause_analysis" ? (
+                <div className="rca-view">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                  {showExtras && (
+                    <p className="rca-hint">Trace chain — each step should cite [S#] in the answer above.</p>
+                  )}
+                </div>
+              ) : (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              )
             ) : (
               <p>{msg.content}</p>
             )}
@@ -607,6 +708,11 @@ export default function Home() {
                           ? "Rating"
                           : "Ref"}
                       </span>
+                      {c.is_synthetic && (
+                        <span className="badge badge-synthetic" title="Synthetic test data">
+                          SYNTHETIC DATA
+                        </span>
+                      )}
                       <span className="clabel">{c.label}</span>
                       {!c.revision_verified && (
                         <span className="badge badge-unverified" title="Revision not verified">
@@ -701,7 +807,7 @@ export default function Home() {
                 {msg.feedback?.panelOpen && !msg.feedback?.submitted && (
                   <div className="fb-panel">
                     <p className="fb-title">What went wrong? (select any)</p>
-                    {PROBLEM_OPTIONS.map((opt) => (
+                    {(MODE_FEEDBACK[mode] || MODE_FEEDBACK.default).map((opt) => (
                       <label key={opt} className="fb-opt">
                         <input
                           type="checkbox"
@@ -1001,6 +1107,11 @@ const appCss = `
   .cmarker { font-weight: 700; margin-right: 0.4rem; color: var(--accent); }
   .badge { display: inline-block; padding: 0.05rem 0.4rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; margin-right: 0.4rem; }
   .badge-legal { background: #16a34a; color: #fff; }
+  .badge-synthetic { background: #ea580c; color: #fff; margin-left: 0.25rem; }
+  .mode-select { width: 100%; margin: 0.35rem 0 0.75rem; padding: 0.4rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .mode-label { font-size: 0.8rem; color: var(--muted); display: block; margin-top: 0.5rem; }
+  .mgmt-detail { margin-top: 0.75rem; font-size: 0.9rem; }
+  .rca-hint { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
   .badge-rating { background: var(--accent); color: #fff; }
   .badge-unverified { background: #a8a29e; color: #fff; }
   .confidence-row { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }

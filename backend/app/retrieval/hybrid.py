@@ -55,6 +55,7 @@ from backend.app.retrieval.query_intent import (
     chunk_passes_intent_filter,
     detect_query_intent,
 )
+from ingestion.embed_chunks import _embedding_prefixes
 
 REG_MAP = {
     "un r14": "UN_R14",
@@ -198,7 +199,7 @@ class HybridRetriever:
         """
         model = self._get_model()
         return model.encode(
-            [EMBEDDING_QUERY_PREFIX + text], convert_to_numpy=True, show_progress_bar=False
+            [_embedding_prefixes()[0] + text], convert_to_numpy=True, show_progress_bar=False
         )[0]
 
     def detect_regs(self, query: str) -> list[str]:
@@ -377,7 +378,7 @@ class HybridRetriever:
             model = self._get_model()
             # Nomic requires the "search_query: " task prefix on queries.
             q = model.encode(
-                [EMBEDDING_QUERY_PREFIX + query],
+                [_embedding_prefixes()[0] + query],
                 convert_to_numpy=True,
                 show_progress_bar=False,
             )[0]
@@ -418,6 +419,7 @@ class HybridRetriever:
                         "doc_id": c.get("doc_id"),
                         "clause": c.get("clause") or c.get("clause_number"),
                         "clause_topic": c.get("clause_topic", "general"),
+                        "is_synthetic": c.get("is_synthetic", False),
                         "source": "semantic",
                     }
                 )
@@ -501,6 +503,7 @@ class HybridRetriever:
                 "test_type": self._bm25_chunks[i].get("test_type"),
                 "value_type": self._bm25_chunks[i].get("value_type"),
                 "clause_topic": self._bm25_chunks[i].get("clause_topic", "general"),
+                "is_synthetic": self._bm25_chunks[i].get("is_synthetic", False),
                 "source": "bm25",
             }
             for s, i in ranked
@@ -622,7 +625,14 @@ class HybridRetriever:
             deduped.append(d)
         return deduped
 
-    def retrieve(self, query: str) -> dict[str, Any]:
+    def retrieve(self, query: str, mode: str | None = None) -> dict[str, Any]:
+        from backend.app.core.modes import get_mode
+        from backend.app.retrieval.mode_filter import (
+            chunk_passes_mode_filter,
+            mode_soft_boost,
+        )
+
+        mode_cfg = get_mode(mode)
         t0 = time.perf_counter()
 
         intent = detect_query_intent(query)
@@ -667,6 +677,19 @@ class HybridRetriever:
             )
             fused = fused[:TOP_K_RETRIEVE]
 
+        # Mode hard filters
+        fused = [
+            d for d in fused
+            if chunk_passes_mode_filter(self._chunk_by_id.get(d["id"], d), mode_cfg)
+        ]
+        for d in fused:
+            chunk = self._chunk_by_id.get(d["id"], d)
+            mult = mode_soft_boost(chunk, mode_cfg, query)
+            if mult != 1.0:
+                d["score"] = d.get("score", 0.0) * mult
+        fused.sort(key=lambda x: -x.get("score", 0.0))
+        fused = fused[: mode_cfg.retrieval_k or TOP_K_RETRIEVE]
+
         # Parent-Child Retrieval (dedupe + attach parent context)
         fused = self._expand_parent_child(fused)
 
@@ -701,4 +724,5 @@ class HybridRetriever:
             },
             "top_semantic_score": top_semantic_score,
             "latency_ms": latency_ms,
+            "mode": mode_cfg.name,
         }

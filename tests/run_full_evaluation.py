@@ -761,6 +761,49 @@ def main() -> None:
     p(f"Overall score:      {overall:.4f}")
     p(f"Hybrid vs semantic context recall: +{lift_pct:.1f}%")
     p(f"Outputs: {EVAL_DIR}")
+    _run_per_mode_summary()
+
+
+def _run_per_mode_summary() -> None:
+    """Per-mode retrieval proxy from mode-specific pilot test sets."""
+    mode_files = [
+        ("regulation_lookup", ROOT / "tests" / "test_cases_regulation.json"),
+        ("root_cause_analysis", ROOT / "tests" / "test_cases_root_cause.json"),
+        ("design_review", ROOT / "tests" / "test_cases_design_review.json"),
+        ("post_test_analysis", ROOT / "tests" / "test_cases_post_test.json"),
+    ]
+    retriever = HybridRetriever()
+    rows = []
+    for mode_name, path in mode_files:
+        if not path.is_file():
+            continue
+        cases = json.loads(path.read_text(encoding="utf-8"))
+        hits = 0
+        for case in cases:
+            docs = retriever.retrieve(case["question"], mode=mode_name)["documents"]
+            expected = case.get("expected_source_docs") or []
+            found = False
+            for d in docs[:10]:
+                reg = (retriever._chunk_by_id.get(d["id"], {}).get("regulation") or "")
+                if any(exp in reg or reg in exp for exp in expected):
+                    found = True
+                    break
+            hits += int(found)
+        recall = hits / max(len(cases), 1)
+        rows.append({"mode": mode_name, "context_recall_proxy": round(recall, 3)})
+    if not rows:
+        return
+    out = EVAL_DIR / "per_mode_summary.json"
+    payload = {
+        "modes": rows,
+        "note": "Synthetic-doc modes use synthetic ground truth — re-validate when real data arrives.",
+    }
+    out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    p("\n=== PER-MODE PILOT READINESS ===")
+    for r in rows:
+        gate = "SAFE TO EXPAND" if r["context_recall_proxy"] >= 0.8 else "NEEDS WORK"
+        p(f"  {r['mode']:22} recall_proxy={r['context_recall_proxy']:.2f}  [{gate}]")
+    p(f"  (saved {out})")
 
 
 if __name__ == "__main__":

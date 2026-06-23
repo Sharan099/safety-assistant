@@ -32,11 +32,13 @@ from dataclasses import dataclass, field
 LEGAL_REGULATION = "legal_regulation"   # binding (UN/ECE, FMVSS, EU directives)
 RATING_PROTOCOL = "rating_protocol"     # consumer assessment (Euro NCAP, IIHS)
 ENGINEERING_REFERENCE = "reference"     # ISO / internal CAE references (non-binding)
+INTERNAL_DOCUMENT = "internal"          # synthetic / program internal docs (pilot)
 
 DOC_TYPE_LABEL = {
     LEGAL_REGULATION: "Legal regulation (binding)",
     RATING_PROTOCOL: "Rating protocol (consumer assessment — not legally binding)",
     ENGINEERING_REFERENCE: "Engineering reference (non-binding)",
+    INTERNAL_DOCUMENT: "Internal document (synthetic / program data)",
 }
 
 
@@ -72,7 +74,7 @@ _REGISTRY: dict[str, DocumentMeta] = {
         "regard to safety-belt anchorages, ISOFIX anchorage systems, ISOFIX top "
         "tether anchorages and i-Size seating positions",
         doc_type=LEGAL_REGULATION,
-        authority="UNECE (UN Regulation)",
+        authority="UN-ECE",
         indexed_revision="Revision 7 (09 series of amendments)",
         known_revisions=(
             "Revision 6 (08 series)",
@@ -89,7 +91,7 @@ _REGISTRY: dict[str, DocumentMeta] = {
         "restraint systems, child restraint systems and ISOFIX child restraint "
         "systems for occupants of power-driven vehicles",
         doc_type=LEGAL_REGULATION,
-        authority="UNECE (UN Regulation)",
+        authority="UN-ECE",
         indexed_revision="Revision 10 (07 series of amendments)",
         known_revisions=(
             "Revision 9 (07 series)",
@@ -154,13 +156,56 @@ _REGISTRY: dict[str, DocumentMeta] = {
         doc_type=ENGINEERING_REFERENCE, authority="Internal reference",
         indexed_revision=None, verified=False,
     ),
+    # ---- Synthetic PROG_X internal docs (pilot) ----
+    "PROG_X_FT_001": DocumentMeta(
+        code="PROG_X_FT_001", display_name="PROG_X FT-001",
+        full_title="PROG_X frontal crash test report FT-PROG-X-001 (SYNTHETIC)",
+        doc_type=INTERNAL_DOCUMENT, authority="internal",
+        indexed_revision="synthetic", verified=False,
+    ),
+    "PROG_X_FT_002": DocumentMeta(
+        code="PROG_X_FT_002", display_name="PROG_X FT-002",
+        full_title="PROG_X frontal crash test report FT-PROG-X-002 (SYNTHETIC)",
+        doc_type=INTERNAL_DOCUMENT, authority="internal",
+        indexed_revision="synthetic", verified=False,
+    ),
+    "PROG_X_CAE_001": DocumentMeta(
+        code="PROG_X_CAE_001", display_name="PROG_X CAE-001",
+        full_title="PROG_X CAE correlation vs FT-001 (SYNTHETIC)",
+        doc_type=INTERNAL_DOCUMENT, authority="internal",
+        indexed_revision="synthetic", verified=False,
+    ),
+    "PROG_X_CAE_002": DocumentMeta(
+        code="PROG_X_CAE_002", display_name="PROG_X CAE-002",
+        full_title="PROG_X CAE correlation vs FT-002 (SYNTHETIC)",
+        doc_type=INTERNAL_DOCUMENT, authority="internal",
+        indexed_revision="synthetic", verified=False,
+    ),
+    "PROG_X_RCA_001": DocumentMeta(
+        code="PROG_X_RCA_001", display_name="PROG_X RCA-001",
+        full_title="PROG_X root cause analysis anchorage margin (SYNTHETIC)",
+        doc_type=INTERNAL_DOCUMENT, authority="internal",
+        indexed_revision="synthetic", verified=False,
+    ),
+    "PROG_X_DR": DocumentMeta(
+        code="PROG_X_DR", display_name="PROG_X DR minutes",
+        full_title="PROG_X design review minutes Feb 2026 (SYNTHETIC)",
+        doc_type=INTERNAL_DOCUMENT, authority="internal",
+        indexed_revision="synthetic", verified=False,
+    ),
+    "PROG_X_STATUS": DocumentMeta(
+        code="PROG_X_STATUS", display_name="PROG_X status",
+        full_title="PROG_X project status summary (SYNTHETIC)",
+        doc_type=INTERNAL_DOCUMENT, authority="internal",
+        indexed_revision="synthetic", verified=False,
+    ),
 }
 
 
-# ── Indexed corpus lock (Phase 3) ───────────────────────────────────────────
-# Exact set of legal crash/restraint regulations in the indexed corpus.
+# ── Indexed corpus lock (Phase 0 pilot) ─────────────────────────────────────
+# Pilot scope: UN R14 + UN R16 only. Expand when scaling to full corpus.
 INDEXED_LEGAL_CORPUS: frozenset[str] = frozenset({
-    "UN_R14", "UN_R16", "UN_R17", "UN_R94", "UN_R95", "UN_R135", "UN_R137", "FMVSS",
+    "UN_R14", "UN_R16",
 })
 
 # FMVSS_210 is NOT indexed — answers must not cite it.

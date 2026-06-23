@@ -136,7 +136,7 @@ def stage2_embed() -> bool:
         f"EMBED_SAVE_EVERY={embed_env['EMBED_SAVE_EVERY']}, conda env={CONDA_ENV}"
     )
     rc = run_cmd(
-        _python_cmd(str(ROOT / "data" / "embed_chunks.py")),
+        _python_cmd(str(ROOT / "ingestion" / "embed_chunks.py")),
         "2-embed",
         extra_env=embed_env,
     )

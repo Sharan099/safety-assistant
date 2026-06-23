@@ -33,10 +33,10 @@ except ImportError:
     pass
 
 from config import EMBEDDING_MODEL  # noqa: E402
-from data.docling_converter import _build_converter, convert_pdf_docling, p  # noqa: E402
-from data.embed_chunks import embed_chunks_to_file  # noqa: E402
-from data.hierarchical_chunker import chunk_markdown_file, detect_regulation_type  # noqa: E402
-from data.paddle_ocr_converter import active_engine, convert_pdf_paddle  # noqa: E402
+from ingestion.docling_converter import _build_converter, convert_pdf_docling, p  # noqa: E402
+from ingestion.embed_chunks import embed_chunks_to_file  # noqa: E402
+from ingestion.hierarchical_chunker import chunk_markdown_file, detect_regulation_type  # noqa: E402
+from ingestion.paddle_ocr_converter import active_engine, convert_pdf_paddle  # noqa: E402
 from backend.app.retrieval.hybrid import HybridRetriever  # noqa: E402
 from backend.app.retrieval.reranker import CrossEncoderReranker  # noqa: E402
 

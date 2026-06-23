@@ -1,0 +1,9 @@
+[
+  {
+    "id": "RCA01_anchorage",
+    "mode": "root_cause_analysis",
+    "question": "Why did PROG_X lower anchorage margin fail on FT-PROG-X-002?",
+    "expected_source_docs": ["PROG_X_RCA_001", "PROG_X_FT_002", "UN_R14"],
+    "expected_answer_contains": [["observation", "evidence", "reasoning", "conclusion"], ["1,428", "1428"]]
+  }
+]

@@ -73,15 +73,36 @@ def _local_answer_relevancy_scores(rows: list[dict]) -> dict[str, float | str]:
         return {"_error": str(exc)}
 
 
-def _shim_langchain_vertexai() -> None:
+def _shim_ragas_imports() -> None:
+    """Avoid optional VertexAI deps that break ragas import on minimal installs."""
+    import sys
+    import types
+
     try:
         import langchain.llms as _llms
         if not hasattr(_llms, "VertexAI"):
-            class VertexAI:
+            class VertexAI:  # noqa: N801
                 pass
             _llms.VertexAI = VertexAI
     except Exception:
         pass
+
+    try:
+        import langchain_community.chat_models.vertexai  # noqa: F401
+    except Exception:
+        vertex_mod = types.ModuleType("langchain_community.chat_models.vertexai")
+
+        class ChatVertexAI:  # noqa: N801
+            pass
+
+        vertex_mod.ChatVertexAI = ChatVertexAI
+        chat_models_mod = types.ModuleType("langchain_community.chat_models")
+        chat_models_mod.vertexai = vertex_mod
+        lc_mod = types.ModuleType("langchain_community")
+        lc_mod.chat_models = chat_models_mod
+        sys.modules.setdefault("langchain_community", lc_mod)
+        sys.modules.setdefault("langchain_community.chat_models", chat_models_mod)
+        sys.modules["langchain_community.chat_models.vertexai"] = vertex_mod
 
 
 def make_rate_limited_groq(
@@ -175,7 +196,7 @@ def run_judge_metrics_serial(
     if not os.getenv("GROQ_API_KEY"):
         return {r["id"]: {"faithfulness": "skipped_no_key", "context_precision": "skipped_no_key"} for r in rows}
 
-    _shim_langchain_vertexai()
+    _shim_ragas_imports()
     from datasets import Dataset
     from ragas import evaluate
     from ragas.run_config import RunConfig
@@ -297,15 +318,19 @@ def run_ragas_budgeted(
             })
         judge_result = run_judge_metrics_serial(judge_rows, tracker, delay_seconds=judge_delay)
 
-    # Aggregate judge means
-    faith_vals = [
-        v["faithfulness"] for v in judge_result.values()
-        if isinstance(v.get("faithfulness"), (int, float))
-    ]
-    prec_vals = [
-        v["context_precision"] for v in judge_result.values()
-        if isinstance(v.get("context_precision"), (int, float))
-    ]
+    # Aggregate judge means (ignore NaN / skipped)
+    import math
+
+    def _finite_scores(metric: str) -> list[float]:
+        out: list[float] = []
+        for v in judge_result.values():
+            x = v.get(metric)
+            if isinstance(x, (int, float)) and math.isfinite(x):
+                out.append(float(x))
+        return out
+
+    faith_vals = _finite_scores("faithfulness")
+    prec_vals = _finite_scores("context_precision")
 
     return {
         "answer_relevancy": relevancy_result,

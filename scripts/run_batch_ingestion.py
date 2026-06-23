@@ -30,14 +30,14 @@ os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
 from config import CHUNKS_FILE, DATA_DIR, EMBEDDINGS_FILE, MARKDOWN_DIR  # noqa: E402
-from data.docling_converter import (  # noqa: E402
+from ingestion.docling_converter import (  # noqa: E402
     _build_converter,
     convert_single_pdf,
     discover_root_pdfs,
     p,
 )
-from data.embed_chunks import run_incremental  # noqa: E402
-from data.hierarchical_chunker import chunk_markdown_file, detect_regulation_type  # noqa: E402
+from ingestion.embed_chunks import run_incremental  # noqa: E402
+from ingestion.hierarchical_chunker import chunk_markdown_file, detect_regulation_type  # noqa: E402
 
 STATE_FILE = ROOT / "output" / "batch_ingest_state.json"
 LOG_FILE = ROOT / "output" / "batch_ingest.log"

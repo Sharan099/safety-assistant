@@ -1,0 +1,36 @@
+[
+  {
+    "text": "frontal impact chest deflection shall not exceed 34 mm",
+    "regulation": "UN_R94",
+    "pdf_name": "UN_R94.pdf",
+    "expected": {
+      "test_type": "frontal",
+      "value_type": "legal_limit",
+      "doc_type": "legal",
+      "is_synthetic": false
+    }
+  },
+  {
+    "text": "safety belt anchorage test load 1350 daN",
+    "regulation": "UN_R14",
+    "pdf_name": "UN_R14.pdf",
+    "expected": {
+      "test_type": "belt",
+      "value_type": "legal_limit",
+      "doc_type": "legal",
+      "authority": "UN-ECE"
+    }
+  },
+  {
+    "text": "SYNTHETIC TEST DATA lower anchorage 1428 daN PASS",
+    "regulation": "PROG_X_FT_002",
+    "pdf_name": "PROG_X_FT_002_frontal_crash_test.md",
+    "expected": {
+      "doc_type": "internal",
+      "is_synthetic": true,
+      "vehicle_program": "PROG_X",
+      "dummy_type": "Hybrid III",
+      "value_type": "measured"
+    }
+  }
+]

@@ -50,6 +50,7 @@ $files = @(
     @{ Src = "deploy\hf-space\.dockerignore";       Dst = ".dockerignore" },
     @{ Src = "deploy\hf-space\.gitignore";          Dst = ".gitignore" },
     @{ Src = "config.py";                           Dst = "config.py" },
+    @{ Src = "config\modes.yaml";                   Dst = "config\modes.yaml" },
     @{ Src = "output\regulation_chunks.json";       Dst = "output\regulation_chunks.json" },
     @{ Src = "output\regulation_embeddings.json";   Dst = "output\regulation_embeddings.json" },
     @{ Src = "output\ingest_manifest.json";         Dst = "output\ingest_manifest.json" }
@@ -85,13 +86,13 @@ foreach ($tree in @("backend", "ingestion")) {
 $embPath = Join-Path $TargetDir "output\regulation_embeddings.json"
 $check = python -c "import json; d=json.load(open(r'$embPath',encoding='utf-8')); print(len(d.get('embeddings',{})))"
 Write-Host ""
-Write-Host "Embeddings vectors: $check (expect 14554)"
+Write-Host "Embeddings vectors: $check (expect 1849 for pilot corpus)"
 
 Write-Host ""
 Write-Host "=== Next: push to Hugging Face ==="
 Write-Host "  cd `"$TargetDir`""
 Write-Host "  git lfs track output/regulation_embeddings.json"
-Write-Host "  git add Dockerfile requirements.txt README.md config.py backend ingestion output .gitattributes .dockerignore"
+Write-Host "  git add Dockerfile requirements.txt README.md config.py config backend ingestion output .gitattributes .dockerignore"
 Write-Host "  git status"
 Write-Host "  git commit -m `"Deploy PSA FastAPI backend (v4 corpus + metadata filtering)`""
 Write-Host "  git push"

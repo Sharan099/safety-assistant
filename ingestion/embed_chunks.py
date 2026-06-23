@@ -25,6 +25,7 @@ from config import (  # noqa: E402
     EMBEDDING_DIMENSION,
     EMBEDDING_DOC_PREFIX,
     EMBEDDING_MODEL,
+    EMBEDDING_QUERY_PREFIX,
     EMBEDDING_TRUST_REMOTE_CODE,
     EMBEDDINGS_FILE,
 )
@@ -67,6 +68,17 @@ def _save_checkpoint(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     _log(f"Checkpoint saved ({reason}): {len(embeddings)} vectors -> {out_path}")
+
+
+def _embedding_prefixes() -> tuple[str, str]:
+    """Query/document prefix discipline per model family."""
+    model = EMBEDDING_MODEL.lower()
+    if "nomic" in model:
+        return EMBEDDING_QUERY_PREFIX, EMBEDDING_DOC_PREFIX
+    if "bge" in model:
+        # BGE-M3: instruction-style prefixes for retrieval
+        return "search_query: ", "search_document: "
+    return EMBEDDING_QUERY_PREFIX, EMBEDDING_DOC_PREFIX
 
 
 def build_chunk_embedding_text(chunk: dict) -> str:
@@ -113,7 +125,7 @@ def embed_chunks_to_file(chunks: list[dict], out_path: Path) -> dict:
     for start in range(0, len(to_embed), EMBEDDING_BATCH):
         batch_chunks = to_embed[start : start + EMBEDDING_BATCH]
         batch_texts = [
-            EMBEDDING_DOC_PREFIX + build_chunk_embedding_text(c) for c in batch_chunks
+            _embedding_prefixes()[1] + build_chunk_embedding_text(c) for c in batch_chunks
         ]
         batch_ids = [c["chunk_id"] for c in batch_chunks]
         vectors = model.encode(
@@ -231,7 +243,7 @@ def run() -> dict:
         batch_idx = start // EMBEDDING_BATCH
         batch_chunks = to_embed[start : start + EMBEDDING_BATCH]
         batch_texts = [
-            EMBEDDING_DOC_PREFIX + build_chunk_embedding_text(c) for c in batch_chunks
+            _embedding_prefixes()[1] + build_chunk_embedding_text(c) for c in batch_chunks
         ]
         batch_ids = [c["chunk_id"] for c in batch_chunks]
         try:
@@ -336,7 +348,7 @@ def run_incremental(new_chunks: list[dict], model=None) -> dict:
     for start in range(0, len(to_embed), EMBEDDING_BATCH):
         batch_chunks = to_embed[start : start + EMBEDDING_BATCH]
         batch_texts = [
-            EMBEDDING_DOC_PREFIX + build_chunk_embedding_text(c) for c in batch_chunks
+            _embedding_prefixes()[1] + build_chunk_embedding_text(c) for c in batch_chunks
         ]
         batch_ids = [c["chunk_id"] for c in batch_chunks]
         vectors = model.encode(

@@ -7,6 +7,7 @@ Full ingestion pipeline:
   4. Ready for hybrid BM25 + semantic retrieval
 
 Usage:
+  conda activate rag
   python scripts/run_ingestion_pipeline.py
   python scripts/run_ingestion_pipeline.py --skip-docling   # reuse markdown
   python scripts/run_ingestion_pipeline.py --only UN_R14 UN_R16
@@ -41,7 +42,7 @@ def main() -> None:
     print("=" * 60)
 
     if not args.skip_docling:
-        from data.docling_converter import run as run_docling
+        from ingestion.docling_converter import run as run_docling
 
         print("\n[1/3] PDF -> Markdown (OCR)")
         manifest = run_docling(force=args.force_docling, only_regs=args.only)
@@ -51,7 +52,7 @@ def main() -> None:
         print("\n[1/3] Skipped Docling")
 
     if not args.skip_chunk:
-        from data.hierarchical_chunker import run as run_chunk
+        from ingestion.hierarchical_chunker import run as run_chunk
 
         print("\n[2/3] Hierarchical chunking")
         run_chunk(only_regs=args.only)
@@ -59,7 +60,7 @@ def main() -> None:
         print("\n[2/3] Skipped chunking")
 
     if not args.skip_embed:
-        from data.embed_chunks import run as run_embed
+        from ingestion.embed_chunks import run as run_embed
 
         print("\n[3/3] Embedding")
         run_embed()

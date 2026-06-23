@@ -12,6 +12,7 @@ from typing import Any
 
 from backend.app.core.document_registry import (
     ENGINEERING_REFERENCE,
+    INTERNAL_DOCUMENT,
     LEGAL_REGULATION,
     RATING_PROTOCOL,
     get_document_meta,
@@ -24,6 +25,13 @@ DOC_TYPE_REFERENCE = "reference"
 DOC_TYPE_INTERNAL = "internal"
 DOC_TYPE_SIM = "sim_report"
 DOC_TYPE_TEST = "test_report"
+
+CHUNK_TYPES = ("prose", "table", "figure", "procedure_step", "paragraph", "section", "event")
+IMPACT_MODES = ("frontal", "side", "pole_side", "rear", "pedestrian", "belt", "general")
+REGIONS = ("EU", "US", "global")
+AUTHORITIES = ("UN-ECE", "UNECE", "NHTSA/FMVSS", "EuroNCAP", "internal")
+DUMMY_TYPES_VOCAB = ("Hybrid III", "H3-50M", "ES-2", "WorldSID", "BioRID", "Q-series")
+VEHICLE_PROGRAMS = ("PROG_X",)
 
 TEST_TYPES = (
     "frontal", "side", "pole_side", "rear", "pedestrian",
@@ -47,17 +55,19 @@ _REGION_MAP = {
 }
 
 _AUTHORITY_MAP = {
-    "UN_R14": "UNECE", "UN_R16": "UNECE", "UN_R17": "UNECE",
+    "UN_R14": "UN-ECE", "UN_R16": "UN-ECE", "UN_R17": "UNECE",
     "UN_R94": "UNECE", "UN_R95": "UNECE", "UN_R135": "UNECE", "UN_R137": "UNECE",
     "FMVSS": "NHTSA/FMVSS",
     "EURO_NCAP": "EuroNCAP",
     "CAE_REFERENCE": "internal", "SAFETY_REFERENCE": "internal",
 }
+_PROG_X_PREFIX = "PROG_X"
 
 _DOC_TYPE_MAP = {
     LEGAL_REGULATION: DOC_TYPE_LEGAL,
     RATING_PROTOCOL: DOC_TYPE_RATING,
     ENGINEERING_REFERENCE: DOC_TYPE_REFERENCE,
+    INTERNAL_DOCUMENT: DOC_TYPE_INTERNAL,
 }
 
 _FRONTAL_KW = (
@@ -94,7 +104,56 @@ _UNIT_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:mm|g|kN|daN|m/s|ms|kPa|N)", re.I)
 _CLAUSE_RE = re.compile(r"(?:§|section|paragraph|annex)\s*[\d.]+", re.I)
 
 
-from backend.app.retrieval.clause_topic import detect_clause_topic
+def _parse_frontmatter_fields(text: str) -> dict[str, str]:
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}
+    out: dict[str, str] = {}
+    for line in lines[1:]:
+        if line.strip() == "---":
+            break
+        if ":" in line:
+            k, v = line.split(":", 1)
+            out[k.strip()] = v.strip()
+    return out
+
+
+def _normalize_dummy(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    low = raw.lower()
+    if "hybrid iii" in low or "h3" in low:
+        return "Hybrid III"
+    if "worldsid" in low:
+        return "WorldSID"
+    if "es-2" in low or "es2" in low:
+        return "ES-2"
+    if "biorid" in low:
+        return "BioRID"
+    if "q-series" in low or re.search(r"\bq[36]\b", low):
+        return "Q-series"
+    return None
+
+
+def _extract_test_id(text: str) -> str | None:
+    m = re.search(r"\b(FT-PROG-X-\d{3}|CAE-PROG-X-\d{3}|RCA-PROG-X-\d{3})\b", text)
+    return m.group(1) if m else None
+
+
+def _extract_cae_version(text: str) -> str | None:
+    m = re.search(r"PROG_X_v[\d.]+(?:_\d{8})?", text)
+    return m.group(0) if m else None
+
+
+def _extract_impact_mode(text: str, test_type: str) -> str:
+    low = text.lower()
+    if "impact_mode" in low:
+        m = re.search(r"impact_mode\s*\|\s*(\w+)", low)
+        if m:
+            mode = m.group(1)
+            if mode in IMPACT_MODES:
+                return mode
+    return test_type if test_type in IMPACT_MODES else "general"
 
 
 def _registry_doc_type(regulation: str) -> str:
@@ -183,6 +242,9 @@ def _detect_dummy(text: str) -> str | None:
     return None
 
 
+from backend.app.retrieval.clause_topic import detect_clause_topic
+
+
 def classify_chunk(
     *,
     regulation: str,
@@ -193,15 +255,31 @@ def classify_chunk(
     section_title: str = "",
 ) -> dict[str, Any]:
     """Return full metadata dict for a chunk."""
+    fm = _parse_frontmatter_fields(text)
+    is_synthetic = fm.get("is_synthetic", "").lower() == "true" or regulation.startswith(_PROG_X_PREFIX)
     meta = get_document_meta(regulation)
-    doc_type = _registry_doc_type(regulation)
+    doc_type = fm.get("doc_type") or _registry_doc_type(regulation)
+    if doc_type not in (DOC_TYPE_LEGAL, DOC_TYPE_RATING, DOC_TYPE_REFERENCE, DOC_TYPE_INTERNAL):
+        doc_type = _registry_doc_type(regulation)
     doc_id = regulation
     test_type = _detect_test_type(text, pdf_name, regulation)
     value_type = _detect_value_type(text, doc_type, regulation)
-    dummy = _detect_dummy(text)
+    dummy = _normalize_dummy(fm.get("dummy_type")) or _detect_dummy(text)
     clause_topic = detect_clause_topic(
         text, heading_path=heading_path, section_title=section_title
     )
+    vehicle_program = fm.get("vehicle_program")
+    if vehicle_program and vehicle_program not in VEHICLE_PROGRAMS:
+        vehicle_program = None
+    test_id = _extract_test_id(text)
+    cae_model_version = _extract_cae_version(text)
+    impact_mode = _extract_impact_mode(text, test_type)
+    region = fm.get("region") or _REGION_MAP.get(regulation, "global")
+    if region not in REGIONS:
+        region = "global"
+    authority = fm.get("authority") or _AUTHORITY_MAP.get(regulation, meta.authority)
+    if authority not in AUTHORITIES and authority != meta.authority:
+        authority = meta.authority if meta.authority in AUTHORITIES else "internal"
 
     clause = clause_number
     if not clause and _CLAUSE_RE.search(text):
@@ -217,15 +295,21 @@ def classify_chunk(
     return {
         "doc_id": doc_id,
         "doc_type": doc_type,
-        "authority": _AUTHORITY_MAP.get(regulation, meta.authority),
-        "region": _REGION_MAP.get(regulation, "global"),
+        "authority": authority,
+        "region": region,
         "jurisdiction": test_type,
         "test_type": test_type,
+        "impact_mode": impact_mode,
         "dummy": dummy,
+        "dummy_type": dummy,
         "value_type": value_type,
         "clause": clause,
         "revision": revision,
         "clause_topic": clause_topic,
+        "is_synthetic": is_synthetic,
+        "vehicle_program": vehicle_program,
+        "test_id": test_id,
+        "CAE_model_version": cae_model_version,
     }
 
 

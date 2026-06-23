@@ -99,3 +99,68 @@ def check_markdown(md_path: Path, *, min_chars: int = MIN_CHAR_COUNT) -> Quality
         issues=issues,
         failed_page=failed_page,
     )
+
+
+@dataclass
+class OcrConfidenceAudit:
+    """Sampled OCR-confidence audit for silent numeric OCR errors."""
+    pdf_name: str
+    pages_sampled: int
+    low_confidence_pages: list[str]
+    flagged_tables: list[str]
+    issues: list[str]
+
+    @property
+    def needs_review(self) -> bool:
+        return bool(self.low_confidence_pages or self.flagged_tables or self.issues)
+
+
+_NUMERIC_OCR_SUSPECT = re.compile(
+    r"(\d{2,})\s*(?:mm|m\b|daN|kN)", re.I
+)
+
+
+def audit_ocr_confidence(
+    md_path: Path,
+    *,
+    sample_every: int = 5,
+    min_confidence: float = 0.75,
+) -> OcrConfidenceAudit:
+    """
+    Sample pages/tables for low-confidence OCR patterns (e.g. 1.5 m → 15 m).
+    Biased toward catching numeric unit errors over speed.
+    """
+    text = md_path.read_text(encoding="utf-8", errors="ignore")
+    sections = _page_sections(text)
+    low_pages: list[str] = []
+    flagged_tables: list[str] = []
+    issues: list[str] = []
+
+    for idx, (label, body) in enumerate(sections):
+        if idx % max(sample_every, 1) != 0:
+            continue
+        # Heuristic: missing decimal before unit (15 m vs 1.5 m pattern)
+        for m in _NUMERIC_OCR_SUSPECT.finditer(body):
+            val = m.group(1)
+            if len(val) >= 2 and val.startswith("1") and "mm" in m.group(0).lower():
+                if f"{val[0]}.{val[1:]}" not in body:
+                    issues.append(f"{label}: possible OCR magnitude error near {m.group(0)}")
+                    low_pages.append(label)
+                    break
+        if "|" in body:
+            rows = [r for r in body.splitlines() if "|" in r]
+            short_cells = sum(
+                1 for r in rows for c in r.split("|")
+                if c.strip() and len(c.strip()) < MIN_TABLE_ROW_CHARS
+            )
+            if short_cells > len(rows):
+                flagged_tables.append(label)
+                issues.append(f"{label}: fragmented table cells — review OCR")
+
+    return OcrConfidenceAudit(
+        pdf_name=md_path.stem,
+        pages_sampled=len(sections),
+        low_confidence_pages=low_pages,
+        flagged_tables=flagged_tables,
+        issues=issues,
+    )

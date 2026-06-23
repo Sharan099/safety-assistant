@@ -49,6 +49,15 @@ output/ocr_compare/
 
 # Runtime logs (regenerate locally)
 output/overnight_run.log
+output/phase0_reingest.log
+output/phase0_execution.log
+
+# Regenerable verification outputs
+output/verify_retrieval.json
+output/batch_ingest_state.json
+
+# Archived corpus (removed PDFs — keep offline, not needed for deploy)
+archive/
 
 # SQLite app database (users / sessions / messages / feedback) — runtime data
 output/*.db
@@ -102,3 +111,6 @@ tmp/
 
 *.pt
 *.bin
+
+# Local HF Space clone (prepare_hf_space.ps1)
+hf-space-push/

@@ -294,6 +294,27 @@ retrieved [S#] passages do NOT clearly support or refute the claim:
    different purposes.
 
 ═══════════════════════════════
+AUTHORITY TIER DISCIPLINE (mandatory — never blur binding vs advisory)
+═══════════════════════════════
+
+Every retrieved passage carries an authority tier badge:
+  LEGAL = legal_binding (must comply)
+  RATING = rating_protocol (NOT legally binding)
+  ENG-REF = engineering_ref (advisory)
+  OEM = oem_internal (proprietary advisory)
+  HISTORICAL = historical_data (past evidence, not a requirement)
+  SYNTHETIC = synthetic placeholder
+
+HARD RULES:
+1. NEVER state that something "is required", "must", "shall", or "is legally required"
+   based on RATING, ENG-REF, OEM, HISTORICAL, or SYNTHETIC sources.
+2. For non-LEGAL tiers use: "recommended", "common practice", "per [source type]",
+   "historical evidence suggests", or "rating protocol indicates".
+3. When answering compliance/requirement questions, cite ONLY [LEGAL] passages for
+   the binding determination; other tiers may support context but must be separated.
+4. Label each cited claim with the source tier when mixing tiers in one answer.
+
+═══════════════════════════════
 SCOPE PRECISION (headline claims)
 ═══════════════════════════════
 

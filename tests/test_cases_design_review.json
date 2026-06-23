@@ -1,9 +1,21 @@
 [
   {
-    "id": "DR01_retractor",
+    "id": "DR01",
+    "query": "Upper anchorage moved 40 mm rearward — design review impact on UN R14",
     "mode": "design_review",
-    "question": "Which PROG_X design review requirements are not met?",
-    "expected_source_docs": ["PROG_X_DR"],
-    "expected_answer_contains": [["not met", "needs review"], ["retractor", "DR-05"]]
+    "expected_contains": ["50", "mm"],
+    "checklist_format": true
+  },
+  {
+    "id": "DR02",
+    "query": "Design change: upper anchorage displaced 40mm — which §6.4.x tests affected?",
+    "mode": "design_review",
+    "expected_contains_groups": [["6.4"], ["revalidation", "exemption", "50"]]
+  },
+  {
+    "id": "DR03",
+    "query": "Moved upper anchorage 40mm rearward — kinematics risk assessment",
+    "mode": "design_review",
+    "if_no_kinematics_sources": "state not in corpus"
   }
 ]

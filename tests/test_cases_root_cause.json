@@ -1,9 +1,21 @@
 [
   {
-    "id": "RCA01_anchorage",
+    "id": "RCA01",
+    "query": "Anchorage failed at 1450 daN on PROG_X — what is the root cause?",
     "mode": "root_cause_analysis",
-    "question": "Why did PROG_X lower anchorage margin fail on FT-PROG-X-002?",
-    "expected_source_docs": ["PROG_X_RCA_001", "PROG_X_FT_002", "UN_R14"],
-    "expected_answer_contains": [["observation", "evidence", "reasoning", "conclusion"], ["1,428", "1428"]]
+    "expected_contains_groups": [["category", "M1", "vehicle", "specify"]],
+    "must_not_invent_causes": true
+  },
+  {
+    "id": "RCA02",
+    "query": "PROG_X FT-001 anchorage margin below R14 threshold — trace causes",
+    "mode": "root_cause_analysis",
+    "expected_structure": ["Observation", "Evidence", "Conclusion"]
+  },
+  {
+    "id": "RCA03",
+    "query": "Why did the rear centre anchorage test fail at 900 daN for M1?",
+    "mode": "root_cause_analysis",
+    "expected_citations_tier_any": ["LEGAL", "HISTORICAL", "SYNTHETIC"]
   }
 ]

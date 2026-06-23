@@ -28,6 +28,15 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 
+from backend.app.core.authority_tier import (
+    ENGINEERING_REF,
+    HISTORICAL_DATA,
+    LEGAL_BINDING,
+    OEM_INTERNAL,
+    RATING_PROTOCOL,
+    SYNTHETIC,
+)
+
 # Document type taxonomy. Keep legal vs rating strictly separated.
 LEGAL_REGULATION = "legal_regulation"   # binding (UN/ECE, FMVSS, EU directives)
 RATING_PROTOCOL = "rating_protocol"     # consumer assessment (Euro NCAP, IIHS)
@@ -48,16 +57,20 @@ class DocumentMeta:
     display_name: str               # human label, e.g. "UN R14"
     full_title: str
     doc_type: str                   # one of the constants above
+    authority_tier: str             # closed vocabulary — binding force (Part A)
     authority: str                  # issuing body
-    indexed_revision: str | None    # the revision the corpus copy maps to
-    known_revisions: tuple[str, ...] = ()  # other revisions known to exist
+    region: str = "global"          # EU / US / global
+    impact_mode: str = "general"    # frontal / side / belt / general — hard filter dimension
+    license_status: str = "public_domain"
+    indexed_revision: str | None = None
+    known_revisions: tuple[str, ...] = ()
     in_force: str | None = None
     legal_reference: str | None = None
-    verified: bool = False          # True only when revision was confirmed
+    verified: bool = False
 
     @property
     def is_legal(self) -> bool:
-        return self.doc_type == LEGAL_REGULATION
+        return self.authority_tier == LEGAL_BINDING
 
     @property
     def has_multiple_revisions(self) -> bool:
@@ -74,7 +87,11 @@ _REGISTRY: dict[str, DocumentMeta] = {
         "regard to safety-belt anchorages, ISOFIX anchorage systems, ISOFIX top "
         "tether anchorages and i-Size seating positions",
         doc_type=LEGAL_REGULATION,
+        authority_tier=LEGAL_BINDING,
         authority="UN-ECE",
+        region="EU",
+        impact_mode="belt",
+        license_status="public_domain",
         indexed_revision="Revision 7 (09 series of amendments)",
         known_revisions=(
             "Revision 6 (08 series)",
@@ -91,7 +108,11 @@ _REGISTRY: dict[str, DocumentMeta] = {
         "restraint systems, child restraint systems and ISOFIX child restraint "
         "systems for occupants of power-driven vehicles",
         doc_type=LEGAL_REGULATION,
+        authority_tier=LEGAL_BINDING,
         authority="UN-ECE",
+        region="EU",
+        impact_mode="belt",
+        license_status="public_domain",
         indexed_revision="Revision 10 (07 series of amendments)",
         known_revisions=(
             "Revision 9 (07 series)",
@@ -105,99 +126,115 @@ _REGISTRY: dict[str, DocumentMeta] = {
     "UN_R17": DocumentMeta(
         code="UN_R17", display_name="UN R17",
         full_title="Seats, their anchorages and head restraints",
-        doc_type=LEGAL_REGULATION, authority="UNECE (UN Regulation)",
-        indexed_revision=None, verified=False,
+        doc_type=LEGAL_REGULATION, authority_tier=LEGAL_BINDING,
+        authority="UNECE (UN Regulation)", region="EU", impact_mode="seat",
+        license_status="public_domain", indexed_revision=None, verified=False,
     ),
     "UN_R94": DocumentMeta(
         code="UN_R94", display_name="UN R94",
         full_title="Protection of occupants in the event of a frontal collision",
-        doc_type=LEGAL_REGULATION, authority="UNECE (UN Regulation)",
-        indexed_revision=None, verified=False,
+        doc_type=LEGAL_REGULATION, authority_tier=LEGAL_BINDING,
+        authority="UNECE (UN Regulation)", region="EU", impact_mode="frontal",
+        license_status="public_domain", indexed_revision=None, verified=False,
     ),
     "UN_R95": DocumentMeta(
         code="UN_R95", display_name="UN R95",
         full_title="Protection of occupants in the event of a lateral collision",
-        doc_type=LEGAL_REGULATION, authority="UNECE (UN Regulation)",
-        indexed_revision=None, verified=False,
+        doc_type=LEGAL_REGULATION, authority_tier=LEGAL_BINDING,
+        authority="UNECE (UN Regulation)", region="EU", impact_mode="side",
+        license_status="public_domain", indexed_revision=None, verified=False,
     ),
     "UN_R135": DocumentMeta(
         code="UN_R135", display_name="UN R135",
         full_title="Protection of occupants in the event of a pole side impact",
-        doc_type=LEGAL_REGULATION, authority="UNECE (UN Regulation)",
-        indexed_revision=None, verified=False,
+        doc_type=LEGAL_REGULATION, authority_tier=LEGAL_BINDING,
+        authority="UNECE (UN Regulation)", region="EU", impact_mode="pole_side",
+        license_status="public_domain", indexed_revision=None, verified=False,
     ),
     "UN_R137": DocumentMeta(
         code="UN_R137", display_name="UN R137",
         full_title="Frontal impact with focus on restraint systems",
-        doc_type=LEGAL_REGULATION, authority="UNECE (UN Regulation)",
-        indexed_revision=None, verified=False,
+        doc_type=LEGAL_REGULATION, authority_tier=LEGAL_BINDING,
+        authority="UNECE (UN Regulation)", region="EU", impact_mode="frontal",
+        license_status="public_domain", indexed_revision=None, verified=False,
     ),
     "FMVSS": DocumentMeta(
         code="FMVSS", display_name="FMVSS",
         full_title="Federal Motor Vehicle Safety Standards (49 CFR Part 571)",
-        doc_type=LEGAL_REGULATION, authority="NHTSA (United States)",
-        indexed_revision=None, verified=False,
+        doc_type=LEGAL_REGULATION, authority_tier=LEGAL_BINDING,
+        authority="NHTSA (United States)", region="US", impact_mode="general",
+        license_status="public_domain", indexed_revision=None, verified=False,
     ),
     "EURO_NCAP": DocumentMeta(
         code="EURO_NCAP", display_name="Euro NCAP",
         full_title="Euro NCAP assessment protocols",
-        doc_type=RATING_PROTOCOL, authority="Euro NCAP (consumer programme)",
-        indexed_revision=None, verified=False,
+        doc_type=RATING_PROTOCOL, authority_tier=RATING_PROTOCOL,
+        authority="Euro NCAP (consumer programme)", region="EU", impact_mode="general",
+        license_status="licensed", indexed_revision=None, verified=False,
     ),
     "CAE_REFERENCE": DocumentMeta(
         code="CAE_REFERENCE", display_name="CAE Companion",
         full_title="CAE Companion handbook (engineering reference — not a legal regulation)",
-        doc_type=ENGINEERING_REFERENCE, authority="Internal reference",
-        indexed_revision=None, verified=False,
+        doc_type=ENGINEERING_REFERENCE, authority_tier=ENGINEERING_REF,
+        authority="Internal reference", region="global", impact_mode="general",
+        license_status="licensed", indexed_revision=None, verified=False,
     ),
     "SAFETY_REFERENCE": DocumentMeta(
         code="SAFETY_REFERENCE", display_name="Safety Companion",
         full_title="Safety Companion handbook (engineering reference — not a legal regulation)",
-        doc_type=ENGINEERING_REFERENCE, authority="Internal reference",
-        indexed_revision=None, verified=False,
+        doc_type=ENGINEERING_REFERENCE, authority_tier=ENGINEERING_REF,
+        authority="Internal reference", region="global", impact_mode="general",
+        license_status="licensed", indexed_revision=None, verified=False,
     ),
     # ---- Synthetic PROG_X internal docs (pilot) ----
     "PROG_X_FT_001": DocumentMeta(
         code="PROG_X_FT_001", display_name="PROG_X FT-001",
         full_title="PROG_X frontal crash test report FT-PROG-X-001 (SYNTHETIC)",
-        doc_type=INTERNAL_DOCUMENT, authority="internal",
-        indexed_revision="synthetic", verified=False,
+        doc_type=INTERNAL_DOCUMENT, authority_tier=SYNTHETIC,
+        authority="internal", region="global", impact_mode="frontal",
+        license_status="proprietary_internal", indexed_revision="synthetic", verified=False,
     ),
     "PROG_X_FT_002": DocumentMeta(
         code="PROG_X_FT_002", display_name="PROG_X FT-002",
         full_title="PROG_X frontal crash test report FT-PROG-X-002 (SYNTHETIC)",
-        doc_type=INTERNAL_DOCUMENT, authority="internal",
-        indexed_revision="synthetic", verified=False,
+        doc_type=INTERNAL_DOCUMENT, authority_tier=SYNTHETIC,
+        authority="internal", region="global", impact_mode="frontal",
+        license_status="proprietary_internal", indexed_revision="synthetic", verified=False,
     ),
     "PROG_X_CAE_001": DocumentMeta(
         code="PROG_X_CAE_001", display_name="PROG_X CAE-001",
         full_title="PROG_X CAE correlation vs FT-001 (SYNTHETIC)",
-        doc_type=INTERNAL_DOCUMENT, authority="internal",
-        indexed_revision="synthetic", verified=False,
+        doc_type=INTERNAL_DOCUMENT, authority_tier=SYNTHETIC,
+        authority="internal", region="global", impact_mode="general",
+        license_status="proprietary_internal", indexed_revision="synthetic", verified=False,
     ),
     "PROG_X_CAE_002": DocumentMeta(
         code="PROG_X_CAE_002", display_name="PROG_X CAE-002",
         full_title="PROG_X CAE correlation vs FT-002 (SYNTHETIC)",
-        doc_type=INTERNAL_DOCUMENT, authority="internal",
-        indexed_revision="synthetic", verified=False,
+        doc_type=INTERNAL_DOCUMENT, authority_tier=SYNTHETIC,
+        authority="internal", region="global", impact_mode="general",
+        license_status="proprietary_internal", indexed_revision="synthetic", verified=False,
     ),
     "PROG_X_RCA_001": DocumentMeta(
         code="PROG_X_RCA_001", display_name="PROG_X RCA-001",
         full_title="PROG_X root cause analysis anchorage margin (SYNTHETIC)",
-        doc_type=INTERNAL_DOCUMENT, authority="internal",
-        indexed_revision="synthetic", verified=False,
+        doc_type=INTERNAL_DOCUMENT, authority_tier=SYNTHETIC,
+        authority="internal", region="global", impact_mode="belt",
+        license_status="proprietary_internal", indexed_revision="synthetic", verified=False,
     ),
     "PROG_X_DR": DocumentMeta(
         code="PROG_X_DR", display_name="PROG_X DR minutes",
         full_title="PROG_X design review minutes Feb 2026 (SYNTHETIC)",
-        doc_type=INTERNAL_DOCUMENT, authority="internal",
-        indexed_revision="synthetic", verified=False,
+        doc_type=INTERNAL_DOCUMENT, authority_tier=SYNTHETIC,
+        authority="internal", region="global", impact_mode="general",
+        license_status="proprietary_internal", indexed_revision="synthetic", verified=False,
     ),
     "PROG_X_STATUS": DocumentMeta(
         code="PROG_X_STATUS", display_name="PROG_X status",
         full_title="PROG_X project status summary (SYNTHETIC)",
-        doc_type=INTERNAL_DOCUMENT, authority="internal",
-        indexed_revision="synthetic", verified=False,
+        doc_type=INTERNAL_DOCUMENT, authority_tier=SYNTHETIC,
+        authority="internal", region="global", impact_mode="general",
+        license_status="proprietary_internal", indexed_revision="synthetic", verified=False,
     ),
 }
 
@@ -297,7 +334,11 @@ _UNKNOWN = DocumentMeta(
     display_name="Unknown document",
     full_title="Unregistered source",
     doc_type=ENGINEERING_REFERENCE,
+    authority_tier=ENGINEERING_REF,
     authority="Unknown",
+    region="global",
+    impact_mode="general",
+    license_status="review_needed",
     indexed_revision=None,
     verified=False,
 )

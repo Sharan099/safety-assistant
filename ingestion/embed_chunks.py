@@ -145,6 +145,8 @@ def embed_chunks_to_file(chunks: list[dict], out_path: Path) -> dict:
             "regulation": c.get("regulation"),
             "heading_path": c.get("heading_path"),
             "parent_id": c.get("parent_id"),
+            "authority_tier": c.get("authority_tier"),
+            "impact_mode": c.get("impact_mode"),
         }
         for cid, c in zip(ids, to_embed)
     }
@@ -275,6 +277,8 @@ def run() -> dict:
                 "regulation": chunk.get("regulation"),
                 "heading_path": chunk.get("heading_path"),
                 "parent_id": chunk.get("parent_id"),
+                "authority_tier": chunk.get("authority_tier"),
+                "impact_mode": chunk.get("impact_mode"),
             }
 
         done = len(embeddings)
@@ -365,6 +369,8 @@ def run_incremental(new_chunks: list[dict], model=None) -> dict:
                 "regulation": chunk.get("regulation"),
                 "heading_path": chunk.get("heading_path"),
                 "parent_id": chunk.get("parent_id"),
+                "authority_tier": chunk.get("authority_tier"),
+                "impact_mode": chunk.get("impact_mode"),
             }
         gc.collect()
 

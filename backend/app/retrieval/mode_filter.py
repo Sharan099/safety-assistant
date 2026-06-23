@@ -22,6 +22,13 @@ def chunk_passes_mode_filter(chunk: dict[str, Any], mode: ModeConfig) -> bool:
     return False
   if hf.get("region") and chunk.get("region") not in hf["region"]:
     return False
+  if hf.get("authority_tier"):
+    tier = chunk.get("authority_tier")
+    if not tier:
+      from backend.app.core.authority_tier import chunk_authority_tier
+      tier = chunk_authority_tier(chunk)
+    if tier not in hf["authority_tier"]:
+      return False
   return True
 
 

@@ -7,6 +7,18 @@ import remarkGfm from "remark-gfm";
 import { apiChatStream, apiFetch, formatApiError } from "@/lib/api";
 import { DocumentManager } from "@/components/DocumentManager";
 
+function authorityBadgeClass(badge?: string): string {
+  switch (badge) {
+    case "LEGAL": return "badge-legal";
+    case "RATING": return "badge-rating";
+    case "ENG-REF": return "badge-engref";
+    case "OEM": return "badge-oem";
+    case "HISTORICAL": return "badge-historical";
+    case "SYNTHETIC": return "badge-synthetic";
+    default: return "badge-ref";
+  }
+}
+
 type Doc = {
   id?: string;
   title?: string;
@@ -22,6 +34,9 @@ type Citation = {
   full_title?: string;
   doc_type?: string;
   doc_type_label?: string;
+  authority_tier?: string;
+  authority_tier_badge?: string;
+  authority_tier_label?: string;
   is_legal?: boolean;
   is_synthetic?: boolean;
   authority?: string;
@@ -708,16 +723,13 @@ export default function Home() {
                     <li key={j} className="citation">
                       <span className="cmarker">[{c.marker}]</span>
                       <span
-                        className={`badge ${c.is_legal ? "badge-legal" : "badge-rating"}`}
-                        title={c.doc_type_label}
+                        className={`badge ${authorityBadgeClass(c.authority_tier_badge || (c.is_legal ? "LEGAL" : undefined))}`}
+                        title={c.authority_tier_label || c.doc_type_label}
                       >
-                        {c.is_legal
-                          ? "Legal"
-                          : c.doc_type === "rating_protocol"
-                          ? "Rating"
-                          : "Ref"}
+                        {c.authority_tier_badge
+                          || (c.is_legal ? "LEGAL" : c.doc_type === "rating_protocol" ? "RATING" : "REF")}
                       </span>
-                      {c.is_synthetic && (
+                      {c.is_synthetic && !c.authority_tier_badge && (
                         <span className="badge badge-synthetic" title="Synthetic test data">
                           SYNTHETIC DATA
                         </span>
@@ -1116,12 +1128,13 @@ const appCss = `
   .cmarker { font-weight: 700; margin-right: 0.4rem; color: var(--accent); }
   .badge { display: inline-block; padding: 0.05rem 0.4rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; margin-right: 0.4rem; }
   .badge-legal { background: #16a34a; color: #fff; }
-  .badge-synthetic { background: #ea580c; color: #fff; margin-left: 0.25rem; }
-  .mode-select { width: 100%; margin: 0.35rem 0 0.75rem; padding: 0.4rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
-  .mode-label { font-size: 0.8rem; color: var(--muted); display: block; margin-top: 0.5rem; }
-  .mgmt-detail { margin-top: 0.75rem; font-size: 0.9rem; }
-  .rca-hint { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
   .badge-rating { background: var(--accent); color: #fff; }
+  .badge-engref { background: #2563eb; color: #fff; }
+  .badge-oem { background: #7c3aed; color: #fff; }
+  .badge-historical { background: #64748b; color: #fff; }
+  .badge-ref { background: #94a3b8; color: #fff; }
+  .badge-synthetic { background: #ea580c; color: #fff; margin-left: 0.25rem; }
+  .flag-authority_blur { background: #fef2f2; border-color: #fecaca; }
   .badge-unverified { background: #a8a29e; color: #fff; }
   .confidence-row { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
   .confidence-badge {

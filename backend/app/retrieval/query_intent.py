@@ -30,6 +30,8 @@ class QueryIntent:
     exclude_value_types: list[str] = field(default_factory=list)
     allowed_clause_topics: frozenset[str] | None = None
     requirement_cluster: str | None = None
+    compliance_determination: bool = False
+    binding_authority_only: bool = False
     raw_query: str = ""
 
 
@@ -83,6 +85,16 @@ def detect_query_intent(query: str) -> QueryIntent:
     elif us_hit:
         intent.region = "US"
 
+    # Compliance / binding requirement determination
+    from backend.app.retrieval.authority_filter import is_compliance_determination_query
+
+    if is_compliance_determination_query(query):
+        intent.compliance_determination = True
+        intent.binding_authority_only = True
+        intent.doc_type_intent = DOC_TYPE_LEGAL
+        intent.value_type_intent = "legal_limit"
+        intent.exclude_doc_types = [DOC_TYPE_REFERENCE, DOC_TYPE_RATING]
+
     # Doc type intent
     if any(k in q for k in (
         "legal", "regulation", "requirement", "shall", "binding",
@@ -122,6 +134,12 @@ def _detect_requirement_cluster(query: str) -> str | None:
 
 def chunk_passes_intent_filter(chunk: dict[str, Any], intent: QueryIntent) -> bool:
     """Hard pre-filter: return False if chunk must be excluded."""
+    from backend.app.core.authority_tier import LEGAL_BINDING, chunk_authority_tier
+
+    if intent.binding_authority_only:
+        if chunk_authority_tier(chunk) != LEGAL_BINDING:
+            return False
+
     if intent.exclude_doc_types:
         if chunk.get("doc_type") in intent.exclude_doc_types:
             return False

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "AT01",
+    "query": "What Euro NCAP adult occupant score threshold applies to frontal impact?",
+    "mode": "regulation_lookup",
+    "expected_behavior": "advisory_framing",
+    "forbidden_in_answer": ["required by regulation", "legally required", "shall comply"],
+    "must_contain_any": ["recommended", "rating", "not legally binding", "NCAP"]
+  },
+  {
+    "id": "AT02",
+    "query": "Is a 1,350 daN anchorage load required for M1 under UN R14?",
+    "mode": "regulation_lookup",
+    "expected_behavior": "legal_binding_only",
+    "must_cite_tier": "LEGAL"
+  },
+  {
+    "id": "AT03",
+    "query": "What does our internal CAE companion recommend for belt routing?",
+    "mode": "knowledge_reuse",
+    "forbidden_in_answer": ["required by UN R14", "legally required", "must comply with regulation"],
+    "must_contain_any": ["advisory", "engineering", "reference", "recommended"]
+  }
+]

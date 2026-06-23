@@ -7,6 +7,7 @@ modes:
     doc_type_scope: [legal]
     hard_filters:
       doc_type: [legal]
+      authority_tier: [legal_binding]
       is_synthetic: false
     soft_boosts:
       chunk_type_table: 1.3
@@ -21,9 +22,10 @@ modes:
 
   design_review:
     label: Design review
-    doc_type_scope: [legal, internal]
+    doc_type_scope: [legal, internal, reference]
     hard_filters:
-      doc_type: [legal, internal]
+      doc_type: [legal, internal, reference]
+      authority_tier: [legal_binding, engineering_ref, oem_internal, historical_data, synthetic]
     soft_boosts:
       chunk_type_table: 1.4
       has_requirements: 1.2
@@ -54,9 +56,10 @@ modes:
 
   root_cause_analysis:
     label: Root cause analysis
-    doc_type_scope: [legal, internal]
+    doc_type_scope: [legal, internal, reference]
     hard_filters:
-      doc_type: [legal, internal]
+      doc_type: [legal, internal, reference]
+      authority_tier: [legal_binding, engineering_ref, oem_internal, historical_data, synthetic]
     soft_boosts:
       has_loads: 1.3
       chunk_type_table: 1.2

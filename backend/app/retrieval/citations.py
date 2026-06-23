@@ -19,6 +19,12 @@ import os
 import re
 from typing import Any
 
+from backend.app.core.authority_tier import (
+    badge_for_tier,
+    chunk_authority_tier,
+    is_binding_tier,
+    label_for_tier,
+)
 from backend.app.core.document_registry import (
     DocumentMeta,
     doc_type_label,
@@ -95,6 +101,7 @@ def build_citation(doc: dict[str, Any], index: int) -> dict[str, Any]:
         rev = meta.indexed_revision or "revision unverified"
         revision_verified = meta.verified
     label = f"{meta.display_name} ({rev}), {locator}"
+    tier = chunk_authority_tier(doc) or meta.authority_tier
 
     return {
         "marker": f"S{index}",
@@ -104,7 +111,10 @@ def build_citation(doc: dict[str, Any], index: int) -> dict[str, Any]:
         "regulation": reg_code,
         "doc_type": meta.doc_type,
         "doc_type_label": doc_type_label(meta.doc_type),
-        "is_legal": meta.is_legal,
+        "authority_tier": tier,
+        "authority_tier_badge": badge_for_tier(tier),
+        "authority_tier_label": label_for_tier(tier),
+        "is_legal": is_binding_tier(tier),
         "authority": meta.authority,
         "revision": meta.indexed_revision or chunk_rev,
         "revision_verified": revision_verified,
@@ -258,6 +268,9 @@ def enrich_doc_provenance(
         "clause",
         "revision",
         "doc_type",
+        "authority_tier",
+        "license_status",
+        "impact_mode",
         "parent_id",
         "title",
     ):
@@ -660,3 +673,83 @@ def detect_category_value_misattribution(
                 ),
             })
     return flags
+
+
+_BINDING_LANGUAGE_RE = re.compile(
+    r"\b(required by (?:regulation|law)|legally required|must comply|shall|mandatory|"
+    r"is required|binding requirement|approval requirement)\b",
+    re.I,
+)
+_ADVISORY_DISCLOSURE_RE = re.compile(
+    r"\b(advisory|recommended|common practice|not legally binding|per (?:oem|internal)|"
+    r"rating protocol|engineering reference|historical evidence|synthetic)\b",
+    re.I,
+)
+
+
+def detect_authority_blur_flags(
+    answer: str,
+    citations: list[dict[str, Any]],
+    *,
+    should_abstain: bool = False,
+) -> list[dict[str, Any]]:
+    """Flag binding language when only non-legal_binding sources are cited."""
+    if should_abstain or not answer or not citations:
+        return []
+    if not _BINDING_LANGUAGE_RE.search(answer):
+        return []
+
+    cited_markers = extract_cited_markers(answer)
+    cited = [c for c in citations if c.get("marker") in cited_markers] if cited_markers else citations
+    if not cited:
+        return []
+
+    binding_cited = any(is_binding_tier(c.get("authority_tier")) for c in cited)
+    if binding_cited:
+        return []
+
+    non_binding_badges = sorted({
+        c.get("authority_tier_badge") or badge_for_tier(c.get("authority_tier"))
+        for c in cited
+    })
+    if _ADVISORY_DISCLOSURE_RE.search(answer):
+        return [{
+            "type": "authority_advisory_disclosed",
+            "message": (
+                "Answer uses binding-style language but cites only non-legal sources; "
+                "advisory framing is present."
+            ),
+        }]
+    return [{
+        "type": "authority_blur",
+        "message": (
+            "Answer states binding requirement language but cites only non-legal sources "
+            f"({', '.join(non_binding_badges)}). Must label as advisory/recommended."
+        ),
+    }]
+
+
+def score_authority_correctness(
+    answer: str,
+    citations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Part F metric: tier labels match registry and no advisory-as-binding."""
+    if not answer:
+        return {"authority_correctness": None, "passed": False, "issues": ["empty answer"]}
+    issues: list[str] = []
+    cited_markers = extract_cited_markers(answer)
+    cited = [c for c in citations if c.get("marker") in cited_markers] if cited_markers else citations
+    for c in cited:
+        tier = c.get("authority_tier")
+        badge = c.get("authority_tier_badge")
+        if tier and badge and badge != badge_for_tier(tier):
+            issues.append(f"badge mismatch for {c.get('marker')}")
+    blur = detect_authority_blur_flags(answer, citations)
+    if any(f["type"] == "authority_blur" for f in blur):
+        issues.append("advisory source presented as binding")
+    passed = len(issues) == 0
+    return {
+        "authority_correctness": 1.0 if passed else 0.0,
+        "passed": passed,
+        "issues": issues,
+    }

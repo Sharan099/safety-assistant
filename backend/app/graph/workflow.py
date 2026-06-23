@@ -27,6 +27,7 @@ from backend.app.retrieval.citations import (
     detect_category_value_misattribution,
     detect_knowledge_boundary_flags,
     detect_corpus_uncertainty_flags,
+    detect_authority_blur_flags,
     detect_scope_overclaim_flags,
     enrich_doc_provenance,
     validate_category_citation_authority,
@@ -102,6 +103,12 @@ def _build_grounded_context(
         should_use_grouped_context,
     )
 
+    from backend.app.retrieval.authority_filter import (
+        _TIER_SECTION_HEADERS,
+        split_docs_by_authority_tier,
+    )
+    from backend.app.core.authority_tier import AUTHORITY_TIERS
+
     char_cap = passage_char_budget(MAX_CONTEXT_TOKENS, len(documents), overhead_tokens=120)
 
     if should_use_grouped_context(documents, breadth_label=breadth_label):
@@ -117,40 +124,24 @@ def _build_grounded_context(
                 + grouped
             )
 
-    legal: list[str] = []
-    rating: list[str] = []
-    reference: list[str] = []
-
-    for d, c in zip(documents, citations):
-        raw = strip_chunk_boilerplate(d.get("text", "") or "")
-        text = raw[:char_cap]
-        parent = strip_chunk_boilerplate((d.get("parent_context", "") or "").strip())
-        block = (
-            f"[{c['marker']}] {c['label']} ({c['doc_type_label']})\n"
-            f"{text}"
-        )
-        if parent and parent[:60] not in text:
-            block += f"\n[section context] {parent[: min(300, char_cap // 2)]}"
-
-        if c["doc_type"] == "legal_regulation":
-            legal.append(block)
-        elif c["doc_type"] == "rating_protocol":
-            rating.append(block)
-        else:
-            reference.append(block)
-
+    tier_buckets = split_docs_by_authority_tier(documents, citations)
     parts: list[str] = []
-    if legal:
-        parts.append("=== LEGAL REGULATIONS (binding) ===\n" + "\n\n".join(legal))
-    if rating:
-        parts.append(
-            "=== RATING PROTOCOLS (consumer assessment, NOT legally binding) ===\n"
-            + "\n\n".join(rating)
-        )
-    if reference:
-        parts.append(
-            "=== ENGINEERING REFERENCES (non-binding) ===\n" + "\n\n".join(reference)
-        )
+    for tier in AUTHORITY_TIERS:
+        items = tier_buckets.get(tier, [])
+        if not items:
+            continue
+        header = _TIER_SECTION_HEADERS.get(tier, f"=== {tier.upper()} ===")
+        blocks: list[str] = []
+        for d, c in items:
+            raw = strip_chunk_boilerplate(d.get("text", "") or "")
+            text = raw[:char_cap]
+            badge = c.get("authority_tier_badge", "REF")
+            block = (
+                f"[{c['marker']}] [{badge}] {c['label']} ({c.get('authority_tier_label', c['doc_type_label'])})\n"
+                f"{text}"
+            )
+            blocks.append(block)
+        parts.append(header + "\n" + "\n\n".join(blocks))
     return "\n\n".join(parts)
 
 
@@ -628,6 +619,9 @@ class RAGWorkflow:
                 )
                 flags.extend(
                     detect_corpus_uncertainty_flags(query, answer, should_abstain=False)
+                )
+                flags.extend(
+                    detect_authority_blur_flags(answer, citations, should_abstain=False)
                 )
                 flags.extend(
                     detect_scope_overclaim_flags(

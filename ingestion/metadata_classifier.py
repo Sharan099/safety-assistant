@@ -291,10 +291,16 @@ def classify_chunk(
             clause = m.group(0)
 
     revision = meta.indexed_revision
+    authority_tier = fm.get("authority_tier") or meta.authority_tier
+    license_status = fm.get("license_status") or meta.license_status
+    if license_status not in ("public_domain", "licensed", "proprietary_internal", "review_needed"):
+        license_status = meta.license_status
 
     return {
         "doc_id": doc_id,
+        "regulation_id": doc_id,
         "doc_type": doc_type,
+        "authority_tier": authority_tier,
         "authority": authority,
         "region": region,
         "jurisdiction": test_type,
@@ -310,6 +316,7 @@ def classify_chunk(
         "vehicle_program": vehicle_program,
         "test_id": test_id,
         "CAE_model_version": cae_model_version,
+        "license_status": license_status,
     }
 
 

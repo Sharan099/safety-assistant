@@ -374,9 +374,9 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
         regulation = meta["regulation"]
     file_slug = _file_slug(md_path)
 
-    from ingestion.synthetic_chunker import chunk_synthetic_events, is_synthetic_markdown
+    from ingestion.event_chunker import chunk_event_document, is_event_document
 
-    if is_synthetic_markdown(md_path, meta):
+    if is_event_document(md_path, meta, regulation):
         def _mk(**kwargs):
             c = _make_chunk(**kwargs)
             c["text"] = _prepend_chunk_header(
@@ -388,7 +388,7 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
             )
             return c
 
-        events = chunk_synthetic_events(
+        events = chunk_event_document(
             md_path, text, meta,
             make_chunk=_mk,
             regulation=regulation,

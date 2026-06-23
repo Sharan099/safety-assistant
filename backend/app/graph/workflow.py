@@ -262,6 +262,7 @@ class RAGWorkflow:
             return state
         logger.info(f"Reranking {len(state.get('documents', []))} candidates...")
         with trace_span("rerank", {"candidates": len(state.get("documents", []))}) as span:
+            meta = state.get("metadata") or {}
             mode_name = meta.get("mode")
             from backend.app.core.modes import get_mode
 

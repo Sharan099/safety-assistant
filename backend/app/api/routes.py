@@ -65,6 +65,20 @@ class FeedbackRequest(BaseModel):
     answer: str | None = Field(default=None, max_length=8000)
 
 
+class AgentRequest(BaseModel):
+    crash_result: str = Field(..., min_length=1, max_length=8000)
+    vehicle: str | None = Field(default=None, max_length=200)
+    user_id: str | None = Field(default=None, max_length=64)
+    session_id: str | None = Field(default=None, max_length=64)
+
+
+class AgentResponse(BaseModel):
+    report: dict[str, Any] = {}
+    agent_outputs: dict[str, Any] = {}
+    citations: list[dict[str, Any]] = []
+    timing: dict[str, Any] = {}
+
+
 # ───────────────────────── health / readiness ─────────────────────────
 @router.get("/health")
 async def health() -> dict:
@@ -328,6 +342,44 @@ async def chat_stream(req: ChatRequest, request: Request) -> StreamingResponse:
             prom.ACTIVE_REQUESTS.dec()
 
     return StreamingResponse(ndjson(), media_type="application/x-ndjson")
+
+
+# ───────────────────────── multi-agent crew ─────────────────────────
+@router.post("/agent", response_model=AgentResponse)
+async def agent_crew(req: AgentRequest, request: Request) -> AgentResponse:
+    """Crash-development multi-agent crew (additive — does not replace /chat)."""
+    rate_limit(request, "agent", limit=10, window_s=60)
+    prom.ACTIVE_REQUESTS.inc()
+    t0 = time.perf_counter()
+    try:
+        from backend.app.agents.orchestrator import run_crew
+
+        logger.info(f"POST /agent vehicle={req.vehicle or 'n/a'} crash_len={len(req.crash_result)}")
+        result = await asyncio.to_thread(
+            run_crew,
+            req.crash_result,
+            vehicle=req.vehicle or "",
+            user_id=req.user_id,
+            session_id=req.session_id,
+        )
+        prom.REQUEST_LATENCY.labels(endpoint="agent", status="success").observe(
+            time.perf_counter() - t0
+        )
+        return AgentResponse(
+            report=result.get("report", {}),
+            agent_outputs=result.get("agent_outputs", {}),
+            citations=result.get("citations", []),
+            timing=result.get("timing", {}),
+        )
+    except Exception as exc:
+        prom.ERRORS_TOTAL.labels(error_type=type(exc).__name__).inc()
+        prom.REQUEST_LATENCY.labels(endpoint="agent", status="error").observe(
+            time.perf_counter() - t0
+        )
+        logger.exception("Agent crew failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    finally:
+        prom.ACTIVE_REQUESTS.dec()
 
 
 # ───────────────────────── documents (upload / manage) ─────────────────────────

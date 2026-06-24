@@ -1,0 +1,138 @@
+{
+  "modes": {
+    "authority_tier": [
+      {
+        "id": "AT01",
+        "query": "What Euro NCAP adult occupant score threshold applies to frontal impact?",
+        "mode": "regulation_lookup",
+        "expected_behavior": "advisory_framing",
+        "forbidden_in_answer": [
+          "required by regulation",
+          "legally required",
+          "shall comply"
+        ],
+        "must_contain_any": [
+          "recommended",
+          "rating",
+          "not legally binding",
+          "NCAP"
+        ]
+      },
+      {
+        "id": "AT02",
+        "query": "Is a 1,350 daN anchorage load required for M1 under UN R14?",
+        "mode": "regulation_lookup",
+        "expected_behavior": "legal_binding_only",
+        "must_cite_tier": "LEGAL"
+      },
+      {
+        "id": "AT03",
+        "query": "What does our internal CAE companion recommend for belt routing?",
+        "mode": "knowledge_reuse",
+        "forbidden_in_answer": [
+          "required by UN R14",
+          "legally required",
+          "must comply with regulation"
+        ],
+        "must_contain_any": [
+          "advisory",
+          "engineering",
+          "reference",
+          "recommended"
+        ]
+      }
+    ],
+    "root_cause": [
+      {
+        "id": "RCA01",
+        "query": "Anchorage failed at 1450 daN on PROG_X \u2014 what is the root cause?",
+        "mode": "root_cause_analysis",
+        "expected_contains_groups": [
+          [
+            "category",
+            "M1",
+            "vehicle",
+            "specify"
+          ]
+        ],
+        "must_not_invent_causes": true
+      },
+      {
+        "id": "RCA02",
+        "query": "PROG_X FT-001 anchorage margin below R14 threshold \u2014 trace causes",
+        "mode": "root_cause_analysis",
+        "expected_structure": [
+          "Observation",
+          "Evidence",
+          "Conclusion"
+        ]
+      },
+      {
+        "id": "RCA03",
+        "query": "Why did the rear centre anchorage test fail at 900 daN for M1?",
+        "mode": "root_cause_analysis",
+        "expected_citations_tier_any": [
+          "LEGAL",
+          "HISTORICAL",
+          "SYNTHETIC"
+        ]
+      }
+    ],
+    "design_review": [
+      {
+        "id": "DR01",
+        "query": "Upper anchorage moved 40 mm rearward \u2014 design review impact on UN R14",
+        "mode": "design_review",
+        "expected_contains": [
+          "50",
+          "mm"
+        ],
+        "checklist_format": true
+      },
+      {
+        "id": "DR02",
+        "query": "Design change: upper anchorage displaced 40mm \u2014 which \u00a76.4.x tests affected?",
+        "mode": "design_review",
+        "expected_contains_groups": [
+          [
+            "6.4"
+          ],
+          [
+            "revalidation",
+            "exemption",
+            "50"
+          ]
+        ]
+      },
+      {
+        "id": "DR03",
+        "query": "Moved upper anchorage 40mm rearward \u2014 kinematics risk assessment",
+        "mode": "design_review",
+        "if_no_kinematics_sources": "state not in corpus"
+      }
+    ]
+  },
+  "authority_scoring": {
+    "authority_correctness_rate": 1.0,
+    "results": [
+      {
+        "id": "AT01",
+        "authority_correctness": 1.0,
+        "passed": true,
+        "issues": []
+      },
+      {
+        "id": "AT02",
+        "authority_correctness": 1.0,
+        "passed": true,
+        "issues": []
+      },
+      {
+        "id": "AT03",
+        "authority_correctness": 1.0,
+        "passed": true,
+        "issues": []
+      }
+    ]
+  }
+}

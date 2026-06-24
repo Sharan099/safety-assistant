@@ -26,10 +26,13 @@ Q05_QUESTION = (
 
 class TestCorpusLock:
     def test_indexed_corpus_defined(self):
-        assert INDEXED_LEGAL_CORPUS == frozenset({"UN_R14", "UN_R16"})
+        assert INDEXED_LEGAL_CORPUS == frozenset({
+            "UN_R14", "UN_R16", "UN_R17", "UN_R94", "UN_R95",
+            "UN_R127", "UN_R135", "UN_R137", "FMVSS",
+        })
         assert "FMVSS_210" in GHOST_REGULATIONS
         assert not is_indexed_regulation("FMVSS_210")
-        assert not is_indexed_regulation("UN_R94")
+        assert is_indexed_regulation("UN_R94")
 
 
 class TestRequirementClusters:

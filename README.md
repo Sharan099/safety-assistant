@@ -1,15 +1,24 @@
-# PSA AI — Passive Safety RAG (v4.0)
+# PSA AI — Passive Safety Engineering Assistant (v5.0)
 
-Production RAG stack for passive safety regulations with **metadata-aware retrieval**
-(hard filters: frontal≠side, legal≠rating), **chunk-level metadata classifier**,
-**conditional answer formatting**, **document upload API**, and **CI regression gate**
-(`tests/golden_set.json`). Scanned PDFs are ingested with **PaddleOCR** and
-**hierarchical chunking** (`ingestion/`).
+Production RAG stack for passive safety with **authority-tiered multilayer knowledge**
+(six binding-force tiers from legal regulation through synthetic data), **eight use-case
+modes**, metadata-aware retrieval (frontal≠side, legal≠rating), **chunk-level metadata
+classifier**, conditional answer formatting, document upload API, and **CI regression
+gates**. Scanned PDFs are ingested with **PaddleOCR** (or **PyMuPDF** for text-layer
+PDFs) and **hierarchical chunking** (`ingestion/`).
 
-> **v4.0 — Corpus cleanup + metadata pipeline** (Jun 2026):
-> ISO 26262 and noise docs archived; **17 PDFs** / **14,554 chunks** active corpus.
-> Generation floor model → **`llama-3.3-70b-versatile`**. See
-> [`CLEANUP_REPORT.md`](CLEANUP_REPORT.md) and [`output/model_selection.md`](output/model_selection.md).
+> **v5.0 — Multilayer authority architecture** (Jun 2026):
+> Corpus expanded from the UN R14/R16 pilot to **14 active PDFs** (9 legal, 3 Euro NCAP,
+> 2 engineering references) plus **7 synthetic PROG_X** program documents.
+> **11,941 chunks** carry `authority_tier`, `impact_mode`, and `license_status` metadata.
+> Compliance queries hard-filter to `legal_binding` only; citations show **LEGAL / RATING /
+> ENG-REF / OEM / HISTORICAL / SYNTHETIC** badges. Restore archived PDFs with
+> `scripts/restore_from_archive.py`; evaluate with `scripts/run_multilayer_eval.py`.
+> See [Authority-tiered architecture](#authority-tiered-multilayer-architecture-v50).
+
+> **v4.0 — Metadata pipeline + gateway** (Jun 2026): chunk metadata classifier,
+> hard metadata filters, intelligent multi-LLM gateway (Groq → Haiku → Sonnet).
+> See [`CLEANUP_REPORT.md`](CLEANUP_REPORT.md) and [`output/model_selection.md`](output/model_selection.md).
 
 > **v3.1 — Retrieval model upgrade** (see [Evaluation results](#evaluation-results)):
 > embeddings upgraded to **`nomic-ai/nomic-embed-text-v1.5`** (task-prefixed, 768-dim)
@@ -53,17 +62,20 @@ React/Next.js Frontend
         ↓
    LangGraph Workflow
    ├── Guardrails (input)
+   ├── Mode router (8 use-case modes — config/modes.yaml)
    ├── Advanced Retriever
    │     User Query
+   │       ↓ Query intent          (compliance → binding authority only)
    │       ↓ Query Expansion        (domain synonyms + intent detection)
    │       ↓ Multi-Query Generation (N query variants)
    │       ↓ Hybrid Retrieval       (Dense + BM25 + RRF, per variant + multi-query fusion)
-   │       ↓ Metadata Filtering     (boost chunks matching query intent flags)
+   │       ↓ Authority + metadata   (tier filters, impact_mode, doc_type hard filters)
    │       ↓ Parent-Child Retrieval (precise child chunks + parent section context)
+   │       ↓ Applicability grouping (§6.4 seat/retractor clusters when k is broad)
    ├── Cross-Encoder Reranker        (BAAI/bge-reranker-v2-m3)
-   ├── Prompt builder
-   ├── Groq LLM
-   └── Guardrails (output: PII / unsafe warnings)
+   ├── Prompt builder                (tier-separated context sections + mode template)
+   ├── LLM Gateway                   (Groq 70B → Haiku → Sonnet; query-only routing)
+   └── Guardrails (output: PII / unsafe warnings; authority blur flags)
         ↓
    Response + observability
 ```
@@ -79,17 +91,101 @@ React/Next.js Frontend
 | Embeddings (semantic) | `nomic-ai/nomic-embed-text-v1.5` (768-dim, task-prefixed) |
 | Sparse retrieval | BM25 (`rank_bm25`) |
 | Fusion | Reciprocal Rank Fusion (RRF) + multi-query RRF |
-| Metadata filtering | chunk feature flags (`has_loads`, `has_test_procedure`, …) |
+| Metadata filtering | chunk feature flags + `authority_tier` / `impact_mode` hard filters |
+| Authority tiers | 6-tier closed vocabulary (`backend/app/core/authority_tier.py`) |
+| Use-case modes | 8 modes — `regulation_lookup`, `design_review`, `root_cause_analysis`, … |
 | Parent-child | child paragraph match + parent section context |
+| Applicability | §6.4 seat/retractor grouping (`applicability_grouping.py`) |
 | Reranker | `BAAI/bge-reranker-v2-m3` (cross-encoder) |
-| LLM | Groq `llama-3.3-70b-versatile` |
-| OCR ingestion | PaddleOCR / PP-OCR (RapidOCR ONNX fallback) |
+| LLM | Groq `llama-3.3-70b-versatile` (gateway tiers 1–3) |
+| OCR ingestion | PaddleOCR / PyMuPDF (`OCR_ENGINE=pymupdf` for text-layer PDFs) |
 | Observability | LangSmith (query, docs, prompt, response, latency) |
 | Monitoring | Prometheus + Grafana (cost, latency, tokens, errors) |
 | Evaluation | RAGAS + `tests/run_full_evaluation.py` (`tests/test_cases_20.json`) |
 
 > Note: `backend/app/graph/workflow.py` is the **LangGraph** orchestration graph,
 > not GraphRAG. GraphRAG (Neo4j KG) was removed.
+
+## Authority-tiered multilayer architecture (v5.0)
+
+Every source carries a mandatory **`authority_tier`** — a closed vocabulary ordered by
+binding force. The system is designed so a rating protocol or engineering guideline can
+never be presented as a legal requirement.
+
+| Tier | Badge | Meaning |
+|------|-------|---------|
+| `legal_binding` | **LEGAL** | UN/ECE, FMVSS — must comply |
+| `rating_protocol` | **RATING** | Euro NCAP — consumer assessment, not law |
+| `engineering_ref` | **ENG-REF** | CAE / safety companions — advisory |
+| `oem_internal` | **OEM** | Proprietary OEM standards |
+| `historical_data` | **HISTORICAL** | Past test / investigation evidence |
+| `synthetic` | **SYNTHETIC** | Program placeholders (PROG_X) — never cite as law |
+
+**Where it lives**
+
+| File | Responsibility |
+|------|----------------|
+| `backend/app/core/authority_tier.py` | Closed tier vocabulary, badges, binding/advisory helpers |
+| `backend/app/core/document_registry.py` | `authority_tier`, `region`, `impact_mode`, `license_status` per document |
+| `backend/app/retrieval/authority_filter.py` | Compliance queries → `binding_authority_only` |
+| `backend/app/retrieval/query_intent.py` | Detects compliance vs advisory intent |
+| `backend/app/retrieval/mode_filter.py` | Per-mode `authority_tier` hard filters (`config/modes.yaml`) |
+| `backend/app/graph/workflow.py` | Tier-separated prompt sections with inline badges |
+| `backend/app/retrieval/citations.py` | `authority_tier_badge`, `detect_authority_blur_flags()` |
+| `frontend/src/app/page.tsx` | Color-coded tier badges on every citation |
+
+**Active corpus** (`data/manifest/corpus_manifest.json`, `corpus_version` 4):
+
+| Category | Documents |
+|----------|-----------|
+| Legal (9) | UN R14, R16, R17, R94, R95, R127, R135, R137, FMVSS 208 |
+| Rating (3) | Euro NCAP frontal, side, overall protocols |
+| Reference (2) | CAE Companion, Safety Companion (licensed) |
+| Synthetic (7) | PROG_X crash tests, RCA, design review, CAE correlation |
+
+Archived PDFs (ISO 26262, CELEX noise, etc.) live in `archive/corpus_removed/` and can
+be restored selectively:
+
+```powershell
+conda activate rag
+python scripts/restore_from_archive.py          # copy planned PDFs → data/corpus/
+python scripts/restore_from_archive.py --dry-run
+```
+
+**Incremental ingest** (add one regulation after markdown exists):
+
+```powershell
+conda activate rag
+python scripts/incremental_regulation_ingest.py UN_R94 UN_R95
+```
+
+**Multilayer evaluation:**
+
+```powershell
+conda activate rag
+python scripts/run_multilayer_eval.py           # structural authority_correctness
+python scripts/run_multilayer_eval.py --full    # + live RAGAS judge
+```
+
+Output: `output/evaluation/multilayer/SUMMARY.md`
+
+### Use-case modes (`config/modes.yaml`)
+
+The chat API accepts `mode` on `POST /api/v1/chat`; list modes via `GET /api/v1/modes`.
+
+| Mode | Primary sources | Notes |
+|------|-----------------|-------|
+| `regulation_lookup` | Legal only (`legal_binding`) | Default; strictest compliance filter |
+| `test_preparation` | Legal | Procedure/checklist prompts |
+| `design_review` | Legal + ref + synthetic | §6.4 mapping, revalidation logic |
+| `root_cause_analysis` | Legal + ref + historical + synthetic | Observation → threshold → causes |
+| `crash_investigation` | Legal + internal | Load/table boosts |
+| `post_test_analysis` | Legal + internal | Measured-value comparison |
+| `knowledge_reuse` | Legal + internal | Program-aware browse |
+| `management_view` | Legal + internal | Executive summary template |
+
+Each mode sets `retrieval_k`, grounding thresholds, LLM tier floor, and hard filters on
+`doc_type` / `authority_tier` / `is_synthetic`.
 
 ### Retrieval tuning (`.env`)
 
@@ -115,7 +211,7 @@ React/Next.js Frontend
 | `RERANKER_MODEL` | `BAAI/bge-reranker-v2-m3` | Cross-encoder reranker over fused candidates |
 
 > Switching `EMBEDDING_MODEL` requires re-running the embedding build
-> (`conda activate rag` then `python ingestion/embed_chunks.py`) so
+> (`conda activate rag` then `python -m ingestion.embed_chunks`) so
 > `output/regulation_embeddings.json` matches.
 > To revert to a plain BGE bi-encoder, set `EMBEDDING_MODEL=BAAI/bge-base-en-v1.5`,
 > `EMBEDDING_TRUST_REMOTE_CODE=false`, and clear both prefixes.
@@ -129,17 +225,21 @@ grounding layer on top of retrieval.
 
 - **Structured citations.** Every retrieved passage becomes a citation carrying
   `document`, `page`/`section` (clause number when available, e.g. `§6.4.2`),
-  `revision/amendment`, and `doc_type`. Markers `[S1] [S2] …` are injected into
-  the LLM context and the prompt requires an inline citation after every claim.
+  `revision/amendment`, `doc_type`, and **`authority_tier_badge`** (`LEGAL`, `RATING`,
+  `ENG-REF`, …). Markers `[S1] [S2] …` are injected into the LLM context and the
+  prompt requires an inline citation after every claim.
 - **Confidence gate / abstention.** If the top retrieval confidence is below a
   threshold, the bot replies *"I don't know — not found in the corpus"* instead
   of generating. Confidence uses the raw semantic cosine (and the cross-encoder
   probability when the reranker is on).
-- **Legal vs rating separation.** A document registry tags each source as a
-  **legal regulation** (binding — UN/ECE, FMVSS), a **rating protocol**
-  (Euro NCAP — not legally binding), or an engineering reference. Context is
-  grouped by type and the prompt forbids blurring them. The UI shows a
-  `Legal` / `Rating` badge per source.
+- **Authority-tier separation.** Context is grouped into tier-separated sections in
+  the prompt. The system forbids using *required/shall/must comply* language when only
+  advisory tiers (RATING, ENG-REF, HISTORICAL, SYNTHETIC) are cited.
+  `detect_authority_blur_flags()` flags answers that blur binding vs advisory sources.
+- **Legal vs rating (legacy doc_type).** The document registry still tags each source
+  as **legal regulation**, **rating protocol**, **engineering reference**, or
+  **internal/synthetic**. Hard filters prevent frontal-impact queries from surfacing
+  side-impact regulations when `impact_mode` differs.
 - **Multi-revision flag.** When a cited legal regulation has multiple revisions
   (e.g. UN R14 Rev.7, UN R16 Rev.10), the answer carries a flag prompting the
   user to confirm the applicable version.
@@ -148,11 +248,12 @@ grounding layer on top of retrieval.
 
 | File | Responsibility |
 |------|----------------|
-| `backend/app/core/document_registry.py` | Source of truth: doc type, authority, indexed revision, known revisions |
-| `backend/app/retrieval/citations.py` | Page/section parsing, citation building, grounding assessment, answer flags |
-| `backend/app/graph/workflow.py` | Grounded context, grounding gate, citation-aware prompt |
-| `backend/app/api/routes.py` | Returns `citations`, `flags`, `grounding` |
-| `frontend/src/app/page.tsx` | Citation cards, Legal/Rating badges, revision/abstain banners, export |
+| `backend/app/core/document_registry.py` | Source of truth: doc type, authority tier, indexed revision, impact_mode |
+| `backend/app/core/authority_tier.py` | Six-tier vocabulary and badge labels |
+| `backend/app/retrieval/citations.py` | Citations, grounding assessment, authority blur detection |
+| `backend/app/graph/workflow.py` | Tier-separated grounded context, grounding gate, mode templates |
+| `backend/app/api/routes.py` | Returns `citations`, `flags`, `grounding`, `mode` |
+| `frontend/src/app/page.tsx` | Citation cards, tier badges, revision/abstain banners, export |
 
 **Config (`.env`)**
 
@@ -260,6 +361,9 @@ detection, conversation depth and feedback history.
 
 **Key properties**
 
+- **Query-only routing.** Complexity scoring and capability escalation inspect the
+  **user query only** — not the full RAG prompt (retrieved passages). This prevents
+  every query from being forced to Tier 3 when context contains numbers/clauses.
 - **OFF by default.** `ENABLE_GATEWAY=false` → the workflow uses Groq exactly as
   in v2.2. Turning it on never removes a capability.
 - **Fail-open.** If the Anthropic key is missing or Redis is down, the gateway
@@ -452,6 +556,9 @@ docker compose up --build
 ML deps (torch, sentence-transformers, paddle/rapidocr) live in a conda env named
 **`rag`**. Run all Python from that env so the models resolve correctly.
 
+> **Windows:** use `conda activate rag` in each shell session. Do **not** use
+> `conda run -n rag` — it can segfault when loading `sentence-transformers`.
+
 ```bash
 conda activate rag
 pip install -r requirements.txt
@@ -479,12 +586,14 @@ You can override this with `NEXT_PUBLIC_API_URL`.
 You are running anaconda *base* instead of the `rag` env. Run `conda activate rag` first.
 
 **Crash with exit code `0xC0000005` (Windows access violation)**
-This is a torch/OpenMP DLL clash. The repo `.env` sets the fix:
+Usually a torch/OpenMP DLL clash or wrong Python env. Fixes:
 ```env
 KMP_DUPLICATE_LIB_OK=TRUE
 OMP_NUM_THREADS=1
 ```
-For OCR, also use `OCR_BACKEND=rapidocr` (PP-OCR via ONNX) instead of native Paddle.
+Run all ML work after `conda activate rag` — **never** `conda run -n rag`.
+For OCR, use `OCR_ENGINE=pymupdf` on text-layer UN/ECE PDFs, or `OCR_BACKEND=rapidocr`
+if native Paddle crashes.
 
 **Slow / empty chat**
 1. Set **`GROQ_API_KEY`** in `.env` (required for answers).
@@ -501,6 +610,13 @@ For OCR, also use `OCR_BACKEND=rapidocr` (PP-OCR via ONNX) instead of native Pad
 > (hybrid + RRF ranking is still used). GPU inference removes most of this cost.
 
 ### 4. Verify retrieval & run evaluation
+
+**Structural multilayer eval (authority correctness, no LLM quota):**
+
+```powershell
+conda activate rag
+python scripts/run_multilayer_eval.py
+```
 
 **20 questions (canonical set — regulations + guardrails):**
 
@@ -528,26 +644,26 @@ Outputs under `output/evaluation/current/` (legacy runs in `output/evaluation/ar
 ```
 AutoSafety_RAG/
 ├── backend/app/          # FastAPI + LangGraph + hybrid retrieval + document API
-│   ├── retrieval/        #   hybrid.py, query_intent.py, reranker.py, citations.py
-│   ├── graph/            #   LangGraph workflow + output sanitizer hook
+│   ├── retrieval/        #   hybrid.py, query_intent.py, authority_filter.py, citations.py
+│   ├── graph/            #   LangGraph workflow + prompt_templates.py
 │   ├── guardrails/       #   input/output validation + output_sanitizer.py
-│   └── core/             #   document_registry.py, document_service.py, store
+│   └── core/             #   authority_tier.py, document_registry.py, modes.py
 ├── ingestion/            # OCR → chunk → embed pipeline (NOT under data/)
-│   ├── paddle_ocr_converter.py
-│   ├── docling_converter.py
-│   ├── hierarchical_chunker.py
+│   ├── paddle_ocr_converter.py / docling_converter.py
+│   ├── hierarchical_chunker.py   # clause deps, table enrichment, event chunker
 │   ├── metadata_classifier.py
-│   ├── quality_gate.py
-│   └── embed_chunks.py
-├── frontend/             # Next.js UI + DocumentManager upload panel
+│   ├── clause_dependencies.py / table_structure_enrichment.py
+│   └── embed_chunks.py           # resumable; checkpoints every EMBED_SAVE_EVERY
+├── config/
+│   └── modes.yaml        # 8 use-case modes (hard filters, prompts, tier floors)
+├── frontend/             # Next.js UI + mode selector + tier badges
 ├── data/
-│   ├── corpus/           # Active PDFs only (legal / rating / reference)
-│   └── manifest/         # corpus_manifest.json
-├── archive/              # Removed PDFs (gitignored — local backup only)
-├── scripts/              # run_ingestion_pipeline.py, prepare_hf_space.ps1, …
+│   ├── corpus/           # legal / rating / reference / synthetic PDFs
+│   └── manifest/         # corpus_manifest.json (corpus_version 4)
+├── archive/              # corpus_removed/ — offline PDF backups (gitignored)
+├── scripts/              # restore_from_archive.py, embed_chunks.ps1, run_multilayer_eval.py, …
 ├── output/               # markdown, chunks, embeddings, evaluation
-├── config.py             # Models, SYSTEM_PROMPT, paths
-├── tests/                # golden_set.json, regression gate, unit tests
+├── tests/                # golden_set.json, test_authority_tier.py, regression gates
 └── deploy/hf-space/      # HF Docker Space templates
 ```
 
@@ -564,9 +680,11 @@ AutoSafety_RAG/
 | `tests/`, `scripts/`, `deploy/`, `CLEANUP_REPORT.md` | `output/ocr_compare/` |
 | `.env.example`, `.gitattributes`, `Dockerfile.backend` | Regenerable: `verify_retrieval.json` |
 
-**Corpus today:** 17 PDFs → 14,554 chunks → 14,554 embeddings (1:1).
+**Corpus today:** **14 PDFs** + **7 synthetic** markdown docs → **11,941 chunks**
+(`output/regulation_chunks.json`). Re-embed after chunking so vector count matches
+(`output/regulation_embeddings.json` — resumable checkpoints).
 
-## Offline data pipeline (PaddleOCR + hierarchical chunking)
+## Offline data pipeline (OCR + hierarchical chunking)
 
 Recommended pipeline for **scanned PDFs** (low memory on Windows):
 
@@ -574,14 +692,27 @@ Recommended pipeline for **scanned PDFs** (low memory on Windows):
 conda activate rag
 pip install -r requirements.txt
 
-# Full pipeline: PDF -> Markdown (PaddleOCR) -> hierarchical chunks -> embeddings
+# Full pipeline: PDF -> Markdown -> hierarchical chunks -> embeddings
 python scripts/run_ingestion_pipeline.py
 
-# Faster dev run (UN R14 + R16 only):
+# Subset (e.g. belt regulations only):
 python scripts/run_ingestion_pipeline.py --only UN_R14 UN_R16
+
+# Text-layer PDFs on Windows (avoid Paddle segfault):
+$env:OCR_ENGINE="pymupdf"
+python scripts/run_ingestion_pipeline.py --only UN_R94 --skip-chunk --skip-embed
 
 # Reuse existing markdown, only re-chunk + embed:
 python scripts/run_ingestion_pipeline.py --skip-docling
+```
+
+**Restore archived regulations** (from `archive/corpus_removed/`):
+
+```powershell
+conda activate rag
+python scripts/restore_from_archive.py
+python -m ingestion.hierarchical_chunker
+.\scripts\embed_chunks.ps1
 ```
 
 **PaddleOCR / PP-OCR** (default `OCR_ENGINE=paddle`):
@@ -595,7 +726,7 @@ python scripts/run_ingestion_pipeline.py --skip-docling
 
 `OCR_BACKEND`: `auto` | `paddle` | `rapidocr` (use `rapidocr` on Windows if you see exit code `0xC0000005`).
 
-Alternative: `OCR_ENGINE=docling` or `OCR_ENGINE=pymupdf`.
+Alternative: `OCR_ENGINE=docling` | `OCR_ENGINE=pymupdf` (preferred for UN/ECE text-layer PDFs on Windows).
 
 ### OCR benchmark — Docling 2.103 vs PaddleOCR 3.7 (UN R14.pdf)
 
@@ -626,9 +757,18 @@ Steps:
 | 2. Hierarchical chunk | `ingestion/hierarchical_chunker.py` | `output/regulation_chunks.json` |
 | 3. Embed | `ingestion/embed_chunks.py` | `output/regulation_embeddings.json` |
 
+```powershell
+conda activate rag
+python -m ingestion.embed_chunks
+# or: .\scripts\embed_chunks.ps1   (activates rag + runs embed)
+```
+
 After ingestion, **restart the backend** to load new artifacts.
 
-Set `EMBEDDING_BATCH=4` in `.env` if embedding still runs out of memory on CPU.
+Set `EMBEDDING_BATCH=4` (or `8`) in `.env` on CPU. Use `EMBED_SAVE_EVERY=100` for
+frequent checkpoints during long re-embeds. On Windows, always `conda activate rag`
+before embedding — do **not** use `conda run -n rag` (access violation with
+`sentence-transformers`).
 
 ## Evaluation results
 
@@ -732,15 +872,20 @@ RAGAS metrics below are **LLM-judged by Groq** (all 60 judge jobs completed).
 `output/evaluation/rag_full_evaluation_results.json` — **60 regulation + 10 guardrail**  
 Mode: `EVAL_SKIP_LLM=true` (proxy answers). Overall score **0.401**; hybrid recall **+22%**.
 
-### Corpus scale (indexed today)
+### Corpus scale (indexed today — v5.0 multilayer)
 
 | Stat | Value |
 |------|-------|
-| Regulation PDFs in repo | **37** |
-| PDFs indexed (OCR markdown) | **2** (UN R14, UN R16) |
-| Pages in markdown | **148** |
-| Chunks indexed | **1,572** |
-| Embedding vectors | **1,572** (`nomic-ai/nomic-embed-text-v1.5`) |
+| Active PDFs in `data/corpus/` | **14** (9 legal + 3 rating + 2 reference) |
+| Synthetic program docs | **7** (`data/corpus/synthetic/`, PROG_X) |
+| Markdown files | **21** (`output/markdown/`) |
+| Chunks | **11,941** (all carry `authority_tier`) |
+| Embedding vectors | Must match chunk count (re-embed after corpus changes) |
+| Indexed legal corpus | UN R14, R16, R17, R94, R95, R127, R135, R137, FMVSS |
+
+Prior evaluation baselines (1,572-chunk pilot, 28k-chunk v3.2 run) are archived under
+`output/evaluation/archive/`. Current multilayer structural eval:
+`output/evaluation/multilayer/`.
 
 ### RAGAS-style metrics (hybrid + RRF + BGE rerank)
 
@@ -877,8 +1022,8 @@ question** and default to brevity:
 | Analysis / reasoning | structured but concise, no filler |
 
 Core rules are unchanged in spirit but tightened: answer **only** from retrieved
-context, **cite `[S#]` after every claim**, never blur **legal regulations**
-(UN/ECE, FMVSS) with **rating protocols** (Euro NCAP), and flag multiple revisions.
+context, **cite `[S#]` after every claim**, never blur **authority tiers** (LEGAL vs
+RATING vs ENG-REF vs SYNTHETIC), and flag multiple revisions.
 
 **Exact edge-case replies** (kept extremely short to minimise tokens):
 
@@ -965,7 +1110,8 @@ Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 cd H:\AutoSafety_RAG
 conda activate rag
 python -m pytest tests/test_phase0_audit.py tests/test_metadata_classifier.py `
-  tests/test_retrieval_filtering.py tests/test_regression_gate.py -q
+  tests/test_retrieval_filtering.py tests/test_regression_gate.py `
+  tests/test_authority_tier.py tests/test_gateway_tier_routing.py -q
 python scripts/verify_retrieval.py
 ```
 
@@ -998,7 +1144,7 @@ git add output/regulation_chunks.json output/regulation_embeddings.json `
 git status
 # Confirm: NO .env, NO archive/, NO *.log, embeddings.json shows as LFS
 
-git commit -m "v4: metadata filtering, 17-doc corpus, 14.5k chunks, document upload API"
+git commit -m "v5: multilayer authority tiers, 14-PDF corpus, 11.9k chunks"
 
 git push origin main
 git lfs push origin main --all
@@ -1009,7 +1155,7 @@ git lfs push origin main --all
 ```powershell
 conda activate rag
 python -c "import json; e=json.load(open('output/regulation_embeddings.json',encoding='utf-8')); print('vectors', len(e['embeddings']))"
-# Expect: vectors 14554
+# Expect: vectors 11941 (must match chunk count)
 ```
 
 ---
@@ -1037,7 +1183,7 @@ git add Dockerfile requirements.txt README.md config.py `
 git status
 # regulation_embeddings.json must show as LFS
 
-git commit -m "Deploy PSA backend v4 — metadata filter + 14.5k chunks"
+git commit -m "Deploy PSA backend v5 — multilayer corpus + authority tiers"
 git push
 ```
 
@@ -1089,8 +1235,8 @@ Chat streams directly to HF (`/chat/stream` keepalive) to avoid Vercel 60s timeo
 
 1. Open [safety-assistant-tan.vercel.app](https://safety-assistant-tan.vercel.app/)
 2. Ask: *"What are the UN R14 seat belt anchorage strength requirements?"*
-3. Answer cites `[S#]` sources; no ISO 26262 content.
-4. Sidebar **Document manager** lists 17 indexed docs.
+3. Answer cites `[S#]` sources with **LEGAL** badges; no ISO 26262 content.
+4. Try mode **Root cause analysis** — advisory tiers labeled separately from legal.
 
 ---
 

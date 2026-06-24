@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { apiChatStream, apiFetch, formatApiError } from "@/lib/api";
+import { apiChatStream, apiFetch, apiAgentCrew, formatApiError, type CrewPayload } from "@/lib/api";
 import { DocumentManager } from "@/components/DocumentManager";
 
 function authorityBadgeClass(badge?: string): string {
@@ -170,6 +170,11 @@ const EXAMPLE_QUESTIONS = [
   "How does Euro NCAP assess frontal crash protection?",
 ];
 
+const SAMPLE_CRASH_TABLE = `Metric | Target | Actual
+Chest Deflection | 34 mm | 42 mm
+HIC15 | 650 | 580
+Femur Load | 8 kN | 6 kN`;
+
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [nameInput, setNameInput] = useState("");
@@ -185,6 +190,10 @@ export default function Home() {
   const [role, setRole] = useState<"engineer" | "manager">("engineer");
   const [loading, setLoading] = useState(false);
   const [loadingSec, setLoadingSec] = useState(0);
+  const [uiMode, setUiMode] = useState<"chat" | "crew">("chat");
+  const [crashInput, setCrashInput] = useState(SAMPLE_CRASH_TABLE);
+  const [vehicleInput, setVehicleInput] = useState("");
+  const [crewResult, setCrewResult] = useState<CrewPayload | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const sendLockRef = useRef(false);
 
@@ -283,6 +292,37 @@ export default function Home() {
   }
 
   const canChat = Boolean(user) && Boolean(ready?.ready) && !loading;
+  const canCrew = Boolean(user) && Boolean(ready?.ready) && !loading;
+
+  async function runCrew() {
+    const table = crashInput.trim();
+    if (!table || !canCrew || sendLockRef.current) return;
+    sendLockRef.current = true;
+    setCrewResult(null);
+    setLoading(true);
+    setLoadingSec(0);
+    const tick = setInterval(() => setLoadingSec((s) => s + 1), 1000);
+    try {
+      const data = await apiAgentCrew({
+        crash_result: table,
+        vehicle: vehicleInput.trim() || undefined,
+        user_id: user?.user_id,
+        session_id: user?.session_id,
+      });
+      setCrewResult(data);
+    } catch (e) {
+      setCrewResult({
+        report: { summary: `Error: ${formatApiError(e)}` },
+        agent_outputs: {},
+        citations: [],
+        timing: {},
+      });
+    } finally {
+      clearInterval(tick);
+      setLoading(false);
+      sendLockRef.current = false;
+    }
+  }
 
   async function send() {
     const q = input.trim();
@@ -547,10 +587,30 @@ export default function Home() {
       <div className="main-col">
       <header className="header">
         <div>
-          <h1>Chat</h1>
-          <p>Ask about UN/ECE regulations, FMVSS, Euro NCAP, and engineering reference handbooks</p>
+          <h1>{uiMode === "chat" ? "Chat" : "Crash Crew"}</h1>
+          <p>
+            {uiMode === "chat"
+              ? "Ask about UN/ECE regulations, FMVSS, Euro NCAP, and engineering reference handbooks"
+              : "Multi-agent crash-development report from a metrics table"}
+          </p>
         </div>
         <div className="who">
+          <div className="mode-toggle" role="tablist" aria-label="Chat or Crew">
+            <button
+              type="button"
+              className={uiMode === "chat" ? "mode-active" : ""}
+              onClick={() => setUiMode("chat")}
+            >
+              Chat
+            </button>
+            <button
+              type="button"
+              className={uiMode === "crew" ? "mode-active" : ""}
+              onClick={() => setUiMode("crew")}
+            >
+              Crew
+            </button>
+          </div>
           <span className="user-pill">👤 {user.username}</span>
           <button className="link" onClick={resetUser}>
             Switch user
@@ -576,6 +636,7 @@ export default function Home() {
         </div>
       )}
 
+      {uiMode === "chat" ? (
       <section className="chat">
         {messages.length === 0 && (
           <div className="empty">
@@ -871,7 +932,66 @@ export default function Home() {
         )}
         <div ref={chatEndRef} />
       </section>
+      ) : (
+      <section className="chat crew-panel">
+        <div className="empty">
+          <h2>Crash development crew</h2>
+          <p>Paste a crash metrics table (metric / target / actual). Six specialist agents produce a structured engineering report.</p>
+        </div>
+        {crewResult && (
+          <article className="bubble assistant">
+            <div className="mgmt-view">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {crewResult.report?.summary || "_No summary_"}
+              </ReactMarkdown>
+            </div>
+            {crewResult.report?.failing_metrics && crewResult.report.failing_metrics.length > 0 && (
+              <div className="crew-section">
+                <h4>Failing metrics</h4>
+                <ul>{crewResult.report.failing_metrics.map((m) => <li key={m}>{m}</li>)}</ul>
+              </div>
+            )}
+            {crewResult.report?.countermeasures && crewResult.report.countermeasures.length > 0 && (
+              <div className="crew-section">
+                <h4>Countermeasures</h4>
+                <ul>{crewResult.report.countermeasures.map((c) => <li key={c}>{c}</li>)}</ul>
+              </div>
+            )}
+            {crewResult.report?.action_items && crewResult.report.action_items.length > 0 && (
+              <div className="crew-section">
+                <h4>Action items</h4>
+                <ul>{crewResult.report.action_items.map((a) => <li key={a}>{a}</li>)}</ul>
+              </div>
+            )}
+            {crewResult.citations && crewResult.citations.length > 0 && (
+              <div className="sources">
+                <h4>Sources</h4>
+                <ul className="citation-list">
+                  {(crewResult.citations as Citation[]).map((c) => (
+                    <li key={c.marker}>
+                      <span className={`badge ${authorityBadgeClass(c.authority_tier_badge)}`}>
+                        {c.authority_tier_badge || "REF"}
+                      </span>
+                      <strong>{c.marker}</strong> {c.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {crewResult.timing?.total_ms != null && (
+              <p className="timing">Crew completed in {Math.round(crewResult.timing.total_ms / 1000)}s</p>
+            )}
+          </article>
+        )}
+        {loading && (
+          <p className="loading">
+            Running 6-agent crew… {loadingSec > 0 ? `(${loadingSec}s)` : ""} This may take 1–3 min on CPU.
+          </p>
+        )}
+      </section>
+      )}
 
+      {uiMode === "chat" ? (
       <footer className="composer">
         <textarea
           value={input}
@@ -894,6 +1014,27 @@ export default function Home() {
           {warming ? "Warming up…" : "Send"}
         </button>
       </footer>
+      ) : (
+      <footer className="composer crew-composer">
+        <input
+          className="vehicle-input"
+          value={vehicleInput}
+          onChange={(e) => setVehicleInput(e.target.value)}
+          placeholder="Vehicle (optional)"
+          disabled={!canCrew}
+        />
+        <textarea
+          value={crashInput}
+          onChange={(e) => setCrashInput(e.target.value)}
+          placeholder="Metric | Target | Actual&#10;Chest Deflection | 34 mm | 42 mm"
+          rows={5}
+          disabled={!canCrew}
+        />
+        <button onClick={runCrew} disabled={!canCrew || !crashInput.trim()}>
+          {warming ? "Warming up…" : "Run crew"}
+        </button>
+      </footer>
+      )}
 
       <style jsx>{appCss}</style>
       </div>
@@ -1055,6 +1196,18 @@ const appCss = `
   }
   .header h1 { margin: 0; font-size: 1.45rem; }
   .header p { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.88rem; max-width: 36rem; }
+  .mode-toggle { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .mode-toggle button {
+    padding: 0.35rem 0.85rem; border: none; background: #fff; cursor: pointer; font-size: 0.85rem;
+  }
+  .mode-toggle .mode-active { background: var(--accent-soft); font-weight: 600; }
+  .crew-section { margin-top: 0.75rem; }
+  .crew-section h4 { margin: 0 0 0.35rem; font-size: 0.9rem; }
+  .crew-composer { flex-wrap: wrap; }
+  .vehicle-input {
+    flex: 0 0 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border);
+    border-radius: 10px; font-size: 0.9rem;
+  }
   .who { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; font-size: 0.85rem; }
   .user-pill {
     background: var(--surface); border: 1px solid var(--border);

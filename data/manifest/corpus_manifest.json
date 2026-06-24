@@ -1,22 +1,181 @@
 {
-  "corpus_version": 3,
-  "pilot": true,
-  "scope": "UN_R14 + UN_R16",
-  "total_pdfs": 2,
+  "corpus_version": 4,
+  "pilot": false,
+  "scope": "multilayer UN/ECE + FMVSS + NCAP + references",
+  "total_pdfs": 14,
   "documents": [
+    {
+      "path": "data\\corpus\\legal\\FMVSS_208.pdf",
+      "name": "FMVSS_208.pdf",
+      "category": "legal",
+      "regulation": "FMVSS",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "general",
+      "license_status": "public_domain"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R127.pdf",
+      "name": "UN_R127.pdf",
+      "category": "legal",
+      "regulation": "UN_R127",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "general",
+      "license_status": "public_domain"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R135.pdf",
+      "name": "UN_R135.pdf",
+      "category": "legal",
+      "regulation": "UN_R135",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "pole_side",
+      "license_status": "public_domain"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R137.pdf",
+      "name": "UN_R137.pdf",
+      "category": "legal",
+      "regulation": "UN_R137",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "frontal",
+      "license_status": "public_domain"
+    },
     {
       "path": "data\\corpus\\legal\\UN_R14.pdf",
       "name": "UN_R14.pdf",
       "category": "legal",
-      "doc_type": "legal",
-      "authority": "UN-ECE"
+      "regulation": "UN_R14",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "belt",
+      "license_status": "public_domain"
     },
     {
       "path": "data\\corpus\\legal\\UN_R16.pdf",
       "name": "UN_R16.pdf",
       "category": "legal",
-      "doc_type": "legal",
-      "authority": "UN-ECE"
+      "regulation": "UN_R16",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "belt",
+      "license_status": "public_domain"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R17.pdf",
+      "name": "UN_R17.pdf",
+      "category": "legal",
+      "regulation": "UN_R17",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "seat",
+      "license_status": "public_domain"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R94.pdf",
+      "name": "UN_R94.pdf",
+      "category": "legal",
+      "regulation": "UN_R94",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "frontal",
+      "license_status": "public_domain"
+    },
+    {
+      "path": "data\\corpus\\legal\\UN_R95.pdf",
+      "name": "UN_R95.pdf",
+      "category": "legal",
+      "regulation": "UN_R95",
+      "doc_type": "legal_regulation",
+      "authority_tier": "legal_binding",
+      "impact_mode": "side",
+      "license_status": "public_domain"
+    },
+    {
+      "path": "data\\corpus\\rating\\EURO_NCAP_FRONTAL.pdf",
+      "name": "EURO_NCAP_FRONTAL.pdf",
+      "category": "rating",
+      "regulation": "EURO_NCAP",
+      "doc_type": "rating_protocol",
+      "authority_tier": "rating_protocol",
+      "impact_mode": "general",
+      "license_status": "licensed"
+    },
+    {
+      "path": "data\\corpus\\rating\\EURO_NCAP_OVERALL.pdf",
+      "name": "EURO_NCAP_OVERALL.pdf",
+      "category": "rating",
+      "regulation": "EURO_NCAP",
+      "doc_type": "rating_protocol",
+      "authority_tier": "rating_protocol",
+      "impact_mode": "general",
+      "license_status": "licensed"
+    },
+    {
+      "path": "data\\corpus\\rating\\EURO_NCAP_SIDE.pdf",
+      "name": "EURO_NCAP_SIDE.pdf",
+      "category": "rating",
+      "regulation": "EURO_NCAP",
+      "doc_type": "rating_protocol",
+      "authority_tier": "rating_protocol",
+      "impact_mode": "general",
+      "license_status": "licensed"
+    },
+    {
+      "path": "data\\corpus\\reference\\CAE_REFERENCE.pdf",
+      "name": "CAE_REFERENCE.pdf",
+      "category": "reference",
+      "regulation": "CAE_REFERENCE",
+      "doc_type": "reference",
+      "authority_tier": "engineering_ref",
+      "impact_mode": "general",
+      "license_status": "licensed"
+    },
+    {
+      "path": "data\\corpus\\reference\\SAFETY_REFERENCE.pdf",
+      "name": "SAFETY_REFERENCE.pdf",
+      "category": "reference",
+      "regulation": "SAFETY_REFERENCE",
+      "doc_type": "reference",
+      "authority_tier": "engineering_ref",
+      "impact_mode": "general",
+      "license_status": "licensed"
+    },
+    {
+      "path": "data\\corpus\\historical\\NCAP_2024_toyota_camry_19427.md",
+      "name": "NCAP_2024_toyota_camry_19427.md",
+      "category": "historical",
+      "regulation": "NCAP_2024_TOYOTA_CAMRY_19427",
+      "doc_type": "internal",
+      "authority_tier": "historical_data",
+      "impact_mode": "general",
+      "license_status": "public",
+      "region": "US"
+    },
+    {
+      "path": "data\\corpus\\historical\\NCAP_2024_hyundai_elantra_19543.md",
+      "name": "NCAP_2024_hyundai_elantra_19543.md",
+      "category": "historical",
+      "regulation": "NCAP_2024_HYUNDAI_ELANTRA_19543",
+      "doc_type": "internal",
+      "authority_tier": "historical_data",
+      "impact_mode": "general",
+      "license_status": "public",
+      "region": "US"
+    },
+    {
+      "path": "data\\corpus\\historical\\NCAP_2023_nissan_altima_18390.md",
+      "name": "NCAP_2023_nissan_altima_18390.md",
+      "category": "historical",
+      "regulation": "NCAP_2023_NISSAN_ALTIMA_18390",
+      "doc_type": "internal",
+      "authority_tier": "historical_data",
+      "impact_mode": "general",
+      "license_status": "public",
+      "region": "US"
     }
   ]
 }

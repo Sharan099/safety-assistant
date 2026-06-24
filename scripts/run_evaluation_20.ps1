@@ -7,6 +7,11 @@ $env:EVAL_RESULTS_NAME = "rag_eval_20_results.json"
 $env:EVAL_PNG_SUFFIX = "_20"
 
 Write-Host "Running evaluation with Groq LLM (20 questions)..."
-& "C:\Users\HP\anaconda3\envs\rag\python.exe" tests/run_full_evaluation.py
+conda activate rag
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to activate conda env 'rag'. Run: conda activate rag"
+    exit 1
+}
+python tests/run_full_evaluation.py
 
 Write-Host "Done. Results: output/evaluation/rag_eval_20_results.json"

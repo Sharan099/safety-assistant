@@ -25,8 +25,11 @@ Fields marked `verified=False` must be confirmed before they are trusted.
 
 from __future__ import annotations
 
+import json
 import os
+import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from backend.app.core.authority_tier import (
     ENGINEERING_REF,
@@ -158,6 +161,13 @@ _REGISTRY: dict[str, DocumentMeta] = {
         authority="UNECE (UN Regulation)", region="EU", impact_mode="frontal",
         license_status="public_domain", indexed_revision=None, verified=False,
     ),
+    "UN_R127": DocumentMeta(
+        code="UN_R127", display_name="UN R127",
+        full_title="Steering equipment",
+        doc_type=LEGAL_REGULATION, authority_tier=LEGAL_BINDING,
+        authority="UNECE (UN Regulation)", region="EU", impact_mode="general",
+        license_status="public_domain", indexed_revision=None, verified=False,
+    ),
     "FMVSS": DocumentMeta(
         code="FMVSS", display_name="FMVSS",
         full_title="Federal Motor Vehicle Safety Standards (49 CFR Part 571)",
@@ -242,7 +252,7 @@ _REGISTRY: dict[str, DocumentMeta] = {
 # ── Indexed corpus lock (Phase 0 pilot) ─────────────────────────────────────
 # Pilot scope: UN R14 + UN R16 only. Expand when scaling to full corpus.
 INDEXED_LEGAL_CORPUS: frozenset[str] = frozenset({
-    "UN_R14", "UN_R16",
+    "UN_R14", "UN_R16", "UN_R17", "UN_R94", "UN_R95", "UN_R127", "UN_R135", "UN_R137", "FMVSS",
 })
 
 # FMVSS_210 is NOT indexed — answers must not cite it.
@@ -344,11 +354,109 @@ _UNKNOWN = DocumentMeta(
 )
 
 
+_NCAP_REGISTRY_FILE = (
+    Path(__file__).resolve().parents[3] / "data" / "manifest" / "ncap_registry.json"
+)
+
+
+def _load_ncap_registry() -> None:
+    """Merge persisted NCAP document entries (written by fetch_ncap_data.py)."""
+    if not _NCAP_REGISTRY_FILE.exists():
+        return
+    try:
+        entries = json.loads(_NCAP_REGISTRY_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return
+    for code, raw in entries.items():
+        _REGISTRY[code] = DocumentMeta(**raw)
+
+
+def register_ncap_document(
+    code: str,
+    *,
+    display_name: str,
+    year: int,
+    make: str,
+    model: str,
+    vehicle_id: int,
+    impact_mode: str = "general",
+) -> DocumentMeta:
+    """Register one NHTSA NCAP historical document and persist to manifest."""
+    norm = code.strip().upper()
+    meta = DocumentMeta(
+        code=norm,
+        display_name=display_name,
+        full_title=(
+            f"NHTSA NCAP safety ratings — {year} {make} {model} "
+            f"(VehicleId {vehicle_id}, star ratings + media)"
+        ),
+        doc_type=INTERNAL_DOCUMENT,
+        authority_tier=HISTORICAL_DATA,
+        authority="NHTSA",
+        region="US",
+        impact_mode=impact_mode,
+        license_status="public",
+        indexed_revision=str(year),
+        verified=True,
+    )
+    _REGISTRY[norm] = meta
+    _persist_ncap_registry()
+    return meta
+
+
+def _persist_ncap_registry() -> None:
+    ncap = {
+        k: {
+            "code": m.code,
+            "display_name": m.display_name,
+            "full_title": m.full_title,
+            "doc_type": m.doc_type,
+            "authority_tier": m.authority_tier,
+            "authority": m.authority,
+            "region": m.region,
+            "impact_mode": m.impact_mode,
+            "license_status": m.license_status,
+            "indexed_revision": m.indexed_revision,
+            "known_revisions": list(m.known_revisions),
+            "in_force": m.in_force,
+            "legal_reference": m.legal_reference,
+            "verified": m.verified,
+        }
+        for k, m in _REGISTRY.items()
+        if k.startswith("NCAP_")
+    }
+    _NCAP_REGISTRY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    _NCAP_REGISTRY_FILE.write_text(json.dumps(ncap, indent=2), encoding="utf-8")
+
+
 def get_document_meta(regulation_code: str | None) -> DocumentMeta:
     """Look up provenance for a regulation code; never raises."""
     if not regulation_code:
         return _UNKNOWN
-    return _REGISTRY.get(regulation_code.strip().upper(), _UNKNOWN)
+    norm = regulation_code.strip().upper()
+    if norm in _REGISTRY:
+        return _REGISTRY[norm]
+    # Fallback for NCAP codes not yet persisted (e.g. fresh fetch before reload).
+    m = re.match(r"^NCAP_(\d{4})_([A-Z0-9_]+)_(\d+)$", norm)
+    if m:
+        year, slug, vid = m.group(1), m.group(2), m.group(3)
+        return DocumentMeta(
+            code=norm,
+            display_name=f"NCAP {slug.replace('_', ' ').title()}",
+            full_title=f"NHTSA NCAP safety ratings ({year}, VehicleId {vid})",
+            doc_type=INTERNAL_DOCUMENT,
+            authority_tier=HISTORICAL_DATA,
+            authority="NHTSA",
+            region="US",
+            impact_mode="general",
+            license_status="public",
+            indexed_revision=year,
+            verified=False,
+        )
+    return _UNKNOWN
+
+
+_load_ncap_registry()
 
 
 def doc_type_label(doc_type: str) -> str:
@@ -381,6 +489,7 @@ REG_QUERY_ALIASES: dict[str, str] = {
     "un r135": "UN_R135",
     "r135": "UN_R135",
     "un regulation no. 137": "UN_R137",
+    "un r127": "UN_R127", "r127": "UN_R127",
     "un r137": "UN_R137",
     "r137": "UN_R137",
     "euro ncap": "EURO_NCAP",

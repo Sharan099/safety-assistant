@@ -1,4 +1,4 @@
-"""Phase 0 audit tests — pilot corpus (UN R14 + UN R16 only)."""
+"""Corpus audit tests — multilayer scope (corpus_version 4)."""
 
 from __future__ import annotations
 
@@ -6,8 +6,6 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -18,24 +16,19 @@ from backend.app.core.document_registry import (  # noqa: E402
     get_document_meta,
 )
 
+# Core belt pilot regs must always remain indexed.
+CORE_LEGAL_PDFS = {"UN_R14.pdf", "UN_R16.pdf"}
+EXPECTED_PDF_COUNT = 14  # 9 legal + 3 rating + 2 reference (see corpus_manifest.json)
 
-PILOT_PDFS = {"UN_R14.pdf", "UN_R16.pdf"}
-EXPECTED_PDF_COUNT = 2
 
-
-def test_corpus_has_two_pilot_pdfs():
+def test_corpus_pdf_count():
     pdfs = list(CORPUS_DIR.rglob("*.pdf"))
     assert len(pdfs) == EXPECTED_PDF_COUNT
 
 
-def test_pilot_pdfs_present():
+def test_core_legal_pdfs_present():
     names = {p.name for p in CORPUS_DIR.rglob("*.pdf")}
-    assert PILOT_PDFS <= names
-
-
-def test_no_non_pilot_pdfs_in_corpus():
-    names = {p.name for p in CORPUS_DIR.rglob("*.pdf")}
-    assert names <= PILOT_PDFS
+    assert CORE_LEGAL_PDFS <= names
 
 
 def test_iso_not_in_corpus():
@@ -65,7 +58,7 @@ def test_document_registry_no_iso():
     assert meta.code == "UNKNOWN"
 
 
-def test_document_registry_pilot_entries():
+def test_document_registry_core_entries():
     for code in ("UN_R14", "UN_R16"):
         meta = get_document_meta(code)
         assert meta.doc_type == "legal_regulation"
@@ -81,13 +74,13 @@ def test_corpus_manifest():
     data = json.loads(manifest.read_text(encoding="utf-8"))
     assert data["corpus_version"] == CORPUS_VERSION
     assert data["total_pdfs"] == EXPECTED_PDF_COUNT
-    assert data.get("pilot") is True
+    assert data.get("pilot") is False
 
 
 def test_audit_script_passes():
     rc = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "audit_corpus.py"),
-         "--assert-no-iso", "--assert-pilot", "--assert-layout"],
+         "--assert-no-iso", "--assert-multilayer", "--assert-layout"],
         cwd=ROOT,
         capture_output=True,
         text=True,

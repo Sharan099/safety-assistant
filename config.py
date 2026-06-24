@@ -47,7 +47,7 @@ BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 CORPUS_DIR = DATA_DIR / "corpus"
 ARCHIVE_DIR = BASE_DIR / "archive" / "corpus_removed"
-CORPUS_VERSION = int(os.getenv("CORPUS_VERSION", "3"))  # 3 = pilot (UN R14 + R16 only)
+CORPUS_VERSION = int(os.getenv("CORPUS_VERSION", "4"))  # 4 = multilayer (14 PDFs + synthetic)
 OUTPUT_DIR = BASE_DIR / "output"
 CACHE_DIR = OUTPUT_DIR / ".cache"
 

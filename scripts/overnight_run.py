@@ -31,17 +31,38 @@ RAGAS_KEYS = ("faithfulness", "answer_relevancy", "context_precision", "context_
 CONDA_ENV = os.getenv("OVERNIGHT_CONDA_ENV", "rag")
 
 
+def _rag_python() -> str:
+    """Resolve rag-env Python. Prefer an active `conda activate rag` session."""
+    if os.getenv("CONDA_DEFAULT_ENV") == CONDA_ENV:
+        return sys.executable
+
+    override = os.getenv("RAG_PYTHON", "").strip()
+    if override:
+        return override
+
+    conda_exe = os.environ.get("CONDA_EXE", "").strip()
+    bases: list[Path] = []
+    if conda_exe:
+        bases.append(Path(conda_exe).resolve().parent.parent)
+    for candidate in (Path.home() / "anaconda3", Path.home() / "miniconda3"):
+        if candidate.is_dir():
+            bases.append(candidate)
+
+    py_name = "python.exe" if os.name == "nt" else "bin/python"
+    for base in bases:
+        py = base / "envs" / CONDA_ENV / py_name
+        if py.is_file():
+            return str(py)
+
+    raise RuntimeError(
+        f"Could not find conda env '{CONDA_ENV}'. "
+        f"Run `conda activate {CONDA_ENV}` then retry."
+    )
+
+
 def _python_cmd(script: str) -> list[str]:
-    """Run Python inside the project conda env (base env segfaults on sentence-transformers)."""
-    return [
-        "conda",
-        "run",
-        "-n",
-        CONDA_ENV,
-        "--no-capture-output",
-        "python",
-        script,
-    ]
+    """Run Python in the rag conda env (never `conda run` — segfaults on Windows)."""
+    return [_rag_python(), script]
 
 
 def ts() -> str:

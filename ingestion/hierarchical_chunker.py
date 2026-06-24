@@ -67,6 +67,7 @@ def detect_regulation_type(filename: str) -> str:
         "UN_R95": ["un_r95", "r95.pdf", "_r95"],
         "UN_R135": ["un_r135", "r135.pdf", "_r135"],
         "UN_R137": ["un_r137", "r137.pdf", "_r137"],
+        "UN_R127": ["un_r127", "r127", "_r127"],
         "FMVSS": ["fmvss", "571", "208"],
         "EURO_NCAP": ["euro-ncap", "euroncap", "euro_ncap", "ncap"],
         "CAE_REFERENCE": ["cae_companion", "cae-companion", "cae companion"],
@@ -78,10 +79,13 @@ def detect_regulation_type(filename: str) -> str:
         "PROG_X_RCA_001": ["prog_x_rca", "rca-prog-x"],
         "PROG_X_DR": ["prog_x_dr", "design_review"],
         "PROG_X_STATUS": ["prog_x_status", "project_status"],
+        "NCAP": ["ncap_"],
     }
     for reg, keys in mapping.items():
         if any(k in fname for k in keys):
             return reg
+    if fname.startswith("ncap_"):
+        return "NCAP"
     if "cae" in fname:
         return "CAE_REFERENCE"
     return "SAFETY_REFERENCE"
@@ -547,13 +551,19 @@ def run(only_regs: list[str] | None = None) -> dict:
             pass
 
     md_files = sorted(MARKDOWN_DIR.glob("*.md"))
-    synthetic_dir = Path(__file__).resolve().parents[1] / "data" / "corpus" / "synthetic"
-    if synthetic_dir.is_dir():
-        for syn_path in sorted(synthetic_dir.glob("*.md")):
-            dest = MARKDOWN_DIR / syn_path.name
+    for corpus_sub in ("synthetic", "historical"):
+        src_dir = Path(__file__).resolve().parents[1] / "data" / "corpus" / corpus_sub
+        if not src_dir.is_dir():
+            continue
+        pattern = "NCAP_*.md" if corpus_sub == "historical" else "*.md"
+        for src_path in sorted(src_dir.glob(pattern)):
+            dest = MARKDOWN_DIR / src_path.name
             if not dest.exists():
-                dest.write_text(syn_path.read_text(encoding="utf-8"), encoding="utf-8")
-        md_files = sorted(set(md_files) | set(MARKDOWN_DIR.glob("PROG_X_*.md")))
+                dest.write_text(src_path.read_text(encoding="utf-8"), encoding="utf-8")
+        if corpus_sub == "historical":
+            md_files = sorted(set(md_files) | set(MARKDOWN_DIR.glob("NCAP_*.md")))
+        else:
+            md_files = sorted(set(md_files) | set(MARKDOWN_DIR.glob("PROG_X_*.md")))
     if only_regs:
         allowed = {x.upper() for x in only_regs}
         md_files = [

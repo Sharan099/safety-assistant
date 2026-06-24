@@ -195,3 +195,41 @@ export async function apiDeleteDocument(docId: string): Promise<void> {
   const res = await apiFetch(`/documents/${encodeURIComponent(docId)}`, { method: "DELETE" });
   if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
 }
+
+export type CrewPayload = {
+  report: {
+    summary?: string;
+    failing_metrics?: string[];
+    root_cause?: string[];
+    similar_cases?: string[];
+    countermeasures?: string[];
+    action_items?: string[];
+  };
+  agent_outputs: Record<string, unknown>;
+  citations?: unknown[];
+  timing?: Record<string, number>;
+};
+
+/** Multi-agent crash-development crew (POST /agent). */
+export async function apiAgentCrew(body: {
+  crash_result: string;
+  vehicle?: string;
+  user_id?: string;
+  session_id?: string;
+}): Promise<CrewPayload> {
+  const url = buildUrl(getChatApiBase(), "/agent");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+    return (await res.json()) as CrewPayload;
+  } finally {
+    clearTimeout(timer);
+  }
+}

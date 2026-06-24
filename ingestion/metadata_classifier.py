@@ -48,7 +48,7 @@ DUMMY_TYPES = (
 
 _REGION_MAP = {
     "UN_R14": "EU", "UN_R16": "EU", "UN_R17": "EU", "UN_R94": "EU",
-    "UN_R95": "EU", "UN_R135": "EU", "UN_R137": "EU",
+    "UN_R95": "EU", "UN_R135": "EU", "UN_R137": "EU", "UN_R127": "EU",
     "FMVSS": "US",
     "EURO_NCAP": "EU",
     "CAE_REFERENCE": "global", "SAFETY_REFERENCE": "global",
@@ -56,7 +56,7 @@ _REGION_MAP = {
 
 _AUTHORITY_MAP = {
     "UN_R14": "UN-ECE", "UN_R16": "UN-ECE", "UN_R17": "UNECE",
-    "UN_R94": "UNECE", "UN_R95": "UNECE", "UN_R135": "UNECE", "UN_R137": "UNECE",
+    "UN_R94": "UNECE", "UN_R95": "UNECE", "UN_R135": "UNECE", "UN_R137": "UNECE", "UN_R127": "UNECE",
     "FMVSS": "NHTSA/FMVSS",
     "EURO_NCAP": "EuroNCAP",
     "CAE_REFERENCE": "internal", "SAFETY_REFERENCE": "internal",

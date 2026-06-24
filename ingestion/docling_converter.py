@@ -147,7 +147,7 @@ def _pymupdf_page_markdown(pdf_path: Path) -> str:
     return "\n".join(parts)
 
 
-def convert_pdf(pdf_path: Path, converter=None) -> tuple[str, str]:
+def convert_pdf(pdf_path: Path, converter=None, *, page_cache_dir: Path | None = None) -> tuple[str, str]:
     """
     Returns (markdown_text, engine_used).
     Engine controlled by config.OCR_ENGINE: paddle | docling | pymupdf.
@@ -155,7 +155,7 @@ def convert_pdf(pdf_path: Path, converter=None) -> tuple[str, str]:
     if OCR_ENGINE == "paddle":
         from ingestion.paddle_ocr_converter import active_engine, convert_pdf_paddle
 
-        md = convert_pdf_paddle(pdf_path)
+        md = convert_pdf_paddle(pdf_path, page_cache_dir=page_cache_dir)
         return md, active_engine()
 
     if OCR_ENGINE == "pymupdf":
@@ -191,18 +191,24 @@ def convert_single_pdf(
     *,
     force: bool = False,
     converter=None,
+    markdown_dir: Path | None = None,
+    page_cache_dir: Path | None = None,
 ) -> dict:
     """Convert one PDF to markdown. Returns a manifest-style result dict."""
-    MARKDOWN_DIR.mkdir(parents=True, exist_ok=True)
+    md_dir = markdown_dir or MARKDOWN_DIR
+    md_dir.mkdir(parents=True, exist_ok=True)
     stem = pdf_path.stem
-    out_md = MARKDOWN_DIR / f"{stem}.md"
-    rel_pdf = str(pdf_path.relative_to(DATA_DIR.parent))
+    out_md = md_dir / f"{stem}.md"
+    try:
+        rel_pdf = str(pdf_path.relative_to(DATA_DIR.parent))
+    except ValueError:
+        rel_pdf = pdf_path.name
 
     if out_md.exists() and not force:
         return {"status": "skipped", "pdf": rel_pdf, "markdown": out_md.name}
 
     t0 = time.perf_counter()
-    md, engine = convert_pdf(pdf_path, converter=converter)
+    md, engine = convert_pdf(pdf_path, converter=converter, page_cache_dir=page_cache_dir)
     if not md.strip():
         raise ValueError("empty markdown output")
 

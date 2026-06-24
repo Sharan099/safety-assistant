@@ -119,3 +119,12 @@ tmp/
 
 # Local HF Space clone (prepare_hf_space.ps1)
 hf-space-push/
+
+# Per-user upload workspaces (runtime session ingestion)
+sessions/
+
+# Regenerable evaluation reports (not source)
+output/evaluation/current/
+output/evaluation/final_validation/
+output/extraction_fidelity_report.json
+output/model_selection.md

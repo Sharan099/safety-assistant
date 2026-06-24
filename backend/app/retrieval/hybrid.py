@@ -115,10 +115,25 @@ class HybridRetriever:
         )
         self._load()
 
+    def reload(self) -> None:
+        """Reload chunk/embedding artifacts (after session ingest completes)."""
+        self.chunks = []
+        self.embeddings = {}
+        self._chunk_by_id = {}
+        self._bm25 = None
+        self._bm25_chunks = []
+        self._emb_matrix = None
+        self._load()
+
+    @staticmethod
+    def _eligible_chunks(chunks: list[dict]) -> list[dict]:
+        """Exclude uploads pending authority-tier confirmation."""
+        return [c for c in chunks if c.get("tier_confirmed", True) is not False]
+
     def _load(self) -> None:
         if self._chunks_file.exists():
             data = _load_json_artifact(self._chunks_file, label="Chunk index")
-            self.chunks = data.get("chunks", [])
+            self.chunks = self._eligible_chunks(data.get("chunks", []))
             self._chunk_by_id = {
                 c.get("chunk_id", ""): c for c in self.chunks if c.get("chunk_id")
             }

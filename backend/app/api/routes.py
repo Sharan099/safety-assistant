@@ -41,6 +41,7 @@ class ChatResponse(BaseModel):
     timing: dict[str, Any] = {}
     warnings: list[str] = []
     generation_failed: bool = False
+    multi_hop: dict[str, Any] = {}
 
 
 class UserRequest(BaseModel):
@@ -258,6 +259,7 @@ async def _workflow_result_to_response(
         timing=result.get("timing", {}),
         warnings=warnings,
         generation_failed=generation_failed,
+        multi_hop=result.get("multi_hop") or {},
     )
 
 
@@ -440,3 +442,122 @@ async def delete_document(doc_id: str) -> dict:
     if not result.get("ok"):
         raise HTTPException(status_code=404, detail=result.get("error", "not found"))
     return result
+
+
+# ───────────────────────── session ingest (upload-first) ─────────────────────────
+class AuthorityTierConfirm(BaseModel):
+    authority_tier: str = Field(
+        ...,
+        pattern="^(legal_binding|rating_protocol|engineering_ref|oem_internal|historical_data)$",
+    )
+
+
+@router.post("/ingest/upload")
+async def ingest_upload(request: Request) -> dict:
+    """Upload PDF(s) into a session workspace — async background processing."""
+    from backend.app.core.session_ingest import start_upload
+    from config import CORPUS_MODE
+
+    if CORPUS_MODE != "session":
+        raise HTTPException(status_code=400, detail="Session ingest requires CORPUS_MODE=session")
+
+    form = await request.form()
+    upload = form.get("file")
+    session_id = str(form.get("session_id", "")).strip()
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id is required")
+    if upload is None:
+        raise HTTPException(status_code=400, detail="file is required")
+    file_bytes = await upload.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="empty file")
+
+    meta = {
+        "region": str(form.get("region", "global")),
+        "revision": str(form.get("revision", "")),
+    }
+    try:
+        job_id = start_upload(session_id, file_bytes, upload.filename, metadata=meta)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"job_id": job_id, "status": "queued", "session_id": session_id}
+
+
+@router.get("/ingest/status/{job_id}")
+async def ingest_status(job_id: str) -> dict:
+    from backend.app.core.session_ingest import get_job
+
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
+
+
+@router.get("/ingest/session/{session_id}/documents")
+async def ingest_session_documents(session_id: str) -> dict:
+    from backend.app.core.session_artifacts import list_session_documents
+
+    try:
+        docs = list_session_documents(session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"session_id": session_id, "documents": docs}
+
+
+@router.patch("/ingest/session/{session_id}/documents/{doc_id}/authority-tier")
+async def confirm_authority_tier(
+    session_id: str, doc_id: str, body: AuthorityTierConfirm
+) -> dict:
+    from backend.app.core.session_ingest import confirm_authority_tier
+
+    try:
+        return confirm_authority_tier(session_id, doc_id, body.authority_tier)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+# ───────────────────────── session artifacts ─────────────────────────
+@router.get("/session/{session_id}/artifacts/{doc_id}")
+async def download_doc_artifacts(session_id: str, doc_id: str):
+    from fastapi.responses import Response
+
+    from backend.app.core.session_artifacts import build_doc_artifact_zip
+
+    try:
+        data = build_doc_artifact_zip(session_id, doc_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return Response(
+        content=data,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{doc_id}_artifacts.zip"'},
+    )
+
+
+@router.get("/session/{session_id}/artifacts.zip")
+async def download_session_artifacts(session_id: str):
+    from fastapi.responses import Response
+
+    from backend.app.core.session_artifacts import build_session_artifact_zip
+
+    try:
+        data = build_session_artifact_zip(session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return Response(
+        content=data,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="session_{session_id}_artifacts.zip"'},
+    )
+
+
+@router.delete("/session/{session_id}")
+async def clear_session_workspace(session_id: str) -> dict:
+    from backend.app.core.session_workspace import clear_session
+
+    try:
+        return clear_session(session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc

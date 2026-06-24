@@ -1,17 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+
 :root {
-  --bg: #ffffff;
-  --surface: #fff7ed;
-  --surface-2: #ffedd5;
-  --border: #fed7aa;
-  --text: #1c1917;
-  --muted: #78716c;
-  --accent: #ea580c;
-  --accent-hover: #c2410c;
-  --accent-soft: rgba(234, 88, 12, 0.1);
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --cta: #f59e0b;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --border: #cbd5e1;
+  --text: #1e3a8a;
+  --text-body: #1e293b;
+  --muted: #64748b;
+  --accent: var(--primary);
+  --accent-hover: #1d4ed8;
+  --accent-soft: rgba(30, 64, 175, 0.08);
   --warn: #d97706;
   --danger: #dc2626;
   --success: #16a34a;
-  --shadow: 0 4px 24px rgba(234, 88, 12, 0.08);
+  --shadow: 0 4px 24px rgba(30, 64, 175, 0.08);
+  --legal: #15803d;
+  --rating: #7c3aed;
+  --engref: #0369a1;
+  --oem: #b45309;
+  --historical: #64748b;
+  --synthetic: #94a3b8;
+  --radius: 10px;
+  --transition: 180ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-body: #f1f5f9;
+    --muted: #94a3b8;
+    --accent-soft: rgba(59, 130, 246, 0.15);
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  }
 }
 
 * {
@@ -20,9 +48,9 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Fira Sans", system-ui, -apple-system, sans-serif;
   background: var(--bg);
-  color: var(--text);
+  color: var(--text-body);
   min-height: 100vh;
   line-height: 1.5;
 }
@@ -30,9 +58,30 @@ body {
 button {
   cursor: pointer;
   font-family: inherit;
+  transition: background var(--transition), border-color var(--transition), opacity var(--transition);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 input,
-textarea {
+textarea,
+select {
   font-family: inherit;
+}
+
+code,
+.mono {
+  font-family: "Fira Code", ui-monospace, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

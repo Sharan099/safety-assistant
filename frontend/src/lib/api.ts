@@ -1,9 +1,5 @@
 /**
  * API routing for Vercel frontend + Hugging Face backend.
- *
- * Fast endpoints → Vercel proxy (/api/v1).
- * Chat → direct HF + NDJSON stream (/chat/stream) with keepalive pings so the
- * HF gateway does not kill connections during 60–120s Jina rerank.
  */
 const HF_BACKEND =
   process.env.NEXT_PUBLIC_HF_BACKEND_URL?.replace(/\/$/, "") ||
@@ -69,6 +65,23 @@ export type ChatPayload = {
   gateway?: Record<string, unknown>;
   timing?: Record<string, number>;
   warnings?: string[];
+  multi_hop?: MultiHopPayload;
+};
+
+export type MultiHopHop = {
+  hop_id: number;
+  label: string;
+  query: string;
+  target_doc_types?: string[];
+  authority_role?: string;
+  abstained?: boolean;
+  abstain_reason?: string;
+  document_count?: number;
+};
+
+export type MultiHopPayload = {
+  hops?: MultiHopHop[];
+  any_abstain?: boolean;
 };
 
 /** Stream chat with keepalive pings (fixes HF ~60s gateway timeout). */
@@ -148,51 +161,100 @@ export function formatApiError(err: unknown): string {
   return "Request failed";
 }
 
-export type DocumentMeta = {
-  path?: string;
-  name: string;
-  category?: string;
+export type SessionDocument = {
+  doc_id: string;
+  filename: string;
+  doc_type?: string;
+  status?: string;
+  stage?: string;
+  progress?: number;
+  chunk_count?: number;
+  page_count?: number;
+  proposed_authority_tier?: string;
+  authority_tier?: string;
+  tier_confirmed?: boolean;
+  regulation?: string;
+  error?: string;
 };
 
 export type IngestJob = {
+  job_id?: string;
+  session_id?: string;
+  doc_id?: string;
   status: string;
+  stage?: string;
   progress?: number;
   chunk_count?: number;
   error?: string;
   pdf_name?: string;
+  filename?: string;
+  proposed_authority_tier?: string;
+  authority_tier?: string;
+  tier_confirmed?: boolean;
 };
 
-export async function apiListDocuments(): Promise<DocumentMeta[]> {
-  const res = await apiFetch("/documents");
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = (await res.json()) as { documents: DocumentMeta[] };
+export const AUTHORITY_TIERS = [
+  { value: "legal_binding", label: "LEGAL — binding regulation" },
+  { value: "rating_protocol", label: "RATING — test protocol" },
+  { value: "engineering_ref", label: "ENG-REF — engineering reference" },
+  { value: "oem_internal", label: "OEM — internal spec" },
+  { value: "historical_data", label: "HISTORICAL — test / crash data" },
+] as const;
+
+export async function apiSessionDocuments(sessionId: string): Promise<SessionDocument[]> {
+  const res = await apiFetch(`/ingest/session/${encodeURIComponent(sessionId)}/documents`);
+  if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+  const data = (await res.json()) as { documents: SessionDocument[] };
   return data.documents;
 }
 
-export async function apiUploadDocument(
+export async function apiUploadSessionDocument(
+  sessionId: string,
   file: File,
-  meta: { doc_type: string; authority?: string; region?: string; test_type?: string; revision?: string },
+  meta?: { revision?: string; region?: string },
 ): Promise<{ job_id: string }> {
   const form = new FormData();
   form.append("file", file);
-  form.append("doc_type", meta.doc_type);
-  if (meta.authority) form.append("authority", meta.authority);
-  if (meta.region) form.append("region", meta.region);
-  if (meta.test_type) form.append("test_type", meta.test_type);
-  if (meta.revision) form.append("revision", meta.revision);
-  const res = await apiFetch("/documents", { method: "POST", body: form });
+  form.append("session_id", sessionId);
+  if (meta?.revision) form.append("revision", meta.revision);
+  if (meta?.region) form.append("region", meta.region);
+  const res = await apiFetch("/ingest/upload", { method: "POST", body: form });
   if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
   return res.json() as Promise<{ job_id: string }>;
 }
 
 export async function apiIngestStatus(jobId: string): Promise<IngestJob> {
-  const res = await apiFetch(`/documents/${jobId}`);
+  const res = await apiFetch(`/ingest/status/${encodeURIComponent(jobId)}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<IngestJob>;
 }
 
-export async function apiDeleteDocument(docId: string): Promise<void> {
-  const res = await apiFetch(`/documents/${encodeURIComponent(docId)}`, { method: "DELETE" });
+export async function apiConfirmAuthorityTier(
+  sessionId: string,
+  docId: string,
+  authorityTier: string,
+): Promise<void> {
+  const res = await apiFetch(
+    `/ingest/session/${encodeURIComponent(sessionId)}/documents/${encodeURIComponent(docId)}/authority-tier`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ authority_tier: authorityTier }),
+    },
+  );
+  if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+}
+
+export function artifactDocUrl(sessionId: string, docId: string): string {
+  return buildUrl(getApiBase(), `/session/${encodeURIComponent(sessionId)}/artifacts/${encodeURIComponent(docId)}`);
+}
+
+export function artifactSessionUrl(sessionId: string): string {
+  return buildUrl(getApiBase(), `/session/${encodeURIComponent(sessionId)}/artifacts.zip`);
+}
+
+export async function apiClearSession(sessionId: string): Promise<void> {
+  const res = await apiFetch(`/session/${encodeURIComponent(sessionId)}`, { method: "DELETE" });
   if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
 }
 
@@ -210,7 +272,6 @@ export type CrewPayload = {
   timing?: Record<string, number>;
 };
 
-/** Multi-agent crash-development crew (POST /agent). */
 export async function apiAgentCrew(body: {
   crash_result: string;
   vehicle?: string;

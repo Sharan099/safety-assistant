@@ -11,6 +11,7 @@ from backend.app.retrieval.reranker import CrossEncoderReranker
 
 _lock = threading.RLock()
 _retriever: HybridRetriever | None = None
+_retriever_cache: dict[str, HybridRetriever] = {}
 _reranker: CrossEncoderReranker | None = None
 _workflow: RAGWorkflow | None = None
 _gateway = None  # type: ignore[var-annotated]
@@ -23,14 +24,38 @@ _selftest: dict | None = None
 SELF_TEST_QUERY = "What are the UN R14 seat belt anchorage strength requirements?"
 
 
-def get_retriever() -> HybridRetriever:
+def invalidate_retriever(session_id: str | None = None) -> None:
     global _retriever
-    if _retriever is None:
-        with _lock:
-            if _retriever is None:
-                logger.info("Initializing shared HybridRetriever...")
-                _retriever = HybridRetriever()
-    return _retriever
+    if session_id:
+        _retriever_cache.pop(session_id, None)
+    else:
+        _retriever = None
+        _retriever_cache.clear()
+
+
+def get_retriever(session_id: str | None = None) -> HybridRetriever:
+    from config import CORPUS_MODE
+    from backend.app.core.session_workspace import get_workspace
+
+    global _retriever
+
+    if CORPUS_MODE == "local" or not session_id:
+        if _retriever is None:
+            with _lock:
+                if _retriever is None:
+                    logger.info("Initializing shared HybridRetriever (local corpus)...")
+                    _retriever = HybridRetriever()
+        return _retriever
+
+    with _lock:
+        if session_id not in _retriever_cache:
+            ws = get_workspace(session_id)
+            logger.info(f"Initializing session HybridRetriever for {session_id}...")
+            _retriever_cache[session_id] = HybridRetriever(
+                chunks_file=ws.chunks,
+                embeddings_file=ws.embeddings,
+            )
+        return _retriever_cache[session_id]
 
 
 def get_reranker() -> CrossEncoderReranker:
@@ -79,9 +104,12 @@ def get_gateway():
 
 def pipeline_status() -> dict:
     """Cheap status for GET /health — does not load models or JSON artifacts."""
+    from config import CORPUS_MODE
+
     return {
         "pipeline_warmed": _warmed,
-        "retriever_loaded": _retriever is not None,
+        "retriever_loaded": _retriever is not None or bool(_retriever_cache),
+        "corpus_mode": CORPUS_MODE,
         "groq_configured": bool(os.getenv("GROQ_API_KEY")),
         "reranker_enabled": os.getenv("ENABLE_RERANKER", "false").lower() == "true",
     }
@@ -96,16 +124,20 @@ def warmup_pipeline() -> None:
     if _warmed:
         return
 
+    from config import CORPUS_MODE
+
     logger.info("Pipeline warmup (artifacts only)...")
-    get_retriever()
+    if CORPUS_MODE == "local":
+        get_retriever()
     get_workflow()
 
     if os.getenv("PRELOAD_ML_MODELS", "false").lower() == "true":
         logger.info("PRELOAD_ML_MODELS=true — loading embedding + reranker...")
-        try:
-            get_retriever().warmup()
-        except Exception as exc:
-            logger.warning(f"Embedding warmup failed (BM25 still works): {exc}")
+        if CORPUS_MODE == "local":
+            try:
+                get_retriever().warmup()
+            except Exception as exc:
+                logger.warning(f"Embedding warmup failed (BM25 still works): {exc}")
         if os.getenv("ENABLE_RERANKER", "false").lower() == "true":
             try:
                 get_reranker().warmup()
@@ -126,9 +158,8 @@ def run_self_test() -> dict:
     Run one end-to-end query so the frontend only lets users chat once the
     pipeline is proven working. Cached after the first successful run.
 
-    Retrieval must succeed for readiness. The LLM call is best-effort: if Groq is
-    unavailable or rate-limited we still report ready=True (retrieval works) but
-    flag llm_ok=False so the UI can warn.
+    In session mode, readiness only requires the backend to be up — users
+    upload documents before chatting.
     """
     global _ready, _selftest
     if _ready and _selftest is not None:
@@ -138,13 +169,26 @@ def run_self_test() -> dict:
         if _ready and _selftest is not None:
             return _selftest
 
+        from config import CORPUS_MODE
+
         result: dict = {
             "ready": False,
             "retrieval_ok": False,
             "llm_ok": False,
             "llm_configured": bool(os.getenv("GROQ_API_KEY")),
             "detail": "",
+            "corpus_mode": CORPUS_MODE,
         }
+
+        if CORPUS_MODE == "session":
+            result["ready"] = True
+            result["retrieval_ok"] = True
+            result["detail"] = "session mode — upload documents to enable retrieval"
+            _ready = True
+            _selftest = result
+            logger.info(f"Self-test complete (session mode): {result}")
+            return result
+
         try:
             retriever = get_retriever()
             retriever.warmup()  # load embedding model
@@ -168,7 +212,6 @@ def run_self_test() -> dict:
                 result["detail"] = f"llm self-test failed: {exc}"
                 logger.warning(f"Self-test LLM call failed (non-fatal): {exc}")
 
-        # Ready as long as retrieval works; LLM is best-effort.
         result["ready"] = result["retrieval_ok"]
         _ready = result["ready"]
         _selftest = result

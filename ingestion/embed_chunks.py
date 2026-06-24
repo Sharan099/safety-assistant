@@ -165,6 +165,59 @@ def embed_chunks_to_file(chunks: list[dict], out_path: Path) -> dict:
     return out
 
 
+def run_for_paths(chunks_file: Path, embeddings_file: Path) -> dict:
+    """Embed chunks from explicit paths (session workspaces)."""
+    if not chunks_file.exists():
+        raise FileNotFoundError(f"Chunks file not found: {chunks_file}")
+
+    with open(chunks_file, encoding="utf-8") as f:
+        data = json.load(f)
+
+    chunks = data.get("chunks", [])
+    all_with_text = [c for c in chunks if (c.get("text") or "").strip()]
+    if not all_with_text:
+        out = {
+            "model": EMBEDDING_MODEL,
+            "dimension": EMBEDDING_DIMENSION,
+            "total_vectors": 0,
+            "embeddings": {},
+            "metadata": {},
+        }
+        embeddings_file.parent.mkdir(parents=True, exist_ok=True)
+        embeddings_file.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+        return out
+
+    embeddings: dict[str, list[float]] = {}
+    metadata: dict[str, dict] = {}
+    valid_ids = {c["chunk_id"] for c in all_with_text}
+
+    if embeddings_file.exists():
+        try:
+            existing = json.loads(embeddings_file.read_text(encoding="utf-8"))
+            raw_emb = dict(existing.get("embeddings", {}))
+            raw_meta = dict(existing.get("metadata", {}))
+            embeddings = {k: v for k, v in raw_emb.items() if k in valid_ids}
+            metadata = {k: v for k, v in raw_meta.items() if k in valid_ids}
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    to_embed = [c for c in all_with_text if c["chunk_id"] not in embeddings]
+    if not to_embed:
+        dim = len(next(iter(embeddings.values()))) if embeddings else EMBEDDING_DIMENSION
+        out = {
+            "model": EMBEDDING_MODEL,
+            "dimension": dim,
+            "total_vectors": len(embeddings),
+            "embeddings": embeddings,
+            "metadata": metadata,
+        }
+        embeddings_file.parent.mkdir(parents=True, exist_ok=True)
+        embeddings_file.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+        return out
+
+    return embed_chunks_to_file(all_with_text, embeddings_file)
+
+
 def run() -> dict:
     if not CHUNKS_FILE.exists():
         p(f"ERROR: {CHUNKS_FILE} not found. Run hierarchical_chunker first.")

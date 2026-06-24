@@ -60,6 +60,47 @@ Scanned PDFs are ingested with **PaddleOCR** (or **PyMuPDF** for text-layer PDFs
 > threshold, separates **legal regulations** from **rating protocols**, and flags
 > regulations that have multiple revisions.
 
+### Upload-first session workspaces (v6.0)
+
+By default (`CORPUS_MODE=session`), PSA AI no longer relies on a baked-in corpus.
+Users upload PDFs at runtime; each session gets an isolated folder tree:
+
+```
+sessions/{session_id}/
+  ├── uploads/          # raw user PDFs
+  ├── markdown/       # extracted markdown per document
+  ├── chunks/         # chunks.json (CONTEXT: blocks + metadata)
+  ├── embeddings/     # session-scoped dense vectors
+  ├── bm25/           # sparse index slot (BM25 built in-memory on load)
+  ├── page_cache/     # OCR page cache
+  └── manifest.json   # per-doc status, authority tier, chunk counts
+```
+
+**Ingest flow:** upload → async extract → chunk → classify → **user confirms authority tier** → embed → index → `ready`.
+
+**API endpoints**
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/v1/ingest/upload` | Upload PDF (`session_id` + `file`) |
+| `GET` | `/api/v1/ingest/status/{job_id}` | Per-stage job progress |
+| `PATCH` | `/api/v1/ingest/session/{id}/documents/{doc_id}/authority-tier` | Confirm/override tier |
+| `GET` | `/api/v1/session/{id}/artifacts.zip` | Download full session bundle |
+| `GET` | `/api/v1/session/{id}/artifacts/{doc_id}` | Per-document artifacts |
+| `DELETE` | `/api/v1/session/{id}` | Clear session (TTL also applies) |
+
+**Multi-hop reasoning:** comparative questions across uploaded doc types (e.g. regulation limit vs crash-report measurement) decompose into per-hop retrieval with per-hop citations and abstention when any hop lacks support.
+
+**Legacy local corpus:** set `CORPUS_MODE=local` to use committed `data/corpus/` + `output/regulation_chunks.json` (unchanged pipeline).
+
+**Golden retrieval eval against a session fixture:**
+
+```bash
+python scripts/run_retrieval_golden_eval.py --workspace sessions/{session_id}
+```
+
+Build the fixture by uploading regulation PDFs through the UI or ingest API, confirming tiers, then point the eval script at that session folder.
+
 ## Architecture
 
 ```

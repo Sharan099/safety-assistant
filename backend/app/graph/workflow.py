@@ -308,10 +308,21 @@ class RAGWorkflow:
         meta = state.get("metadata") or {}
         logger.info(f"Retrieving for: {state['query'][:80]}...")
         with trace_span("retrieve", {"query": state["query"]}) as span:
-            result = self.retriever.retrieve(
-                state["query"],
-                mode=meta.get("mode"),
-            )
+            from config import CORPUS_MODE
+            from backend.app.core.services import get_retriever
+            from backend.app.retrieval.multi_hop import is_cross_document_query, retrieve_multi_hop
+
+            session_id = meta.get("session_id")
+            retriever = get_retriever(session_id if CORPUS_MODE == "session" else None)
+            if CORPUS_MODE == "session" and session_id:
+                retriever.reload()
+
+            if is_cross_document_query(state["query"]):
+                result = retrieve_multi_hop(
+                    retriever, state["query"], mode=meta.get("mode")
+                )
+            else:
+                result = retriever.retrieve(state["query"], mode=meta.get("mode"))
             span["outputs"] = {
                 "doc_count": len(result["documents"]),
                 "semantic": result["semantic_count"],
@@ -319,12 +330,14 @@ class RAGWorkflow:
                 "queries": result.get("queries", []),
                 "intent_flags": result.get("intent_flags", []),
                 "query_breadth": result.get("query_breadth", {}),
+                "multi_hop": bool(result.get("multi_hop")),
             }
             timing = {**state.get("timing", {}), "retrieval_ms": result["latency_ms"]}
             meta = {
                 **(state.get("metadata") or {}),
                 "query_breadth": result.get("query_breadth", {}),
                 "retrieved_chunk_count": len(result["documents"]),
+                "multi_hop": result.get("multi_hop"),
             }
             return {**state, "documents": result["documents"], "timing": timing, "metadata": meta}
 
@@ -373,7 +386,12 @@ class RAGWorkflow:
         from backend.app.core.modes import get_mode
 
         mode_cfg = get_mode(mode_name)
-        chunk_lookup = getattr(self.retriever, "_chunk_by_id", {}) or {}
+        from config import CORPUS_MODE
+        from backend.app.core.services import get_retriever
+
+        session_id = meta.get("session_id")
+        active_retriever = get_retriever(session_id if CORPUS_MODE == "session" else None)
+        chunk_lookup = getattr(active_retriever, "_chunk_by_id", {}) or {}
         docs = [enrich_doc_provenance(d, chunk_lookup) for d in docs]
 
         # Build structured citations for every retrieved passage.
@@ -387,6 +405,21 @@ class RAGWorkflow:
             min_rerank_prob=mode_cfg.grounding_min_rerank_prob,
         )
         abstain = ENABLE_GROUNDING_GATE and grounding.get("should_abstain", False)
+
+        multi_hop = meta.get("multi_hop") or {}
+        if multi_hop.get("any_abstain"):
+            abstain = True
+            missing = [
+                h["abstain_reason"]
+                for h in multi_hop.get("hops", [])
+                if h.get("abstained") and h.get("abstain_reason")
+            ]
+            grounding = {
+                **grounding,
+                "should_abstain": True,
+                "reason": "; ".join(missing) or "Required hop had no retrieved support",
+                "multi_hop_abstain": True,
+            }
 
         context = _build_grounded_context(
             docs,
@@ -669,6 +702,7 @@ class RAGWorkflow:
                 },
                 "gateway": gateway,
                 "timing": timing,
+                "multi_hop": meta.get("multi_hop"),
             }
         except Exception as exc:
             logger.exception("Workflow failed")

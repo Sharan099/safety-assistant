@@ -13,7 +13,8 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=7860 \
     PYTHONPATH=/app \
     HF_HOME=/app/.cache/huggingface \
-    APP_DB_PATH=/app/var/app.db
+    APP_DB_PATH=/app/var/app.db \
+    CORPUS_MODE=session
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl build-essential git git-lfs \
@@ -40,7 +41,7 @@ d=json.loads(p.read_text()); \
 n=len(d.get('embeddings',{})); \
 assert n>1000, f'embeddings invalid (got {n}) — use Git LFS for regulation_embeddings.json'"
 
-RUN mkdir -p /app/var /app/.cache/huggingface
+RUN mkdir -p /app/var /app/sessions /app/.cache/huggingface
 
 EXPOSE 7860
 

@@ -236,12 +236,13 @@ def _structure_page_content(page_text: str, page_num: int) -> str:
     return "\n".join(blocks)
 
 
-def convert_pdf_paddle(pdf_path: Path) -> str:
+def convert_pdf_paddle(pdf_path: Path, *, page_cache_dir: Path | None = None) -> str:
     """Return markdown for a PDF using cached low-DPI images + batched OCR."""
     import fitz
 
     _ensure_engine()
-    cache_dir = PAGE_IMAGE_CACHE / pdf_path.stem
+    cache_root = page_cache_dir or PAGE_IMAGE_CACHE
+    cache_dir = cache_root / pdf_path.stem
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     doc = fitz.open(pdf_path)

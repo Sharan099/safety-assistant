@@ -32,6 +32,22 @@ class DecomposedQuery:
     is_compound: bool = False
 
 
+@dataclass
+class CrossDocHop:
+    hop_id: int
+    label: str
+    query: str
+    target_doc_types: list[str] = field(default_factory=list)
+    authority_role: str = "advisory"
+
+
+@dataclass
+class CrossDocumentDecomposition:
+    original: str
+    hops: list[CrossDocHop] = field(default_factory=list)
+    is_cross_document: bool = False
+
+
 def _impact_phrases(query: str) -> list[str]:
     q = query.lower()
     found: list[str] = []
@@ -90,4 +106,64 @@ def decompose_query(query: str) -> DecomposedQuery:
     result.sub_queries = [s for s in sub if not (s in seen or seen.add(s))]
     if not result.sub_queries:
         result.sub_queries = [query]
+    return result
+
+
+def decompose_cross_document(query: str) -> CrossDocumentDecomposition:
+    """
+    Split cross-document compliance questions into hops targeting doc types.
+    e.g. regulation limit (legal) + crash report measurement (test_report).
+    """
+    q = query.lower()
+    result = CrossDocumentDecomposition(original=query)
+
+    measured = bool(re.search(r"\b(measured|crash report|test report|our|actual|observed)\b", q))
+    requirement = bool(re.search(r"\b(limit|requirement|regulation|standard|shall|must)\b", q))
+    compare = bool(re.search(r"\b(meet|comply|compare|versus|vs|against|exceed)\b", q))
+
+    if measured and requirement and compare:
+        result.is_cross_document = True
+        result.hops = [
+            CrossDocHop(
+                hop_id=1,
+                label="Binding requirement",
+                query=f"Legal/regulatory requirement and limit: {query}",
+                target_doc_types=["legal"],
+                authority_role="binding",
+            ),
+            CrossDocHop(
+                hop_id=2,
+                label="Measured / observed value",
+                query=f"Measured test result or observed value: {query}",
+                target_doc_types=["test_report", "sim_report", "internal"],
+                authority_role="measured",
+            ),
+        ]
+        return result
+
+    # Fallback: regulation vs rating comparison across uploads
+    regs = detect_regulations_in_query(query)
+    if len(regs) >= 2 and is_comparison_query(query):
+        result.is_cross_document = True
+        for i, code in enumerate(regs[:3], 1):
+            result.hops.append(
+                CrossDocHop(
+                    hop_id=i,
+                    label=code.replace("_", " "),
+                    query=f"{code.replace('_', ' ')}: {query}",
+                    target_doc_types=[],
+                    authority_role="binding" if code.startswith("UN_R") else "advisory",
+                )
+            )
+        return result
+
+    result.hops = [
+        CrossDocHop(
+            hop_id=1,
+            label="General retrieval",
+            query=query,
+            target_doc_types=[],
+            authority_role="advisory",
+        )
+    ]
     return result

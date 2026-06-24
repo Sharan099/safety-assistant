@@ -85,6 +85,15 @@ MARKDOWN_DIR.mkdir(exist_ok=True)
 PAGE_IMAGE_CACHE.mkdir(exist_ok=True)
 
 # ─────────────────────────────────────────────
+# CORPUS MODE — session uploads vs baked-in local corpus
+# ─────────────────────────────────────────────
+
+CORPUS_MODE = os.getenv("CORPUS_MODE", "session").lower()  # session | local
+SESSIONS_DIR = BASE_DIR / "sessions"
+SESSION_TTL_HOURS = int(os.getenv("SESSION_TTL_HOURS", "72"))
+SESSIONS_DIR.mkdir(exist_ok=True)
+
+# ─────────────────────────────────────────────
 # INGESTION / CHUNKING (Docling + hierarchical)
 # ─────────────────────────────────────────────
 

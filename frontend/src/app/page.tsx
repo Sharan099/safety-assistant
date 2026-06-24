@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { apiChatStream, apiFetch, apiAgentCrew, formatApiError, type CrewPayload } from "@/lib/api";
-import { DocumentManager } from "@/components/DocumentManager";
+import { apiChatStream, apiFetch, apiAgentCrew, formatApiError, type CrewPayload, type MultiHopPayload } from "@/lib/api";
+import { WorkspacePanel } from "@/components/WorkspacePanel";
+import { MultiHopView } from "@/components/MultiHopView";
 
 function authorityBadgeClass(badge?: string): string {
   switch (badge) {
@@ -54,6 +55,7 @@ type Grounding = {
   confidence_band?: "high" | "medium" | "low";
   reason?: string;
   generation_failed?: boolean;
+  multi_hop?: MultiHopPayload;
 };
 
 type Gateway = {
@@ -96,6 +98,7 @@ type Message = {
   timing?: Record<string, number>;
   warnings?: string[];
   generation_failed?: boolean;
+  multi_hop?: MultiHopPayload;
   feedback?: Feedback;
 };
 
@@ -194,6 +197,7 @@ export default function Home() {
   const [crashInput, setCrashInput] = useState(SAMPLE_CRASH_TABLE);
   const [vehicleInput, setVehicleInput] = useState("");
   const [crewResult, setCrewResult] = useState<CrewPayload | null>(null);
+  const [hasIndexedDocs, setHasIndexedDocs] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const sendLockRef = useRef(false);
 
@@ -291,7 +295,7 @@ export default function Home() {
     setMessages([]);
   }
 
-  const canChat = Boolean(user) && Boolean(ready?.ready) && !loading;
+  const canChat = Boolean(user) && Boolean(ready?.ready) && hasIndexedDocs && !loading;
   const canCrew = Boolean(user) && Boolean(ready?.ready) && !loading;
 
   async function runCrew() {
@@ -357,6 +361,7 @@ export default function Home() {
           timing: data.timing,
           warnings: data.warnings,
           generation_failed: Boolean(data.generation_failed),
+          multi_hop: data.multi_hop,
           feedback: { reasons: [], comment: "" },
         },
       ]);
@@ -459,10 +464,11 @@ export default function Home() {
             help us improve answer quality and guardrails.
           </div>
           <section className="onboard-info">
-            <h3>What&apos;s indexed</h3>
+            <h3>Upload-first workspace</h3>
             <p className="muted">
-              12 document families (~13,000 text chunks): UN R14/R16/R17/R94/R95/R135/R137,
-              FMVSS 208, Euro NCAP protocols, CAE Companion, and Safety Companion.
+              Upload your regulations, crash reports, and engineering documents. PSA AI
+              processes them in an isolated session — answers are grounded only in what
+              you upload.
             </p>
           </section>
           <label htmlFor="buddy">Choose a display name</label>
@@ -503,22 +509,17 @@ export default function Home() {
         </div>
 
         <section className="sidebar-section">
-          <h2>Indexed regulations</h2>
+          <h2>Your session</h2>
           <p className="sidebar-hint">
-            Answers are grounded only in these documents. Out-of-scope questions
-            (e.g. general knowledge) are refused by guardrails.
+            Upload PDFs, confirm authority tier for each document, then ask questions.
+            Binding (LEGAL) sources are never mixed visually with measured test data.
           </p>
-          <ul className="reg-list">
-            {INDEXED_REGULATIONS.map((r) => (
-              <li key={r.code}>
-                <span className={`reg-type reg-type-${r.type.toLowerCase()}`}>{r.type}</span>
-                <div>
-                  <strong>{r.code}</strong>
-                  <span>{r.topic}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {user?.session_id && (
+            <WorkspacePanel
+              sessionId={user.session_id}
+              onIndexedChange={setHasIndexedDocs}
+            />
+          )}
         </section>
 
         <section className="sidebar-section">
@@ -566,10 +567,6 @@ export default function Home() {
               </li>
             ))}
           </ul>
-        </section>
-
-        <section className="sidebar-section">
-          <DocumentManager />
         </section>
 
         <section className="sidebar-section sidebar-foot">
@@ -626,7 +623,12 @@ export default function Home() {
         <div className={`status ${readyError ? "status-err" : ""}`}>
           {readyError
             ? "Waiting for the backend… make sure the API is running. Retrying…"
-            : "Warming up the model and running a self-test query… you can chat as soon as this turns green."}
+            : "Connecting to the backend…"}
+        </div>
+      )}
+      {ready?.ready && !hasIndexedDocs && (
+        <div className="status status-warn">
+          Upload at least one PDF and confirm its authority tier before chatting.
         </div>
       )}
       {ready?.ready && ready.llm_configured === false && (
@@ -731,6 +733,14 @@ export default function Home() {
               )
             ) : (
               <p>{msg.content}</p>
+            )}
+
+            {msg.role === "assistant" && msg.multi_hop && (
+              <MultiHopView multiHop={msg.multi_hop} />
+            )}
+
+            {msg.role === "assistant" && shouldAbstain && (
+              <p className="abstain-banner">Not found in the uploaded documents</p>
             )}
 
             {msg.role === "assistant" &&
@@ -1004,7 +1014,9 @@ export default function Home() {
           }}
           placeholder={
             warming
-              ? "Please wait — the assistant is warming up…"
+              ? "Please wait — connecting to backend…"
+              : !hasIndexedDocs
+              ? "Upload and index documents in the sidebar first…"
               : "Ask a passive safety question…"
           }
           rows={2}
@@ -1268,7 +1280,11 @@ const appCss = `
   }
   .bubble.assistant :global(th) { background: var(--surface); font-weight: 600; }
   .bubble.assistant :global(h2) { font-size: 1rem; margin: 1rem 0 0.35rem; }
-  .flags { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
+  .abstain-banner {
+    margin-top: 0.65rem; padding: 0.5rem 0.75rem; border-radius: 8px;
+    background: #fef2f2; border: 1px solid #fecaca; color: var(--danger);
+    font-size: 0.85rem; font-weight: 600;
+  }
   .flag {
     padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.82rem;
     background: var(--accent-soft); border: 1px solid var(--border);

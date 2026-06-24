@@ -44,7 +44,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_origins,
     allow_credentials=_allow_credentials,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "X-Dashboard-Key"],
 )
 app.add_middleware(SecurityHeadersMiddleware)
@@ -85,6 +85,11 @@ async def startup() -> None:
         # blocked; the frontend polls /ready until it passes.
         if os.getenv("RUN_SELFTEST_ON_STARTUP", "true").lower() == "true":
             asyncio.create_task(asyncio.to_thread(run_self_test))
+        from backend.app.core.session_workspace import cleanup_expired_sessions
+
+        removed = await asyncio.to_thread(cleanup_expired_sessions)
+        if removed:
+            logger.info(f"Cleaned up {removed} expired session workspace(s)")
     except Exception as exc:
         logger.error(f"Pipeline warmup failed: {exc}")
 

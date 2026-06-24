@@ -48,12 +48,23 @@ def main() -> int:
     )
     parser.add_argument("--k", type=int, default=8)
     parser.add_argument("--output", default=str(ROOT / "output" / "golden_retrieval_eval.json"))
+    parser.add_argument(
+        "--workspace",
+        default="",
+        help="Session workspace root (sessions/{id}/) — uses chunks/ and embeddings/ inside",
+    )
     args = parser.parse_args()
 
     cases = json.loads(Path(args.cases).read_text(encoding="utf-8"))
     from backend.app.retrieval.hybrid import HybridRetriever
 
-    retriever = HybridRetriever()
+    if args.workspace:
+        ws = Path(args.workspace)
+        chunks = ws / "chunks" / "chunks.json"
+        embeddings = ws / "embeddings" / "embeddings.json"
+        retriever = HybridRetriever(chunks_file=chunks, embeddings_file=embeddings)
+    else:
+        retriever = HybridRetriever()
     chunk_by_id = retriever._chunk_by_id
 
     results: list[dict] = []

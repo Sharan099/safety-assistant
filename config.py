@@ -165,16 +165,16 @@ LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
 # VECTOR / RETRIEVAL CONFIG (hybrid + RRF)
 # ─────────────────────────────────────────────
 
-TOP_K_VECTOR = int(os.getenv("TOP_K_VECTOR", "8"))
-VECTOR_SCORE_THRESHOLD = float(os.getenv("VECTOR_SCORE_THRESHOLD", "0.35"))
-TOP_K_CHUNKS = int(os.getenv("TOP_K_CHUNKS", "6"))
+TOP_K_VECTOR = int(os.getenv("TOP_K_VECTOR", "15"))
+VECTOR_SCORE_THRESHOLD = float(os.getenv("VECTOR_SCORE_THRESHOLD", "0.30"))
+TOP_K_CHUNKS = int(os.getenv("TOP_K_CHUNKS", "15"))
 MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "4000"))
 
 RRF_K = int(os.getenv("RRF_K", "60"))
-SEMANTIC_WEIGHT = float(os.getenv("SEMANTIC_WEIGHT", "0.6"))
-BM25_WEIGHT = float(os.getenv("BM25_WEIGHT", "0.4"))
-TOP_K_RETRIEVE = int(os.getenv("TOP_K_RETRIEVE", "12"))
-TOP_K_AFTER_RERANK = int(os.getenv("TOP_K_AFTER_RERANK", "5"))
+SEMANTIC_WEIGHT = float(os.getenv("SEMANTIC_WEIGHT", "0.5"))
+BM25_WEIGHT = float(os.getenv("BM25_WEIGHT", "0.5"))
+TOP_K_RETRIEVE = int(os.getenv("TOP_K_RETRIEVE", "30"))
+TOP_K_AFTER_RERANK = int(os.getenv("TOP_K_AFTER_RERANK", "8"))
 NEAR_DUP_SIMILARITY_THRESHOLD = float(os.getenv("NEAR_DUP_SIMILARITY_THRESHOLD", "0.92"))
 ENABLE_NEAR_DUP_SUPPRESSION = os.getenv("ENABLE_NEAR_DUP_SUPPRESSION", "true").lower() == "true"
 

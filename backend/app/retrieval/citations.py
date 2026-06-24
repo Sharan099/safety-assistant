@@ -180,6 +180,32 @@ def assess_grounding(
             "best_rerank_prob": None,
         }
 
+    from backend.app.core.settings import GROUNDING_GATE_DOCS_ONLY
+
+    if GROUNDING_GATE_DOCS_ONLY:
+        sem_scores = [
+            d["semantic_score"] for d in documents if d.get("semantic_score") is not None
+        ]
+        best_sem = max(sem_scores) if sem_scores else None
+        best_rerank_prob = None
+        if reranker_used:
+            rr = [
+                d["rerank_score"] for d in documents if d.get("rerank_score") is not None
+            ]
+            if rr:
+                best_rerank_prob = _sigmoid(max(rr))
+        confidence = max(best_sem or 0.0, best_rerank_prob or 0.0)
+        return {
+            "should_abstain": False,
+            "confidence": round(confidence, 4),
+            "confidence_band": confidence_band(confidence),
+            "reason": "docs_present_llm_decides",
+            "best_semantic": round(best_sem, 4) if best_sem is not None else None,
+            "best_rerank_prob": (
+                round(best_rerank_prob, 4) if best_rerank_prob is not None else None
+            ),
+        }
+
     sem_scores = [
         d["semantic_score"] for d in documents if d.get("semantic_score") is not None
     ]

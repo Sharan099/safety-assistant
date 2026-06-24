@@ -1,6 +1,0 @@
-{
-  "recall_at_10": 0.50,
-  "context_precision": 0.50,
-  "correctness": 0.50,
-  "note": "Phase 0 pilot baseline (UN R14 + UN R16 only). Cases filtered to pilot corpus + abstention."
-}

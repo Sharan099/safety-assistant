@@ -1,16 +1,25 @@
-# PSA AI — Passive Safety Engineering Assistant (v5.0)
+# PSA AI — Passive Safety Engineering Assistant (v5.1)
 
 Production RAG stack for passive safety with **authority-tiered multilayer knowledge**
 (six binding-force tiers from legal regulation through synthetic data), **eight use-case
-modes**, metadata-aware retrieval (frontal≠side, legal≠rating), **chunk-level metadata
-classifier**, conditional answer formatting, document upload API, and **CI regression
-gates**. Scanned PDFs are ingested with **PaddleOCR** (or **PyMuPDF** for text-layer
-PDFs) and **hierarchical chunking** (`ingestion/`).
+modes**, **hybrid retrieval** (BM25 + dense + RRF + cross-encoder rerank), uniform
+`CONTEXT:` chunk annotation, query decomposition for comparative questions, metadata-aware
+filtering (frontal≠side, legal≠rating), **chunk-level metadata classifier**, conditional
+answer formatting, document upload API, multi-agent crash crew, and **CI regression gates**.
+Scanned PDFs are ingested with **PaddleOCR** (or **PyMuPDF** for text-layer PDFs) and
+**hierarchical chunking** (`ingestion/`).
+
+> **v5.1 — Retrieval pipeline hardening** (Jun 2026):
+> Full **UN R95** regulation indexed (**874 chunks**, was 13-page excerpt).
+> Corpus: **12,805 chunks** across 14 PDFs + synthetics + 3 NHTSA NCAP samples.
+> Uniform `CONTEXT:` blocks on all legal regulations; hybrid pool **~30** → rerank → **top 8**;
+> comparative/compound queries decomposed per regulation; grounding gate abstains only on
+> **zero** retrieved docs (`GROUNDING_GATE_DOCS_ONLY=true`). Golden retrieval gate:
+> **30/30** — `python scripts/run_retrieval_golden_eval.py --k 8`.
 
 > **v5.0 — Multilayer authority architecture** (Jun 2026):
 > Corpus expanded from the UN R14/R16 pilot to **14 active PDFs** (9 legal, 3 Euro NCAP,
 > 2 engineering references) plus **7 synthetic PROG_X** program documents.
-> **11,941 chunks** carry `authority_tier`, `impact_mode`, and `license_status` metadata.
 > Compliance queries hard-filter to `legal_binding` only; citations show **LEGAL / RATING /
 > ENG-REF / OEM / HISTORICAL / SYNTHETIC** badges. Restore archived PDFs with
 > `scripts/restore_from_archive.py`; evaluate with `scripts/run_multilayer_eval.py`.
@@ -18,7 +27,7 @@ PDFs) and **hierarchical chunking** (`ingestion/`).
 
 > **v4.0 — Metadata pipeline + gateway** (Jun 2026): chunk metadata classifier,
 > hard metadata filters, intelligent multi-LLM gateway (Groq → Haiku → Sonnet).
-> See [`CLEANUP_REPORT.md`](CLEANUP_REPORT.md) and [`output/model_selection.md`](output/model_selection.md).
+> See [`output/model_selection.md`](output/model_selection.md).
 
 > **v3.1 — Retrieval model upgrade** (see [Evaluation results](#evaluation-results)):
 > embeddings upgraded to **`nomic-ai/nomic-embed-text-v1.5`** (task-prefixed, 768-dim)
@@ -67,12 +76,13 @@ React/Next.js Frontend
    │     User Query
    │       ↓ Query intent          (compliance → binding authority only)
    │       ↓ Query Expansion        (domain synonyms + intent detection)
-   │       ↓ Multi-Query Generation (N query variants)
-   │       ↓ Hybrid Retrieval       (Dense + BM25 + RRF, per variant + multi-query fusion)
+   │       ↓ Query decomposition      (comparative / compound → per-reg sub-queries)
+   │       ↓ Hybrid Retrieval       (Dense + BM25 + RRF, numeric BM25 boosts)
+   │       ↓ Requirement clusters   (belt, frontal, side, pole_side, frontal_and_side)
    │       ↓ Authority + metadata   (tier filters, impact_mode, doc_type hard filters)
    │       ↓ Parent-Child Retrieval (precise child chunks + parent section context)
    │       ↓ Applicability grouping (§6.4 seat/retractor clusters when k is broad)
-   ├── Cross-Encoder Reranker        (BAAI/bge-reranker-v2-m3)
+   ├── Cross-Encoder Reranker        (pool ~30 → top 8; BAAI/bge-reranker-v2-m3)
    ├── Prompt builder                (tier-separated context sections + mode template)
    ├── LLM Gateway                   (Groq 70B → Haiku → Sonnet; query-only routing)
    └── Guardrails (output: PII / unsafe warnings; authority blur flags)
@@ -101,7 +111,7 @@ React/Next.js Frontend
 | OCR ingestion | PaddleOCR / PyMuPDF (`OCR_ENGINE=pymupdf` for text-layer PDFs) |
 | Observability | LangSmith (query, docs, prompt, response, latency) |
 | Monitoring | Prometheus + Grafana (cost, latency, tokens, errors) |
-| Evaluation | RAGAS + `tests/run_full_evaluation.py` (`tests/test_cases_20.json`) |
+| Evaluation | RAGAS (`tests/run_full_evaluation.py`) + golden retrieval (`scripts/run_retrieval_golden_eval.py`) |
 
 > Note: `backend/app/graph/workflow.py` is the **LangGraph** orchestration graph,
 > not GraphRAG. GraphRAG (Neo4j KG) was removed.
@@ -187,6 +197,60 @@ The chat API accepts `mode` on `POST /api/v1/chat`; list modes via `GET /api/v1/
 Each mode sets `retrieval_k`, grounding thresholds, LLM tier floor, and hard filters on
 `doc_type` / `authority_tier` / `is_synthetic`.
 
+### Crash-development multi-agent crew (`POST /api/v1/agent`)
+
+Additive layer on PSA AI v5.0 — the existing `/api/v1/chat` RAG workflow is **unchanged**.
+
+Given a crash metrics table, six specialist agents run in sequence:
+
+| Agent | Mode | Tiers read | LLM tier |
+|-------|------|------------|----------|
+| Simulation | `post_test_analysis` | historical, synthetic | T1 Groq |
+| Regulation | `regulation_lookup` | legal_binding only | T2 |
+| Root Cause | `root_cause_analysis` | legal, ref, historical, synthetic | T3 Sonnet |
+| Knowledge | `knowledge_reuse` | historical, synthetic | T2 Haiku |
+| Countermeasure | `design_review` | ref, synthetic | T3 Sonnet |
+| Program Manager | `management_view` | (no retrieval) | T2 Haiku |
+
+Each retrieval agent reuses `HybridRetriever` → grounding gate → LLM gateway → pydantic JSON.
+Agents abstain with `{"status":"insufficient_data"}` when grounding fails.
+
+**Request**
+
+```json
+{
+  "crash_result": "Metric | Target | Actual\nChest Deflection | 34 mm | 42 mm\nHIC15 | 650 | 580",
+  "vehicle": "optional",
+  "user_id": "optional",
+  "session_id": "optional"
+}
+```
+
+**Response:** `report` + `agent_outputs` (6 keys) + tier-badged `citations` + `timing`.
+
+**UI:** Frontend **Chat | Crew** toggle (`frontend/src/app/page.tsx`).
+
+**NHTSA NCAP historical data** (star ratings + media, not raw injury channels):
+
+```powershell
+conda activate rag
+python scripts/fetch_ncap_data.py --limit 3
+python -m ingestion.hierarchical_chunker
+python -m ingestion.embed_chunks
+```
+
+Files land in `data/corpus/historical/NCAP_*.md` with `authority_tier=historical_data`.
+
+**Crew tests**
+
+```powershell
+conda activate rag
+python -m pytest tests/test_agents.py tests/test_orchestrator.py -q
+```
+
+> **Latency:** 6+ LLM calls + reranking on CPU can take **5–15 minutes** per crew request.
+> Use `RERANKER_MODEL=BAAI/bge-reranker-base` on HF free CPU for faster crew runs.
+
 ### Retrieval tuning (`.env`)
 
 | Variable | Default | Purpose |
@@ -228,10 +292,10 @@ grounding layer on top of retrieval.
   `revision/amendment`, `doc_type`, and **`authority_tier_badge`** (`LEGAL`, `RATING`,
   `ENG-REF`, …). Markers `[S1] [S2] …` are injected into the LLM context and the
   prompt requires an inline citation after every claim.
-- **Confidence gate / abstention.** If the top retrieval confidence is below a
-  threshold, the bot replies *"I don't know — not found in the corpus"* instead
-  of generating. Confidence uses the raw semantic cosine (and the cross-encoder
-  probability when the reranker is on).
+- **Confidence gate / abstention.** With `GROUNDING_GATE_DOCS_ONLY=true` (default), the
+  system only hard-abstains when **zero** documents are retrieved; weak matches are
+  passed to the LLM, which cites-or-declines per the prompt. Legacy semantic/rerank
+  thresholds still apply when `GROUNDING_GATE_DOCS_ONLY=false`.
 - **Authority-tier separation.** Context is grouped into tier-separated sections in
   the prompt. The system forbids using *required/shall/must comply* language when only
   advisory tiers (RATING, ENG-REF, HISTORICAL, SYNTHETIC) are cited.
@@ -314,6 +378,7 @@ structured feedback to improve the system.
 | `GET`  | `/api/v1/feedback/dashboard` | Admin: users + feedback (requires `X-Dashboard-Key`) |
 | `GET`  | `/api/v1/ready` | Self-test gate (cached after first pass) |
 | `POST` | `/api/v1/chat` | Now accepts `user_id`/`session_id`, returns `message_id` |
+| `POST` | `/api/v1/agent` | **Crash-development crew** — metrics table → 6-agent report |
 
 **Config (`.env`)**
 
@@ -661,9 +726,9 @@ AutoSafety_RAG/
 │   ├── corpus/           # legal / rating / reference / synthetic PDFs
 │   └── manifest/         # corpus_manifest.json (corpus_version 4)
 ├── archive/              # corpus_removed/ — offline PDF backups (gitignored)
-├── scripts/              # restore_from_archive.py, embed_chunks.ps1, run_multilayer_eval.py, …
+├── scripts/              # ingestion, audit, eval, HF deploy (see table below)
 ├── output/               # markdown, chunks, embeddings, evaluation
-├── tests/                # golden_set.json, test_authority_tier.py, regression gates
+├── tests/                # pytest gates, golden sets, RAGAS harness
 └── deploy/hf-space/      # HF Docker Space templates
 ```
 
@@ -677,12 +742,43 @@ AutoSafety_RAG/
 | `output/regulation_chunks.json` | `output/*.log`, `output/*.db` |
 | `output/regulation_embeddings.json` (Git LFS) | `hf-space-push/` |
 | `output/ingest_manifest.json`, `output/markdown/` | `frontend/node_modules/`, `.next/` |
-| `tests/`, `scripts/`, `deploy/`, `CLEANUP_REPORT.md` | `output/ocr_compare/` |
+| `tests/`, `scripts/`, `deploy/` | `output/ocr_compare/`, `output/evaluation/cache/` |
 | `.env.example`, `.gitattributes`, `Dockerfile.backend` | Regenerable: `verify_retrieval.json` |
 
-**Corpus today:** **14 PDFs** + **7 synthetic** markdown docs → **11,941 chunks**
-(`output/regulation_chunks.json`). Re-embed after chunking so vector count matches
-(`output/regulation_embeddings.json` — resumable checkpoints).
+**Corpus today:** **14 PDFs** + **7 synthetic** markdown docs + **3 NHTSA NCAP** samples →
+**12,805 chunks** (`output/regulation_chunks.json`). Re-embed after chunking so vector
+count matches (`output/regulation_embeddings.json` — resumable checkpoints).
+
+### Production scripts (`scripts/`)
+
+| Script | Purpose |
+|--------|---------|
+| `run_ingestion_pipeline.py` | PDF → Markdown → chunk → embed (full or `--only REG`) |
+| `embed_chunks.ps1` | Resumable embedding build (`conda activate rag`) |
+| `incremental_regulation_ingest.py` | Re-chunk + incremental embed for named regulations |
+| `restore_from_archive.py` | Restore PDFs from `archive/corpus_removed/` |
+| `audit_ingestion_coverage.py` | Per-regulation chunk/CONTEXT audit report |
+| `run_retrieval_golden_eval.py` | **30-case** retrieval recall@k gate |
+| `verify_retrieval.py` | Smoke-test hybrid retrieval (no LLM) |
+| `verify_extraction_fidelity.py` | Markdown fidelity checks (UN R14/R16 anchors) |
+| `run_multilayer_eval.py` | Authority-tier structural + optional RAGAS eval |
+| `run_full_evaluation.py` | Part G final-validation wrapper (deterministic pytest) |
+| `run_evaluation_20.ps1` | 20-question RAGAS run (`tests/run_full_evaluation.py`) |
+| `fetch_ncap_data.py` | Pull NHTSA NCAP historical docs into `data/corpus/historical/` |
+| `generate_synthetic_docs.py` | Regenerate PROG_X synthetic markdown |
+| `prepare_hf_space.ps1` | Sync backend artifacts to HF Space clone |
+
+### Test suite (`tests/`)
+
+| Category | Files |
+|----------|-------|
+| **Retrieval gates** | `test_retrieval_filtering.py`, `test_phase2_clause_topic.py`, `test_phase3_clusters.py`, `test_phase1_comparison.py`, `golden_retrieval_recall.json`, `golden_set.json`, `regression_baseline.json` |
+| **Authority / modes** | `test_authority_tier.py`, `test_category_citation_authority.py`, `test_metadata_classifier.py` |
+| **Gateway** | `test_gateway_*.py`, `test_gateway_tier_routing.py` |
+| **Workflow / agents** | `test_workflow_build_prompt.py`, `test_agents.py`, `test_orchestrator.py` |
+| **Clause / chunking** | `test_clause_*.py`, `test_phase2_chunking.py`, `test_applicability_grouping.py` |
+| **RAGAS eval** | `run_full_evaluation.py`, `run_ragas_eval.py`, `test_cases_20.json`, `eval_harness/` |
+| **CI regression** | `test_regression_gate.py`, `test_phase0_audit.py`, `test_reliability.py` |
 
 ## Offline data pipeline (OCR + hierarchical chunking)
 
@@ -728,27 +824,6 @@ python -m ingestion.hierarchical_chunker
 
 Alternative: `OCR_ENGINE=docling` | `OCR_ENGINE=pymupdf` (preferred for UN/ECE text-layer PDFs on Windows).
 
-### OCR benchmark — Docling 2.103 vs PaddleOCR 3.7 (UN R14.pdf)
-
-Run: `conda activate rag` then `.\scripts\compare_ocr_pipeline.ps1` (or `python scripts/compare_ocr_pipeline.py --pdf data/corpus/legal/UN_R14.pdf`).
-
-| Metric | Docling 2.103 | **PaddleOCR 3.7 (PP-OCRv6)** |
-|--------|---------------|------------------------------|
-| Extracted chars | 17,121 | **81,990** |
-| Pages covered | partial (OOM on long scan) | **36 / 36** |
-| Chunks | 20 | **394** |
-| Extract time | 480 s | **58 s** |
-| Context recall (proxy) | 0.34 | 0.31 |
-| Context precision (proxy) | 0.24 | **0.25** |
-| R002 test-load recall | 0.41 | **0.59** |
-| Composite score | 0.34 | **0.40** |
-
-**Winner: PaddleOCR 3.7** — full-document coverage, faster extraction, and better
-retrieval on the critical UN R14 test-load question. Docling remains available via
-`OCR_ENGINE=docling` for table-heavy documents when RAM permits (`DOCLING_IMAGES_SCALE=0.75`).
-
-Full report: `output/ocr_compare/ocr_pipeline_comparison.json`
-
 Steps:
 
 | Step | Script | Output |
@@ -776,9 +851,8 @@ before embedding — do **not** use `conda run -n rag` (access violation with
 
 The retrieval stack was upgraded from `BAAI/bge-base-en-v1.5` + `bge-reranker-base`
 to **`nomic-ai/nomic-embed-text-v1.5`** (task-prefixed, 768-dim) +
-**`BAAI/bge-reranker-v2-m3`**. The corpus (1,572 chunks) was fully re-embedded and
-re-evaluated. Baselines are preserved as `*.bge_baseline.json` and the comparison
-plots are reproducible via `python scripts/plot_comparison.py`.
+**`BAAI/bge-reranker-v2-m3`**. Baselines are preserved as `*.bge_baseline.json` under
+`output/evaluation/archive/v3_1/`.
 
 **Reranker A/B — 5 questions, live Groq answers (RAGAS `full` mode), Nomic embeddings**
 
@@ -1110,8 +1184,10 @@ Prometheus scrape target (`autosafety-rag-backend`) healthy / UP:
 cd H:\AutoSafety_RAG
 conda activate rag
 python -m pytest tests/test_phase0_audit.py tests/test_metadata_classifier.py `
-  tests/test_retrieval_filtering.py tests/test_regression_gate.py `
-  tests/test_authority_tier.py tests/test_gateway_tier_routing.py -q
+  tests/test_retrieval_filtering.py tests/test_phase2_clause_topic.py `
+  tests/test_regression_gate.py tests/test_authority_tier.py `
+  tests/test_gateway_tier_routing.py -q
+python scripts/run_retrieval_golden_eval.py --k 8
 python scripts/verify_retrieval.py
 ```
 
@@ -1128,18 +1204,19 @@ git lfs install
 
 # Application code
 git add config.py .env.example .gitattributes .gitignore `
-  backend/ ingestion/ frontend/ tests/ scripts/ deploy/ `
+  backend/ ingestion/ frontend/ tests/ scripts/ deploy/ config/ `
   gateway/ monitoring/ conftest.py `
   railway.toml Dockerfile.backend requirements.txt requirements.runtime.txt `
-  docker-compose.yml CLEANUP_REPORT.md README.md
+  docker-compose.yml README.md
 
 # Active corpus (PDFs via LFS)
 git add data/corpus/ data/manifest/
 
 # Retrieval artifacts (embeddings = LFS)
 git add output/regulation_chunks.json output/regulation_embeddings.json `
-  output/ingest_manifest.json output/markdown/ output/chunking_diagnostics.txt `
-  output/model_selection.md output/evaluation/current/ output/evaluation/archive/
+  output/ingest_manifest.json output/markdown/ `
+  output/ingestion_audit_report.md output/ingestion_audit_report.json `
+  output/evaluation/current/ output/evaluation/archive/
 
 git status
 # Confirm: NO .env, NO archive/, NO *.log, embeddings.json shows as LFS

@@ -1,0 +1,50 @@
+{
+  "NCAP_2024_TOYOTA_CAMRY_19427": {
+    "code": "NCAP_2024_TOYOTA_CAMRY_19427",
+    "display_name": "NCAP 2024 Toyota CAMRY 4 DR AWD",
+    "full_title": "NHTSA NCAP safety ratings \u2014 2024 toyota camry (VehicleId 19427, star ratings + media)",
+    "doc_type": "internal",
+    "authority_tier": "historical_data",
+    "authority": "NHTSA",
+    "region": "US",
+    "impact_mode": "general",
+    "license_status": "public",
+    "indexed_revision": "2024",
+    "known_revisions": [],
+    "in_force": null,
+    "legal_reference": null,
+    "verified": true
+  },
+  "NCAP_2024_HYUNDAI_ELANTRA_19543": {
+    "code": "NCAP_2024_HYUNDAI_ELANTRA_19543",
+    "display_name": "NCAP 2024 Hyundai Elantra 4 DR FWD",
+    "full_title": "NHTSA NCAP safety ratings \u2014 2024 hyundai elantra (VehicleId 19543, star ratings + media)",
+    "doc_type": "internal",
+    "authority_tier": "historical_data",
+    "authority": "NHTSA",
+    "region": "US",
+    "impact_mode": "general",
+    "license_status": "public",
+    "indexed_revision": "2024",
+    "known_revisions": [],
+    "in_force": null,
+    "legal_reference": null,
+    "verified": true
+  },
+  "NCAP_2023_NISSAN_ALTIMA_18390": {
+    "code": "NCAP_2023_NISSAN_ALTIMA_18390",
+    "display_name": "NCAP 2023 Nissan Altima 4 DR AWD",
+    "full_title": "NHTSA NCAP safety ratings \u2014 2023 nissan altima (VehicleId 18390, star ratings + media)",
+    "doc_type": "internal",
+    "authority_tier": "historical_data",
+    "authority": "NHTSA",
+    "region": "US",
+    "impact_mode": "general",
+    "license_status": "public",
+    "indexed_revision": "2023",
+    "known_revisions": [],
+    "in_force": null,
+    "legal_reference": null,
+    "verified": true
+  }
+}

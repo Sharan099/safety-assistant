@@ -1,0 +1,191 @@
+[
+  {
+    "id": "R14_anchorage_load",
+    "question": "What is the test load for UN R14 M1 rear centre seat belt anchorage without retractor?",
+    "expected_regs": ["UN_R14"],
+    "expected_clauses": ["6.4.2"],
+    "category": "single_fact"
+  },
+  {
+    "id": "R14_annex6_anchorage_points",
+    "question": "UN R14 Annex 6 minimum number of anchorage points per seating position",
+    "expected_regs": ["UN_R14"],
+    "expected_clauses": ["6"],
+    "category": "table_lookup"
+  },
+  {
+    "id": "R16_retractor_locking",
+    "question": "UN R16 requirements for emergency locking retractors",
+    "expected_regs": ["UN_R16"],
+    "category": "procedure"
+  },
+  {
+    "id": "R17_seat_strength",
+    "question": "UN R17 seat back strength test requirements",
+    "expected_regs": ["UN_R17"],
+    "category": "procedure"
+  },
+  {
+    "id": "R94_frontal_speed",
+    "question": "UN R94 frontal impact test speed km/h",
+    "expected_regs": ["UN_R94"],
+    "category": "numeric"
+  },
+  {
+    "id": "R94_overlap",
+    "question": "UN R94 ODB overlap percentage frontal barrier",
+    "expected_regs": ["UN_R94"],
+    "category": "numeric"
+  },
+  {
+    "id": "R95_side_barrier",
+    "question": "UN R95 movable deformable barrier side impact requirements",
+    "expected_regs": ["UN_R95"],
+    "category": "procedure"
+  },
+  {
+    "id": "R135_pole_speed",
+    "question": "UN R135 pole side impact test speed km/h",
+    "expected_regs": ["UN_R135"],
+    "category": "numeric"
+  },
+  {
+    "id": "R135_worldsid",
+    "question": "UN R135 WorldSID dummy requirements pole side impact",
+    "expected_regs": ["UN_R135"],
+    "category": "single_fact"
+  },
+  {
+    "id": "R135_not_R95",
+    "question": "UN R135 pole side impact performance criteria",
+    "expected_regs": ["UN_R135"],
+    "forbidden_regs": ["UN_R95"],
+    "category": "coverage"
+  },
+  {
+    "id": "R137_frontal",
+    "question": "UN R137 full width frontal impact test speed",
+    "expected_regs": ["UN_R137"],
+    "category": "numeric"
+  },
+  {
+    "id": "FMVSS208_chest",
+    "question": "FMVSS 208 chest deflection limit mm",
+    "expected_regs": ["FMVSS"],
+    "category": "numeric"
+  },
+  {
+    "id": "compare_R94_NCAP",
+    "question": "How does Euro NCAP frontal assessment differ from UN R94 legal requirements?",
+    "expected_regs": ["UN_R94", "EURO_NCAP"],
+    "category": "comparison"
+  },
+  {
+    "id": "compare_R95_R135",
+    "question": "Compare UN R95 side impact and UN R135 pole side impact test setups",
+    "expected_regs": ["UN_R95", "UN_R135"],
+    "category": "comparison"
+  },
+  {
+    "id": "compound_frontal_side",
+    "question": "Which regulations apply to frontal and side impact for M1 vehicles?",
+    "expected_regs": ["UN_R94", "UN_R95"],
+    "category": "compound"
+  },
+  {
+    "id": "belt_cluster",
+    "question": "Which regulations govern seat belt anchorage design?",
+    "expected_regs": ["UN_R14", "UN_R16"],
+    "category": "cluster"
+  },
+  {
+    "id": "negative_pizza",
+    "question": "What is the best pizza topping?",
+    "expected_regs": [],
+    "category": "out_of_scope"
+  },
+  {
+    "id": "negative_FMVSS210",
+    "question": "FMVSS 210 seat belt assembly anchorages requirements",
+    "expected_regs": [],
+    "forbidden_regs": ["FMVSS"],
+    "category": "ghost_reg"
+  },
+  {
+    "id": "R14_duration",
+    "question": "UN R14 anchorage load application duration seconds",
+    "expected_regs": ["UN_R14"],
+    "expected_clauses": ["6.3.3"],
+    "category": "numeric"
+  },
+  {
+    "id": "R16_abrasion",
+    "question": "UN R16 webbing abrasion resistance test",
+    "expected_regs": ["UN_R16"],
+    "category": "procedure"
+  },
+  {
+    "id": "NCAP_side_points",
+    "question": "Euro NCAP side impact scoring protocol",
+    "expected_regs": ["EURO_NCAP"],
+    "mode": "knowledge_reuse",
+    "category": "rating"
+  },
+  {
+    "id": "NCAP_frontal_points",
+    "question": "Euro NCAP frontal impact test protocol speed",
+    "expected_regs": ["EURO_NCAP"],
+    "mode": "knowledge_reuse",
+    "category": "rating"
+  },
+  {
+    "id": "legal_vs_rating",
+    "question": "Is Euro NCAP frontal protocol legally binding for type approval?",
+    "expected_regs": ["EURO_NCAP"],
+    "mode": "regulation_lookup",
+    "category": "authority"
+  },
+  {
+    "id": "R127_pedestrian",
+    "question": "UN R127 pedestrian protection requirements",
+    "expected_regs": ["UN_R127"],
+    "category": "single_fact"
+  },
+  {
+    "id": "R14_false_premise",
+    "question": "UN R14 requires 5000 daN for all M1 anchorages",
+    "expected_regs": ["UN_R14"],
+    "category": "false_premise"
+  },
+  {
+    "id": "R16_R14_cross",
+    "question": "How does UN R16 reference UN R14 belt anchorages?",
+    "expected_regs": ["UN_R16", "UN_R14"],
+    "category": "comparison"
+  },
+  {
+    "id": "R135_barrier_location",
+    "question": "UN R135 pole impact location and angle",
+    "expected_regs": ["UN_R135"],
+    "category": "numeric"
+  },
+  {
+    "id": "R94_injury_criteria",
+    "question": "UN R94 head injury criterion HIC limits",
+    "expected_regs": ["UN_R94"],
+    "category": "numeric"
+  },
+  {
+    "id": "R95_door_removal",
+    "question": "UN R95 door removal after side impact test",
+    "expected_regs": ["UN_R95"],
+    "category": "procedure"
+  },
+  {
+    "id": "traceability_R14",
+    "question": "UN R14 section 6.4.2.1 upper torso strap load without retractor",
+    "expected_regs": ["UN_R14"],
+    "expected_clauses": ["6.4.2.1"],
+    "category": "citation_trace"
+  }
+]

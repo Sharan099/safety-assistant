@@ -52,9 +52,14 @@ output/overnight_run.log
 output/phase0_reingest.log
 output/phase0_execution.log
 
-# Regenerable verification outputs
+# Regenerable verification / eval scratch outputs
 output/verify_retrieval.json
 output/batch_ingest_state.json
+output/benchmark_models.json
+output/embedding_confusion_eval.json
+output/evaluation/cache/
+output/golden_retrieval_eval.json
+output/r95_reingest_*.log
 
 # Archived corpus (removed PDFs — keep offline, not needed for deploy)
 archive/

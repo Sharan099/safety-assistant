@@ -38,6 +38,21 @@ class TestTopicIntent:
         allowed = detect_allowed_clause_topics(Q03_QUESTION)
         assert allowed == frozenset({"dummy_spec", "injury_criteria"})
 
+    def test_performance_criteria_includes_barrier_topics(self):
+        allowed = detect_allowed_clause_topics(
+            "UN R135 pole side impact performance criteria"
+        )
+        assert "barrier" in allowed
+        assert "injury_criteria" in allowed
+
+    def test_heading_injury_overrides_pole_barrier(self):
+        topic = detect_clause_topic(
+            "CONTEXT:\n  Covers: pole side test\n---\nPole geometry details",
+            heading_path="UN_R135 > 5.3.2",
+            section_title="Head Injury Criteria",
+        )
+        assert topic == "injury_criteria"
+
 
 @pytest.fixture(scope="module")
 def retriever():
@@ -59,10 +74,11 @@ class TestQ03RetrievalFilter:
     def test_primary_topics_allowed(self, retriever):
         intent = detect_query_intent(Q03_QUESTION)
         assert intent.allowed_clause_topics is not None
+        from backend.app.retrieval.clause_topic import chunk_passes_topic_filter
+
         for d in retriever.retrieve(Q03_QUESTION)["documents"][:5]:
             chunk = retriever._chunk_by_id.get(d["id"], {})
-            topic = chunk.get("clause_topic", "general")
-            assert topic in intent.allowed_clause_topics
+            assert chunk_passes_topic_filter(chunk, intent.allowed_clause_topics)
 
 
 class TestQ02StillRetrieves:

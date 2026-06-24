@@ -53,6 +53,7 @@ from backend.app.retrieval.query_expansion import (
     generate_multi_queries,
     is_comparison_query,
 )
+from backend.app.retrieval.query_decomposition import decompose_query
 from backend.app.retrieval.query_intent import (
     chunk_passes_intent_filter,
     detect_query_intent,
@@ -69,7 +70,7 @@ REG_MAP = {
     "un r137": "UN_R137",
     "fmvss": "FMVSS",
     "euro ncap": "EURO_NCAP",
-    "ncap": "EURO_NCAP",
+    "nhtsa ncap": "NCAP_NHTSA",
 }
 
 _LFS_POINTER_PREFIX = "version https://git-lfs.github.com/spec/v1"
@@ -282,12 +283,20 @@ class HybridRetriever:
         intent_flags: list[str] = []
         semantic_total = 0
         bm25_total = 0
+        from dataclasses import replace
+        from backend.app.core.document_registry import get_document_meta
 
         for reg in reg_codes:
             allowed = self._allowed_ids_for_reg(reg)
             if not allowed:
                 continue
-            fused, flags, sem_n, bm_n = self._retrieve_hybrid_core(query, allowed, intent)
+            reg_meta = get_document_meta(reg)
+            reg_intent = intent
+            if reg_meta.impact_mode not in ("general", "belt", "seat"):
+                reg_intent = replace(intent, test_type=reg_meta.impact_mode)
+            fused, flags, sem_n, bm_n = self._retrieve_hybrid_core(
+                query, allowed, reg_intent
+            )
             semantic_total += sem_n
             bm25_total += bm_n
             for f in flags:
@@ -349,11 +358,42 @@ class HybridRetriever:
             query, named_regs, intent, per_k, tag_key="comparison_reg", pool_cap=pool_cap
         )
 
+    def _intent_for_regulation(self, intent, reg_code: str):
+        from dataclasses import replace
+        from backend.app.core.document_registry import get_document_meta
+        from backend.app.retrieval.query_intent import DOC_TYPE_RATING
+
+        if reg_code == "EURO_NCAP":
+            return replace(
+                intent,
+                doc_type_intent=DOC_TYPE_RATING,
+                value_type_intent="rating_threshold",
+                exclude_doc_types=[
+                    d for d in intent.exclude_doc_types if d != DOC_TYPE_RATING
+                ],
+                exclude_value_types=[
+                    v for v in intent.exclude_value_types if v != "rating_threshold"
+                ],
+                binding_authority_only=False,
+                compliance_determination=False,
+            )
+
+        meta = get_document_meta(reg_code)
+        if meta.impact_mode not in ("general", "belt", "seat"):
+            return replace(intent, test_type=meta.impact_mode)
+        if reg_code in ("UN_R14", "UN_R16") and intent.test_type in (None, "general"):
+            return replace(intent, test_type="belt")
+        if reg_code == "UN_R17":
+            return replace(intent, test_type="seat")
+        return intent
+
     def _filter_chunk_ids(
         self,
         regs: list[str],
         intent=None,
     ) -> set[str] | None:
+        if intent and getattr(intent, "_ghost_query", False):
+            return set()
         if not regs and not (intent and ENABLE_HARD_METADATA_FILTER):
             return None
         allowed: set[str] = set()
@@ -496,6 +536,24 @@ class HybridRetriever:
                     if "shall not exceed" in text and "mm" in text:
                         boost += 2.0
 
+                # Numeric / unit queries — keyword path must compete with dense search.
+                if any(
+                    term in q_low
+                    for term in (
+                        "km/h", "kph", "km h", "mph", "overlap", "angle", "degree",
+                        "speed", "velocity", "mm", "percent", "%", "g ", " m/s",
+                    )
+                ) or re.search(r"\d+(?:[.,]\d+)?\s*(?:%|km/h|kph|mm|°|deg|g)\b", q_low):
+                    for num in re.findall(r"\d+(?:[.,]\d+)?", query):
+                        if num.replace(",", ".") in text or num in text:
+                            boost += 2.0
+                    if "km/h" in q_low and ("km/h" in text or "km h" in text):
+                        boost += 2.5
+                    if "overlap" in q_low and "overlap" in text:
+                        boost += 2.0
+                    if "context:" in text[:200]:
+                        boost += 0.5
+
                 ranked.append((float(score) * boost, i))
 
         ranked.sort(key=lambda x: -x[0])
@@ -594,7 +652,7 @@ class HybridRetriever:
             reg = chunk.get("regulation") or chunk.get("doc_id") or ""
             if intent and intent.requirement_cluster:
                 mult *= cluster_boost_for_regulation(reg, intent.requirement_cluster)
-            if not is_indexed_regulation(reg) and reg and reg not in ("EURO_NCAP",):
+            if not is_indexed_regulation(reg) and reg and reg not in ("EURO_NCAP", "NCAP_NHTSA") and not str(reg).startswith("NCAP_"):
                 mult *= 0.15
             text_low = (chunk.get("text", "") or "").lower()
             if "contents page" in text_low or "application for approval" in text_low:
@@ -737,6 +795,7 @@ class HybridRetriever:
         from backend.app.retrieval.mode_filter import (
             chunk_passes_mode_filter,
             mode_soft_boost,
+            resolve_mode_config,
         )
         from backend.app.retrieval.applicability_boost import applicability_soft_boost
         from backend.app.retrieval.query_breadth import (
@@ -745,7 +804,7 @@ class HybridRetriever:
             effective_retrieval_k,
         )
 
-        mode_cfg = get_mode(mode)
+        q_low = query.lower()
         breadth = assess_query_breadth(query)
         fusion_cap = effective_fusion_pool_k(breadth, default_k=TOP_K_RETRIEVE)
         t0 = time.perf_counter()
@@ -754,17 +813,29 @@ class HybridRetriever:
         named_regs = list(dict.fromkeys(
             self._detect_regs(query) + intent.regulation_codes
         ))
+        mode_cfg = resolve_mode_config(
+            mode,
+            query=query,
+            named_regs=named_regs,
+            doc_type_intent=intent.doc_type_intent,
+        )
+        if mode is None and "ncap" in q_low and "euro" not in q_low and "euroncap" not in q_low:
+            mode_cfg = get_mode("knowledge_reuse")
+        decomp = decompose_query(query)
 
         use_comparison = (
             ENABLE_COMPARISON_RETRIEVAL
             and len(named_regs) >= 2
-            and (is_comparison_query(query) or len(named_regs) >= 2)
+            and (is_comparison_query(query) or decomp.is_comparative)
         )
         use_cluster = (
             ENABLE_CLUSTER_RETRIEVAL
             and intent.requirement_cluster
             and len(cluster_member_codes(intent.requirement_cluster)) >= 2
+            and not named_regs
         )
+        if "ncap" in q_low and "euro" not in q_low and "euroncap" not in q_low:
+            use_cluster = False
 
         if use_comparison:
             per_reg_k = max(1, COMPARISON_CHUNKS_PER_REG)
@@ -801,10 +872,39 @@ class HybridRetriever:
                 queries = [exp.expanded]
             else:
                 queries = [query]
-            allowed = self._filter_chunk_ids(named_regs, intent)
-            fused, intent_flags, semantic_total, bm25_total = self._retrieve_hybrid_core(
-                query, allowed, intent
-            )
+
+            if len(decomp.sub_queries) > 1 and not use_comparison:
+                queries = decomp.sub_queries
+                merged_docs: dict[str, dict] = {}
+                semantic_total = 0
+                bm25_total = 0
+                for sq in decomp.sub_queries:
+                    sq_regs = list(dict.fromkeys(
+                        self._detect_regs(sq) + detect_regulations_in_query(sq)
+                    )) or named_regs
+                    allowed = self._filter_chunk_ids(sq_regs, intent)
+                    part, flags, sem_t, bm25_t = self._retrieve_hybrid_core(
+                        sq, allowed, intent
+                    )
+                    semantic_total += sem_t
+                    bm25_total += bm25_t
+                    for f in flags:
+                        if f not in intent_flags:
+                            intent_flags.append(f)
+                    for d in part:
+                        cid = d["id"]
+                        prev = merged_docs.get(cid)
+                        if prev is None or d.get("score", 0) > prev.get("score", 0):
+                            merged_docs[cid] = d
+                fused = sorted(merged_docs.values(), key=lambda x: -x.get("score", 0.0))
+            else:
+                active_intent = intent
+                if len(named_regs) == 1:
+                    active_intent = self._intent_for_regulation(intent, named_regs[0])
+                allowed = self._filter_chunk_ids(named_regs, active_intent)
+                fused, intent_flags, semantic_total, bm25_total = self._retrieve_hybrid_core(
+                    query, allowed, active_intent
+                )
             fusion_cap = effective_fusion_pool_k(
                 breadth, default_k=TOP_K_RETRIEVE
             )

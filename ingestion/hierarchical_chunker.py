@@ -50,7 +50,10 @@ DISTANCE_RE = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:mm|cm|m)\b", re.I)
 VEHICLE_RE = re.compile(r"\b(M1|M2|M3|N1|N2|N3)\b")
 REQ_RE = re.compile(r"\b(shall|must|required|requirement)\b", re.I)
 BELT_RE = re.compile(r"\b(anchorages?|seat.?belt|retractor|pretensioner)\b", re.I)
-INJURY_RE = re.compile(r"\b(HIC|chest deflection|femur force|neck force|thorax)\b", re.I)
+INJURY_RE = re.compile(
+    r"\b(HIC|chest deflection|femur force|neck force|thorax|head injury|injury criteria)\b",
+    re.I,
+)
 
 
 def p(msg: str) -> None:
@@ -406,7 +409,12 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
     from ingestion.applicability_enrichment import (
         enrich_section_body,
         extract_r14_duration_snippet,
+        format_applicability_header,
         prepend_applicability_to_chunk_text,
+    )
+    from ingestion.chunk_context_enrichment import (
+        build_chunk_context_meta,
+        prepend_context_to_chunk_text,
     )
 
     duration_snippet = (
@@ -430,6 +438,21 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
         clause_number = _normalize_clause_number(clause_number, title)
         body = enriched_body
         heading_path = " > ".join(path)
+
+        context_meta = build_chunk_context_meta(
+            regulation=regulation,
+            clause_number=clause_number,
+            section_title=title,
+            heading_path=heading_path,
+            body=body,
+            test_type=applicability_meta.get("anchorage_test_type") if applicability_meta else None,
+        )
+        applicability_header = (
+            format_applicability_header(applicability_meta, duration_snippet)
+            if applicability_meta and "APPLICABILITY:" not in body[:200]
+            else None
+        )
+
         section_chunk_id = f"{regulation}-{file_slug}-H{sec_idx:04d}-SEC"
 
         body_word_count = len(body.split())
@@ -439,6 +462,11 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
         else:
             section_body = body
         section_text = f"# {heading_path}\n\n{section_body}"
+        section_text = prepend_context_to_chunk_text(
+            section_text,
+            context_meta,
+            applicability_header=applicability_header,
+        )
         section_chunk = _make_chunk(
             regulation=regulation,
             file_slug=file_slug,
@@ -460,6 +488,7 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
             section_chunk["heading_source"] = heading_source
         if applicability_meta:
             section_chunk.update(applicability_meta)
+        section_chunk.update(context_meta)
         all_chunks.append(section_chunk)
 
         # Leaf paragraph chunks under section
@@ -471,6 +500,11 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
                     part, applicability_meta, duration_snippet
                 )
             leaf_text = f"[{heading_path}]\n\n{leaf_part}"
+            leaf_text = prepend_context_to_chunk_text(
+                leaf_text,
+                context_meta,
+                applicability_header=None,
+            )
             chunk = _make_chunk(
                 regulation=regulation,
                 file_slug=file_slug,
@@ -494,6 +528,7 @@ def chunk_markdown_file(md_path: Path) -> list[dict]:
             )
             if applicability_meta:
                 chunk.update(applicability_meta)
+            chunk.update(context_meta)
             chunk["global_seq"] = global_seq
             global_seq += 1
             all_chunks.append(chunk)

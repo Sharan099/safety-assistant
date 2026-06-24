@@ -1,18 +1,11 @@
 {
   "converted": [
     {
-      "pdf": "data\\corpus\\reference\\CAE_REFERENCE.pdf",
-      "markdown": "CAE_REFERENCE.md",
-      "chars": 557873,
+      "pdf": "data\\corpus\\legal\\UN_R95.pdf",
+      "markdown": "UN_R95.md",
+      "chars": 125549,
       "engine": "pymupdf",
-      "seconds": 1.3
-    },
-    {
-      "pdf": "data\\corpus\\reference\\SAFETY_REFERENCE.pdf",
-      "markdown": "SAFETY_REFERENCE.md",
-      "chars": 453662,
-      "engine": "pymupdf",
-      "seconds": 1.8
+      "seconds": 0.7
     }
   ],
   "skipped": [],

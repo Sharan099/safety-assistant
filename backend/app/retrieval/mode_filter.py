@@ -2,9 +2,46 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from backend.app.core.modes import ModeConfig, get_mode
+
+
+def resolve_mode_config(
+    mode_name: str | None,
+    *,
+    query: str = "",
+    named_regs: list[str] | None = None,
+    doc_type_intent: str | None = None,
+) -> ModeConfig:
+    """Widen hard filters when the query spans legal + rating corpora (e.g. Euro NCAP)."""
+    cfg = get_mode(mode_name)
+    q = query.lower()
+    regs = named_regs or []
+    needs_rating = (
+        "EURO_NCAP" in regs
+        or "euro ncap" in q
+        or "euroncap" in q
+        or doc_type_intent == "rating"
+    )
+    if not needs_rating:
+        return cfg
+
+    hf = dict(cfg.hard_filters)
+    doc_types = list(hf.get("doc_type") or list(cfg.doc_type_scope))
+    for dt in ("rating",):
+        if dt not in doc_types:
+            doc_types.append(dt)
+    hf["doc_type"] = doc_types
+
+    if "authority_tier" in hf:
+        tiers = list(hf["authority_tier"])
+        if "rating_protocol" not in tiers:
+            tiers.append("rating_protocol")
+        hf["authority_tier"] = tiers
+
+    return replace(cfg, hard_filters=hf, doc_type_scope=tuple(doc_types))
 
 
 def chunk_passes_mode_filter(chunk: dict[str, Any], mode: ModeConfig) -> bool:

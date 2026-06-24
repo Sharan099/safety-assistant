@@ -86,7 +86,7 @@ foreach ($tree in @("backend", "ingestion")) {
 $embPath = Join-Path $TargetDir "output\regulation_embeddings.json"
 $check = python -c "import json; d=json.load(open(r'$embPath',encoding='utf-8')); print(len(d.get('embeddings',{})))"
 Write-Host ""
-Write-Host "Embeddings vectors: $check (expect 11941 for multilayer corpus)"
+Write-Host "Embeddings vectors: $check (expect 12805 for current corpus)"
 
 Write-Host ""
 Write-Host "=== Next: push to Hugging Face ==="

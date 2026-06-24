@@ -162,6 +162,8 @@ def _registry_doc_type(regulation: str) -> str:
 
 
 def _detect_test_type(text: str, pdf_name: str, regulation: str) -> str:
+    if regulation == "UN_R17":
+        return "seat"
     blob = f"{pdf_name} {text}".lower()
     if any(k in blob for k in _POLE_KW):
         return "pole_side"
@@ -187,8 +189,6 @@ def _detect_test_type(text: str, pdf_name: str, regulation: str) -> str:
         return "pole_side"
     if regulation in ("UN_R14", "UN_R16"):
         return "belt"
-    if regulation == "UN_R17":
-        return "seat"
     if regulation == "EURO_NCAP":
         if "side" in blob:
             return "side"

@@ -17,8 +17,7 @@ from backend.app.core.document_registry import (  # noqa: E402
 )
 
 GOLDEN = ROOT / "tests" / "golden_set.json"
-BASELINE = ROOT / "tests" / "regression_baseline_pilot.json"
-FALLBACK_BASELINE = ROOT / "tests" / "regression_baseline.json"
+BASELINE = ROOT / "tests" / "regression_baseline.json"
 
 DEFAULT_RECALL_AT_10 = 0.50
 
@@ -30,8 +29,8 @@ def _load_items():
     return data.get("items", [])
 
 
-def _pilot_applicable(case: dict) -> bool:
-    """Include abstention cases and cases whose expected docs are in the pilot corpus."""
+def _corpus_applicable(case: dict) -> bool:
+    """Include abstention cases and cases whose expected docs are indexed."""
     if case.get("expected_behavior") == "abstain":
         return True
     expected_docs = case.get("expected_source_docs") or []
@@ -62,11 +61,11 @@ def _doc_match(chunk: dict, expected_doc: str) -> bool:
 def test_golden_recall_at_10(retriever):
     cases = [
         c for c in _load_items()
-        if _pilot_applicable(c)
+        if _corpus_applicable(c)
         and c.get("expected_source_docs")
         and c.get("expected_behavior") != "abstain"
     ]
-    assert cases, "No pilot-applicable golden cases found"
+    assert cases, "No corpus-applicable golden cases found"
     hits = 0
     for case in cases:
         result = retriever.retrieve(case["question"])
@@ -81,10 +80,9 @@ def test_golden_recall_at_10(retriever):
         hits += int(found)
     recall = hits / max(len(cases), 1)
     baseline = DEFAULT_RECALL_AT_10
-    baseline_path = BASELINE if BASELINE.exists() else FALLBACK_BASELINE
-    if baseline_path.exists():
-        baseline = json.loads(baseline_path.read_text()).get("recall_at_10", baseline)
-    assert recall >= baseline, f"recall@10 {recall:.3f} < baseline {baseline} (pilot cases={len(cases)})"
+    if BASELINE.exists():
+        baseline = json.loads(BASELINE.read_text()).get("recall_at_10", baseline)
+    assert recall >= baseline, f"recall@10 {recall:.3f} < baseline {baseline} (cases={len(cases)})"
 
 
 def test_abstention_cases_not_in_corpus(retriever):

@@ -53,8 +53,10 @@ METADATA_BOOST = float(os.getenv("METADATA_BOOST", "0.5"))
 ENABLE_PARENT_CHILD = os.getenv("ENABLE_PARENT_CHILD", "true").lower() == "true"
 
 ENABLE_GROUNDING_GATE = os.getenv("ENABLE_GROUNDING_GATE", "true").lower() == "true"
-GROUNDING_MIN_SEMANTIC = float(os.getenv("GROUNDING_MIN_SEMANTIC", "0.45"))
-GROUNDING_MIN_RERANK_PROB = float(os.getenv("GROUNDING_MIN_RERANK_PROB", "0.5"))
+# When true, abstain only if zero documents retrieved — weak matches still reach the LLM.
+GROUNDING_GATE_DOCS_ONLY = os.getenv("GROUNDING_GATE_DOCS_ONLY", "true").lower() == "true"
+GROUNDING_MIN_SEMANTIC = float(os.getenv("GROUNDING_MIN_SEMANTIC", "0.25"))
+GROUNDING_MIN_RERANK_PROB = float(os.getenv("GROUNDING_MIN_RERANK_PROB", "0.30"))
 REQUIRE_CITATIONS = os.getenv("REQUIRE_CITATIONS", "true").lower() == "true"
 
 ABSTAIN_MESSAGE = os.getenv(

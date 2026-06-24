@@ -13,6 +13,7 @@ from backend.app.retrieval.clause_topic import (
     chunk_passes_topic_filter,
     detect_allowed_clause_topics,
 )
+from backend.app.retrieval.query_expansion import is_comparison_query
 
 DOC_TYPE_LEGAL = "legal"
 DOC_TYPE_RATING = "rating"
@@ -44,7 +45,8 @@ REG_MAP = {
     "un r135": "UN_R135", "r135": "UN_R135",
     "un r137": "UN_R137", "r137": "UN_R137",
     "fmvss": "FMVSS", "fmvss 208": "FMVSS",
-    "euro ncap": "EURO_NCAP", "euroncap": "EURO_NCAP", "ncap": "EURO_NCAP",
+    "euro ncap": "EURO_NCAP", "euroncap": "EURO_NCAP",
+    "nhtsa ncap": "NCAP_NHTSA", "nhtsa": "NCAP_NHTSA",
 }
 
 _TEST_PATTERNS = {
@@ -67,11 +69,38 @@ def detect_query_intent(query: str) -> QueryIntent:
         if key in q and code not in intent.regulation_codes:
             intent.regulation_codes.append(code)
 
-    # Test type
-    for test_type, keywords in _TEST_PATTERNS.items():
-        if any(kw in q for kw in keywords):
-            intent.test_type = test_type
-            break
+    # Ghost regulations — must not retrieve FMVSS corpus for FMVSS 210 questions.
+    if re.search(r"\bfmvss\s*210\b", q) or "fmvss_210" in q:
+        intent.regulation_codes = [c for c in intent.regulation_codes if c != "FMVSS"]
+        intent.exclude_doc_types = list(intent.exclude_doc_types) + [DOC_TYPE_LEGAL]
+        intent._ghost_query = True  # type: ignore[attr-defined]
+
+    skip_directional = "ncap" in q and "euro" not in q and "euroncap" not in q
+    if not skip_directional:
+        if "pole" in q and ("r135" in q or "pole side" in q or "psi" in q):
+            intent.test_type = "pole_side"
+        else:
+            for test_type, keywords in _TEST_PATTERNS.items():
+                if test_type == "pole_side":
+                    continue
+                if any(kw in q for kw in keywords):
+                    intent.test_type = test_type
+                    break
+
+    # Named regulation wins over ambiguous direction keywords.
+    if "UN_R135" in intent.regulation_codes:
+        intent.test_type = "pole_side"
+    elif "UN_R95" in intent.regulation_codes and "UN_R135" not in intent.regulation_codes:
+        intent.test_type = "side"
+    elif any(c in intent.regulation_codes for c in ("UN_R94", "UN_R137", "FMVSS")):
+        if intent.test_type in (None, "general", "side"):
+            intent.test_type = "frontal"
+    elif any(c in intent.regulation_codes for c in ("UN_R14", "UN_R16")) and any(
+        k in q for k in ("anchorage", "belt", "restraint", "dan")
+    ):
+        intent.test_type = "belt"
+    elif "UN_R17" in intent.regulation_codes:
+        intent.test_type = "seat"
 
     # Region — if query spans EU + US regulations, do not hard-filter by region.
     eu_hit = any(k in q for k in ("europe", "eu ", " unece", "ece ", "un r"))
@@ -124,16 +153,54 @@ def detect_query_intent(query: str) -> QueryIntent:
     intent.allowed_clause_topics = detect_allowed_clause_topics(query)
     intent.requirement_cluster = _detect_requirement_cluster(query)
 
+    # Named Euro NCAP — keep rating corpus reachable (comparisons, authority meta-questions).
+    if "EURO_NCAP" in intent.regulation_codes:
+        intent.exclude_doc_types = [
+            d for d in intent.exclude_doc_types if d != DOC_TYPE_RATING
+        ]
+        intent.exclude_value_types = [
+            v for v in intent.exclude_value_types if v != "rating_threshold"
+        ]
+        if any(
+            k in q
+            for k in (
+                "legally binding", "binding for", "type approval",
+                "is euro ncap", "euro ncap protocol",
+            )
+        ):
+            intent.binding_authority_only = False
+            intent.compliance_determination = False
+            intent.doc_type_intent = DOC_TYPE_RATING
+            intent.value_type_intent = "rating_threshold"
+        elif is_comparison_query(q) or (
+            "UN_R94" in intent.regulation_codes or "UN_R137" in intent.regulation_codes
+        ):
+            # Mixed legal+rating comparison — do not hard-exclude rating chunks.
+            intent.binding_authority_only = False
+
     return intent
 
 
 def _detect_requirement_cluster(query: str) -> str | None:
+    q = query.lower()
+    has_frontal = any(
+        t in q for t in ("frontal", "head-on", "odb", "full-width frontal")
+    )
+    has_side = any(
+        t in q
+        for t in ("side impact", "lateral collision", "lateral impact", "side and")
+    ) or (" side " in f" {q} " and "frontal" in q)
+    if has_frontal and has_side:
+        return "frontal_and_side"
     from backend.app.core.document_registry import match_requirement_cluster
     return match_requirement_cluster(query)
 
 
 def chunk_passes_intent_filter(chunk: dict[str, Any], intent: QueryIntent) -> bool:
     """Hard pre-filter: return False if chunk must be excluded."""
+    if getattr(intent, "_ghost_query", False):
+        return False
+
     from backend.app.core.authority_tier import LEGAL_BINDING, chunk_authority_tier
 
     if intent.binding_authority_only:
@@ -150,9 +217,9 @@ def chunk_passes_intent_filter(chunk: dict[str, Any], intent: QueryIntent) -> bo
     if intent.test_type and chunk.get("test_type"):
         ct = chunk.get("test_type", "general")
         if ct != "general" and ct != intent.test_type:
-            # belt/seat are orthogonal to impact direction — allow if query is belt/seat
+            # belt/seat are orthogonal to impact direction — allow cross-match (R17 seats vs belt-tagged chunks)
             if intent.test_type in ("belt", "seat"):
-                if ct not in (intent.test_type, "general"):
+                if ct not in (intent.test_type, "general", "belt", "seat"):
                     return False
             elif intent.test_type in ("frontal", "side", "pole_side", "rear", "pedestrian"):
                 if ct in ("frontal", "side", "pole_side", "rear", "pedestrian") and ct != intent.test_type:

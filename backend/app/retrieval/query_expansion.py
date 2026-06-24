@@ -43,9 +43,14 @@ REG_EXPANSIONS: dict[str, str] = {
     "r14": "UN R14 Regulation No. 14 safety-belt anchorages",
     "r16": "UN R16 Regulation No. 16 safety-belts restraint systems",
     "r17": "UN R17 Regulation No. 17 seat strength",
-    "r94": "UN R94 frontal collision",
-    "r95": "UN R95 lateral collision",
-    "ncap": "Euro NCAP crash test rating",
+    "r94": "UN R94 Regulation No. 94 frontal collision occupant protection",
+    "r95": "UN R95 Regulation No. 95 lateral side collision",
+    "r135": "UN R135 Regulation No. 135 pole side impact PSI",
+    "r137": "UN R137 Regulation No. 137 full width frontal impact",
+    "r127": "UN R127 Regulation No. 127 pedestrian safety",
+    "fmvss": "FMVSS 208 Federal Motor Vehicle Safety Standard occupant crash protection",
+    "fmvss 208": "FMVSS 208 frontal occupant crash protection",
+    "ncap": "Euro NCAP crash test rating protocol",
 }
 
 # Intent -> chunk metadata feature flags to prefer during metadata filtering.

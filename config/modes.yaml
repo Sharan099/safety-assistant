@@ -108,9 +108,10 @@ modes:
 
   knowledge_reuse:
     label: Knowledge reuse
-    doc_type_scope: [legal, internal]
+    doc_type_scope: [legal, internal, rating]
     hard_filters:
-      doc_type: [legal, internal]
+      doc_type: [legal, internal, rating]
+      authority_tier: [legal_binding, engineering_ref, oem_internal, historical_data, synthetic, rating_protocol]
     soft_boosts:
       vehicle_program_match: 2.0
       chunk_type_table: 1.1

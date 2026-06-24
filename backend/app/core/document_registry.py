@@ -285,9 +285,21 @@ REQUIREMENT_CLUSTERS: dict[str, RequirementCluster] = {
     ),
     "side": RequirementCluster(
         name="side",
-        members=("UN_R95", "UN_R135"),
+        members=("UN_R95",),
         validated_by=(),
-        query_triggers=("side impact", "lateral", "pole side"),
+        query_triggers=("side impact", "lateral collision", "lateral impact"),
+    ),
+    "pole_side": RequirementCluster(
+        name="pole_side",
+        members=("UN_R135",),
+        validated_by=(),
+        query_triggers=("pole side", "pole impact", "psi", "worldsid pole"),
+    ),
+    "frontal_and_side": RequirementCluster(
+        name="frontal_and_side",
+        members=("UN_R94", "UN_R95"),
+        validated_by=("UN_R137", "FMVSS"),
+        query_triggers=(),
     ),
 }
 
@@ -494,7 +506,8 @@ REG_QUERY_ALIASES: dict[str, str] = {
     "r137": "UN_R137",
     "euro ncap": "EURO_NCAP",
     "euroncap": "EURO_NCAP",
-    "ncap": "EURO_NCAP",
+    "nhtsa ncap": "NCAP_NHTSA",
+    "nhtsa": "NCAP_NHTSA",
 }
 
 # Golden-set / external ids that map to indexed corpus regulation codes.
@@ -520,6 +533,8 @@ def regulation_matches_corpus(expected: str, chunk_reg: str) -> bool:
     reg = (chunk_reg or "").upper().replace(" ", "_")
     if not reg:
         return False
+    if exp in ("NCAP_NHTSA", "NCAP") and reg.startswith("NCAP_"):
+        return True
     if exp == reg or exp in reg or reg in exp:
         return True
     for alias, codes in REG_CORPUS_ALIASES.items():

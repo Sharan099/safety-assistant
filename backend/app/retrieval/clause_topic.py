@@ -43,7 +43,8 @@ _TEST_SETUP_KW = (
 )
 _BARRIER_KW = (
     "barrier", "deformable", "odb", "mdb", "rigid barrier", "offset",
-    "full-width", "full width", "pole", "moving deformable",
+    "full-width", "full width", "moving deformable",
+    "rigid pole", "pole barrier",
 )
 _SCOPE_KW = (
     "scope", "field of application", "this regulation applies", "definitions",
@@ -58,6 +59,39 @@ _INSTRUMENTATION_KW = (
     "filtering", "cfc", "sampling rate",
 )
 
+_HEADING_INJURY_RE = re.compile(
+    r"injury\s+criteri|head\s+injury|thorax|pelvis|abdomen|hic\b|nic\b|aic\b",
+    re.I,
+)
+_HEADING_DUMMY_RE = re.compile(
+    r"\bdummy\b|manikin|mannequin|worldsid|eurosid|hybrid\s*iii|test\s+device",
+    re.I,
+)
+_HEADING_TEST_SETUP_RE = re.compile(
+    r"test\s+(speed|procedure|configuration|conditions)|impact\s+speed",
+    re.I,
+)
+
+
+def _strip_context_block(text: str) -> str:
+    """Remove ingestion CONTEXT preamble so pole/regulation keywords do not skew topics."""
+    if text.startswith("CONTEXT:"):
+        parts = text.split("---\n", 1)
+        if len(parts) == 2:
+            return parts[1]
+    return text
+
+
+def _heading_priority_topic(heading_path: str, section_title: str) -> str | None:
+    blob = f"{heading_path} {section_title}"
+    if _HEADING_INJURY_RE.search(blob):
+        return "injury_criteria"
+    if _HEADING_DUMMY_RE.search(blob):
+        return "dummy_spec"
+    if _HEADING_TEST_SETUP_RE.search(blob):
+        return "test_setup"
+    return None
+
 
 def detect_clause_topic(
     text: str,
@@ -65,7 +99,12 @@ def detect_clause_topic(
     section_title: str = "",
 ) -> str:
     """Rules-based clause_topic from headings + keywords."""
-    blob = f"{heading_path} {section_title} {text}".lower()
+    heading_topic = _heading_priority_topic(heading_path, section_title)
+    if heading_topic:
+        return heading_topic
+
+    body = _strip_context_block(text)
+    blob = f"{heading_path} {section_title} {body}".lower()
 
     if any(k in blob for k in _EVACUATION_KW):
         return "evacuation"
@@ -73,14 +112,14 @@ def detect_clause_topic(
         return "approval_admin"
     if any(k in blob for k in _INSTRUMENTATION_KW):
         return "instrumentation"
-    if any(k in blob for k in _BARRIER_KW):
-        return "barrier"
-    if any(k in blob for k in _TEST_SETUP_KW):
-        return "test_setup"
     if any(k in blob for k in _INJURY_KW):
         return "injury_criteria"
     if any(k in blob for k in _DUMMY_KW):
         return "dummy_spec"
+    if any(k in blob for k in _TEST_SETUP_KW):
+        return "test_setup"
+    if any(k in blob for k in _BARRIER_KW):
+        return "barrier"
     if any(k in blob for k in _SCOPE_KW):
         return "scope"
     return "general"
@@ -105,10 +144,12 @@ def detect_allowed_clause_topics(query: str) -> frozenset[str] | None:
         k in q
         for k in (
             "injury criteria", "injury criterion", "injury limits",
-            "performance criteria", "criteria are used", "criteria used",
+            "performance criteria", "performance criterion", "criteria are used", "criteria used",
         )
     ):
-        return frozenset({"injury_criteria", "dummy_spec"})
+        return frozenset({
+            "injury_criteria", "dummy_spec", "test_setup", "barrier", "general",
+        })
 
     if any(
         k in q
@@ -136,4 +177,18 @@ def chunk_passes_topic_filter(
     if not allowed:
         return True
     topic = chunk.get("clause_topic") or "general"
-    return topic in allowed
+    if topic in allowed:
+        return True
+    # Mis-tagged chunks: honour structural feature flags when topics were inferred wrong.
+    if "injury_criteria" in allowed and chunk.get("has_injury_criteria"):
+        return True
+    if "dummy_spec" in allowed and (chunk.get("dummy") or chunk.get("dummy_type")):
+        return True
+    if "test_setup" in allowed and chunk.get("has_test_procedure"):
+        return True
+    heading = f"{chunk.get('heading_path', '')} {chunk.get('section_title', '')}"
+    if _HEADING_INJURY_RE.search(heading) and "injury_criteria" in allowed:
+        return True
+    if _HEADING_DUMMY_RE.search(heading) and "dummy_spec" in allowed:
+        return True
+    return False

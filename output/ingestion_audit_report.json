@@ -1,0 +1,277 @@
+{
+  "total_chunks": 12805,
+  "pdf_count_on_disk": 14,
+  "documents": [
+    {
+      "regulation": "CAE_REFERENCE",
+      "display_name": "CAE Companion",
+      "authority_tier": "engineering_ref",
+      "impact_mode": "general",
+      "chunk_count": 888,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 11.5,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "EURO_NCAP",
+      "display_name": "Euro NCAP",
+      "authority_tier": "rating_protocol",
+      "impact_mode": "general",
+      "chunk_count": 464,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 56.7,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "FMVSS",
+      "display_name": "FMVSS",
+      "authority_tier": "legal_binding",
+      "impact_mode": "general",
+      "chunk_count": 5931,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 7.6,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "NCAP_2023_NISSAN_ALTIMA_18390",
+      "display_name": "NCAP 2023 Nissan Altima 4 DR AWD",
+      "authority_tier": "historical_data",
+      "impact_mode": "general",
+      "chunk_count": 1,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "NCAP_2024_HYUNDAI_ELANTRA_19543",
+      "display_name": "NCAP 2024 Hyundai Elantra 4 DR FWD",
+      "authority_tier": "historical_data",
+      "impact_mode": "general",
+      "chunk_count": 1,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "NCAP_2024_TOYOTA_CAMRY_19427",
+      "display_name": "NCAP 2024 Toyota CAMRY 4 DR AWD",
+      "authority_tier": "historical_data",
+      "impact_mode": "general",
+      "chunk_count": 1,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "PROG_X_CAE_001",
+      "display_name": "PROG_X CAE-001",
+      "authority_tier": "synthetic",
+      "impact_mode": "general",
+      "chunk_count": 2,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "PROG_X_CAE_002",
+      "display_name": "PROG_X CAE-002",
+      "authority_tier": "synthetic",
+      "impact_mode": "general",
+      "chunk_count": 2,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "PROG_X_DR",
+      "display_name": "PROG_X DR minutes",
+      "authority_tier": "synthetic",
+      "impact_mode": "general",
+      "chunk_count": 1,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "PROG_X_FT_001",
+      "display_name": "PROG_X FT-001",
+      "authority_tier": "synthetic",
+      "impact_mode": "frontal",
+      "chunk_count": 5,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "PROG_X_FT_002",
+      "display_name": "PROG_X FT-002",
+      "authority_tier": "synthetic",
+      "impact_mode": "frontal",
+      "chunk_count": 5,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "PROG_X_RCA_001",
+      "display_name": "PROG_X RCA-001",
+      "authority_tier": "synthetic",
+      "impact_mode": "belt",
+      "chunk_count": 1,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "PROG_X_STATUS",
+      "display_name": "PROG_X status",
+      "authority_tier": "synthetic",
+      "impact_mode": "general",
+      "chunk_count": 2,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "SAFETY_REFERENCE",
+      "display_name": "Safety Companion",
+      "authority_tier": "engineering_ref",
+      "impact_mode": "general",
+      "chunk_count": 1,
+      "context_annotated_pct": 0.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": false
+    },
+    {
+      "regulation": "UN_R127",
+      "display_name": "UN R127",
+      "authority_tier": "legal_binding",
+      "impact_mode": "general",
+      "chunk_count": 24,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 0.0,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "UN_R135",
+      "display_name": "UN R135",
+      "authority_tier": "legal_binding",
+      "impact_mode": "pole_side",
+      "chunk_count": 479,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 60.8,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "UN_R137",
+      "display_name": "UN R137",
+      "authority_tier": "legal_binding",
+      "impact_mode": "frontal",
+      "chunk_count": 585,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 61.0,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "UN_R14",
+      "display_name": "UN R14",
+      "authority_tier": "legal_binding",
+      "impact_mode": "belt",
+      "chunk_count": 492,
+      "context_annotated_pct": 94.7,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 68.5,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "UN_R16",
+      "display_name": "UN R16",
+      "authority_tier": "legal_binding",
+      "impact_mode": "belt",
+      "chunk_count": 1371,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 65.9,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "UN_R17",
+      "display_name": "UN R17",
+      "authority_tier": "legal_binding",
+      "impact_mode": "seat",
+      "chunk_count": 917,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 67.0,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "UN_R94",
+      "display_name": "UN R94",
+      "authority_tier": "legal_binding",
+      "impact_mode": "frontal",
+      "chunk_count": 758,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 57.8,
+      "indexed_legal": true
+    },
+    {
+      "regulation": "UN_R95",
+      "display_name": "UN R95",
+      "authority_tier": "legal_binding",
+      "impact_mode": "side",
+      "chunk_count": 874,
+      "context_annotated_pct": 100.0,
+      "applicability_annotated_pct": 0.0,
+      "clause_number_pct": 86.3,
+      "indexed_legal": true
+    }
+  ],
+  "gaps": [
+    "NCAP_2023_NISSAN_ALTIMA_18390: only 0.0% chunks have CONTEXT annotation",
+    "NCAP_2024_HYUNDAI_ELANTRA_19543: only 0.0% chunks have CONTEXT annotation",
+    "NCAP_2024_TOYOTA_CAMRY_19427: only 0.0% chunks have CONTEXT annotation",
+    "PROG_X_CAE_001: only 0.0% chunks have CONTEXT annotation",
+    "PROG_X_CAE_002: only 0.0% chunks have CONTEXT annotation",
+    "PROG_X_DR: only 0.0% chunks have CONTEXT annotation",
+    "PROG_X_FT_001: only 0.0% chunks have CONTEXT annotation",
+    "PROG_X_FT_002: only 0.0% chunks have CONTEXT annotation",
+    "PROG_X_RCA_001: only 0.0% chunks have CONTEXT annotation",
+    "PROG_X_STATUS: only 0.0% chunks have CONTEXT annotation",
+    "SAFETY_REFERENCE: only 0.0% chunks have CONTEXT annotation"
+  ],
+  "un_r135": {
+    "chunk_count": 479,
+    "context_pct": 100.0,
+    "sample_chunk_ids": [
+      "UN_R135-UN_R135_79cced71-H0001-SEC",
+      "UN_R135-UN_R135_79cced71-H0001-C001",
+      "UN_R135-UN_R135_79cced71-H0002-SEC",
+      "UN_R135-UN_R135_79cced71-H0002-C001",
+      "UN_R135-UN_R135_79cced71-H0002-C002"
+    ]
+  },
+  "un_r95": {
+    "chunk_count": 874,
+    "pdf_pages": "3 (amendment excerpt only)",
+    "note": "Replace with full UN R95 regulation PDF for complete coverage"
+  }
+}

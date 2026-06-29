@@ -49,6 +49,8 @@ sessions/
 
 # Parallel HF Space bundle (separate publish target)
 hf-space-push/
+_hf_deploy/
+_hf_wipe/
 
 # Removed-corpus archive (large PDFs; keep local only)
 archive/

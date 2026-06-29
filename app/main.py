@@ -47,10 +47,13 @@ async def startup_event():
     logger.info("Initializing Regulation Registry App Startup Actions...")
     
     # 1. Start APScheduler jobs (for crawlers and scheduled tasks)
-    try:
-        start_scheduler()
-    except Exception as e:
-        logger.error(f"Startup: Failed to initialize APScheduler: {e}")
+    if os.getenv("DISABLE_SCHEDULER", "false").lower() != "true":
+        try:
+            start_scheduler()
+        except Exception as e:
+            logger.error(f"Startup: Failed to initialize APScheduler: {e}")
+    else:
+        logger.info("APScheduler disabled (DISABLE_SCHEDULER=true).")
         
     logger.info("Regulation Registry App successfully started.")
 

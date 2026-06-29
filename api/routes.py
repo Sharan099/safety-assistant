@@ -250,18 +250,22 @@ async def health_check(db: Session = Depends(get_db)):
         health["database"] = "down"
         health["status"] = "unhealthy"
 
-    try:
-        from scheduler.celery_app import celery_app
+    if os.getenv("SKIP_WORKER_HEALTH", "false").lower() == "true":
+        health["redis"] = "skipped"
+        health["celery_worker"] = "skipped"
+    else:
+        try:
+            from scheduler.celery_app import celery_app
 
-        celery_app.control.ping(timeout=2.0)
-        health["redis"] = "up"
-        health["celery_worker"] = "up"
-    except Exception as e:
-        logger.error(f"Healthcheck: Celery worker unavailable: {e}")
-        health["redis"] = "down"
-        health["celery_worker"] = "down"
-        health["status"] = "unhealthy"
-        health["worker_error"] = str(e)
+            celery_app.control.ping(timeout=2.0)
+            health["redis"] = "up"
+            health["celery_worker"] = "up"
+        except Exception as e:
+            logger.error(f"Healthcheck: Celery worker unavailable: {e}")
+            health["redis"] = "down"
+            health["celery_worker"] = "down"
+            health["status"] = "unhealthy"
+            health["worker_error"] = str(e)
 
     return health
 

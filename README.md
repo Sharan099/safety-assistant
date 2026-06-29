@@ -1,3 +1,14 @@
+---
+title: Passive Safety Registry API
+emoji: 🛡️
+colorFrom: red
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # Automotive Safety RAG — Passive Safety Assistant
 
 EU passive-safety regulation knowledge base with hybrid retrieval, multi-tier LLM gateway failover, structure-aware chunking, and a demo chat UI for engineers.
@@ -33,6 +44,56 @@ EU passive-safety regulation knowledge base with hybrid retrieval, multi-tier LL
 **Gateway chain (serving):** `groq (70B)` → `groq_fast (20B)` → `openrouter_llama` → `openrouter_claude` → **evidence-only** (retrieved passages only, no synthesis).
 
 **PRDs:** `Passive_Safety_Assistant_PRD.md` (chat/RAG) · `Regulation_KnowledgeBase_Registry_PRD.md` (pipeline)
+
+## Deploy to Hugging Face Space
+
+The root **`Dockerfile`** runs the full registry app (`app/main.py`) with session auth and confidential upload.
+
+### 1. Export corpus bundle
+
+```powershell
+python scripts/hf_export_db.py
+# → data/hf/safety_registry.db (~580 MB)
+```
+
+### 2. Push DB via Git LFS
+
+```powershell
+git lfs install
+git lfs track data/hf/safety_registry.db
+git add .gitattributes data/hf/safety_registry.db Dockerfile docker/ scripts/hf_export_db.py
+git commit -m "Add HF Space Docker deploy"
+git push origin main
+```
+
+### 3. Connect HF Space
+
+1. Create or open [your HF Space](https://huggingface.co/new-space) → **Docker** SDK.
+2. Link the GitHub repo `Sharan099/safety-assistant` (branch `main`).
+3. Set **Settings → Variables and secrets**:
+
+| Variable | Value |
+|----------|-------|
+| `GROQ_API_KEY` | Groq API key |
+| `AUTH_SEED_PASSWORD` | Login password for seeded users |
+| `REGISTRY_CORS_ORIGINS` | `https://safety-assistant-tan.vercel.app` |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` |
+| `ANTHROPIC_API_KEY` | Optional failover |
+
+4. Point Vercel: `NEXT_PUBLIC_API_URL=https://<your-space>.hf.space/api/v1`
+
+### 4. Verify
+
+```bash
+curl https://<your-space>.hf.space/api/v1/health
+curl https://<your-space>.hf.space/api/v1/ready
+```
+
+Login: `engineer_a` / `engineer_b` / `lead` with `AUTH_SEED_PASSWORD`.
+
+See `data/hf/README.md` for details.
+
+---
 
 ## Quick start (local demo)
 

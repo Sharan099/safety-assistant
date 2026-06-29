@@ -1,0 +1,35 @@
+# Secrets & local env
+.env
+.env.*
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Large / non-production trees
+hf-space-push/
+archive/
+sessions/
+storage/confidential/
+data/backups/
+data/ocr_cache/
+data/quarantine/
+output/page_cache/
+output/evaluation/
+output/archive/
+
+# Frontend (served separately on Vercel)
+frontend/node_modules/
+frontend/.next/
+
+# Root DB copy (use data/hf/safety_registry.db only)
+safety_registry.db
+
+# IDE
+.cursor/
+.git/

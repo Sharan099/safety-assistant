@@ -1,10 +1,13 @@
 # Hugging Face Docker Space — Regulation Registry (session auth + confidential upload)
-# Space repo: connect this GitHub repo with sdk: docker, app_port: 7860
-# Requires data/hf/safety_registry.db in Git LFS (see data/hf/README.md).
+# Corpus DB is fetched from GitHub LFS at build time (keeps HF Space repo under 1 GB).
+# Generate bundle locally: python scripts/hf_export_db.py && git push origin main
 
 FROM python:3.11-slim
 
 WORKDIR /app
+
+ARG CORPUS_GIT_REF=main
+ARG CORPUS_GIT_URL=https://github.com/Sharan099/safety-assistant.git
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -55,18 +58,24 @@ COPY coverage_expected.yaml /app/coverage_expected.yaml
 COPY scripts/seed_auth_users.py /app/scripts/seed_auth_users.py
 COPY docker/hf_entrypoint.sh /app/docker/hf_entrypoint.sh
 
-# Pre-built SQLite corpus (~580 MB). Generate locally: python scripts/hf_export_db.py
-COPY data/hf/safety_registry.db /app/var/safety_registry.db
-RUN python -c "\
+# Fetch pre-built SQLite corpus from GitHub LFS (not stored in HF Space git).
+RUN mkdir -p /app/var /app/storage/confidential/uploads /app/.cache/huggingface \
+    && git lfs install \
+    && git clone --depth 1 --branch "${CORPUS_GIT_REF}" --filter=blob:none --sparse "${CORPUS_GIT_URL}" /tmp/corpus-src \
+    && cd /tmp/corpus-src \
+    && git sparse-checkout set data/hf/safety_registry.db \
+    && git lfs pull \
+    && test -f data/hf/safety_registry.db \
+    && cp data/hf/safety_registry.db /app/var/safety_registry.db \
+    && rm -rf /tmp/corpus-src \
+    && python -c "\
 import sqlite3, pathlib; \
 p = pathlib.Path('/app/var/safety_registry.db'); \
-assert p.stat().st_size > 1_000_000, 'data/hf/safety_registry.db missing or too small — run scripts/hf_export_db.py'; \
+assert p.stat().st_size > 1_000_000, 'corpus db missing or too small'; \
 c = sqlite3.connect(p); \
 n = c.execute('SELECT COUNT(*) FROM chunks').fetchone()[0]; \
 c.close(); \
-assert n > 100, f'chunks table empty (got {n})'"
-
-RUN mkdir -p /app/var /app/storage/confidential/uploads /app/.cache/huggingface \
+assert n > 100, f'chunks table empty (got {n})'" \
     && chmod +x /app/docker/hf_entrypoint.sh
 
 EXPOSE 7860

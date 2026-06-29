@@ -9,7 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+    env:
+      PYTHONPATH: .
+
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -70,16 +72,15 @@ jobs:
         REDIS_URL: redis://localhost:6379/0
         CORPUS_MODE: local
         GROQ_API_KEY: test-key-not-used
+        USE_MOCK_EMBEDDINGS: "true"
+        SKIP_WORKER_HEALTH: "true"
       run: |
-        pytest tests/registry/ --cov=. --cov-report=xml
+        pytest tests/ -q --cov=. --cov-report=xml
 
-    - name: Run RAG core tests
+    - name: Run auth and upload acceptance tests
       env:
-        CORPUS_MODE: local
-        GROQ_API_KEY: test-key-not-used
-        RUN_SELFTEST_ON_STARTUP: "false"
-        ENABLE_GATEWAY: "false"
+        DATABASE_URL: postgresql://postgres:postgrespassword@localhost:5432/safety_registry
+        USE_MOCK_EMBEDDINGS: "true"
+        SKIP_WORKER_HEALTH: "true"
       run: |
-        pytest tests/test_phase0_boot.py tests/test_citations.py \
-          tests/test_gateway_backward_compat.py tests/test_gateway_router.py \
-          tests/test_orchestrator.py tests/test_session_workspace.py -q
+        pytest tests/test_auth_sessions.py tests/test_user_upload_phase_a.py -q

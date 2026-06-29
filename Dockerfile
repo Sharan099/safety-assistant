@@ -61,11 +61,12 @@ COPY docker/hf_entrypoint.sh /app/docker/hf_entrypoint.sh
 # Fetch pre-built SQLite corpus from GitHub LFS (not stored in HF Space git).
 RUN mkdir -p /app/var /app/storage/confidential/uploads /app/.cache/huggingface \
     && git lfs install \
-    && git clone --depth 1 --branch "${CORPUS_GIT_REF}" --filter=blob:none --sparse "${CORPUS_GIT_URL}" /tmp/corpus-src \
+    && GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch "${CORPUS_GIT_REF}" --filter=blob:none --sparse "${CORPUS_GIT_URL}" /tmp/corpus-src \
     && cd /tmp/corpus-src \
-    && git sparse-checkout set data/hf/safety_registry.db \
-    && git lfs pull \
-    && test -f data/hf/safety_registry.db \
+    && git sparse-checkout init --cone \
+    && git sparse-checkout set data/hf \
+    && git lfs pull --include="data/hf/safety_registry.db" \
+    && test -s data/hf/safety_registry.db \
     && cp data/hf/safety_registry.db /app/var/safety_registry.db \
     && rm -rf /tmp/corpus-src \
     && python -c "\

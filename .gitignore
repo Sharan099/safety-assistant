@@ -15,7 +15,7 @@ __pycache__/
 venv/
 
 # Local database & backups (use ingest pipeline locally)
-safety_registry.db
+/safety_registry.db
 *.db-journal
 data/backups/
 data/ocr_cache/

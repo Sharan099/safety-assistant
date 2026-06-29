@@ -1,0 +1,794 @@
+{
+  "before": "output\\ragas_evaluation_final.retrieval.json",
+  "after": "output\\ragas_evaluation_tightened.retrieval.json",
+  "diffs": [
+    {
+      "id": "R94_chest_deflection",
+      "question": "What is the chest deflection limit under UN R94?",
+      "before_count": 8,
+      "after_count": 8,
+      "same_count": 8,
+      "jaccard": 1.0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "id": "R16_retractor_lock_condition",
+      "question": "Under UN R16, what is the locking test condition for emergency locking retractors in paragraph 7.6.2?",
+      "before_count": 10,
+      "after_count": 13,
+      "same_count": 0,
+      "jaccard": 0.0,
+      "added": [
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|1.1|paragraph|pNone|0bc73af4ee",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "None",
+          "section": "1.1",
+          "chunk_type": "paragraph",
+          "body_preview": "1.1.  Verification of the locking threshold and durability of emergency locking  retractors    According to the provisio",
+          "chunk_id": "21186|21187|21654",
+          "classification": "scope_admin"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|1.1|section|pNone|0bc73af4ee",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "None",
+          "section": "1.1",
+          "chunk_type": "section",
+          "body_preview": "1.1.  Verification of the locking threshold and durability of emergency locking  retractors    According to the provisio",
+          "chunk_id": "21186|21187|21654",
+          "classification": "scope_admin"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|2.1.1|clause|pNone|95a5e37fc9",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "None",
+          "section": "2.1.1",
+          "chunk_type": "clause",
+          "body_preview": "Furthermore, in the case of emergency locking retractors, all assemblies shall  be checked: 2.1.1.1. Either according to",
+          "chunk_id": "21200|21933",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|2.14.4|clause|p7|53a53c7df1",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "7",
+          "section": "2.14.4",
+          "chunk_type": "clause",
+          "body_preview": "Emergency locking retractor (type 4)  A retractor which during normal driving conditions does not restrict the  freedom ",
+          "chunk_id": "21225",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|6.2.5.3.1|clause|p18|e418e54857",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "18",
+          "section": "6.2.5.3.1",
+          "chunk_type": "clause",
+          "body_preview": "An emergency locking retractor, when tested in accordance with  paragraph 7.6.2., shall satisfy the conditions below. In",
+          "chunk_id": "21387",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|6.2|section|p16|84a376aef9",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "16",
+          "section": "6.2",
+          "chunk_type": "section",
+          "body_preview": "6.2.  Rigid parts  6.2.1.  General  6.2.1.1.  The rigid parts of the safety-belt, such as buckles, adjusting devices,  a",
+          "chunk_id": "21355|21356",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.2|section|p23|f7050fb7cd",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "23",
+          "section": "7.2",
+          "chunk_type": "section",
+          "body_preview": "7.2.  Corrosion test  7.2.1.  A complete safety-belt assembly shall be positioned in a test chamber as  prescribed in An",
+          "chunk_id": "21437|21438",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.5.4|clause|p26|7a8018e73f",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "26",
+          "section": "7.5.4",
+          "chunk_type": "clause",
+          "body_preview": "Two samples of complete belt assembly shall be placed in a refrigerated  cabinet at -10 \u00b0C + 1 \u00b0C for two hours. The rig",
+          "chunk_id": "21492",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6.2.2|clause|p27|f57c7afca4",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6.2.2",
+          "chunk_type": "clause",
+          "body_preview": "A suitable apparatus for the tests specified in paragraph 7.6.2.1. above is  described in Annex 4 to this Regulation. Th",
+          "chunk_id": "21504",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6.2|clause|p27|a58e3adb52",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6.2",
+          "chunk_type": "clause",
+          "body_preview": "Locking of emergency locking retractors",
+          "chunk_id": "21500",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6|section|p27|d29330f9aa",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6",
+          "chunk_type": "section",
+          "body_preview": "7.6.  Additional tests for safety-belts with retractors  7.6.1.  Durability of retractor mechanism  7.6.1.1.  The strap ",
+          "chunk_id": "21495|21496",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|Annex_4|paragraph|p53|67ff74a8d7",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "53",
+          "section": "Annex_4",
+          "chunk_type": "paragraph",
+          "body_preview": "Diagram of an apparatus to test locking of emergency  locking retractors  A suitable apparatus is illustrated in the fig",
+          "chunk_id": "21730|21731",
+          "classification": "scope_admin"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|Annex_4|section|p53|67ff74a8d7",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "53",
+          "section": "Annex_4",
+          "chunk_type": "section",
+          "body_preview": "Diagram of an apparatus to test locking of emergency  locking retractors  A suitable apparatus is illustrated in the fig",
+          "chunk_id": "21730|21731",
+          "classification": "scope_admin"
+        }
+      ],
+      "removed": [
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|14|paragraph|p4|715aa08a42",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "4",
+          "section": "14",
+          "chunk_type": "paragraph",
+          "body_preview": "estraint system for Adult  Occupants of Power-Driven Vehicles Pursuant to UN Regulation No. 16 .........................",
+          "chunk_id": "16308|16309|16310"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|14|section|p2|f387099dbb",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "2",
+          "section": "14",
+          "chunk_type": "section",
+          "body_preview": "14 July 2025   <!-- page: 2 --> E/ECE/324/Rev.1/Add.15/Rev.11/Amend.2  E/ECE/TRANS/505/Rev.1/Add.15/Rev.11/Amend.2  2   ",
+          "chunk_id": "16307"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|2.12.4|clause|p6|06a1db7306",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "6",
+          "section": "2.12.4",
+          "chunk_type": "clause",
+          "body_preview": "\"Emergency locking retractor (type 4)\" means a retractor which during normal  driving conditions does not restrict the f",
+          "chunk_id": "16337"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|2|section|p7|81552eaf41",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "7",
+          "section": "2",
+          "chunk_type": "section",
+          "body_preview": "2 As defined in the Consolidated Resolution on the Construction of Vehicles (R.E.3), document  ECE/TRANS/WP.29/78/Rev.7,",
+          "chunk_id": "16343|16344"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|3.2|clause|p8|4d6dd7e894",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "8",
+          "section": "3.2",
+          "chunk_type": "clause",
+          "body_preview": "It shall be accompanied by: 3.2.1. A technical description of the belt type, specifying the straps and rigid parts  used",
+          "chunk_id": "16359|16360"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|3|section|p10|524de3f635",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "10",
+          "section": "3",
+          "chunk_type": "section",
+          "body_preview": "3 See the footnote to paragraph 5.2.4.1. of this Regulation.   <!-- page: 10 --> E/ECE/324/Rev.1/Add.15/Rev.11/Amend.2  ",
+          "chunk_id": "16374|16375"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|4|section|p15|3e6d62794f",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "15",
+          "section": "4",
+          "chunk_type": "section",
+          "body_preview": "4  If a safety-belt is approved following the provisions of paragraph 6.4.1.3.3. of this Regulation, this  safety-belt s",
+          "chunk_id": "16405"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|5.4.2.2.2|clause|p9|1acf86b270",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "9",
+          "section": "5.4.2.2.2",
+          "chunk_type": "clause",
+          "body_preview": "The letter \"r\" for a belt incorporating a retractor followed by the symbol (1, 2,  3, 4 or 4N) of the retractor used, in",
+          "chunk_id": "16369"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|5.8|clause|p11|2fa45631fd",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "11",
+          "section": "5.8",
+          "chunk_type": "clause",
+          "body_preview": "The labels referred to in paragraph 5.6. above may be issued either by the Type  Approval Authority which has granted th",
+          "chunk_id": "16380|16381"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|6.4.1.3.3|clause|p19|ea2a8c66f2",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "19",
+          "section": "6.4.1.3.3",
+          "chunk_type": "clause",
+          "body_preview": "or 6.4.1.3.4. of this Regulation, and with a multiple-sensitivity (\"m\") type 4 (\"r4\") retractor, in respect of which typ",
+          "chunk_id": "16408"
+        }
+      ]
+    },
+    {
+      "id": "R29_survival_space",
+      "question": "What survival space is required after UN R29 cab protection tests (section 5.2)?",
+      "before_count": 9,
+      "after_count": 9,
+      "same_count": 9,
+      "jaccard": 1.0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "id": "R14_isofix_annex6",
+      "question": "What does UN R14 Annex 6 specify for ISOFIX anchorage points?",
+      "before_count": 11,
+      "after_count": 11,
+      "same_count": 11,
+      "jaccard": 1.0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "id": "R94_tcfc_lower_leg",
+      "question": "What is the TCFC lower-leg force limit in UN R94 frontal impact (clause 5.2.1.8)?",
+      "before_count": 9,
+      "after_count": 9,
+      "same_count": 9,
+      "jaccard": 1.0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "id": "R44_vs_R129_child_restraints",
+      "question": "What is the difference between UN R44 and UN R129 for child restraints?",
+      "before_count": 8,
+      "after_count": 8,
+      "same_count": 4,
+      "jaccard": 0.3333333333333333,
+      "added": [
+        {
+          "fingerprint": "0eaa6c4a40c8",
+          "raw": true,
+          "chunk_id": null,
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "195062c35252",
+          "raw": true,
+          "chunk_id": null,
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "2fb8ef10646a",
+          "raw": true,
+          "chunk_id": null,
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R129|UN_R129_04Series.pdf|11|paragraph|p2|3158076f7a",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R129",
+          "document": "UN_R129_04Series.pdf",
+          "page": "2",
+          "section": "11",
+          "chunk_type": "paragraph",
+          "body_preview": "11 March 2025  E/ECE/324/Rev.2/Add.128/Rev.5/Amend.1  E/ECE/TRANS/505/Rev.2/Add.128/Rev.5/Amend.1  2  Paragraph 6.1.3.4.",
+          "chunk_id": "15434|15435",
+          "classification": "unclear"
+        }
+      ],
+      "removed": [
+        {
+          "fingerprint": "UN_R129|UN_R129_04Series.pdf|General|paragraph|p1|3cd157e5ae",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R129",
+          "document": "UN_R129_04Series.pdf",
+          "page": "1",
+          "section": "General",
+          "chunk_type": "paragraph",
+          "body_preview": "<!-- page: 1 -->      Agreement      Concerning the Adoption of Harmonized Technical United Nations  Regulations for Whe",
+          "chunk_id": "15430|15431"
+        },
+        {
+          "fingerprint": "UN_R129|UN_R129_04Series.pdf|General|section|p1|3cd157e5ae",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R129",
+          "document": "UN_R129_04Series.pdf",
+          "page": "1",
+          "section": "General",
+          "chunk_type": "section",
+          "body_preview": "<!-- page: 1 -->      Agreement      Concerning the Adoption of Harmonized Technical United Nations  Regulations for Whe",
+          "chunk_id": "15430|15431"
+        },
+        {
+          "fingerprint": "UN_R44|UN_R44_04Series.pdf|2|section|p2|15039b0d35",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R44",
+          "document": "UN_R44_04Series.pdf",
+          "page": "2",
+          "section": "2",
+          "chunk_type": "section",
+          "body_preview": "2 July 2021   <!-- page: 2 --> E/ECE/324/Rev.1/Add.43/Rev.3/Amend.11  E/ECE/TRANS/505/Rev.1/Add.43/Rev.3/Amend.11    2  ",
+          "chunk_id": "16436"
+        },
+        {
+          "fingerprint": "UN_R44|UN_R44_04Series.pdf|General|section|p1|3cd157e5ae",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R44",
+          "document": "UN_R44_04Series.pdf",
+          "page": "1",
+          "section": "General",
+          "chunk_type": "section",
+          "body_preview": "<!-- page: 1 -->      Agreement      Concerning the Adoption of Harmonized Technical United Nations  Regulations for Whe",
+          "chunk_id": "16432|16433"
+        }
+      ]
+    },
+    {
+      "id": "FMVSS208_vs_R94_chest",
+      "question": "How does FMVSS 208 frontal occupant chest protection compare to UN R94 ThCC limits?",
+      "before_count": 8,
+      "after_count": 8,
+      "same_count": 5,
+      "jaccard": 0.45454545454545453,
+      "added": [
+        {
+          "fingerprint": "FMVSS 208|FMVSS_208_2024.pdf|49|paragraph|pNone|a996555a98",
+          "source_type": "FMVSS",
+          "regulation_code": "FMVSS 208",
+          "document": "FMVSS_208_2024.pdf",
+          "page": "None",
+          "section": "49",
+          "chunk_type": "paragraph",
+          "body_preview": "ehicle that is certified as  complying with S14.6 or S14.7 shall, at  each front outboard designated seating  position, ",
+          "chunk_id": "10195|10196|10197",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "FMVSS 208|FMVSS_208_2024.pdf|49|section|p73|f01468c43f",
+          "source_type": "FMVSS",
+          "regulation_code": "FMVSS 208",
+          "document": "FMVSS_208_2024.pdf",
+          "page": "73",
+          "section": "49",
+          "chunk_type": "section",
+          "body_preview": "49 CFR Ch. V (10\u20131\u201324 Edition)  \u00a7 571.208  S23.5.4 Compression deflection of the  sternum relative to the spine, as dete",
+          "chunk_id": "10479|10480|10481",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "FMVSS 208|FMVSS_208_2024.pdf|49|section|pNone|70423de455",
+          "source_type": "FMVSS",
+          "regulation_code": "FMVSS 208",
+          "document": "FMVSS_208_2024.pdf",
+          "page": "None",
+          "section": "49",
+          "chunk_type": "section",
+          "body_preview": "49 CFR Ch. V (10\u20131\u201324 Edition)  \u00a7 571.208  otherwise be attributed under S14.8.2(a)  or (b).  S14.8.3 For the purposes o",
+          "chunk_id": "10195|10196|10197",
+          "classification": "unclear"
+        }
+      ],
+      "removed": [
+        {
+          "fingerprint": "FMVSS 208|FMVSS_208_2024.pdf|2.5|clause|p56|ae13315910",
+          "source_type": "FMVSS",
+          "regulation_code": "FMVSS 208",
+          "document": "FMVSS_208_2024.pdf",
+          "page": "56",
+          "section": "2.5",
+          "chunk_type": "clause",
+          "body_preview": "(b) The maximum calculated HIC15  value shall not exceed 390.  S19.4.3 The resultant acceleration  calculated from the o",
+          "chunk_id": "10420"
+        },
+        {
+          "fingerprint": "FMVSS 208|FMVSS_208_2024.pdf|2.5|clause|p63|4bb9bc9951",
+          "source_type": "FMVSS",
+          "regulation_code": "FMVSS 208",
+          "document": "FMVSS_208_2024.pdf",
+          "page": "63",
+          "section": "2.5",
+          "chunk_type": "clause",
+          "body_preview": "(b) The maximum calculated HIC15  value shall not exceed 570.  S21.5.3 The resultant acceleration  calculated from the o",
+          "chunk_id": "10444|10445|10446"
+        },
+        {
+          "fingerprint": "FMVSS 208|FMVSS_208_2024.pdf|49|section|p55|660642a84c",
+          "source_type": "FMVSS",
+          "regulation_code": "FMVSS 208",
+          "document": "FMVSS_208_2024.pdf",
+          "page": "55",
+          "section": "49",
+          "chunk_type": "section",
+          "body_preview": "49 CFR Ch. V (10\u20131\u201324 Edition)  \u00a7 571.208  anthropomorphic  test  devices  re- strained by a Type 2 seat belt assem- bly",
+          "chunk_id": "10414|10415|10416"
+        }
+      ]
+    },
+    {
+      "id": "R16_762_crossref_regression",
+      "question": "the locking mechanism is deceleration-actuated only \u2014 check this against \u00a77.6.2",
+      "before_count": 8,
+      "after_count": 13,
+      "same_count": 0,
+      "jaccard": 0.0,
+      "added": [
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|2.1.1|clause|pNone|95a5e37fc9",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "None",
+          "section": "2.1.1",
+          "chunk_type": "clause",
+          "body_preview": "Furthermore, in the case of emergency locking retractors, all assemblies shall  be checked: 2.1.1.1. Either according to",
+          "chunk_id": "21200|21933",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|2.14.4|clause|p7|53a53c7df1",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "7",
+          "section": "2.14.4",
+          "chunk_type": "clause",
+          "body_preview": "Emergency locking retractor (type 4)  A retractor which during normal driving conditions does not restrict the  freedom ",
+          "chunk_id": "21225",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|2.1|section|pNone|e8d8a43ed3",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "None",
+          "section": "2.1",
+          "chunk_type": "section",
+          "body_preview": "2.1.  The frequency of testing to the requirements of paragraphs 1.1. to 1.5. of this  annex shall be on a statistically",
+          "chunk_id": "21198|21199|21672",
+          "classification": "scope_admin"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|6.2.5.3.1|clause|p18|e418e54857",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "18",
+          "section": "6.2.5.3.1",
+          "chunk_type": "clause",
+          "body_preview": "An emergency locking retractor, when tested in accordance with  paragraph 7.6.2., shall satisfy the conditions below. In",
+          "chunk_id": "21387",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|6.2|section|p16|84a376aef9",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "16",
+          "section": "6.2",
+          "chunk_type": "section",
+          "body_preview": "6.2.  Rigid parts  6.2.1.  General  6.2.1.1.  The rigid parts of the safety-belt, such as buckles, adjusting devices,  a",
+          "chunk_id": "21355|21356",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.2|section|p23|f7050fb7cd",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "23",
+          "section": "7.2",
+          "chunk_type": "section",
+          "body_preview": "7.2.  Corrosion test  7.2.1.  A complete safety-belt assembly shall be positioned in a test chamber as  prescribed in An",
+          "chunk_id": "21437|21438",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6.1.1|clause|p27|8043df0522",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6.1.1",
+          "chunk_type": "clause",
+          "body_preview": "The strap shall be withdrawn and allowed to retract for the required number of  cycles at a rate of not more than 30 cyc",
+          "chunk_id": "21498",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6.2.1.2|clause|p27|55342dd484",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6.2.1.2",
+          "chunk_type": "clause",
+          "body_preview": "When retractors are being tested for sensitivity to vehicle deceleration they  shall be tested at the above extraction a",
+          "chunk_id": "21503",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6.2.1|clause|p27|99c44e99ff",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6.2.1",
+          "chunk_type": "clause",
+          "body_preview": "The retractor shall be tested once for locking when the strap has been unwound  to full length less 300 + 3 mm.",
+          "chunk_id": "21501",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6.2|clause|p27|a58e3adb52",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6.2",
+          "chunk_type": "clause",
+          "body_preview": "Locking of emergency locking retractors",
+          "chunk_id": "21500",
+          "classification": "relevant"
+        },
+        {
+          "fingerprint": "UN_R16|UNECE_UN_R16_Base.pdf|7.6|section|p27|d29330f9aa",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UNECE_UN_R16_Base.pdf",
+          "page": "27",
+          "section": "7.6",
+          "chunk_type": "section",
+          "body_preview": "7.6.  Additional tests for safety-belts with retractors  7.6.1.  Durability of retractor mechanism  7.6.1.1.  The strap ",
+          "chunk_id": "21495|21496",
+          "classification": "unclear"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|1|section|p5|6a22d85a58",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "5",
+          "section": "1",
+          "chunk_type": "section",
+          "body_preview": "1  As defined in the Consolidated Resolution on the Construction of Vehicles (R.E.3.), document  ECE/TRANS/WP.29/78/Rev.",
+          "chunk_id": "16317|16318",
+          "classification": "scope_admin"
+        },
+        {
+          "fingerprint": "UN_R16|UN_R16_08Series.pdf|2.12.4|clause|p6|06a1db7306",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R16",
+          "document": "UN_R16_08Series.pdf",
+          "page": "6",
+          "section": "2.12.4",
+          "chunk_type": "clause",
+          "body_preview": "\"Emergency locking retractor (type 4)\" means a retractor which during normal  driving conditions does not restrict the f",
+          "chunk_id": "16337",
+          "classification": "relevant"
+        }
+      ],
+      "removed": [
+        {
+          "fingerprint": "Euro NCAP AOP|EuroNCAP_AOP_2026.pdf|2.3.6|clause|p19|ace0dd7309",
+          "source_type": "Euro NCAP",
+          "regulation_code": "Euro NCAP AOP",
+          "document": "EuroNCAP_AOP_2026.pdf",
+          "page": "19",
+          "section": "2.3.6",
+          "chunk_type": "clause",
+          "body_preview": "Euro NCAP  Version 1.1 \u2014 September 2025  15  The upper anchorage should be adjusted by a sufficient amount to ensure a n",
+          "chunk_id": "7730|7731"
+        },
+        {
+          "fingerprint": "Euro NCAP AOP|EuroNCAP_AOP_2026.pdf|2.3.6|table|p19|a536a8756e",
+          "source_type": "Euro NCAP",
+          "regulation_code": "Euro NCAP AOP",
+          "document": "EuroNCAP_AOP_2026.pdf",
+          "page": "19",
+          "section": "2.3.6",
+          "chunk_type": "table",
+          "body_preview": "Structured compliance table  Seat belt \u2013 all dummies Adjust the seatbelt D-loop for the relevant occupant as detailed in",
+          "chunk_id": "7730|7731"
+        },
+        {
+          "fingerprint": "Euro NCAP Post-Crash|EuroNCAP_PostCrash_2026.pdf|1|paragraph|pNone|485396f85c",
+          "source_type": "Euro NCAP",
+          "regulation_code": "Euro NCAP Post-Crash",
+          "document": "EuroNCAP_PostCrash_2026.pdf",
+          "page": "None",
+          "section": "1",
+          "chunk_type": "paragraph",
+          "body_preview": "1. Vehicle occupant shall activate central locking to lock all the doors, with child safety lock system  in disengaged m",
+          "chunk_id": "8120|8121|8151"
+        },
+        {
+          "fingerprint": "Euro NCAP Post-Crash|EuroNCAP_PostCrash_2026.pdf|2|section|p18|99000308d0",
+          "source_type": "Euro NCAP",
+          "regulation_code": "Euro NCAP Post-Crash",
+          "document": "EuroNCAP_PostCrash_2026.pdf",
+          "page": "18",
+          "section": "2",
+          "chunk_type": "section",
+          "body_preview": "2. Disconnect electrical supply either at system level (For example central locking, controller, etc.)  or disconnect ma",
+          "chunk_id": "8153|8154"
+        },
+        {
+          "fingerprint": "Euro NCAP Post-Crash|EuroNCAP_PostCrash_2026.pdf|3.2.3|clause|p20|aabd9b8764",
+          "source_type": "Euro NCAP",
+          "regulation_code": "Euro NCAP Post-Crash",
+          "document": "EuroNCAP_PostCrash_2026.pdf",
+          "page": "20",
+          "section": "3.2.3",
+          "chunk_type": "clause",
+          "body_preview": "Euro NCAP  Version 1.1 \u2014 September 2025  16",
+          "chunk_id": "8155|8156|8157"
+        },
+        {
+          "fingerprint": "Euro NCAP Post-Crash|EuroNCAP_PostCrash_2026.pdf|3.2.3|table|p20|70021ca908",
+          "source_type": "Euro NCAP",
+          "regulation_code": "Euro NCAP Post-Crash",
+          "document": "EuroNCAP_PostCrash_2026.pdf",
+          "page": "20",
+          "section": "3.2.3",
+          "chunk_type": "table",
+          "body_preview": "Structured compliance table  Euro NCAP  Version 1.1 \u2014 September 2025  14  If the vehicle is equipped with electric door ",
+          "chunk_id": "8155|8156|8157"
+        },
+        {
+          "fingerprint": "UN_R80|UN_R80_03Series.pdf|30|section|p2|48dc7883a5",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R80",
+          "document": "UN_R80_03Series.pdf",
+          "page": "2",
+          "section": "30",
+          "chunk_type": "section",
+          "body_preview": "30 November 2022   <!-- page: 2 -->        <!-- page: 3 --> E/ECE/324/Rev.1/Add.79/Rev.3  E/ECE/TRANS/505/Rev.1/Add.79/R",
+          "chunk_id": "16444"
+        },
+        {
+          "fingerprint": "UN_R80|UN_R80_03Series.pdf|5.3|clause|p8|40c0ddf2d7",
+          "source_type": "UNECE",
+          "regulation_code": "UN_R80",
+          "document": "UN_R80_03Series.pdf",
+          "page": "8",
+          "section": "5.3",
+          "chunk_type": "clause",
+          "body_preview": "Every adjustment and displacement system provided shall incorporate a  locking system, which shall operate automatically",
+          "chunk_id": "16494"
+        }
+      ]
+    },
+    {
+      "id": "honesty_nonexistent_reg",
+      "question": "What is the chest deflection limit under UN R999?",
+      "before_count": 0,
+      "after_count": 0,
+      "same_count": 0,
+      "jaccard": 1.0,
+      "added": [],
+      "removed": []
+    },
+    {
+      "id": "R32_ocr_base_content",
+      "question": "What does UN R32 regulate regarding protection of the passenger compartment in rear-end collisions?",
+      "before_count": 8,
+      "after_count": 8,
+      "same_count": 8,
+      "jaccard": 1.0,
+      "added": [],
+      "removed": []
+    }
+  ],
+  "recovery_checks": [
+    [
+      "R94_chest_deflection",
+      "5.2.1.4",
+      "42 mm"
+    ],
+    [
+      "R94_tcfc_lower_leg",
+      "5.2.1.7",
+      "8 kn"
+    ],
+    [
+      "R44_vs_R129_child_restraints",
+      null,
+      "child restraint"
+    ],
+    [
+      "R16_762_crossref_regression",
+      "7.6.2",
+      "locking"
+    ]
+  ],
+  "recovery_hits": 4,
+  "recovery_total": 4,
+  "scope_admin_added": 6,
+  "recovery_verdict": "pass",
+  "ocr_audit": {}
+}

@@ -1,0 +1,63 @@
+[
+  {
+    "id": "R94_chest_deflection",
+    "category": "numeric_lookup",
+    "question": "What is the chest deflection limit under UN R94?",
+    "ground_truth": "ThCC (thorax compression criterion) must not exceed 42 mm under UN R94 clause 5.2.1.4. This is a chest deflection limit, not HIC (head injury criterion)."
+  },
+  {
+    "id": "R16_retractor_lock_condition",
+    "category": "numeric_lookup",
+    "question": "Under UN R16, what is the locking test condition for emergency locking retractors in paragraph 7.6.2?",
+    "ground_truth": "UN R16 paragraph 7.6.2 (and related 6.2.5.3.1.1 in the base text) specifies the dynamic locking test for emergency locking retractors: strap withdrawal/retraction under defined vehicle deceleration conditions tied to paragraph 2.12.4.1 vehicle deceleration specifications — the retractor must lock when deceleration exceeds the threshold in the test procedure."
+  },
+  {
+    "id": "R29_survival_space",
+    "category": "numeric_lookup",
+    "question": "What survival space is required after UN R29 cab protection tests (section 5.2)?",
+    "ground_truth": "UN R29 section 5.2 requires that sufficient survival space remains for the occupants of the cab after the prescribed frontal/side/roof strength tests (tests A, B, C as applicable) — the residual survival space criteria are defined in clause 5.2 and linked test procedures, not merely scope text."
+  },
+  {
+    "id": "R14_isofix_annex6",
+    "category": "table_integrity",
+    "question": "What does UN R14 Annex 6 specify for ISOFIX anchorage points?",
+    "ground_truth": "UN R14 Annex 6 defines ISOFIX anchorage requirements in the anchorage table: vehicle categories (M1, M2, N1, N2, N3), minimum anchorage points, lower anchorages, and the key to symbols — the whole table must be read together."
+  },
+  {
+    "id": "R94_tcfc_lower_leg",
+    "category": "table_integrity",
+    "question": "What is the TCFC lower-leg force limit in UN R94 frontal impact (clause 5.2.1.8)?",
+    "ground_truth": "UN R94 clause 5.2.1.8 sets the Tibia Compression Force Criterion (TCFC) limit at 8 kN for the lower leg in frontal impact — a numeric limit that must be read from the injury-criteria clauses, not confused with ThCC chest limits."
+  },
+  {
+    "id": "R44_vs_R129_child_restraints",
+    "category": "cross_document_comparison",
+    "question": "What is the difference between UN R44 and UN R129 for child restraints?",
+    "ground_truth": "UN R44 is the legacy mass-based child restraint regulation (weight groups). UN R129 (i-Size) is height-based sizing with improved side-impact and ISOFIX integration — a multi-document comparison across both regulations."
+  },
+  {
+    "id": "FMVSS208_vs_R94_chest",
+    "category": "cross_market_comparison",
+    "question": "How does FMVSS 208 frontal occupant chest protection compare to UN R94 ThCC limits?",
+    "ground_truth": "FMVSS 208 (US) and UN R94 (UNECE) are separate frontal occupant-protection frameworks. UN R94 ThCC chest compression is capped at 42 mm (clause 5.2.1.4). FMVSS 208 uses US CFR injury criteria with different dummy/test procedures — a cross-market comparison must cite both families, not only Euro NCAP or UNECE alone."
+  },
+  {
+    "id": "R16_762_crossref_regression",
+    "category": "cross_reference_regression",
+    "question": "the locking mechanism is deceleration-actuated only — check this against §7.6.2",
+    "ground_truth": "UN R16 §7.6.2 defines the dynamic locking test for retractors under vehicle deceleration conditions (linked to 2.12.4.1). A deceleration-actuated-only locking claim must be checked against the actual test deceleration/strap-length requirements in §7.6.2 / §6.2.5 — known retrieval gap when base OCR section tags are missing."
+  },
+  {
+    "id": "honesty_nonexistent_reg",
+    "category": "honesty_gap",
+    "question": "What is the chest deflection limit under UN R999?",
+    "ground_truth": "UN R999 is not in the ingested UNECE passive-safety corpus. The system must state that the regulation is not available / not found rather than inventing a limit or citing unrelated documents as if they were UN R999.",
+    "expect_refusal": true
+  },
+  {
+    "id": "R32_ocr_base_content",
+    "category": "newly_acquired_ocr",
+    "question": "What does UN R32 regulate regarding protection of the passenger compartment in rear-end collisions?",
+    "ground_truth": "UN R32 regulates uniform provisions for the protection of the passenger compartment of category M1 passenger cars in rear-end collisions — ingested from OCR-recovered base PDF (UNECE_UN_R32_Base.pdf) plus amendment series documents."
+  }
+]

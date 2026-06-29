@@ -1,0 +1,23 @@
+[
+  {
+    "test_id": "TEST-2026-94-001",
+    "program": "SUV-EV-Gen2",
+    "date": "2026-06-28",
+    "test_type": "PHYSICAL_CRASH",
+    "impact_mode": "FRONTAL_OFFSET",
+    "dummy": "Hybrid III 50th Driver",
+    "setup_revision": "REV_1.4",
+    "signed_off_by": "ENG-7731",
+    "confidential_tier": true,
+    "results": [
+      {
+        "channel": "11T000000THACXP",
+        "filter_class": "CFC_180",
+        "peak_value": 38.4,
+        "injury_criterion": "ThCC",
+        "value": 38.4,
+        "linked_regulation_clause": "UN_R94#5.2.1.4"
+      }
+    ]
+  }
+]

@@ -1,0 +1,81 @@
+# Secrets & local env
+.env
+.env.local
+frontend/.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Local database & backups (use ingest pipeline locally)
+safety_registry.db
+*.db-journal
+data/backups/
+data/ocr_cache/
+data/ocr_work/
+data/quarantine/
+data/quarantine_harness/
+
+# Confidential user uploads (never commit)
+storage/confidential/
+
+# Frontend build
+frontend/node_modules/
+frontend/.next/
+frontend/tsconfig.tsbuildinfo
+
+# IDE / tooling
+.cursor/
+*.log
+
+# Ephemeral eval console captures (keep committed CSV/JSON reports only)
+output/*.log
+output/mypy_report.txt
+output/ruff_report.txt
+output/bandit_report.txt
+output/pip_audit_report.txt
+output/pytest_full.txt
+output/tsc_report.txt
+
+# Session dev workspaces
+sessions/
+
+# Parallel HF Space bundle (separate publish target)
+hf-space-push/
+
+# Removed-corpus archive (large PDFs; keep local only)
+archive/
+
+# Dev-only output caches & interim eval logs
+output/page_cache/
+output/ocr_compare/
+output/staging_index/
+output/evaluation/
+output/archive/
+output/r14_*
+output/*_diagnosis.*
+output/retrieval_diagnosis.json
+output/verify_retrieval.json
+output/golden_retrieval_eval.json
+output/timing_eval_*.json
+output/phase8_latency.json
+output/structure_rechunk_report.json
+output/e2e_demo_results.*
+output/extraction_fidelity_report.json
+output/ocr_quarantine_results.json
+output/missing_regs_fetch_prep.*
+output/bundle_check.txt
+output/acquired_manifest.json
+output/AUTONOMOUS_RUN_LOG.md
+output/CONSOLIDATION_FINAL.md
+output/FINAL_CONSOLIDATION_LOG.md
+output/HARNESS_AND_FETCH_LOG.md
+output/OCR_QUARANTINE_LOG.md
+output/RUN_AUTHORITATIVE_ELSEWHERE.md

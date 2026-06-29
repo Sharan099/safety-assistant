@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: safety_registry
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.registry
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/safety_registry
+      REDIS_URL: redis://redis:6379/0
+      CRAWL_MOCK: "false"
+      CRAWL_ON_STARTUP: "false"
+    ports:
+      - "8002:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.registry
+    command: celery -A scheduler.celery_app worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/safety_registry
+      REDIS_URL: redis://redis:6379/0
+      CRAWL_MOCK: "false"
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy

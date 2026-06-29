@@ -1,0 +1,49 @@
+FROM python:3.12-slim
+
+WORKDIR /workspace
+
+# Install system dependencies (build-essential for compiling C dependencies if needed, libgl for OCR tools if used)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+COPY backend/requirements.txt ./backend_requirements.txt
+
+# Create a combined requirements file and install dependencies
+RUN pip install --no-cache-dir -r requirements.txt -r backend_requirements.txt
+RUN pip install --no-cache-dir \
+    sqlalchemy>=2.0.0 \
+    alembic>=1.13.0 \
+    psycopg2-binary>=2.9.0 \
+    asyncpg>=0.29.0 \
+    pgvector>=0.2.0 \
+    celery>=5.3.0 \
+    apscheduler>=3.10.0 \
+    pdfplumber>=0.11.0
+
+# Copy application code
+COPY app/ ./app
+COPY api/ ./api
+COPY database/ ./database
+COPY parser/ ./parser
+COPY registry/ ./registry
+COPY vectorization/ ./vectorization
+COPY scheduler/ ./scheduler
+COPY crawler/ ./crawler
+COPY monitoring/ ./monitoring
+COPY regulation_discovery/ ./regulation_discovery/
+COPY alembic.ini .
+
+# Set up environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+ENV DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/safety_registry
+
+EXPOSE 8000
+
+# Entrypoint to run database migrations first, and then run the FastAPI server
+CMD sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"

@@ -1,0 +1,5 @@
+# Eval harness (Phase 1 baseline)
+ragas>=0.2.0
+datasets>=2.14.0
+langchain-anthropic>=0.3.0
+langchain-groq>=0.2.0

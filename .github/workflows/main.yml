@@ -1,0 +1,85 @@
+name: CI Regulation Registry Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: pgvector/pgvector:16-pg16
+        env:
+          POSTGRES_DB: safety_registry
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt -r backend/requirements.txt
+        pip install sqlalchemy alembic psycopg2-binary asyncpg pgvector celery apscheduler pdfplumber pytest fakeredis pytest-cov
+
+    - name: Run Alembic Migrations
+      env:
+        DATABASE_URL: postgresql://postgres:postgrespassword@localhost:5432/safety_registry
+      run: |
+        alembic upgrade head
+
+    - name: Run test suite with coverage
+      env:
+        DATABASE_URL: postgresql://postgres:postgrespassword@localhost:5432/safety_registry
+        REDIS_URL: redis://localhost:6379/0
+        CORPUS_MODE: local
+        GROQ_API_KEY: test-key-not-used
+      run: |
+        pytest tests/registry/ --cov=. --cov-report=xml
+
+    - name: Run RAG core tests
+      env:
+        CORPUS_MODE: local
+        GROQ_API_KEY: test-key-not-used
+        RUN_SELFTEST_ON_STARTUP: "false"
+        ENABLE_GATEWAY: "false"
+      run: |
+        pytest tests/test_phase0_boot.py tests/test_citations.py \
+          tests/test_gateway_backward_compat.py tests/test_gateway_router.py \
+          tests/test_orchestrator.py tests/test_session_workspace.py -q

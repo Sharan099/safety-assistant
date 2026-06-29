@@ -1,0 +1,12 @@
+# Copy to manifest.yaml and edit when browser download names don't match UN_R<num>_...
+#
+# Example:
+#   files:
+#     - filename: R016r6e.pdf
+#       regulation_code: UN_R16
+#       amendment: Base
+#     - filename: R016r6am8e.pdf
+#       regulation_code: UN_R16
+#       amendment: "08 Series"
+
+files: []

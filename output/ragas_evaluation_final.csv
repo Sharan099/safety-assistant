@@ -1,0 +1,657 @@
+id,category,question,ground_truth,answer,evidence_only,serving_model_key,serving_model_id,serving_provider,cache_hit,judge_provider,judge_model,judge_trust_note,refusal_is_correct,faithfulness,answer_relevancy,context_precision,context_recall,prompt_tokens,completion_tokens,search_latency_ms,routing_latency_ms,source_count,routing_steps
+R94_chest_deflection,numeric_lookup,What is the chest deflection limit under UN R94?,"ThCC (thorax compression criterion) must not exceed 42 mm under UN R94 clause 5.2.1.4. This is a chest deflection limit, not HIC (head injury criterion).","The chest deflection (Thorax Compression Criterion, ThCC) must not exceed **42 mm** under UN R94.  
+[ S1 ] [ S6 ]",False,groq_fast,openai/gpt-oss-20b,groq,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,1.0,0.2,0.9,2428,131,4625.27,2227.34,8,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 577.89, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97098,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""success"", ""latency_ms"": 1647.76, ""prompt_tokens"": 2428, ""completion_tokens"": 131, ""detail"": """"}]"
+R16_retractor_lock_condition,numeric_lookup,"Under UN R16, what is the locking test condition for emergency locking retractors in paragraph 7.6.2?",UN R16 paragraph 7.6.2 (and related 6.2.5.3.1.1 in the base text) specifies the dynamic locking test for emergency locking retractors: strap withdrawal/retraction under defined vehicle deceleration conditions tied to paragraph 2.12.4.1 vehicle deceleration specifications — the retractor must lock when deceleration exceeds the threshold in the test procedure.,"I’m sorry, but the excerpts you provided do not contain the text of paragraph 7.6.2 of UN R16, so I can’t quote the specific locking‑test condition for emergency locking retractors from the regulation. The only reference to that paragraph is in paragraph 6.2.5.3.1, which says that the retractor must be tested “in accordance with paragraph 7.6.2. below,” but the actual wording of 7.6.2 is not present in the sources you supplied. If you can provide the paragraph itself or a source that includes it, I can give you the exact test condition.",False,groq_fast,openai/gpt-oss-20b,groq,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,0.1,0.0,0.9,2950,463,2844.69,1932.33,10,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 504.04, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97085,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""success"", ""latency_ms"": 1426.33, ""prompt_tokens"": 2950, ""completion_tokens"": 463, ""detail"": """"}]"
+R29_survival_space,numeric_lookup,What survival space is required after UN R29 cab protection tests (section 5.2)?,"UN R29 section 5.2 requires that sufficient survival space remains for the occupants of the cab after the prescribed frontal/side/roof strength tests (tests A, B, C as applicable) — the residual survival space criteria are defined in clause 5.2 and linked test procedures, not merely scope text.","**Survival‑space requirement (UN R29 § 5.2)**  
+
+After the cab‑protection tests (A, B, C) the cab must provide a **survival space that can accommodate the test manikin defined in Annex 3, Appendix 2** (or, alternatively, a 50th‑percentile Hybrid II or III male dummy as described in Regulation No. 94).  
+The manikin must be seated in its **median position** and the cab must be free of contact between the manikin and any **non‑resilient parts with a Shore‑Hardness of 50 or more**.  
+Parts that can be moved away from the manikin without tools by applying a force of **less than 100 N** are exempt from this requirement.  
+
+The seat is first positioned at its most rearward setting, the manikin is assembled and placed so that its H‑point coincides with the R‑point, and then the seat is moved forward to the median position for the survival‑space assessment.  
+
+> *Source: UN R29 § 5.2.1* [S3]",False,groq_fast,openai/gpt-oss-20b,groq,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,0.9,0.3,0.9,2126,683,2884.99,2167.11,9,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 528.15, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97072,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""success"", ""latency_ms"": 1637.55, ""prompt_tokens"": 2126, ""completion_tokens"": 683, ""detail"": """"}]"
+R14_isofix_annex6,table_integrity,What does UN R14 Annex 6 specify for ISOFIX anchorage points?,"UN R14 Annex 6 defines ISOFIX anchorage requirements in the anchorage table: vehicle categories (M1, M2, N1, N2, N3), minimum anchorage points, lower anchorages, and the key to symbols — the whole table must be read together.","[evidence-only] LLM unavailable — retrieved passages only:
+
+
+[1] UN_R14 | UN_R14_07Series.pdf p.33
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 33 | Section: Annex_6 | Type: section]
+
+Minimum number of anchorage points and location of lower 
+anchorages 
+Vehicle category 
+Forward facing seating positions 
+Rearward 
+facing 
+Side 
+facing 
+Outboard 
+Centre 
+ 
+ 
+ 
+Front 
+Other 
+Front 
+Other 
+ 
+ 
+M1 
+3 
+3  
+3 
+3 
+2 
+- 
+M2 ≤ 3.5 tonnes 
+3 
+3 
+3 
+3 
+2 
+- 
+M2 > 3.5 tonnes 
+3  
+3 or 2 ╬ 
+3 or 2 ╬ 
+3 or 2 ╬ 
+2 
+- 
+M3 
+3  
+3 or 2 ╬ 
+3 or 2 ╬ 
+3 or 2 ╬ 
+2 
+2 
+N1 
+3 
+3 or 2 Ø 
+3 or 2 * 
+2 
+2 
+- 
+N2 & N3 
+3 
+2 
+3 or 2 * 
+2 
+2 
+- 
+Key to symbols: 
+2: 
+Two lower anchor
+
+[2] UN_R14 | UN_R14_07Series.pdf p.33
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 33 | Section: Annex_6 | Type: table]
+
+Table: Vehicle category, Forward facing seating positions, Rearward facing, Side facing
+
+Minimum number of anchorage points and location of lower 
+anchorages 
+Vehicle category 
+Forward facing seating positions 
+Rearward 
+facing 
+Side 
+facing 
+Outboard 
+Centre 
+ 
+ 
+ 
+Front 
+Other 
+Front 
+Other 
+ 
+ 
+M1 
+3 
+3  
+3 
+3 
+2 
+- 
+M2 ≤ 3.5 tonnes 
+3 
+3 
+3 
+3 
+2 
+- 
+M2 > 3.5 tonnes 
+3  
+3 or 2 ╬ 
+3 or 2 ╬ 
+3 or 2 ╬ 
+2 
+- 
+M3 
+3  
+3 or 2 ╬ 
+3 or 2 ╬ 
+3 or 2 ╬ 
+2 
+2 
+N1 
+3 
+3 or 2 Ø 
+3 o
+
+[3] UN_R14 | UN_R14_07Series.pdf p.3
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 3 | Section: 7 | Type: paragraph]
+
+.............................................. 
+27 
+5 
+Traction device  ........................................................................................................................ 
+28 
+6 
+Minimum number of anchorage points and location of lower anchorages ............................... 
+32 
+Appendix 1 - Location of lower anchorages – Angle requirements only ................................. 
+33 
+7 
+Dynamic test as an alternative to the safety-belt anchorages static
+
+[4] UN_R14 | UN_R14_07Series.pdf p.2
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 2 | Section: 7 | Type: section]
+
+7 August 2023 
+
+<!-- page: 2 -->
+E/ECE/324/Rev.1/Add.13/Rev.7 
+E/ECE/TRANS/505/Rev.1/Add.13/Rev.7 
+2 
+UN Regulation No. 14 
+ 
+ Uniform provisions concerning the approval of vehicles with 
+regard to safety-belt anchorages 
+Contents 
+ 
+Page 
+1. 
+Scope  ....................................................................................................................................... 
+3 
+2. 
+Definitions  .............................................................................
+
+[5] UN_R14 | UN_R14_07Series.pdf p.8
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 8 | Section: 5.3.2 | Type: clause]
+
+The minimum number of safety-belt anchorages for each forward rearward and 
+side-facing seating position shall be those specified in Annex 6. 
+E/ECE/324/Rev.1/Add.13/Rev.7 
+E/ECE/TRANS/505/Rev.1/Add.13/Rev.7 
+8
+
+[6] UN_R14 | UN_R14_07Series.pdf p.7
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 7 | Section: 2 | Type: section]
+
+2 The distinguish numbers of the Contracting Parties to the 1958 Agreement are reproduced in Annex 3 
+to Consolidated Resolution on the Construction of Vehicles (R.E.3), document 
+ECE/TRANS/WP.29/78/Rev.6, Annex 3 - 
+https://unece.org/transport/standards/transport/vehicle-regulations-wp29/resolutions. 
+
+<!-- page: 7 -->
+E/ECE/324/Rev.1/Add.13/Rev.7 
+E/ECE/TRANS/505/Rev.1/Add.13/Rev.7 
+7 
+5.1.6. 
+S is the distance in millimetres of the effective upper belt anchorages from a 
+refere
+
+[7] UN_R14 | UN_R14_07Series.pdf p.8
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 8 | Section: 5.3.5 | Type: clause]
+
+In every seating position marked in Annex 6 with symbol ╬, three anchorages 
+shall be provided. Two anchorages may be provided if one of the following 
+conditions is fulfilled:
+5.3.5.1.
+There is a seat or other parts of the vehicle conforming to UN Regulation No. 
+80, Appendix 1, paragraph 3.5. directly in front, or
+5.3.5.2.
+No part of the vehicle is in the reference zone, or capable of being in the reference 
+zone when the vehicle is in motion, or
+5.3.5.3.
+Parts of the vehicle
+
+[8] UN_R14 | UN_R14_07Series.pdf p.34
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 34 | Section: Annex_6_-_Appendix_1 | Type: table]
+
+Table: Seat, M 1, Other than M 1
+
+Location of lower anchorages - Angle requirements only 
+Seat 
+M1 
+Other than M1 
+Front* 
+buckle side (α2) 
+45° - 80° 
+30° - 80° 
+other than buckle side  (α1) 
+30° - 80° 
+30° - 80° 
+angle constant 
+50° - 70° 
+50° - 70° 
+bench - buckle side (α2) 
+45° - 80° 
+20° - 80° 
+bench - other than buckle  
+side (α1) 
+30° - 80° 
+20° - 80° 
+adjustable seat with seat back 
+angle < 20°  
+45° - 80° (α2)* 
+20° - 80°(α1)* 
+20° - 80° 
+Rear ≠ 
+ 
+30° -
+
+[9] UN_R14 | UN_R14_07Series.pdf p.8
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 8 | Section: 5.3.3 | Type: clause]
+
+However, for outboard seating positions, other than front, of vehicles of 
+category N1, shown in Annex 6 and marked with the symbol Ø, two lower 
+anchorages are allowed, where there exists a passage between a seat and the 
+nearest side-wall of the vehicle intended to permit access of passengers to other 
+parts of the vehicle. 
+A space between a seat and the side-wall is considered as a passage if the 
+distance between that side-wall, with all doors closed, and a vertical 
+longi
+
+[10] UN_R14 | UN_R14_07Series.pdf p.8
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 8 | Section: 5.3.4 | Type: clause]
+
+For the front centre seating positions shown in Annex 6 and marked with the 
+symbol *, two lower anchorages shall be considered adequate where the 
+windscreen is located outside the reference zone defined in Annex 1 to UN 
+Regulation No. 21; if located inside the reference zone, three anchorages are 
+required. 
+As regards belt anchorages, the windscreen is considered as part of the reference 
+zone when it is capable of entering into static contact with the test apparatus 
+accor
+
+[11] UN_R14 | UN_R14_07Series.pdf p.9
+[Source: UNECE | Reg: UN_R14 | Amendment: Base | Doc: UN_R14_07Series.pdf | Page: 9 | Section: 5.4.2.1 | Type: clause]
+
+Front seats, vehicle category M1 
+In motor vehicles of category M1 the angle α1 (other than buckle side) shall be 
+within the range of 30 to 80 degrees and the angle α2 (buckle side) shall be within 
+the range of 45 to 80 degrees. Both angle requirements shall be valid for all 
+normal travelling positions of the front seats. Where at least one of the angles α1 
+and α2 is constant (e.g. anchorage fixed at the seat) in all normal positions of use, 
+its value shall be 60 ± 10°. ",True,evidence_only,none,registry,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,0.2,1.0,1.0,3631,1440,3883.89,3138.04,11,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 595.67, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97060,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 521.46, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `openai/gpt-oss-20b` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 6466, Requ""}, {""model_key"": ""openrouter_llama"", ""model_id"": ""meta-llama/llama-3.3-70b-instruct"", ""provider"": ""openrouter"", ""outcome"": ""fatal"", ""latency_ms"": 1507.1, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""User not found.\"",\""code\"":401}}""}, {""model_key"": ""openrouter_claude"", ""model_id"": ""anthropic/claude-sonnet-4"", ""provider"": ""openrouter"", ""outcome"": ""fatal"", ""latency_ms"": 507.96, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""User not found.\"",\""code\"":401}}""}, {""model_key"": ""evidence_only"", ""model_id"": ""none"", ""provider"": ""registry"", ""outcome"": ""success"", ""latency_ms"": 0.0, ""prompt_tokens"": 3631, ""completion_tokens"": 1440, ""detail"": ""all providers failed or unavailable""}]"
+R94_tcfc_lower_leg,table_integrity,What is the TCFC lower-leg force limit in UN R94 frontal impact (clause 5.2.1.8)?,"UN R94 clause 5.2.1.8 sets the Tibia Compression Force Criterion (TCFC) limit at 8 kN for the lower leg in frontal impact — a numeric limit that must be read from the injury-criteria clauses, not confused with ThCC chest limits.",The tibia compression force criterion (TCFC) for the lower leg in a UN R94 frontal‑impact test must not exceed **8 kN**【S1】【S2】.,False,groq_fast,openai/gpt-oss-20b,groq,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,1.0,0.4,1.0,2618,210,2825.81,1602.31,9,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 495.87, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97046,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""success"", ""latency_ms"": 1104.91, ""prompt_tokens"": 2618, ""completion_tokens"": 210, ""detail"": """"}]"
+R44_vs_R129_child_restraints,cross_document_comparison,What is the difference between UN R44 and UN R129 for child restraints?,UN R44 is the legacy mass-based child restraint regulation (weight groups). UN R129 (i-Size) is height-based sizing with improved side-impact and ISOFIX integration — a multi-document comparison across both regulations.,"[evidence-only] LLM unavailable — retrieved passages only:
+
+
+[1] UN_R129 | UN_R129_04Series.pdf p.1
+[Source: UNECE | Reg: UN_R129 | Amendment: Base | Doc: UN_R129_04Series.pdf | Page: 1 | Section: General | Type: section]
+
+<!-- page: 1 -->
+ 
+ 
+ Agreement 
+ 
+ 
+Concerning the Adoption of Harmonized Technical United Nations 
+Regulations for Wheeled Vehicles, Equipment and Parts which can be 
+Fitted and/or be Used on Wheeled Vehicles and the Conditions for 
+Reciprocal Recognition of Approvals Granted on the Basis of these 
+United Nations Regulations* 
+(Revision 3, including the amendments which entered into force on 14 September 2017) 
+_________ 
+ 
+ 
+Addendum 128 – UN Regulation No. 129 
+ 
+ 
+Rev
+
+[2] UN_R129 | UN_R129_04Series.pdf p.2
+[Source: UNECE | Reg: UN_R129 | Amendment: Base | Doc: UN_R129_04Series.pdf | Page: 2 | Section: 11 | Type: section]
+
+11 March 2025 
+
+<!-- page: 2 -->
+E/ECE/324/Rev.2/Add.128/Rev.5/Amend.1 
+E/ECE/TRANS/505/Rev.2/Add.128/Rev.5/Amend.1 
+2 
+ 
+ 
+Paragraph 6.1.3.4., amend to read: 
+""6.1.3.4. 
+Enhanced Child Restraint Systems of the booster seat and booster cushion 
+categories shall have only one adult safety-belt route and a main load-bearing 
+contact point, between the Enhanced Child Restraint System and the adult safety 
+belt. This point shall not be less than 150 mm from the Cr axis when measure
+
+[3] UN_R129 | UN_R129_04Series.pdf p.1
+[Source: UNECE | Reg: UN_R129 | Amendment: Base | Doc: UN_R129_04Series.pdf | Page: 1 | Section: General | Type: paragraph]
+
+<!-- page: 1 -->
+ 
+ 
+ Agreement 
+ 
+ 
+Concerning the Adoption of Harmonized Technical United Nations 
+Regulations for Wheeled Vehicles, Equipment and Parts which can be 
+Fitted and/or be Used on Wheeled Vehicles and the Conditions for 
+Reciprocal Recognition of Approvals Granted on the Basis of these 
+United Nations Regulations* 
+(Revision 3, including the amendments which entered into force on 14 September 2017) 
+_________ 
+ 
+ 
+Addendum 128 – UN Regulation No. 129 
+ 
+ 
+R
+
+[4] UN_R129 | UN_R129_04Series.pdf p.2
+[Source: UNECE | Reg: UN_R129 | Amendment: Base | Doc: UN_R129_04Series.pdf | Page: 2 | Section: 6.6.4.1.1 | Type: clause]
+
+i-Size and Universal category Enhanced Child Restraint Systems shall be 
+tested on the test bench prescribed in Annex 6, and in conformity with 
+paragraph 7.1.3.1. below.
+
+[5] UN_R44 | UNECE_UN_R44_Base.pdf p.57
+[Source: UNECE | Reg: UN_R44 | Amendment: Base | Doc: UNECE_UN_R44_Base.pdf | Page: 57 | Section: 15.2.9]
+
+sible at the point of sale without removing the packing: 
+Notice 
+ 
+1. This is an ISOFIX CHILD RESTRAINT SYSTEM. It is approved to Regulation No. 44, 04 
+series of amendments for general use in vehicles fitted with ISOFIX anchorages systems. 
+ 
+2. It will fit vehicles with positions approved as ISOFIX positions (as detailed in the vehicle 
+handbook), depending on the category of the child seat and of the fixture. 
+ 
+3. The mass group and the ISOFIX size class for which this device is inte
+
+[6] UN_R44 | UN_R44_04Series.pdf p.2
+[Source: UNECE | Reg: UN_R44 | Amendment: Base | Doc: UN_R44_04Series.pdf | Page: 2 | Section: 2 | Type: section]
+
+2 July 2021 
+
+<!-- page: 2 -->
+E/ECE/324/Rev.1/Add.43/Rev.3/Amend.11 
+E/ECE/TRANS/505/Rev.1/Add.43/Rev.3/Amend.11 
+ 
+2 
+Paragraph 6.1.3., amend to read: 
+""6.1.3. 
+According to the category which it belongs to, the child restraint shall be 
+secured to the vehicle structure or to the seat structure. 
+Possible configurations for approval Groups / categories table 
+Group category 
+Universal (1) 
+Semi-universal (2) 
+Restricted 
+Specific vehicle 
+CRS 
+ISOFIXCRS 
+CRS 
+ISOFIXCRS 
+CRS 
+ISO
+
+[7] UN_R129 | UNECE_UN_R129_Base.pdf p.19
+[Source: UNECE | Reg: UN_R129 | Amendment: Base | Doc: UNECE_UN_R129_Base.pdf | Page: 19 | Section: Annex 1]
+
+raint System could be used as an infant 
+carrier module and installed as defined in Annex 22, approvals according to 
+this Regulation can only be granted if the infant carrier module complies with 
+the requirements of this annex. 
+5.4. 
+In addition to the marks prescribed in paragraph 4. above, the following 
+particulars shall be affixed in a suitable space to every Enhanced Child 
+Restraint System conforming to a type approved under this Regulation: 
+5.4.1. 
+An international approval 
+
+[8] UN_R44 | UN_R44_04Series.pdf p.1
+[Source: UNECE | Reg: UN_R44 | Amendment: Base | Doc: UN_R44_04Series.pdf | Page: 1 | Section: General | Type: section]
+
+<!-- page: 1 -->
+ 
+ 
+ Agreement 
+ 
+ 
+Concerning the Adoption of Harmonized Technical United Nations 
+Regulations for Wheeled Vehicles, Equipment and Parts which can be 
+Fitted and/or be Used on Wheeled Vehicles and the Conditions for 
+Reciprocal Recognition of Approvals Granted on the Basis of these 
+United Nations Regulations* 
+(Revision 3, including the amendments which entered into force on 14 September 2017) 
+_________ 
+ 
+ 
+Addendum 43 – UN Regulation No. 44 
+ 
+ 
+Revisio",True,evidence_only,none,registry,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,0.1,0.0,0.1,2708,964,3471.15,2082.4,8,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 550.7, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97033,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 528.59, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `openai/gpt-oss-20b` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 6186, Requ""}, {""model_key"": ""openrouter_llama"", ""model_id"": ""meta-llama/llama-3.3-70b-instruct"", ""provider"": ""openrouter"", ""outcome"": ""fatal"", ""latency_ms"": 499.74, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""User not found.\"",\""code\"":401}}""}, {""model_key"": ""openrouter_claude"", ""model_id"": ""anthropic/claude-sonnet-4"", ""provider"": ""openrouter"", ""outcome"": ""fatal"", ""latency_ms"": 500.05, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""User not found.\"",\""code\"":401}}""}, {""model_key"": ""evidence_only"", ""model_id"": ""none"", ""provider"": ""registry"", ""outcome"": ""success"", ""latency_ms"": 0.0, ""prompt_tokens"": 2708, ""completion_tokens"": 964, ""detail"": ""all providers failed or unavailable""}]"
+FMVSS208_vs_R94_chest,cross_market_comparison,How does FMVSS 208 frontal occupant chest protection compare to UN R94 ThCC limits?,"FMVSS 208 (US) and UN R94 (UNECE) are separate frontal occupant-protection frameworks. UN R94 ThCC chest compression is capped at 42 mm (clause 5.2.1.4). FMVSS 208 uses US CFR injury criteria with different dummy/test procedures — a cross-market comparison must cite both families, not only Euro NCAP or UNECE alone.","[evidence-only] LLM unavailable — retrieved passages only:
+
+
+[1] FMVSS 208 | FMVSS_208_2024.pdf p.41
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 41 | Section: 49 | Type: paragraph]
+
+s 
+specified in S10, excluding S10.7, S10.8, 
+and S10.9, shall meet the injury cri-
+teria of S6.1, S6.2(a), S6.3, S6.4(a), S6.5, 
+and S13.2 of this standard. 
+S13.2 Neck injury criteria. A vehicle 
+certified to this alternative test re-
+quirement shall, in addition to meeting 
+the criteria specified in S13.1, meet the 
+following injury criteria for the neck, 
+measured with the six axis load cell 
+(ref. Denton drawing C–1709) that is 
+mounted between the bottom of the 
+skull 
+
+[2] FMVSS 208 | FMVSS_208_2024.pdf p.41
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 41 | Section: 49 | Type: section]
+
+49 CFR Ch. V (10–1–24 Edition) 
+§ 571.208 
+THIS VEHICLE DOES NOT CONTAIN AN 
+AIR BAG IN CONFORMANCE WITH THE 
+FEDERAL 
+MOTOR 
+VEHICLE 
+SAFETY 
+STANDARD FOR OCCUPANT CRASH PRO-
+TECTION. IT WAS EXEMPTED PURSUANT 
+TO NHTSA EXEMPTION NO. (insert number 
+assigned by NHTSA). 
+(b) This label shall not be removed 
+until after the vehicle manufacturer 
+has recalled the vehicle and installed 
+an inflatable restraint system at those 
+seating positions for which it was 
+granted an exempti
+
+[3] FMVSS 208 | FMVSS_208_2024.pdf p.63
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 63 | Section: 2.5 | Type: clause]
+
+(b) The maximum calculated HIC15 
+value shall not exceed 570. 
+S21.5.3 The resultant acceleration 
+calculated from the output of the tho-
+racic instrumentation shall not exceed 
+55 g’s, except for intervals whose cumu-
+lative duration is not more than 3 mil-
+liseconds. 
+S21.5.4 Compression deflection of the 
+sternum relative to the spine, as deter-
+mined by instrumentation, shall not 
+exceed 34 millimeters (1.3 in). 
+S21.5.5 Neck injury. When measuring 
+neck injury, each of th
+
+[4] FMVSS 208 | FMVSS_208_2024.pdf p.63
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 63 | Section: 49 | Type: section]
+
+49 CFR Ch. V (10–1–24 Edition) 
+§ 571.208 
+expressed as a multiple of g (the accel-
+eration of gravity) and shall be cal-
+culated using the expression: 
+1
+2 1
+2 1
+1
+2
+t t
+a dt
+t t
+r
+t
+t
+(
+)
+⎡
+⎣
+⎢
+⎢
+⎤
+⎦
+⎥
+⎥
+(
+)
+∫
+2.5
+(b) The maximum calculated HIC15 
+value shall not exceed 570. 
+S21.5.3 The resultant acceleration 
+calculated from the output of the tho-
+racic instrumentation shall not exceed 
+55 g’s, except for intervals whose cumu-
+lative duration is not more than 3 mil-
+liseco
+
+[5] FMVSS 208 | FMVSS_208_2024.pdf p.27
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 27 | Section: 49 | Type: paragraph]
+
+acceleration of grav-
+ity) and shall be calculated using the 
+expression: 
+1
+2
+1
+2 5
+2
+1
+1
+2
+t
+t
+a dt
+t
+t
+r
+t
+t
+−
+(
+)
+⎡
+⎣
+⎢
+⎢
+⎤
+⎦
+⎥
+⎥
+−
+(
+)
+∫
+.
+(2) The maximum calculated HIC36 
+value shall not exceed 1,000. 
+(b)(1) For any two points in time, t1 
+and t2, during the event which are sep-
+arated by not more than a 15 milli-
+second time interval and where t1 is 
+less than t2, the head injury criterion 
+(HIC15) shall be determined using the 
+resultant head acceleration at the ce
+
+[6] FMVSS 208 | FMVSS_208_2024.pdf p.27
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 27 | Section: 49 | Type: section]
+
+49 CFR Ch. V (10–1–24 Edition) 
+§ 571.208 
+in either direction from the perpen-
+dicular to the line of travel of the vehi-
+cle, under the applicable conditions of 
+S8 and S10. The test dummy specified 
+in S8.1.8 placed in each front outboard 
+designated seating position shall meet 
+the injury criteria of S6.1, S6.2(a), S6.3, 
+S6.4(a), and S6.5 of this standard. 
+(b) Vehicles certified to S14—(1) Vehi-
+cles certified to S14.1 or S14.2. Impact a 
+vehicle traveling longitudinally
+
+[7] FMVSS 208 | FMVSS_208_2024.pdf p.56
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 56 | Section: 2.5 | Type: clause]
+
+(b) The maximum calculated HIC15 
+value shall not exceed 390. 
+S19.4.3 The resultant acceleration 
+calculated from the output of the tho-
+racic instrumentation shall not exceed 
+50 g’s, except for intervals whose cumu-
+lative duration is not more than 3 mil-
+liseconds. 
+S19.4.4 Neck injury. When measuring 
+neck injury, each of the following in-
+jury criteria shall be met. 
+(a) Nij. 
+(1) The shear force (Fx), axial force 
+(Fz), and bending moment (My) shall be 
+measured by the 
+
+[8] FMVSS 208 | FMVSS_208_2024.pdf p.55
+[Source: FMVSS | Reg: FMVSS 208 | Amendment: Base | Doc: FMVSS_208_2024.pdf | Page: 55 | Section: 49 | Type: section]
+
+49 CFR Ch. V (10–1–24 Edition) 
+§ 571.208 
+anthropomorphic 
+test 
+devices 
+re-
+strained by a Type 2 seat belt assem-
+bly. 
+S18 Test procedure for offset frontal de-
+formable barrier requirements using 5th 
+percentile adult female dummies. 
+S18.1 General provisions. Place a 49 
+CFR Part 572 Subpart O 5th percentile 
+adult female test dummy at each front 
+outboard seating position of a vehicle, 
+in accordance with the procedures 
+specified in S16.3 of this standard. Im-
+pact the",True,evidence_only,none,registry,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,0.1,0.0,0.0,3937,1179,3266.76,2102.64,8,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 528.34, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97020,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 523.13, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `openai/gpt-oss-20b` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 4691, Requ""}, {""model_key"": ""openrouter_llama"", ""model_id"": ""meta-llama/llama-3.3-70b-instruct"", ""provider"": ""openrouter"", ""outcome"": ""fatal"", ""latency_ms"": 504.72, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""User not found.\"",\""code\"":401}}""}, {""model_key"": ""openrouter_claude"", ""model_id"": ""anthropic/claude-sonnet-4"", ""provider"": ""openrouter"", ""outcome"": ""fatal"", ""latency_ms"": 540.95, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""User not found.\"",\""code\"":401}}""}, {""model_key"": ""evidence_only"", ""model_id"": ""none"", ""provider"": ""registry"", ""outcome"": ""success"", ""latency_ms"": 0.0, ""prompt_tokens"": 3937, ""completion_tokens"": 1179, ""detail"": ""all providers failed or unavailable""}]"
+R16_762_crossref_regression,cross_reference_regression,the locking mechanism is deceleration-actuated only — check this against §7.6.2,UN R16 §7.6.2 defines the dynamic locking test for retractors under vehicle deceleration conditions (linked to 2.12.4.1). A deceleration-actuated-only locking claim must be checked against the actual test deceleration/strap-length requirements in §7.6.2 / §6.2.5 — known retrieval gap when base OCR section tags are missing.,"I’m sorry, but I can’t find §7.6.2 in the documents that were supplied.",False,groq_fast,openai/gpt-oss-20b,groq,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,0.1,0.0,0.0,3125,358,25806.45,1886.62,8,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""rate_limit"", ""latency_ms"": 613.28, ""prompt_tokens"": 0, ""completion_tokens"": 0, ""detail"": ""{\""error\"":{\""message\"":\""Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01krztsq3fegmv3v3tc1bge5xv` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 96980,""}, {""model_key"": ""groq_fast"", ""model_id"": ""openai/gpt-oss-20b"", ""provider"": ""groq"", ""outcome"": ""success"", ""latency_ms"": 1266.59, ""prompt_tokens"": 3125, ""completion_tokens"": 358, ""detail"": """"}]"
+honesty_nonexistent_reg,honesty_gap,What is the chest deflection limit under UN R999?,UN R999 is not in the ingested UNECE passive-safety corpus. The system must state that the regulation is not available / not found rather than inventing a limit or citing unrelated documents as if they were UN R999.,I couldn't find any relevant passages in the safety regulation registry to answer your question.,True,none,none,registry,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,true,0.0,0.0,0.0,0.0,0,0,330.03,0.0,0,[]
+R32_ocr_base_content,newly_acquired_ocr,What does UN R32 regulate regarding protection of the passenger compartment in rear-end collisions?,UN R32 regulates uniform provisions for the protection of the passenger compartment of category M1 passenger cars in rear-end collisions — ingested from OCR-recovered base PDF (UNECE_UN_R32_Base.pdf) plus amendment series documents.,"According to [S1], UN R32 regulates the ""behaviour of the structure of the impacted vehicle in a rear-end collision"". This is stated in the title of the regulation, which is ""UNIFORM PROVISIONS CONCERNING THE APPROVAL OF VEHICLES WITH REGARD TO THE BEHAVIOUR OF THE STRUCTURE OF THE IMPACTED VEHICLE IN A REAR-END COLLISION"" [S1]. 
+
+The regulation outlines the requirements for the approval of vehicles with regard to the behavior of the passenger compartment in a rear-end collision, including the application for approval [S1], approval [S1], requirements [S1], and test procedures [S1]. 
+
+Additionally, [S5] states that the regulation requires vehicles to conform to the approved vehicle type, particularly with regards to features affecting the behavior of the passenger compartment in a rear-end collision [S5]. 
+
+Therefore, UN R32 regulates the protection of the passenger compartment in rear-end collisions by setting out requirements and test procedures for vehicle approval.",False,groq,llama-3.3-70b-versatile,groq,False,groq,openai/gpt-oss-20b,INTERIM_groq_judge; judge_fallback_llama-3.3-70b-versatile_to_openai/gpt-oss-20b,,1.0,0.9,0.4,0.6,1848,210,1787.49,1394.16,8,"[{""model_key"": ""groq"", ""model_id"": ""llama-3.3-70b-versatile"", ""provider"": ""groq"", ""outcome"": ""success"", ""latency_ms"": 1393.2, ""prompt_tokens"": 1848, ""completion_tokens"": 210, ""detail"": """"}]"

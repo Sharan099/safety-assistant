@@ -1,0 +1,95 @@
+# coverage_expected.yaml
+# -----------------------------------------------------------------------------
+# Expected PASSIVE-SAFETY regulation coverage — EUROPE ONLY.
+# Used by the registry coverage/gap report (PRD FR-17): the system compares
+# documents actually ingested against this list and reports what is MISSING.
+#
+# SCOPE (deliberately narrow):
+#   * Region: Europe only. Non-EU authorities (FMVSS, IIHS, US NCAP, China)
+#     are intentionally excluded.
+#   * Domain: passive safety (occupant protection / crashworthiness / restraints /
+#     child / pedestrian-VRU impact / post-crash electrical). Lighting, braking,
+#     emissions, noise, EMC, anti-theft etc. are OUT of scope and excluded.
+#   * Instruments: UN Regulations under the 1958 Agreement (administered by
+#     UNECE WP.29) + the EU type-approval framework. Most EU passive-safety
+#     requirements are applied THROUGH these UN Regulations via the GSR.
+#
+# VERIFY AGAINST THE OFFICIAL REGISTER (PRD FR-16):
+#   UNECE 1958 Agreement addenda (the authoritative list):
+#     https://unece.org/transport/vehicle-regulations-wp29/standards
+#   The passive-safety regulations are developed by WP.29's Working Party on
+#   Passive Safety (GRSP). When in doubt, GRSP scope = this file's scope.
+#
+# This file does NOT hardcode amendment series. Series change; the live
+# pipeline parses the current series from the official register.
+#
+#   priority: core     = needed in almost every EU passive-safety program.
+#   priority: extended = legacy series, specific vehicle class, or niche.
+# -----------------------------------------------------------------------------
+
+meta:
+  schema_version: 2
+  region: europe_only
+  domain: passive_safety
+  purpose: expected_coverage_for_gap_report
+  register: "https://unece.org/transport/vehicle-regulations-wp29/standards"
+  owning_body: "UNECE WP.29 - Working Party on Passive Safety (GRSP)"
+  areas:
+    - frontal               # frontal impact occupant protection
+    - side                  # side / pole impact
+    - rear                  # rear impact, whiplash, fuel/electrical in rear impact
+    - restraints            # seat belts, anchorages, ISOFIX
+    - child                 # child restraint systems
+    - seats                 # seats, head restraints, strength
+    - structure             # steering intrusion, doors, interior, cab protection
+    - pedestrian_vru        # pedestrian / VRU impact protection
+    - post_crash_electrical # EV electrical safety after crash
+  excluded_examples:
+    note: >
+      The 1958 Agreement list is mostly NON-passive-safety. Examples explicitly
+      excluded from this file: R1/R3/R4/R5/R6/R7/R8/R19/R20 (lighting),
+      R9 (noise), R10 (EMC), R13/R13H (braking), R15 (emissions),
+      R18 (anti-theft), R166 (VRU close-proximity driver awareness - and not
+      EU-mandated for whole-vehicle type approval).
+
+authorities:
+
+  # ===========================================================================
+  UNECE:
+    agreement: "1958 Agreement (UN Regulations)"
+    register: "https://unece.org/transport/vehicle-regulations-wp29/standards"
+    track_amendments: true   # series parsed from official register, not this file
+    regulations:
+      - { id: R11,  title: "Door latches and hinges",                              area: structure,   priority: extended }
+      - { id: R12,  title: "Steering mechanism - driver protection in impact",     area: structure,   priority: core }
+      - { id: R14,  title: "Safety-belt anchorages and ISOFIX anchorages",         area: restraints,  priority: core }
+      - { id: R16,  title: "Safety-belts and restraint systems",                   area: restraints,  priority: core }
+      - { id: R17,  title: "Strength of seats, their anchorages and head restraints", area: seats,    priority: core }
+      - { id: R21,  title: "Interior fittings",                                     area: structure,   priority: extended }
+      - { id: R25,  title: "Head restraints (standalone, legacy)",                  area: seats,       priority: extended }
+      - { id: R29,  title: "Protection of occupants of commercial vehicle cabs",    area: structure,   priority: extended }
+      - { id: R32,  title: "Rear-end collision structural behaviour",               area: rear,        priority: extended }
+      - { id: R33,  title: "Frontal collision structural behaviour (legacy)",       area: frontal,     priority: extended }
+      - { id: R34,  title: "Prevention of fire risks (fuel tanks)",                 area: rear,        priority: extended }
+      - { id: R42,  title: "Front and rear protective devices (bumpers)",           area: structure,   priority: extended }
+      - { id: R44,  title: "Child restraint systems (legacy, superseded by R129)",  area: child,       priority: extended }
+      - { id: R80,  title: "Strength of seats / anchorages (buses & coaches)",      area: seats,       priority: extended }
+      - { id: R94,  title: "Frontal collision occupant protection",                 area: frontal,     priority: core }
+      - { id: R95,  title: "Lateral collision occupant protection",                 area: side,        priority: core }
+      - { id: R100, title: "Electric powertrain safety (incl. post-crash)",         area: post_crash_electrical, priority: core }
+      - { id: R127, title: "Pedestrian safety (pedestrian protection)",             area: pedestrian_vru, priority: core }
+      - { id: R129, title: "Enhanced Child Restraint Systems (i-Size)",             area: child,       priority: core }
+      - { id: R135, title: "Pole side impact",                                      area: side,        priority: core }
+      - { id: R137, title: "Frontal impact with focus on restraint systems",        area: frontal,     priority: core }
+      - { id: R153, title: "Fuel system & electric safety integrity in rear impact",area: rear,        priority: core }
+
+  # ===========================================================================
+  EU:
+    framework: "EU type-approval framework"
+    register: "https://eur-lex.europa.eu/"
+    note: >
+      EU passive-safety requirements are largely applied THROUGH the UN
+      Regulations above, made mandatory by the General Safety Regulation.
+    regulations:
+      - { id: GSR,  title: "General Safety Regulation (EU) 2019/2144",             area: structure,   priority: core }
+      - { id: WVTA, title: "Type-approval framework (EU) 2018/858",                area: structure,   priority: extended }

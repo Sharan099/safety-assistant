@@ -32,8 +32,8 @@ COPY_DIRS = [
     "regulation_discovery",
     "monitoring",
     "docker",
+    "scripts",
 ]
-COPY_SCRIPTS = ["seed_auth_users.py"]
 DATA_HF = ["README.md"]  # DB fetched from GitHub LFS at Docker build time
 
 README = """---
@@ -76,11 +76,6 @@ def main() -> None:
         shutil.copytree(ROOT / d, DEPLOY / d, ignore=_ignore_pycache)
 
     shutil.copytree(ROOT / "backend", DEPLOY / "backend", ignore=_ignore_pycache)
-
-    scripts_dst = DEPLOY / "scripts"
-    scripts_dst.mkdir()
-    for s in COPY_SCRIPTS:
-        shutil.copy2(ROOT / "scripts" / s, scripts_dst / s)
 
     data_hf = DEPLOY / "data" / "hf"
     data_hf.mkdir(parents=True)

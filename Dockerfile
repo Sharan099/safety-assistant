@@ -55,7 +55,7 @@ COPY regulation_discovery/ /app/regulation_discovery/
 COPY monitoring/ /app/monitoring/
 COPY alembic.ini /app/alembic.ini
 COPY coverage_expected.yaml /app/coverage_expected.yaml
-COPY scripts/seed_auth_users.py /app/scripts/seed_auth_users.py
+COPY scripts/ /app/scripts/
 COPY docker/hf_entrypoint.sh /app/docker/hf_entrypoint.sh
 
 # Fetch pre-built SQLite corpus from GitHub LFS (not stored in HF Space git).

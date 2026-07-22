@@ -1,0 +1,62 @@
+[
+  {
+    "id": "q01_thcc_r94",
+    "track": "answerable",
+    "query": "Under UN Regulation No. 94, what is the maximum permitted Thorax Compression Criterion (ThCC) for the 50th percentile male dummy in frontal impact, and in which clause is it specified?",
+    "ground_truth": "UN R94 limits ThCC (thorax compression criterion) to 42 mm for the 50th percentile male dummy in frontal impact. The limit is specified in clause 5.2.1.4 of the injury criteria provisions."
+  },
+  {
+    "id": "q02_isize_r129",
+    "track": "answerable",
+    "query": "How does UN Regulation No. 129 define an i-Size child restraint system and what sizing principle does it use?",
+    "ground_truth": "UN R129 defines enhanced child restraint systems under the i-Size approach using height-based classification rather than mass-based groups. i-Size systems are integrated child restraint systems designed for defined height classes with ISOFIX-based installation and enhanced protection requirements."
+  },
+  {
+    "id": "q03_belts_frontal",
+    "track": "answerable",
+    "query": "Why are UN Regulation No. 16 safety-belt and retractor requirements relevant when assessing frontal occupant protection tested under UN Regulation No. 94?",
+    "ground_truth": "UN R94 frontal occupant protection tests assume occupants are properly restrained by safety belts meeting UN R16. Belt geometry, anchorage strength, and retractor locking behavior under UN R16 directly affect dummy kinematics and whether UN R94 injury limits for head, chest, and lower extremities are satisfied during frontal impact."
+  },
+  {
+    "id": "q04_compare_r94_r95",
+    "track": "answerable",
+    "query": "Compare UN Regulation No. 94 and UN Regulation No. 95 in terms of collision direction addressed, test objective, and primary occupant injury assessment focus.",
+    "ground_truth": "UN R94 addresses frontal collision protection and evaluates frontal injury criteria such as head, chest, and lower-limb limits for restrained occupants. UN R95 addresses lateral/side impact protection and evaluates side-structure intrusion and occupant injury under side-loading conditions. The regulations differ in impact direction, barrier/test configuration, and the injury metrics emphasized for homologation."
+  },
+  {
+    "id": "q05_false_premise_r95",
+    "track": "abstention",
+    "query": "Summarize the frontal collision HIC and chest injury limits that UN Regulation No. 95 imposes on vehicle side structures.",
+    "ground_truth": "The question contains a false premise. UN R95 governs lateral/side impact protection, not frontal collision HIC limits. Frontal head and chest injury criteria such as HIC and ThCC are addressed under UN R94. The answer must correct this scope error before discussing side-impact requirements from UN R95."
+  },
+  {
+    "id": "q06_elr_r16",
+    "track": "answerable",
+    "query": "Under UN Regulation No. 16, what are the emergency locking retractor (ELR) requirements in paragraph 6.2.5.3.1? Answer with an explicit section citation.",
+    "ground_truth": "UN R16 paragraph 6.2.5.3.1 sets requirements for emergency locking retractors, including locking performance under vehicle deceleration and belt payout conditions relevant to occupant restraint. The response must cite §6.2.5.3.1 explicitly and ground statements in retrieved UN R16 text."
+  },
+  {
+    "id": "q07_hallucination_r129",
+    "track": "abstention",
+    "query": "Confirm that UN Regulation No. 129 Amendment 3 Annex 2 Table 4 sets a maximum child head injury criterion of 550 HIC in frontal tests.",
+    "ground_truth": "The system must not fabricate confirmation. The indexed UN R129 corpus should be checked for any HIC limit tied to a fictitious 'Amendment 3 Annex 2 Table 4' value of 550. If the cited annex/table/value is not present in retrieved sources, the correct behavior is to state that the claim cannot be verified from the provided documents."
+  },
+  {
+    "id": "q08_out_of_scope",
+    "track": "abstention",
+    "query": "What injury criteria does FMVSS 214 apply to side impact pole tests in the United States?",
+    "ground_truth": "FMVSS 214 is outside the indexed UNECE corpus limited to UN R94, R95, R16, and R129. The correct behavior is to state that the question is out of scope for the available knowledge base and not answer from inference or training memory alone."
+  },
+  {
+    "id": "q09_tcfc_r94",
+    "track": "answerable",
+    "query": "Under UN Regulation No. 94, what is the maximum permitted tibia compression force criterion (TCFC), and in which clause is it specified?",
+    "ground_truth": "UN R94 clause 5.2.1.7 limits the tibia compression force criterion (TCFC) to 8 kN."
+  },
+  {
+    "id": "q10_sbr_r16",
+    "track": "answerable",
+    "query": "How does UN Regulation No. 16 define a \"safety-belt reminder\" (SBR) system and in which clause is it defined?",
+    "ground_truth": "UN R16 clause 2.40 defines the safety-belt reminder as a system that alerts the driver when he/she does not use the safety-belt, constituted by detection of an unfastened safety-belt and two levels of driver alert (a first-level warning and a second, stronger alert)."
+  }
+]

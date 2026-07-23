@@ -23,7 +23,7 @@ ABSTENTION = "abstention"
 # Binary refusal cues — keep simple; do not weaken system abstention behavior.
 _REFUSAL_RE = re.compile(
     r"(?i)("
-    r"false premise|does not (contain|apply|impose)|cannot (be verified|confirm|find)|"
+    r"false premise|do(?:es)? not (contain|apply|impose)|cannot (be verified|confirm|find)|"
     r"outside (the )?(indexed|unece)|out of scope|not (present|available|in the)|"
     r"will not answer|cannot answer|not frontal|lateral/?side|"
     r"no(,| —| -)? the retrieved|I cannot|not in (the )?(retrieved|corpus|provided)"
@@ -244,11 +244,67 @@ def run_ragas(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             ],
             llm=llm,
             embeddings=embeddings,
-            run_config=RunConfig(max_workers=1, max_wait=300, max_retries=4),
+            run_config=RunConfig(max_workers=1, max_wait=180, max_retries=6),
         )
         df = result.to_pandas()
     except Exception as exc:
         raise RagasScoringError(f"RAGAS evaluate() failed: {exc}") from exc
+
+    # Retry individual rows that returned NaN (transient Groq/RAGAS failures).
+    for attempt in range(2):
+        missing_rows: list[int] = []
+        for idx in range(len(answerable)):
+            for key in METRICS:
+                if key not in df.columns or float(df.iloc[idx][key]) != float(df.iloc[idx][key]):
+                    missing_rows.append(idx)
+                    break
+        if not missing_rows:
+            break
+        logger.warning(
+            "RAGAS NaN/missing on rows {} — retry {}/2",
+            missing_rows,
+            attempt + 1,
+        )
+        sub = [answerable[i] for i in missing_rows]
+        sub_ds = Dataset.from_dict(
+            {
+                "question": [r["query"] for r in sub],
+                "answer": [_strip_answer(r.get("answer", "")) for r in sub],
+                "contexts": [
+                    _trim_contexts(
+                        [
+                            (c.get("snippet") or "")
+                            for c in (r.get("retrieved_chunks") or [])
+                            if (c.get("snippet") or "").strip()
+                        ]
+                        or [r.get("retrieved_context") or ""]
+                    )
+                    for r in sub
+                ],
+                "ground_truth": [r.get("ground_truth", "") for r in sub],
+            }
+        )
+        try:
+            sub_result = evaluate(
+                sub_ds,
+                metrics=[
+                    faithfulness,
+                    answer_relevancy,
+                    context_precision,
+                    context_recall,
+                    answer_correctness,
+                ],
+                llm=llm,
+                embeddings=embeddings,
+                run_config=RunConfig(max_workers=1, max_wait=180, max_retries=6),
+            )
+            sub_df = sub_result.to_pandas()
+        except Exception as exc:
+            raise RagasScoringError(f"RAGAS retry failed: {exc}") from exc
+        for j, idx in enumerate(missing_rows):
+            for key in METRICS:
+                if key in sub_df.columns:
+                    df.iat[idx, df.columns.get_loc(key)] = sub_df.iloc[j][key]
 
     for idx, rec in enumerate(answerable):
         scores: dict[str, float] = {}

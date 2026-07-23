@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-22T09:10:30.854700+00:00",
+  "created_at": "2026-07-23T05:48:32.214276+00:00",
   "framework": "ragas+abstention_binary",
   "judge": "groq",
   "n_questions": 10,
@@ -9,12 +9,12 @@
       "n_questions": 7,
       "framework": "ragas",
       "judge": "groq",
-      "avg_faithfulness": 0.6596,
-      "avg_answer_relevancy": 0.7984,
-      "avg_context_precision": 0.8929,
+      "avg_faithfulness": 0.6837,
+      "avg_answer_relevancy": 0.9206,
+      "avg_context_precision": 0.8768,
       "avg_context_recall": 0.8571,
-      "avg_answer_correctness": 0.6234,
-      "avg_final_score": 0.7663,
+      "avg_answer_correctness": 0.55,
+      "avg_final_score": 0.7776,
       "pass_count": 6,
       "fail_count": 1
     },
@@ -27,12 +27,12 @@
     }
   },
   "overall_metrics": {
-    "avg_faithfulness": 0.6596,
-    "avg_answer_relevancy": 0.7984,
-    "avg_context_precision": 0.8929,
+    "avg_faithfulness": 0.6837,
+    "avg_answer_relevancy": 0.9206,
+    "avg_context_precision": 0.8768,
     "avg_context_recall": 0.8571,
-    "avg_answer_correctness": 0.6234,
-    "avg_final_score": 0.7663,
+    "avg_answer_correctness": 0.55,
+    "avg_final_score": 0.7776,
     "pass_count": 6,
     "fail_count": 1,
     "judge": "groq",
@@ -46,15 +46,15 @@
       "id": "q01_thcc_r94",
       "track": "answerable",
       "query": "Under UN Regulation No. 94, what is the maximum permitted Thorax Compression Criterion (ThCC) for the 50th percentile male dummy in frontal impact, and in which clause is it specified?",
-      "answer": "42 mm [S1], specified in UN R94 \u00a75.2.1.4 for frontal impact [S1].",
+      "answer": "The maximum permitted Thorax Compression Criterion (ThCC) is 42 mm [S1]. \nIt is specified in UN R94 \u00a75.2.1.4 [S1].",
       "ground_truth": "UN R94 limits ThCC (thorax compression criterion) to 42 mm for the 50th percentile male dummy in frontal impact. The limit is specified in clause 5.2.1.4 of the injury criteria provisions.",
       "metrics": {
         "faithfulness": 1.0,
-        "answer_relevancy": 0.7339,
+        "answer_relevancy": 0.8933,
         "context_precision": 1.0,
         "context_recall": 1.0,
-        "answer_correctness": 0.7922,
-        "final_score": 0.9052
+        "answer_correctness": 0.654,
+        "final_score": 0.9095
       },
       "metrics_source": "ragas",
       "route": "regulatory"
@@ -63,15 +63,15 @@
       "id": "q02_isize_r129",
       "track": "answerable",
       "query": "How does UN Regulation No. 129 define an i-Size child restraint system and what sizing principle does it use?",
-      "answer": "UN Regulation No. 129 defines an i-Size child restraint system as an Enhanced Child Restraint System that is designed for use in i-Size seating positions, with the sizing principle based on the child's stature range. The regulation specifies that i-Size child restraint systems shall have a permanently attached label to inform the user of the appropriate method of restraint of the child over the entire stature range declared by the manufacturer [S3].",
+      "answer": "UN Regulation No. 129 defines an i-Size child restraint system as an Enhanced Child Restraint System that is designed for use in i-Size seating positions [S1]. \nThe Regulation uses a stature range principle for sizing, with the label on the Enhanced Child Restraint System informing the user of the appropriate method of restraint of the child over the entire stature range declared by the manufacturer [S3]. \nThe size range for which the Enhanced Child Restraint System has been designed is indicated on the approval mark [S4]. \nThe i-Size category is primarily designed for use in i-Size seating positions, when the Enhanced Child Restraint Systems are fitted in conformity with the vehicle manufacturer's instructions [S4].",
       "ground_truth": "UN R129 defines enhanced child restraint systems under the i-Size approach using height-based classification rather than mass-based groups. i-Size systems are integrated child restraint systems designed for defined height classes with ISOFIX-based installation and enhanced protection requirements.",
       "metrics": {
-        "faithfulness": 0.7143,
+        "faithfulness": 0.5714,
         "answer_relevancy": 0.978,
-        "context_precision": 1.0,
+        "context_precision": 0.8875,
         "context_recall": 0.0,
-        "answer_correctness": 0.512,
-        "final_score": 0.6409
+        "answer_correctness": 0.5251,
+        "final_score": 0.5924
       },
       "metrics_source": "ragas",
       "route": "regulatory"
@@ -80,15 +80,15 @@
       "id": "q03_belts_frontal",
       "track": "answerable",
       "query": "Why are UN Regulation No. 16 safety-belt and retractor requirements relevant when assessing frontal occupant protection tested under UN Regulation No. 94?",
-      "answer": "UN Regulation No. 16 safety-belt and retractor requirements are relevant when assessing frontal occupant protection tested under UN Regulation No. 94 because they provide minimum requirements for safety-belts and retractors in vehicles, which are integral to occupant protection in frontal collisions, as outlined in UN_R16 \u00a73.5 [S5]. The testing of these safety-belts and retractors, including their endurance and performance, is crucial for ensuring they function as intended during a frontal impact, as specified in UN_R16 \u00a7Annex 14 [S3] and UN_R94 \u00a72.1 [S1].",
+      "answer": "The retrieved passages do not contain information on why UN Regulation No. 16 safety-belt and retractor requirements are relevant when assessing frontal occupant protection tested under UN Regulation No. 94 [S1].",
       "ground_truth": "UN R94 frontal occupant protection tests assume occupants are properly restrained by safety belts meeting UN R16. Belt geometry, anchorage strength, and retractor locking behavior under UN R16 directly affect dummy kinematics and whether UN R94 injury limits for head, chest, and lower extremities are satisfied during frontal impact.",
       "metrics": {
-        "faithfulness": 0.125,
-        "answer_relevancy": 0.8119,
+        "faithfulness": 0.25,
+        "answer_relevancy": 0.9949,
         "context_precision": 1.0,
         "context_recall": 1.0,
-        "answer_correctness": 0.4084,
-        "final_score": 0.6691
+        "answer_correctness": 0.4151,
+        "final_score": 0.732
       },
       "metrics_source": "ragas",
       "route": "regulatory"
@@ -97,15 +97,15 @@
       "id": "q04_compare_r94_r95",
       "track": "answerable",
       "query": "Compare UN Regulation No. 94 and UN Regulation No. 95 in terms of collision direction addressed, test objective, and primary occupant injury assessment focus.",
-      "answer": "UN Regulation No. 94 and UN Regulation No. 95 differ in collision direction, test objective, and primary occupant injury assessment focus. \n| Feature | UN_R94 | UN_R95 |\n| --- | --- | --- |\n| Collision direction | Frontal collision [S1] | Side impact [S5] |\n| Test objective | Protection of occupants in frontal collision [S2] | Protection of occupants in side impact [S5] |\n| Primary occupant injury assessment focus | Thorax Compression Criterion (ThCC), viscous criterion, femur force criterion, and tibia compression force criterion [S1] | Head Performance Criterion (HPC) and other criteria for side impact [S6] |",
+      "answer": "The comparison of UN Regulation No. 94 and UN Regulation No. 95 is as follows:\n| Feature | UN_R94 | UN_R95 |\n| --- | --- | --- |\n| Collision direction addressed | Frontal collision [S1] | Side impact [S5] |\n| Test objective | Protection of occupants in frontal collision [S1] | Protection of occupants in side impact [S5] |\n| Primary occupant injury assessment focus | Thorax Compression Criterion (ThCC) and other criteria [S1] | Head Performance Criterion (HPC) and other criteria [S6] |\nThe retrieved passages do not contain a direct comparison of the two regulations in terms of other features [S4].",
       "ground_truth": "UN R94 addresses frontal collision protection and evaluates frontal injury criteria such as head, chest, and lower-limb limits for restrained occupants. UN R95 addresses lateral/side impact protection and evaluates side-structure intrusion and occupant injury under side-loading conditions. The regulations differ in impact direction, barrier/test configuration, and the injury metrics emphasized for homologation.",
       "metrics": {
-        "faithfulness": 0.4444,
-        "answer_relevancy": 0.7828,
+        "faithfulness": 0.875,
+        "answer_relevancy": 0.8057,
         "context_precision": 1.0,
         "context_recall": 1.0,
-        "answer_correctness": 0.5889,
-        "final_score": 0.7632
+        "answer_correctness": 0.6378,
+        "final_score": 0.8637
       },
       "metrics_source": "ragas",
       "route": "regulatory"
@@ -114,7 +114,7 @@
       "id": "q05_false_premise_r95",
       "track": "abstention",
       "query": "Summarize the frontal collision HIC and chest injury limits that UN Regulation No. 95 imposes on vehicle side structures.",
-      "answer": "The retrieved context does not contain frontal collision HIC and chest injury limits for UN R95, as UN R95 governs lateral/side impact protection, not frontal collision [S3].",
+      "answer": "The question is out of scope because UN_R95 governs lateral/side impact protection, not frontal collision [S3]. \nThe retrieved passages do not contain frontal collision HIC and chest injury limits under UN_R95 [S3].",
       "ground_truth": "The question contains a false premise. UN R95 governs lateral/side impact protection, not frontal collision HIC limits. Frontal head and chest injury criteria such as HIC and ThCC are addressed under UN R94. The answer must correct this scope error before discussing side-impact requirements from UN R95.",
       "metrics": {
         "correct_refusal": true,
@@ -128,15 +128,15 @@
       "id": "q06_elr_r16",
       "track": "answerable",
       "query": "Under UN Regulation No. 16, what are the emergency locking retractor (ELR) requirements in paragraph 6.2.5.3.1? Answer with an explicit section citation.",
-      "answer": "The emergency locking retractor (ELR) requirements in paragraph 6.2.5.3.1 of UN Regulation No. 16 are as follows:\n* The locking must have occurred when the deceleration of the vehicle reaches 0.45 g in the case of type 4 or 0.85 g in the case of type 4N retractors [S1].\n* It must not lock for values of acceleration of the strap measured in the direction of the extraction of the strap of less than 0.8 g in the case of type 4 or less than 1.0 g in the case of type 4N retractors [S1].\nSpecifically, these requirements are outlined in section \u00a77.6.2 of UN_R16 [S1].",
+      "answer": "The emergency locking retractor (ELR) requirements in paragraph 6.2.5.3.1 of UN Regulation No. 16 are specified in \u00a77.6.2, which states that the locking must have occurred when the deceleration of the vehicle reaches 0.45 g in the case of type 4 or 0.85 g in the case of type 4N retractors [S1].\n* The locking threshold for type 4 retractors is 0.45 g [S1].\n* The locking threshold for type 4N retractors is 0.85 g [S1].\nThe requirements for the emergency locking retractor are further detailed in paragraph 6.2.5.3.1.1, 6.2.5.3.1.2, and 6.2.5.3.1.3 of \u00a77.6.2 [S1].",
       "ground_truth": "UN R16 paragraph 6.2.5.3.1 sets requirements for emergency locking retractors, including locking performance under vehicle deceleration and belt payout conditions relevant to occupant restraint. The response must cite \u00a76.2.5.3.1 explicitly and ground statements in retrieved UN R16 text.",
       "metrics": {
-        "faithfulness": 0.6667,
+        "faithfulness": 0.875,
         "answer_relevancy": 0.8539,
         "context_precision": 0.75,
         "context_recall": 1.0,
-        "answer_correctness": 0.7128,
-        "final_score": 0.7967
+        "answer_correctness": 0.6209,
+        "final_score": 0.82
       },
       "metrics_source": "ragas",
       "route": "regulatory"
@@ -145,7 +145,7 @@
       "id": "q07_hallucination_r129",
       "track": "abstention",
       "query": "Confirm that UN Regulation No. 129 Amendment 3 Annex 2 Table 4 sets a maximum child head injury criterion of 550 HIC in frontal tests.",
-      "answer": "No, the retrieved context does not contain UN Regulation No. 129 Amendment 3 Annex 2 Table 4 with a maximum child head injury criterion of 550 HIC in frontal tests [S1].",
+      "answer": "The retrieved passages do not contain UN Regulation No. 129 Amendment 3 Annex 2 Table 4 or a 550 HIC limit [S1].",
       "ground_truth": "The system must not fabricate confirmation. The indexed UN R129 corpus should be checked for any HIC limit tied to a fictitious 'Amendment 3 Annex 2 Table 4' value of 550. If the cited annex/table/value is not present in retrieved sources, the correct behavior is to state that the claim cannot be verified from the provided documents.",
       "metrics": {
         "correct_refusal": true,
@@ -173,15 +173,15 @@
       "id": "q09_tcfc_r94",
       "track": "answerable",
       "query": "Under UN Regulation No. 94, what is the maximum permitted tibia compression force criterion (TCFC), and in which clause is it specified?",
-      "answer": "8 kN [S1], specified in UN R94 \u00a75.2.1.7 [S1].",
+      "answer": "The maximum permitted tibia compression force criterion (TCFC) is 8 kN [S1]. \nIt is specified in clause \u00a75.2.1.7 [S1].",
       "ground_truth": "UN R94 clause 5.2.1.7 limits the tibia compression force criterion (TCFC) to 8 kN.",
       "metrics": {
-        "faithfulness": 1.0,
-        "answer_relevancy": 0.6378,
+        "faithfulness": 0.5,
+        "answer_relevancy": 0.935,
         "context_precision": 1.0,
         "context_recall": 1.0,
-        "answer_correctness": 0.7803,
-        "final_score": 0.8836
+        "answer_correctness": 0.4705,
+        "final_score": 0.7811
       },
       "metrics_source": "ragas",
       "route": "regulatory"
@@ -190,15 +190,15 @@
       "id": "q10_sbr_r16",
       "track": "answerable",
       "query": "How does UN Regulation No. 16 define a \"safety-belt reminder\" (SBR) system and in which clause is it defined?",
-      "answer": "A \"safety-belt reminder\" (SBR) system is defined as a system constituted by a detection of an unfastened safety-belt and by two levels of driver's alert: a first level warning and a second level warning, UN_R16 \u00a72.40 [S2].",
+      "answer": "UN Regulation No. 16 defines a \"safety-belt reminder\" (SBR) system as a system constituted by a detection of an unfastened safety-belt and by two levels of driver's alert: a first level warning and a second level warning [S2]. \nThe definition of the \"safety-belt reminder\" system is found in \u00a72.40 of UN Regulation No. 16 [S2].",
       "ground_truth": "UN R16 clause 2.40 defines the safety-belt reminder as a system that alerts the driver when he/she does not use the safety-belt, constituted by detection of an unfastened safety-belt and two levels of driver alert (a first-level warning and a second, stronger alert).",
       "metrics": {
-        "faithfulness": 0.6667,
-        "answer_relevancy": 0.7905,
+        "faithfulness": 0.7143,
+        "answer_relevancy": 0.9832,
         "context_precision": 0.5,
         "context_recall": 1.0,
-        "answer_correctness": 0.5693,
-        "final_score": 0.7053
+        "answer_correctness": 0.5265,
+        "final_score": 0.7448
       },
       "metrics_source": "ragas",
       "route": "regulatory"

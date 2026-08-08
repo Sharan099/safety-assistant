@@ -1,0 +1,7 @@
+{
+  "_comment": "Scope / purpose article section_number per regulation_id. Extend when new regs are ingested. Confirmed from index audit: R94 clause 1 title=Scope (chunk df67ba8981fd84e2).",
+  "UN-ECE-R94": "1",
+  "UN-ECE-R95": "1",
+  "UN-ECE-R16": "1",
+  "UN-ECE-R129": "1"
+}

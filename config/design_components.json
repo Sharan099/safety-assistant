@@ -1,0 +1,269 @@
+{
+  "_meta": {
+    "review_status": "agent_reviewed",
+    "production_approved": false,
+    "reviewed_by": "cursor-agent-domain-pass",
+    "reviewed_at": "2026-08-05",
+    "seeded_from": [
+      "UN-ECE-R95 — side impact / MDB / door / passenger-compartment / REESS / RDC-PSPF-APF",
+      "UN-ECE-R94 — frontal impact / front-seat protection / REESS / safety-belt seating Annex 5",
+      "UN-ECE-R16 — safety-belts, anchorages, retractor/ELR, reminder, geometry of the belt assembly",
+      "UN-ECE-R129 — CRS (weak for body-in-white; kept only on general fallback)"
+    ],
+    "notes": "DESIGN_IMPLICATION component → regulatory concept → likely regulation map. Components are rarely named literally in UNECE text (e.g. B-pillar), so mappings go through concepts those parts must satisfy. likely_regulations prefer when indexed (retrieve_design_implication). production_approved=false until a passive-safety engineer signs off — this is domain knowledge, not auto-truth.",
+    "review_decisions": [
+      "B-pillar → primarily R95 (side structure / intrusion / door retention / MDB / passenger compartment). R94 kept secondary for shared integrity/door language, not as primary side-structure owner.",
+      "Seat-belt geometry → R16 owns belt/anchorage/geometry-of-assembly; R94/R95 constrain restraint of the dummy in crash. Aliases expanded to bare 'seat belt' / 'safety-belt' (longest-alias match).",
+      "Driver's seat → seating procedure + adjustment in R94/R95; R16 for belt/anchorage interaction. UN R17 seat strength often not indexed — noted, not invented as a retrieval target.",
+      "Side door overlaps B-pillar load path; kept separate for door-specific asks.",
+      "REESS mounting → R94/R95 electrical safety / retention / electrolyte (indexed).",
+      "vehicle_design_general is fallback only when no named component matches."
+    ]
+  },
+  "components": [
+    {
+      "id": "b_pillar",
+      "label": "B-pillar",
+      "aliases": [
+        "b-pillar",
+        "b pillar",
+        "b-pillars",
+        "b pillars",
+        "bpillar",
+        "side pillar",
+        "center pillar",
+        "centre pillar",
+        "centre-pillar",
+        "center-pillar"
+      ],
+      "concepts": [
+        "side impact structural requirements",
+        "passenger compartment integrity",
+        "intrusion",
+        "deformation",
+        "mobile deformable barrier test configuration",
+        "door retention during side impact",
+        "injury criteria under side impact"
+      ],
+      "likely_regulations": ["UN-ECE-R95", "UN-ECE-R94"],
+      "retrieval_queries": [
+        "side impact structural requirements intrusion deformation passenger compartment",
+        "mobile deformable barrier test speed configuration",
+        "doors shall remain closed during the side impact test",
+        "passenger compartment side walls performance side impact",
+        "Rib Deflection Criterion Pubic Symphysis Peak Force side impact"
+      ],
+      "notes": "UNECE text rarely says B-pillar; map via R95 side-structure / door / intrusion / MDB / injury criteria that constrain pillar stiffness and load path.",
+      "evidence": [
+        {
+          "regulation_id": "UN-ECE-R95",
+          "concept": "passenger compartment",
+          "snippet": "side walls of the passenger compartment in so far as they have a negative effect on the performance prescribed"
+        },
+        {
+          "regulation_id": "UN-ECE-R95",
+          "concept": "MDB",
+          "snippet": "mobile deformable barrier propulsion system and … after-impact displacement of the vehicle impacted"
+        }
+      ]
+    },
+    {
+      "id": "drivers_seat",
+      "label": "driver's seat",
+      "aliases": [
+        "driver's seat",
+        "drivers seat",
+        "driver seat",
+        "front seat",
+        "front seats",
+        "seat design",
+        "seating position",
+        "seat position",
+        "seat adjustment"
+      ],
+      "concepts": [
+        "dummy seating and seat adjustment for impact tests",
+        "seat longitudinal and height adjustment",
+        "seat-back angle",
+        "H-point / seating reference point",
+        "restraint interaction with seat position",
+        "side and frontal impact seating procedure"
+      ],
+      "likely_regulations": ["UN-ECE-R94", "UN-ECE-R95", "UN-ECE-R16"],
+      "retrieval_queries": [
+        "seat adjustment dummy seating position impact test",
+        "longitudinal adjustment device of the seat containing the dummy",
+        "seat-back angle seating procedure frontal side impact",
+        "safety-belt anchorage seating position",
+        "protection of the occupants of the front seats frontal collision"
+      ],
+      "notes": "Seat structure itself is partly UN R17 (often not indexed); impact regs prescribe seating procedure that constrains seat travel, locks, and geometry.",
+      "evidence": [
+        {
+          "regulation_id": "UN-ECE-R94",
+          "concept": "front seats",
+          "snippet": "protection of the occupants of the front seats in the event of a frontal collision"
+        }
+      ]
+    },
+    {
+      "id": "seat_belt_geometry",
+      "label": "seat belt geometry",
+      "aliases": [
+        "seat belt geometry",
+        "seat-belt geometry",
+        "belt geometry",
+        "belt routing",
+        "safety belt geometry",
+        "safety-belt geometry",
+        "belt path",
+        "webbing routing",
+        "seat belt",
+        "seat-belt",
+        "seat belts",
+        "seat-belts",
+        "safety belt",
+        "safety-belt",
+        "safety belts",
+        "safety-belts",
+        "belt anchorage",
+        "belt anchorages",
+        "safety-belt anchorage"
+      ],
+      "concepts": [
+        "safety-belt anchorage locations",
+        "belt routing and geometry",
+        "geometry of the belt assembly",
+        "buckle and adjuster accessibility",
+        "Emergency Locking Retractor",
+        "dummy restraint in frontal and side impact",
+        "safety-belt reminder"
+      ],
+      "likely_regulations": ["UN-ECE-R16", "UN-ECE-R94", "UN-ECE-R95"],
+      "retrieval_queries": [
+        "safety-belt anchorage effective upper anchorage",
+        "geometry of the belt assembly buckle strap routing",
+        "Emergency Locking Retractor safety-belt",
+        "restraint system dummy frontal impact safety belt",
+        "safety-belt reminder requirements"
+      ],
+      "notes": "R16 owns belt/anchorage approval and assembly geometry; R94/R95 constrain how the belt restrains the dummy in crash tests.",
+      "evidence": [
+        {
+          "regulation_id": "UN-ECE-R16",
+          "concept": "geometry of the belt assembly",
+          "snippet": "The geometry of the belt assembly"
+        },
+        {
+          "regulation_id": "UN-ECE-R16",
+          "concept": "ELR",
+          "snippet": "Emergency locking retractor (type 4)"
+        },
+        {
+          "regulation_id": "UN-ECE-R94",
+          "concept": "safety belt seating",
+          "snippet": "Where the safety belt and safety belt anchorages are located such that the belt does not lie as required"
+        }
+      ]
+    },
+    {
+      "id": "side_door",
+      "label": "side door",
+      "aliases": [
+        "side door",
+        "door structure",
+        "door design",
+        "side doors",
+        "door beam",
+        "side-door",
+        "door retention"
+      ],
+      "concepts": [
+        "door retention during impact",
+        "door opening after impact",
+        "side impact structural requirements",
+        "intrusion into passenger compartment"
+      ],
+      "likely_regulations": ["UN-ECE-R95", "UN-ECE-R94"],
+      "retrieval_queries": [
+        "doors shall not open during the test",
+        "door opening after impact side frontal",
+        "side impact door structural requirements passenger compartment"
+      ],
+      "notes": "Overlaps B-pillar load path; keep as separate component for door-specific asks.",
+      "evidence": [
+        {
+          "regulation_id": "UN-ECE-R95",
+          "concept": "passenger compartment / side structure",
+          "snippet": "side walls of the passenger compartment in so far as they have a negative effect on the performance prescribed"
+        }
+      ]
+    },
+    {
+      "id": "reess_mounting",
+      "label": "REESS mounting",
+      "aliases": [
+        "reess",
+        "reess mounting",
+        "battery pack",
+        "traction battery",
+        "high voltage battery",
+        "hv battery",
+        "battery mounting"
+      ],
+      "concepts": [
+        "REESS retention after impact",
+        "REESS location type-change sensitivity",
+        "electrolyte spillage",
+        "electrical safety after impact",
+        "isolation resistance"
+      ],
+      "likely_regulations": ["UN-ECE-R94", "UN-ECE-R95"],
+      "retrieval_queries": [
+        "REESS shall remain attached electrolyte spillage",
+        "locations of the REESS negative effect on the impact test",
+        "electrical safety high voltage after impact",
+        "isolation resistance REESS"
+      ],
+      "notes": "Relevant when design questions mention battery / REESS packaging near structure.",
+      "evidence": [
+        {
+          "regulation_id": "UN-ECE-R94",
+          "concept": "REESS location",
+          "snippet": "The locations of the REESS, in so far as they have a negative effect on the result of the impact test"
+        },
+        {
+          "regulation_id": "UN-ECE-R95",
+          "concept": "REESS location",
+          "snippet": "The locations of the REESS, in so far as they have a negative effect on the result of the impact test"
+        }
+      ]
+    },
+    {
+      "id": "vehicle_design_general",
+      "label": "vehicle design (general)",
+      "aliases": [
+        "vehicle design",
+        "our vehicle design",
+        "vehicle structure",
+        "body structure",
+        "biw",
+        "body-in-white"
+      ],
+      "concepts": [
+        "scope and applicability",
+        "performance criteria",
+        "test configuration",
+        "restraint and seating requirements"
+      ],
+      "likely_regulations": ["UN-ECE-R16", "UN-ECE-R94", "UN-ECE-R95", "UN-ECE-R129"],
+      "retrieval_queries": [
+        "scope of the regulation vehicles of category",
+        "performance criteria shall not exceed",
+        "test procedure dummy seating"
+      ],
+      "notes": "Fallback when the query says vehicle design without a named component; prefer named regulation if present.",
+      "evidence": []
+    }
+  ]
+}

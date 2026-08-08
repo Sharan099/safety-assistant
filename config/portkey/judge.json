@@ -1,0 +1,33 @@
+{
+  "strategy": {
+    "mode": "fallback",
+    "on_status_codes": [404, 408, 413, 429, 500, 502, 503, 504]
+  },
+  "request_timeout": 18000,
+  "targets": [
+    {
+      "provider": "nvidia_nim",
+      "api_key": "${NVIDIA_API_KEY}",
+      "request_timeout": 18000,
+      "override_params": {
+        "model": "meta/llama-3.3-70b-instruct",
+        "chat_template_kwargs": { "enable_thinking": false }
+      }
+    },
+    {
+      "provider": "groq",
+      "api_key": "${GROQ_API_KEY}",
+      "request_timeout": 15000,
+      "override_params": { "model": "llama-3.3-70b-versatile" }
+    },
+    {
+      "provider": "google",
+      "api_key": "${GOOGLE_API_KEY}",
+      "request_timeout": 10000,
+      "override_params": {
+        "model": "gemini-2.5-flash",
+        "thinking": { "type": "disabled", "budget_tokens": 0 }
+      }
+    }
+  ]
+}

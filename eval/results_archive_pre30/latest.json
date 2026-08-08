@@ -1,0 +1,13 @@
+{
+  "run_id": "20260806T111508Z_from_20260805T152635Z",
+  "parent_run_id": "20260805T152635Z",
+  "merged_from_run_ids": [
+    "20260805T152635Z",
+    "20260806T111508Z_from_20260805T152635Z"
+  ],
+  "mode": "fill_gaps",
+  "path": "H:/AutoSafety_RAG/eval/results/20260806T111508Z_from_20260805T152635Z/results.json",
+  "overall_status": "NOT PRODUCTION READY",
+  "n_cases": 152,
+  "timestamp": "2026-08-06T14:40:06.784732+00:00"
+}

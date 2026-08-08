@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "review_status": "draft",
+    "purpose": "Extension-of-approval / modification clauses for RETEST_SCOPE. These define when a change may trigger retest vs documentation — ALWAYS present as informational for the homologation authority, never as an authoritative decision.",
+    "honesty": "Outputs using this config must carry the RETEST_DISCLAIMER. Over-confidence is a liability."
+  },
+  "regulations": {
+    "UN-ECE-R94": {
+      "label": "UN R94",
+      "modification_sections": ["7", "8", "9", "10"],
+      "retrieval_queries": [
+        "modification and extension of approval of a vehicle type",
+        "every modification of the vehicle type",
+        "extension of approval",
+        "modifications shall be notified",
+        "further testing required"
+      ]
+    },
+    "UN-ECE-R95": {
+      "label": "UN R95",
+      "modification_sections": ["7", "8", "9", "10"],
+      "retrieval_queries": [
+        "modification and extension of approval of a vehicle type",
+        "every modification of the vehicle type",
+        "extension of approval",
+        "modifications shall be notified",
+        "further testing required"
+      ]
+    },
+    "UN-ECE-R16": {
+      "label": "UN R16",
+      "modification_sections": ["7", "8", "9"],
+      "retrieval_queries": [
+        "modification and extension of approval",
+        "modification of the type",
+        "extension of approval"
+      ]
+    },
+    "UN-ECE-R129": {
+      "label": "UN R129",
+      "modification_sections": ["7", "8", "9"],
+      "retrieval_queries": [
+        "modification and extension of approval",
+        "modification of the type",
+        "extension of approval"
+      ]
+    }
+  },
+  "change_aliases": {
+    "b_pillar": {
+      "aliases": ["b-pillar", "b pillar", "side pillar", "center pillar"],
+      "likely_regulations": ["UN-ECE-R95", "UN-ECE-R94"],
+      "change_kind": "structure"
+    },
+    "mass_increase": {
+      "aliases": ["kg", "mass", "weight", "170 kg", "added mass"],
+      "likely_regulations": ["UN-ECE-R94", "UN-ECE-R95"],
+      "change_kind": "mass"
+    },
+    "battery_reess": {
+      "aliases": [
+        "battery",
+        "reess",
+        "relocating the battery",
+        "battery pack",
+        "traction battery"
+      ],
+      "likely_regulations": ["UN-ECE-R94", "UN-ECE-R95"],
+      "change_kind": "reess"
+    }
+  }
+}

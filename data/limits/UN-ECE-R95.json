@@ -1,0 +1,107 @@
+{
+  "regulation_id": "UN-ECE-R95",
+  "extracted_at": "2026-08-07T23:22:08.003216+00:00",
+  "source": "seed_known",
+  "verified_spot_checks": [
+    "fuel leakage=30g/min (R95)",
+    "HPC=1000 (R95)"
+  ],
+  "limits": [
+    {
+      "criterion_name": "Head Performance Criterion",
+      "aliases": [
+        "HPC",
+        "HPC36",
+        "Head Performance Criterion",
+        "head performance"
+      ],
+      "limit_value": 1000.0,
+      "operator": "<=",
+      "unit": "",
+      "source_chunk_id": "f4047241b49629e7",
+      "section_number": "5.2.1.1",
+      "regulation_id": "UN-ECE-R95",
+      "verified": true
+    },
+    {
+      "criterion_name": "Rib Deflection Criterion",
+      "aliases": [
+        "RDC",
+        "Rib Deflection Criterion",
+        "rib deflection",
+        "chest deflection"
+      ],
+      "limit_value": 42.0,
+      "operator": "<=",
+      "unit": "mm",
+      "source_chunk_id": "f4047241b49629e7",
+      "section_number": "5",
+      "regulation_id": "UN-ECE-R95",
+      "verified": true
+    },
+    {
+      "criterion_name": "Thorax Compression Criterion",
+      "aliases": [
+        "ThCC",
+        "THCC",
+        "Thorax Compression Criterion",
+        "chest compression"
+      ],
+      "limit_value": 42.0,
+      "operator": "<=",
+      "unit": "mm",
+      "source_chunk_id": "f4047241b49629e7",
+      "section_number": "5",
+      "regulation_id": "UN-ECE-R95",
+      "verified": true
+    },
+    {
+      "criterion_name": "Viscous Criterion",
+      "aliases": [
+        "VC",
+        "Viscous Criterion",
+        "Soft Tissue Criterion",
+        "V*C"
+      ],
+      "limit_value": 1.0,
+      "operator": "<=",
+      "unit": "m/s",
+      "source_chunk_id": "f4047241b49629e7",
+      "section_number": "5",
+      "regulation_id": "UN-ECE-R95",
+      "verified": true
+    },
+    {
+      "criterion_name": "Pubic Symphysis Peak Force",
+      "aliases": [
+        "PSPF",
+        "Pubic Symphysis Peak Force",
+        "pubic symphysis"
+      ],
+      "limit_value": 6.0,
+      "operator": "<=",
+      "unit": "kN",
+      "source_chunk_id": "f4047241b49629e7",
+      "section_number": "5",
+      "regulation_id": "UN-ECE-R95",
+      "verified": true
+    },
+    {
+      "criterion_name": "Fuel-feed leakage rate",
+      "aliases": [
+        "fuel leakage",
+        "fuel-feed leakage",
+        "fuel feed leakage",
+        "leakage rate",
+        "fuel leak"
+      ],
+      "limit_value": 30.0,
+      "operator": "<=",
+      "unit": "g/min",
+      "source_chunk_id": "f4047241b49629e7",
+      "section_number": "5",
+      "regulation_id": "UN-ECE-R95",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "regulations": [
+    {
+      "stem": "UN_R94",
+      "regulation_id": "UN-ECE-R94",
+      "revision": "Rev.3",
+      "source": "docling_json",
+      "remediation_actions": 1,
+      "extract_elements": 894,
+      "chunk_count": 408,
+      "clause_chunks": 376,
+      "table_chunks": 3,
+      "figure_chunks": 29,
+      "upserted": 408,
+      "elapsed_s": 68.53
+    },
+    {
+      "stem": "UN_R95",
+      "regulation_id": "UN-ECE-R95",
+      "revision": "Rev.3",
+      "source": "docling_json",
+      "remediation_actions": 1,
+      "extract_elements": 927,
+      "chunk_count": 536,
+      "clause_chunks": 484,
+      "table_chunks": 12,
+      "figure_chunks": 40,
+      "upserted": 536,
+      "elapsed_s": 53.97
+    },
+    {
+      "stem": "UN_R16",
+      "regulation_id": "UN-ECE-R16",
+      "revision": "Rev.10",
+      "source": "docling_json",
+      "remediation_actions": 0,
+      "extract_elements": 1314,
+      "chunk_count": 556,
+      "clause_chunks": 490,
+      "table_chunks": 22,
+      "figure_chunks": 44,
+      "upserted": 556,
+      "elapsed_s": 85.27
+    },
+    {
+      "stem": "UN_R129",
+      "regulation_id": "UN-ECE-R129",
+      "revision": "Rev.4",
+      "source": "docling_json",
+      "remediation_actions": 3,
+      "extract_elements": 1732,
+      "chunk_count": 837,
+      "clause_chunks": 712,
+      "table_chunks": 37,
+      "figure_chunks": 88,
+      "upserted": 837,
+      "elapsed_s": 101.44
+    }
+  ],
+  "expected_chunk_counts": {
+    "UN-ECE-R94": 408,
+    "UN-ECE-R95": 536,
+    "UN-ECE-R16": 556,
+    "UN-ECE-R129": 837
+  },
+  "total_chunks": 2337,
+  "total_elapsed_s": 301.25,
+  "embedding_model": "BAAI/bge-small-en-v1.5"
+}

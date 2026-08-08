@@ -1,0 +1,26 @@
+{
+  "n_null_section_number": 1,
+  "n_sampled": 1,
+  "seed": 42,
+  "samples": [
+    {
+      "point_id": "e34d9542-f9fe-5456-9b45-e8b2639c3756",
+      "chunk_id": "5fd056f99557bd03",
+      "regulation_id": "UN-ECE-R16",
+      "revision": "Rev.10",
+      "section_number": "",
+      "section_title": "",
+      "section_id": "UN-ECE-R16::table::ac58bc4ef2627f92",
+      "content_type": "table",
+      "page_number": 1,
+      "bounding_box": [
+        56.44082342008786,
+        761.7309130714319,
+        539.1921802156112,
+        677.0196310522305
+      ],
+      "heading_path": [],
+      "text_preview": "| 2 October 2012 | |------------------|"
+    }
+  ]
+}

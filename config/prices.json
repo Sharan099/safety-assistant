@@ -1,0 +1,56 @@
+{
+  "_comment": "USD per 1M tokens. Prefer providers.<name>.<model>; flat models.* is legacy fallback. Free-tier rows use 0. Update when vendor prices change — do not hardcode in logic.",
+  "currency": "USD",
+  "unit": "per_1m_tokens",
+  "updated": "2026-08-04",
+  "providers": {
+    "groq": {
+      "llama-3.1-8b-instant": { "input": 0.05, "output": 0.08 },
+      "llama-3.3-70b-versatile": { "input": 0.59, "output": 0.79 },
+      "openai/gpt-oss-120b": { "input": 0.15, "output": 0.60 },
+      "qwen/qwen3-32b": { "input": 0.29, "output": 0.59 }
+    },
+    "nvidia_nim": {
+      "meta/llama-3.1-8b-instruct": { "input": 0.0, "output": 0.0 },
+      "meta/llama-3.3-70b-instruct": { "input": 0.0, "output": 0.0 },
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5": { "input": 0.0, "output": 0.0 },
+      "openai/gpt-oss-120b": { "input": 0.0, "output": 0.0 }
+    },
+    "google": {
+      "gemini-2.5-flash": { "input": 0.15, "output": 0.60 },
+      "gemini-2.5-flash-lite": { "input": 0.075, "output": 0.30 },
+      "gemini-2.0-flash": { "input": 0.10, "output": 0.40 },
+      "gemini-2.0-flash-lite": { "input": 0.075, "output": 0.30 }
+    },
+    "openrouter": {
+      "openai/gpt-oss-20b:free": { "input": 0.0, "output": 0.0 },
+      "openrouter/free": { "input": 0.0, "output": 0.0 }
+    },
+    "mock": {
+      "default": { "input": 0.0, "output": 0.0 }
+    }
+  },
+  "models": {
+    "llama-3.1-8b-instant": { "input": 0.05, "output": 0.08 },
+    "llama-3.3-70b-versatile": { "input": 0.59, "output": 0.79 },
+    "openai/gpt-oss-120b": { "input": 0.15, "output": 0.60 },
+    "qwen/qwen3-32b": { "input": 0.29, "output": 0.59 },
+    "meta/llama-3.1-8b-instruct": { "input": 0.0, "output": 0.0 },
+    "meta/llama-3.3-70b-instruct": { "input": 0.0, "output": 0.0 },
+    "nvidia/llama-3.3-nemotron-super-49b-v1.5": { "input": 0.0, "output": 0.0 },
+    "gemini-2.5-flash": { "input": 0.15, "output": 0.60 },
+    "gemini-2.5-flash-lite": { "input": 0.075, "output": 0.30 },
+    "gemini-2.0-flash": { "input": 0.10, "output": 0.40 },
+    "gemini-2.0-flash-lite": { "input": 0.075, "output": 0.30 },
+    "openai/gpt-oss-20b:free": { "input": 0.0, "output": 0.0 },
+    "default_llm": { "input": 0.50, "output": 0.75 }
+  },
+  "embeddings": {
+    "BAAI/bge-small-en-v1.5": { "input": 0.00 },
+    "default_embedding": { "input": 0.02 }
+  },
+  "rerank": {
+    "BAAI/bge-reranker-v2-m3": { "per_call": 0.0 },
+    "default_rerank": { "per_call": 0.0 }
+  }
+}

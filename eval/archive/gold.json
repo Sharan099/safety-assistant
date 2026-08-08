@@ -1,0 +1,50 @@
+[
+  {
+    "id": "r94_thcc",
+    "query": "Under UN Regulation No. 94, what is the maximum permitted Thorax Compression Criterion (ThCC) for the 50th percentile male dummy?",
+    "regulation_id": "UN-ECE-R94",
+    "gold_section_numbers": ["5.2.1.4", "5.2.1"],
+    "gold_section_ids": ["UN-ECE-R94::5.2.1.4", "UN-ECE-R94::5.2.1"],
+    "ground_truth": "UN R94 limits ThCC to 42 mm for the 50th percentile male dummy (clause 5.2.1.4)."
+  },
+  {
+    "id": "r94_tcfc",
+    "query": "Under UN Regulation No. 94, what is the maximum permitted tibia compression force criterion (TCFC)?",
+    "regulation_id": "UN-ECE-R94",
+    "gold_section_numbers": ["5.2.1.7", "5.2.1"],
+    "gold_section_ids": ["UN-ECE-R94::5.2.1.7", "UN-ECE-R94::5.2.1"],
+    "ground_truth": "UN R94 clause 5.2.1.7 limits TCFC to 8 kN."
+  },
+  {
+    "id": "r94_hic_hpc",
+    "query": "What is the Head Performance Criterion / HIC limit in UN Regulation No. 94 frontal impact?",
+    "regulation_id": "UN-ECE-R94",
+    "gold_section_numbers": ["5.2.1.1", "5.2.1"],
+    "gold_section_ids": ["UN-ECE-R94::5.2.1.1", "UN-ECE-R94::5.2.1"],
+    "ground_truth": "UN R94 specifies the Head Performance Criterion (HPC/HIC) limit for the frontal impact dummy in the injury criteria clauses under 5.2.1."
+  },
+  {
+    "id": "r94_scope",
+    "query": "What is the scope of UN Regulation No. 94?",
+    "regulation_id": "UN-ECE-R94",
+    "gold_section_numbers": ["1", "1."],
+    "gold_section_ids": ["UN-ECE-R94::1"],
+    "ground_truth": "UN R94 applies to vehicles with regard to the protection of the occupants in the event of a frontal collision."
+  },
+  {
+    "id": "r94_definitions",
+    "query": "How does UN Regulation No. 94 define a protective system?",
+    "regulation_id": "UN-ECE-R94",
+    "gold_section_numbers": ["2.1", "2"],
+    "gold_section_ids": ["UN-ECE-R94::2.1", "UN-ECE-R94::2"],
+    "ground_truth": "A protective system means interior fittings and devices intended to restrain the occupants and contribute to their safety."
+  },
+  {
+    "id": "r94_femur",
+    "query": "What is the femur force criterion limit in UN R94?",
+    "regulation_id": "UN-ECE-R94",
+    "gold_section_numbers": ["5.2.1.5", "5.2.1"],
+    "gold_section_ids": ["UN-ECE-R94::5.2.1.5", "UN-ECE-R94::5.2.1"],
+    "ground_truth": "UN R94 specifies the femur force criterion among the frontal impact injury criteria in clause 5.2.1."
+  }
+]

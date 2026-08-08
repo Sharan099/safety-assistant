@@ -1,0 +1,5 @@
+{"id": "cmp_chest", "task": "Compare R94 vs R95 chest deflection limits", "mode": "compare", "expect_tools": ["compare_regulations"], "min_coverage": 0.85}
+{"id": "cmp_hic_fmvss", "task": "Compare R94 vs FMVSS 208 HIC limits", "mode": "compare", "expect_tools": ["compare_regulations"], "min_coverage": 0.85}
+{"id": "lookup_hic", "task": "What is the HIC15 limit in R94?", "mode": "qa", "expect_tools": ["lookup_table"], "expect_regs": ["UN-ECE-R94"], "min_coverage": 0.9}
+{"id": "report_r95", "task": "Gap analysis: our test setup vs R95 requirements", "mode": "report", "expect_tools": ["draft_report"], "min_coverage": 0.85}
+{"id": "retrieve_tti", "task": "What is the TTI limit under UN R95?", "mode": "qa", "expect_tools": ["lookup_table"], "min_coverage": 0.85}

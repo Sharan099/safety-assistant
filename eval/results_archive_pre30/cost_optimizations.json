@@ -1,0 +1,78 @@
+{
+  "question": "What is the HIC15 limit in UN Regulation No. 94?",
+  "provider": "mock",
+  "runs": [
+    {
+      "label": "1_baseline_cold",
+      "input_tokens": 2372,
+      "output_tokens": 37,
+      "embedding_tokens": 15,
+      "cost_usd": 0.00142871,
+      "latency_ms": 8328.54,
+      "answer_cached": false,
+      "prompt_cache_hit": false,
+      "prompt_cache_tokens_saved": 0,
+      "rewrite_model": "",
+      "answer_model": "llama-3.3-70b-versatile",
+      "trace_id": "822f6ace-64d7-404e-b0aa-ce4b8131a3c5"
+    },
+    {
+      "label": "2_prompt_cache_warm",
+      "input_tokens": 2372,
+      "output_tokens": 37,
+      "embedding_tokens": 15,
+      "cost_usd": 0.00134257,
+      "latency_ms": 3559.17,
+      "answer_cached": false,
+      "prompt_cache_hit": true,
+      "prompt_cache_tokens_saved": 146,
+      "rewrite_model": "",
+      "answer_model": "llama-3.3-70b-versatile",
+      "trace_id": "ce358f14-f9da-4308-aede-b69603741017"
+    },
+    {
+      "label": "3_answer_cache_hit",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "embedding_tokens": 0,
+      "cost_usd": 0.0,
+      "latency_ms": 13.33,
+      "answer_cached": true,
+      "prompt_cache_hit": false,
+      "prompt_cache_tokens_saved": 0,
+      "rewrite_model": "",
+      "answer_model": "llama-3.3-70b-versatile",
+      "trace_id": "ba81135b-09a7-4d76-a6b2-8756066d1d47"
+    },
+    {
+      "label": "4_model_routing",
+      "input_tokens": 2372,
+      "output_tokens": 37,
+      "embedding_tokens": 15,
+      "cost_usd": 0.00142871,
+      "latency_ms": 3360.3,
+      "answer_cached": false,
+      "prompt_cache_hit": true,
+      "prompt_cache_tokens_saved": 0,
+      "rewrite_model": "",
+      "answer_model": "llama-3.3-70b-versatile",
+      "trace_id": "608cedb0-24a7-46a3-8e4b-18eb35ee8b5d"
+    }
+  ],
+  "deltas": {
+    "prompt_cache_vs_baseline": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": -8.614e-05,
+      "latency_ms": -4769.37
+    },
+    "answer_cache_vs_baseline": {
+      "input_tokens": -2372,
+      "output_tokens": -37,
+      "cost_usd": -0.00142871,
+      "latency_ms": -8315.21
+    },
+    "routing_note": "Rewrite uses GROQ_SMALL_MODEL; final answer uses GROQ_LARGE_MODEL. Vs single large-model for both: rewrite tokens billed at small-model rates (see config/prices.json)."
+  },
+  "prices_file": "config/prices.json"
+}

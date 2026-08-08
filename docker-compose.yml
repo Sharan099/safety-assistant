@@ -1,58 +1,119 @@
-version: "3.9"
-
+# Passive Safety RAG — Qdrant + Portkey AI Gateway + API + frontend
 services:
-  redis:
-    image: redis:7-alpine
+  qdrant:
+    image: qdrant/qdrant:v1.13.2
     ports:
-      - "6379:6379"
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333'"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  db:
-    image: pgvector/pgvector:pg16
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: safety_registry
+  # Local open-source AI Gateway (https://github.com/portkey-ai/gateway).
+  # Proxies to Groq/NVIDIA/Google/OpenRouter with YOUR keys — no Portkey cloud account required.
+  # Host: http://localhost:8787/v1  |  Compose network: http://portkey:8787/v1
+  portkey:
+    image: portkeyai/gateway:latest
     ports:
-      - "5432:5432"
+      - "8787:8787"
+    extra_hosts:
+      # Reach host-published FreeLLMAPI (127.0.0.1:3001) from this container.
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8787/ >/dev/null 2>&1 || exit 1"]
+      interval: 15s
       timeout: 5s
       retries: 5
-
+      start_period: 20s
+    # Routing / cache live in config/portkey/*.json and are sent per-request
+    # (x-portkey-config). Optional gateway-wide conf.json:
+    # volumes:
+    #   - ./config/portkey.conf.json:/app/conf.json:ro
   api:
     build:
       context: .
-      dockerfile: Dockerfile.registry
+      dockerfile: Dockerfile
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/safety_registry
-      REDIS_URL: redis://redis:6379/0
-      CRAWL_MOCK: "false"
-      CRAWL_ON_STARTUP: "false"
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_PATH: ""
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      # Inside Compose, reach the local gateway by service name (not localhost).
+      PORTKEY_GATEWAY_URL: http://portkey:8787/v1
+      CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+      API_HOST: 0.0.0.0
+      API_PORT: "8000"
+      TRACE_DIR: /data/traces
+      ANSWER_CACHE_DIR: /data/answer_cache
+      LLM_CACHE_DIR: /data/llm_cache
+      PRICES_PATH: /app/config/prices.json
+      RERANK_PROVIDER: ${RERANK_PROVIDER:-none}
     ports:
-      - "8002:8000"
+      - "8000:8000"
+    volumes:
+      - api_data:/data
+      - ./data/pdfs:/app/data/pdfs:ro
+      - ./config:/app/config:ro
     depends_on:
-      redis:
+      qdrant:
         condition: service_healthy
-      db:
+      portkey:
         condition: service_healthy
 
-  celery_worker:
+  frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.registry
-    command: celery -A scheduler.celery_app worker --loglevel=info
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
     environment:
-      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/safety_registry
-      REDIS_URL: redis://redis:6379/0
-      CRAWL_MOCK: "false"
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - api
+
+  # FreeLLMAPI — local-only OpenAI-compatible free-tier proxy (overflow capacity).
+  # Dashboard + /v1 on http://127.0.0.1:3001. Do NOT set HOST_BIND=0.0.0.0.
+  # Seed providers: python scripts/freellmapi_write_config.py then recreate.
+  # https://github.com/tashfeenahmed/freellmapi/blob/main/docker/README.md
+  freellmapi:
+    image: ghcr.io/tashfeenahmed/freellmapi:latest
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      FREEAPI_CONFIG_PATH: /seed/runtime.config.json
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - freellmapi_data:/app/server/data
+      # Keep seed JSON out of ./config (api mounts that tree read-only).
+      - ./data/freellmapi/runtime.config.json:/seed/runtime.config.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/api/ping').then((res) => { if (!res.ok) process.exit(1); }).catch(() => process.exit(1));",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  qdrant_data:
+  api_data:
+  freellmapi_data:

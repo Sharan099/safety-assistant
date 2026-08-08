@@ -55,11 +55,15 @@ class LLMGateway:
 
 
 def ping_primary_provider() -> None:
-    """Startup check: Groq responds."""
+    """Startup check: Groq responds (via Portkey gateway when configured)."""
     if not config.ENABLE_GATEWAY:
         return
     from backend.app.llm_router.config import api_keys
     from backend.app.llm_router.registry import ordered_chain
+    from backend.app.gateway.providers.groq_provider import (
+        _openai_base_url,
+        _request_headers,
+    )
 
     if not api_keys().get("groq"):
         raise RuntimeError("No LLM provider configured — set GROQ_API_KEY")
@@ -72,11 +76,8 @@ def ping_primary_provider() -> None:
     try:
         with httpx.Client(timeout=10.0, trust_env=True) as client:
             resp = client.get(
-                "https://api.groq.com/openai/v1/models",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "User-Agent": "AutoSafety-RAG-Gateway/1.0",
-                },
+                f"{_openai_base_url()}/models",
+                headers=_request_headers(api_key),
             )
     except httpx.HTTPError as exc:
         raise RuntimeError(f"Gateway provider groq unreachable: {exc}") from exc

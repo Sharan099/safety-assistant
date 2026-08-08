@@ -1,1 +1,1 @@
-"""Observability hooks (Prometheus / OTEL placeholders)."""
+"""Lightweight observability — request IDs, structured logs, optional Prometheus."""

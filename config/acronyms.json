@@ -1,0 +1,127 @@
+{
+  "_meta": {
+    "review_status": "agent_reviewed",
+    "production_approved": false,
+    "reviewed_by": "cursor-agent-domain-pass",
+    "reviewed_at": "2026-08-05",
+    "seeded_from": [
+      "data/docling/UN_R94.docling.json — injury criteria 5.2.1 (HPC/ThCC/VC/FFC/TCFC/TI)",
+      "data/docling/UN_R95.docling.json — RDC/PSPF/APF/MDB; REESS location type-change cues",
+      "data/docling/UN_R16.docling.json — safety-belt / ELR / reminder / geometry of belt assembly",
+      "data/docling/UN_R129.docling.json — HPC / ECRS / CRF (child-restraint context)"
+    ],
+    "notes": "Fix 5 acronym lexicon. Entries below were harvested with extract_acronyms_from_text then curated — raw harvest includes junk (mm, kg, figure labels). production_approved=false until a passive-safety engineer signs off. Do not auto-merge harvest into production without review.",
+    "review_decisions": [
+      "KEEP HPC/ThCC/THCC/VC/FFC/TCFC/TI from R94 normative injury criteria wording.",
+      "KEEP RDC/PSPF/APF/MDB from R95 (VC harvest 'Soft Tissue Criterion' REJECTED — retain Viscous Criterion from R94).",
+      "KEEP HIC* as discourse synonym for head criterion family (R94 text uses HPC).",
+      "KEEP ELR/SBR/REESS/CRS/ECRS/ATD as system shorthand used in engineer queries.",
+      "KEEP R16/R94/R95/R129 as regulation shorthand expansions for retrieval.",
+      "REJECT harvest noise: mm, kg, FN, E1/E2, voltage probe labels (U1/Ub/V1), figure captions.",
+      "ADD NIC (neck injury criteria) from R94 harvest — useful query shorthand; confirm series wording on engineer review."
+    ]
+  },
+  "acronyms": {
+    "HPC": "Head Performance Criterion",
+    "HPC36": "Head Performance Criterion 36 ms",
+    "HIC": "Head Injury Criterion",
+    "HIC15": "Head Injury Criterion 15 ms",
+    "HIC36": "Head Injury Criterion 36 ms",
+    "ThCC": "Thorax Compression Criterion",
+    "THCC": "Thorax Compression Criterion",
+    "VC": "Viscous Criterion",
+    "RDC": "Rib Deflection Criterion",
+    "PSPF": "Pubic Symphysis Peak Force",
+    "APF": "Abdominal Peak Force",
+    "FFC": "Femur Force Criterion",
+    "TCFC": "Tibia Compressive Force Criterion",
+    "TI": "Tibia Index",
+    "TTI": "Thoracic Trauma Index",
+    "NIC": "Neck Injury Criteria",
+    "MDB": "mobile deformable barrier",
+    "R94": "UN Regulation No. 94 frontal collision",
+    "R95": "UN Regulation No. 95 lateral collision",
+    "R16": "UN Regulation No. 16 safety-belts",
+    "R129": "UN Regulation No. 129 enhanced child restraint systems",
+    "CRS": "child restraint system",
+    "ECRS": "enhanced child restraint system",
+    "CRF": "Child Restraint Fixture",
+    "SBR": "seat-belt reminder",
+    "ELR": "Emergency Locking Retractor",
+    "ATD": "anthropomorphic test device",
+    "REESS": "Rechargeable Electrical Energy Storage System",
+    "H-point": "H point",
+    "H-Point": "H point"
+  },
+  "phrase_synonyms": [
+    {
+      "match": "\\bRib\\s+Deflection\\b(?!\\s+Criterion)",
+      "replacement": "Rib Deflection Criterion (RDC)",
+      "flags": "i"
+    },
+    {
+      "match": "\\bPubic\\s+Symphysis(?:\\s+Peak)?\\s+Force\\b(?!\\s*\\()",
+      "replacement": "Pubic Symphysis Peak Force (PSPF)",
+      "flags": "i"
+    },
+    {
+      "match": "\\bHead\\s+Performance\\b(?!\\s+Criterion)",
+      "replacement": "Head Performance Criterion (HPC)",
+      "flags": "i"
+    },
+    {
+      "match": "\\bAbdominal\\s+Peak\\s+Force\\b(?!\\s*\\()",
+      "replacement": "Abdominal Peak Force (APF)",
+      "flags": "i"
+    },
+    {
+      "match": "\\bHIC\\s*15\\b",
+      "replacement": "HIC15 (Head Injury Criterion) HPC (Head Performance Criterion)",
+      "flags": "i"
+    },
+    {
+      "match": "\\bHIC\\b(?!\\s*\\d)(?!\\s*\\()",
+      "replacement": "HIC (Head Injury Criterion) HPC (Head Performance Criterion)",
+      "flags": "i"
+    },
+    {
+      "match": "\\banthropomorphic\\s+test\\s+device\\b",
+      "replacement": "anthropomorphic test device (ATD) Hybrid III dummy",
+      "flags": "i"
+    }
+  ],
+  "evidence": {
+    "HPC": {
+      "regulation_id": "UN-ECE-R94",
+      "snippet": "The head performance criterion (HPC) shall not exceed 1,000"
+    },
+    "ThCC": {
+      "regulation_id": "UN-ECE-R94",
+      "snippet": "The Thorax Compression Criterion (ThCC) shall not exceed 42 mm"
+    },
+    "VC": {
+      "regulation_id": "UN-ECE-R94",
+      "snippet": "The viscous criterion (V * C) for the thorax shall not exceed 1,0 m/s"
+    },
+    "RDC": {
+      "regulation_id": "UN-ECE-R95",
+      "snippet": "Rib Deflection Criterion (RDC) less than or equal to 42 mm"
+    },
+    "PSPF": {
+      "regulation_id": "UN-ECE-R95",
+      "snippet": "Pubic Symphysis Peak Force (PSPF) less than or equal to 6 kN"
+    },
+    "APF": {
+      "regulation_id": "UN-ECE-R95",
+      "snippet": "Abdominal Peak Force (APF) less than or equal to 2.5 kN"
+    },
+    "ELR": {
+      "regulation_id": "UN-ECE-R16",
+      "snippet": "Emergency locking retractor (type 4)"
+    },
+    "MDB": {
+      "regulation_id": "UN-ECE-R95",
+      "snippet": "mobile deformable barrier propulsion system"
+    }
+  }
+}

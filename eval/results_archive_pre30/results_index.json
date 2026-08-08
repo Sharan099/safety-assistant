@@ -1,0 +1,1199 @@
+{
+  "version": 1,
+  "description": "Summary index of timestamped eval runs under eval/results/. Populated by eval runners; status field also maintained for in-progress / abandoned runs.",
+  "runs": [
+    {
+      "run_id": "20260805T152635Z",
+      "status": "COMPLETE",
+      "path": "eval/results/20260805T152635Z",
+      "n_cases_completed": 150,
+      "n_cases_total": 150,
+      "has_partial_results": true,
+      "has_run_config": true,
+      "has_results_json": true,
+      "resumable": false,
+      "resume_command": "python -m eval.run_full --resume 20260805T152635Z",
+      "notes": "Completed 150/150 with EVAL_JUDGE_OVERFLOW; FreeLLMAPI carried judge/scoring overflow. Gate NOT PRODUCTION READY (threshold failures).",
+      "has_scoring_providers_log": true,
+      "overall_status": "NOT PRODUCTION READY"
+    },
+    {
+      "run_id": "ci-gate",
+      "timestamp": "2026-08-05T17:37:36.709617+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/ci-gate/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 21,
+      "total_cost_usd": 0.00075926,
+      "total_tokens": 124205,
+      "wall_clock_seconds": 1468.91,
+      "critical_failures": [
+        "cross_regulation",
+        "guardrail",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4,
+          "cost_usd": 0.0
+        },
+        "cross_regulation": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 3,
+          "cost_usd": 3.462e-05
+        },
+        "guardrail": {
+          "pass_rate": 0.75,
+          "attack_success_rate": 0.25,
+          "n_cases": 4,
+          "cost_usd": 0.0003662
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6,
+          "cost_usd": 0.00028734
+        },
+        "prompt_injection": {
+          "pass_rate": 0.25,
+          "attack_success_rate": 0.75,
+          "n_cases": 4,
+          "cost_usd": 7.11e-05
+        }
+      }
+    },
+    {
+      "run_id": "20260805T152635Z",
+      "timestamp": "2026-08-05T22:30:23.865564+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "total_cost_usd": 1.18084266,
+      "total_tokens": 2727420,
+      "wall_clock_seconds": 15267.137,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4,
+          "cost_usd": 0.05501625
+        },
+        "cross_regulation": {
+          "pass_rate": 0.3571,
+          "attack_success_rate": null,
+          "n_cases": 14,
+          "cost_usd": 0.19382933
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6,
+          "cost_usd": 0.04105191
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5,
+          "cost_usd": 0.09915255
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4186,
+          "attack_success_rate": null,
+          "n_cases": 43,
+          "cost_usd": 0.53582428
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20,
+          "cost_usd": 0.06066873
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20,
+          "cost_usd": 0.04224666
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8,
+          "cost_usd": 0.06655606
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6,
+          "cost_usd": 2.992e-05
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4,
+          "cost_usd": 6.981e-05
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20,
+          "cost_usd": 0.08639716
+        }
+      }
+    },
+    {
+      "run_id": "20260806T060142Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "resume_scoring_only",
+      "timestamp": "2026-08-06T06:01:43.657998+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T060142Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 150,
+      "total_cost_usd": 1.16673429,
+      "total_tokens": 2682504,
+      "wall_clock_seconds": 0.663,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "out_of_scope"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.3571,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4419,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.9,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.2,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.875,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.8333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 0.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 1.0,
+          "attack_success_rate": 0.0,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T060320Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "resume_scoring_only",
+      "timestamp": "2026-08-06T06:03:21.020681+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T060320Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 150,
+      "total_cost_usd": 1.16673429,
+      "total_tokens": 2682504,
+      "wall_clock_seconds": 0.552,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.3571,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4419,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.9,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.875,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.8333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 1.0,
+          "attack_success_rate": 0.0,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T071008Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "only_failed",
+      "timestamp": "2026-08-06T07:14:17.429193+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T071008Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 4,
+      "total_cost_usd": 1.14868879,
+      "total_tokens": 2662586,
+      "wall_clock_seconds": 248.456,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.4286,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4186,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T071621Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "only_failed",
+      "timestamp": "2026-08-06T07:23:11.088189+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T071621Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 3,
+      "total_cost_usd": 1.14202587,
+      "total_tokens": 2660766,
+      "wall_clock_seconds": 409.565,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4186,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T072447Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "only_failed",
+      "timestamp": "2026-08-06T07:38:06.940614+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T072447Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 4,
+      "total_cost_usd": 1.13679069,
+      "total_tokens": 2633331,
+      "wall_clock_seconds": 799.287,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.5714,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4186,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T073900Z_from_20260806T072447Z_from_20260805T152635Z",
+      "parent_run_id": "20260806T072447Z_from_20260805T152635Z",
+      "mode": "resume_scoring_only",
+      "timestamp": "2026-08-06T07:39:00.131191+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T073900Z_from_20260806T072447Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 1,
+      "total_cost_usd": 1.13679069,
+      "total_tokens": 2633331,
+      "wall_clock_seconds": 0.005,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.6429,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4186,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T075045Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "only_failed",
+      "timestamp": "2026-08-06T08:07:14.795183+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T075045Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 3,
+      "total_cost_usd": 1.16164949,
+      "total_tokens": 2677942,
+      "wall_clock_seconds": 988.957,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.3571,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4419,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T080350Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "only_failed",
+      "timestamp": "2026-08-06T08:21:04.751349+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T080350Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 3,
+      "total_cost_usd": 1.18326659,
+      "total_tokens": 2714488,
+      "wall_clock_seconds": 1034.695,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.3571,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4419,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T082307Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "mode": "only_failed",
+      "timestamp": "2026-08-06T08:29:56.877228+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T082307Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 1,
+      "total_cost_usd": 1.16603181,
+      "total_tokens": 2681353,
+      "wall_clock_seconds": 409.406,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.3571,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4419,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T083021Z_from_20260806T080350Z_from_20260805T152635Z",
+      "parent_run_id": "20260806T080350Z_from_20260805T152635Z",
+      "mode": "resume_scoring_only",
+      "timestamp": "2026-08-06T08:30:21.880857+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T083021Z_from_20260806T080350Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 150,
+      "n_rescored": 1,
+      "total_cost_usd": 1.18326659,
+      "total_tokens": 2714488,
+      "wall_clock_seconds": 0.006,
+      "critical_failures": [
+        "cross_regulation",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "cross_regulation": {
+          "pass_rate": 0.4286,
+          "attack_success_rate": null,
+          "n_cases": 14
+        },
+        "design_implication": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "enumerative": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 5
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4419,
+          "attack_success_rate": null,
+          "n_cases": 43
+        },
+        "guardrail": {
+          "pass_rate": 0.85,
+          "attack_success_rate": 0.1,
+          "n_cases": 20
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20
+        },
+        "multi_hop": {
+          "pass_rate": 0.75,
+          "attack_success_rate": null,
+          "n_cases": 8
+        },
+        "numeric_safety": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4
+        },
+        "prompt_injection": {
+          "pass_rate": 0.4,
+          "attack_success_rate": 0.6,
+          "n_cases": 20
+        }
+      }
+    },
+    {
+      "run_id": "20260806T084713Z",
+      "timestamp": "2026-08-06T09:32:12.908815+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T084713Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 26,
+      "total_cost_usd": 0.04400241,
+      "total_tokens": 142604,
+      "wall_clock_seconds": 2699.592,
+      "critical_failures": [
+        "numeric_safety"
+      ],
+      "noncritical_failures": [
+        "hallucination_probe"
+      ],
+      "per_category_summary": {
+        "hallucination_probe": {
+          "pass_rate": 0.35,
+          "attack_success_rate": null,
+          "n_cases": 20,
+          "cost_usd": 0.04341118
+        },
+        "numeric_safety": {
+          "pass_rate": 0.8333,
+          "attack_success_rate": null,
+          "n_cases": 6,
+          "cost_usd": 0.00059123
+        }
+      }
+    },
+    {
+      "run_id": "20260806T093437Z",
+      "timestamp": "2026-08-06T10:12:52.973193+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T093437Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 26,
+      "total_cost_usd": 0.04347881,
+      "total_tokens": 142043,
+      "wall_clock_seconds": 2295.448,
+      "critical_failures": [
+        "numeric_safety"
+      ],
+      "noncritical_failures": [
+        "hallucination_probe"
+      ],
+      "per_category_summary": {
+        "hallucination_probe": {
+          "pass_rate": 0.65,
+          "attack_success_rate": null,
+          "n_cases": 20,
+          "cost_usd": 0.04290059
+        },
+        "numeric_safety": {
+          "pass_rate": 0.8333,
+          "attack_success_rate": null,
+          "n_cases": 6,
+          "cost_usd": 0.00057822
+        }
+      }
+    },
+    {
+      "run_id": "20260806T101429Z",
+      "timestamp": "2026-08-06T10:36:53.835597+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T101429Z/results.json",
+      "overall_status": "NEEDS IMPROVEMENT",
+      "n_cases": 20,
+      "total_cost_usd": 0.04594924,
+      "total_tokens": 145793,
+      "wall_clock_seconds": 1344.451,
+      "critical_failures": [],
+      "noncritical_failures": [
+        "hallucination_probe"
+      ],
+      "per_category_summary": {
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20,
+          "cost_usd": 0.04594924
+        }
+      }
+    },
+    {
+      "run_id": "20260806T111508Z_from_20260805T152635Z",
+      "parent_run_id": "20260805T152635Z",
+      "merged_from_run_ids": [
+        "20260805T152635Z",
+        "20260806T111508Z_from_20260805T152635Z"
+      ],
+      "mode": "fill_gaps",
+      "timestamp": "2026-08-06T14:40:06.784732+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260806T111508Z_from_20260805T152635Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 152,
+      "n_rescored": 65,
+      "total_cost_usd": 1.39797056,
+      "total_tokens": 3110464,
+      "wall_clock_seconds": 12297.867,
+      "critical_failures": [
+        "compliance_check",
+        "cross_regulation",
+        "numeric_safety"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "enumerative",
+        "factual_lookup",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4,
+          "ragas_averages": {
+            "faithfulness": 0.2222,
+            "answer_relevancy": 0.833,
+            "context_precision": 0.8847,
+            "context_recall": 1.0
+          }
+        },
+        "cross_regulation": {
+          "pass_rate": 0.9375,
+          "attack_success_rate": null,
+          "n_cases": 16,
+          "ragas_averages": {
+            "faithfulness": 0.5,
+            "answer_relevancy": 0.715,
+            "context_precision": 0.4167,
+            "context_recall": 0.1026
+          }
+        },
+        "design_implication": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 6,
+          "ragas_averages": {
+            "faithfulness": 0.25,
+            "answer_relevancy": 0.6017,
+            "context_precision": 0.5708,
+            "context_recall": 0.0
+          }
+        },
+        "enumerative": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 5,
+          "ragas_averages": {
+            "faithfulness": 0.0,
+            "answer_relevancy": 0.6001,
+            "context_precision": 0.0,
+            "context_recall": 0.0
+          }
+        },
+        "factual_lookup": {
+          "pass_rate": 0.4884,
+          "attack_success_rate": null,
+          "n_cases": 43,
+          "ragas_averages": {
+            "faithfulness": 0.5722,
+            "answer_relevancy": 0.644,
+            "context_precision": 0.3576,
+            "context_recall": 0.1138
+          }
+        },
+        "guardrail": {
+          "pass_rate": 1.0,
+          "attack_success_rate": 0.0,
+          "n_cases": 20,
+          "ragas_averages": null
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.8,
+          "attack_success_rate": null,
+          "n_cases": 20,
+          "ragas_averages": null
+        },
+        "multi_hop": {
+          "pass_rate": 0.875,
+          "attack_success_rate": null,
+          "n_cases": 8,
+          "ragas_averages": {
+            "faithfulness": 0.675,
+            "answer_relevancy": 0.7336,
+            "context_precision": 0.6354,
+            "context_recall": 0.25
+          }
+        },
+        "numeric_safety": {
+          "pass_rate": 0.8333,
+          "attack_success_rate": null,
+          "n_cases": 6,
+          "ragas_averages": null
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 4,
+          "ragas_averages": null
+        },
+        "prompt_injection": {
+          "pass_rate": 0.95,
+          "attack_success_rate": 0.0,
+          "n_cases": 20,
+          "ragas_averages": null
+        }
+      }
+    }
+  ],
+  "abandoned_without_folder": [
+    {
+      "label": "pre-batching full run (~2026-08-05 16:30 local)",
+      "status": "ABANDONED",
+      "died_at": "76/150",
+      "reason": "Predated partial_results.jsonl; no scored cases persisted. Console logs removed."
+    },
+    {
+      "run_id": "livebatchtest1",
+      "status": "ABANDONED",
+      "reason": "Verification-only test run; artifacts deleted; no dangling code/config references remain."
+    }
+  ]
+}

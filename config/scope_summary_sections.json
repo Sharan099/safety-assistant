@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "review_status": "draft",
+    "purpose": "Deterministic SCOPE_SUMMARY anchors — Scope, Definitions, key requirements, test configuration, and homologation section_numbers per regulation. Used instead of similarity ranking so a named-reg summary never mixes corpora.",
+    "notes": "section_number values must match Qdrant payload. Extend when new regs are ingested. Injury-criteria NUMBERS come from data/limits/*.json (Fix 22), not from these sections alone."
+  },
+  "regulations": {
+    "UN-ECE-R94": {
+      "label": "UN R94",
+      "scope_section": "1",
+      "definitions_section": "2",
+      "key_requirement_sections": ["5.2.1", "5.2.1.1", "5.2.1.4", "5.2.7", "5.2.8"],
+      "test_configuration_sections": ["Annex 3", "Annex 3/1", "5.2"],
+      "homologation_sections": ["3", "4", "5", "6", "7"]
+    },
+    "UN-ECE-R95": {
+      "label": "UN R95",
+      "scope_section": "1",
+      "definitions_section": "2",
+      "key_requirement_sections": ["5", "5.2", "5.2.1", "5.2.1.1", "5.3"],
+      "test_configuration_sections": ["Annex 4", "Annex 4/1", "5"],
+      "homologation_sections": ["3", "4", "5", "6", "7"]
+    },
+    "UN-ECE-R16": {
+      "label": "UN R16",
+      "scope_section": "1",
+      "definitions_section": "2",
+      "key_requirement_sections": ["5", "6", "6.1", "6.2"],
+      "test_configuration_sections": ["7", "8"],
+      "homologation_sections": ["3", "4", "5"]
+    },
+    "UN-ECE-R129": {
+      "label": "UN R129",
+      "scope_section": "1",
+      "definitions_section": "2",
+      "key_requirement_sections": ["6", "7"],
+      "test_configuration_sections": ["Annex 6", "Annex 7"],
+      "homologation_sections": ["3", "4", "5"]
+    }
+  }
+}

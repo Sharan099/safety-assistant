@@ -1,0 +1,42 @@
+{
+  "strategy": {
+    "mode": "fallback",
+    "on_status_codes": [408, 429, 500, 502, 503, 504]
+  },
+  "retry": { "attempts": 2, "on_status_codes": [429, 500, 502, 503] },
+  "cache": { "mode": "simple", "max_age": 86400 },
+  "request_timeout": 18000,
+  "targets": [
+    {
+      "provider": "groq",
+      "api_key": "${GROQ_API_KEY}",
+      "request_timeout": 15000,
+      "override_params": { "model": "llama-3.3-70b-versatile" }
+    },
+    {
+      "provider": "nvidia_nim",
+      "api_key": "${NVIDIA_API_KEY}",
+      "request_timeout": 18000,
+      "override_params": {
+        "model": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+        "temperature": 0,
+        "chat_template_kwargs": { "enable_thinking": false }
+      }
+    },
+    {
+      "provider": "google",
+      "api_key": "${GOOGLE_API_KEY}",
+      "request_timeout": 10000,
+      "override_params": {
+        "model": "gemini-2.5-flash",
+        "thinking": { "type": "disabled", "budget_tokens": 0 }
+      }
+    },
+    {
+      "provider": "openrouter",
+      "api_key": "${OPENROUTER_API_KEY}",
+      "request_timeout": 18000,
+      "override_params": { "model": "openai/gpt-oss-20b:free" }
+    }
+  ]
+}

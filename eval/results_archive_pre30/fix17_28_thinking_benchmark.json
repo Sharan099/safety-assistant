@@ -1,0 +1,95 @@
+{
+  "_meta": {
+    "fix": "17/28",
+    "purpose": "Compare thinking-on vs thinking-off latency/token counts",
+    "gateway": "http://localhost:8787/v1",
+    "recommendation": "Keep gemini-2.5-flash + thinking disabled (~0.37s vs ~2.7s default). flash-lite returns 404 for new users. NIM: keep nemotron + enable_thinking=false (~6.8s vs ~9s); meta/llama-3.3-70b-instruct timed out at 25s and is not a faster alternative. Per-target timeouts (Google 10s, NIM 18s) + strategy 408 failover remain required."
+  },
+  "results": [
+    {
+      "ok": true,
+      "label": "gemini-2.5-flash",
+      "ms": 2676.5,
+      "text": "```json\n{\"ok\": true}\n```",
+      "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 10,
+        "total_tokens": 51
+      }
+    },
+    {
+      "ok": true,
+      "label": "gemini-2.5-flash thinking={'type': 'disabled', 'budget_tokens': 0}",
+      "ms": 374.3,
+      "text": "```json\n{\"ok\": true}\n```",
+      "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 10,
+        "total_tokens": 21
+      }
+    },
+    {
+      "ok": false,
+      "label": "gemini-2.5-flash-lite",
+      "ms": 179.4,
+      "err": "Error code: 404 - {'error': {'message': 'google error: This model models/gemini-2.5-flash-lite is no longer available to new users. Please update your code to use a newer model for the latest features and improvements.', 'type': 'NOT_FOUND', 'param': None, 'code': 404}, 'provider': 'google'}"
+    },
+    {
+      "ok": false,
+      "label": "gemini-2.5-flash-lite thinking={'type': 'disabled', 'budget_tokens': 0}",
+      "ms": 179.1,
+      "err": "Error code: 404 - {'error': {'message': 'google error: This model models/gemini-2.5-flash-lite is no longer available to new users. Please update your code to use a newer model for the latest features and improvements.', 'type': 'NOT_FOUND', 'param': None, 'code': 404}, 'provider': 'google'}"
+    },
+    {
+      "ok": false,
+      "label": "gemini-2.0-flash",
+      "ms": 1595.5,
+      "err": "Error code: 429 - {'error': {'message': 'google error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Q"
+    },
+    {
+      "ok": false,
+      "label": "gemini-2.0-flash-lite",
+      "ms": 1712.1,
+      "err": "Error code: 429 - {'error': {'message': 'google error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Q"
+    },
+    {
+      "ok": true,
+      "label": "nemotron default (thinking may be ON)",
+      "ms": 9033.0,
+      "text": "",
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 64,
+        "total_tokens": 89
+      }
+    },
+    {
+      "ok": true,
+      "label": "nemotron enable_thinking=false",
+      "ms": 6758.5,
+      "text": "",
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 64,
+        "total_tokens": 89
+      }
+    },
+    {
+      "ok": true,
+      "label": "nemotron enable_thinking=false + timeout 18s",
+      "ms": 8214.6,
+      "text": "",
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 64,
+        "total_tokens": 89
+      }
+    },
+    {
+      "ok": false,
+      "label": "nim llama-3.3-70b (non-reasoning)",
+      "ms": 76184.1,
+      "err": "Error code: 408 - {'error': {'message': 'Request exceeded the timeout sent in the request: 25000ms', 'type': 'timeout_error', 'param': None, 'code': None}}"
+    }
+  ]
+}

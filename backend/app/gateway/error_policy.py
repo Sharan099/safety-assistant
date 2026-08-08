@@ -13,6 +13,7 @@ from backend.app.gateway.providers.base import ProviderError
 
 CONNECT_FAIL_THRESHOLD = int(os.getenv("GATEWAY_CONNECT_FAIL_THRESHOLD", "2"))
 PROVIDER_COOLDOWN_SEC = float(os.getenv("GATEWAY_PROVIDER_COOLDOWN_SEC", "300"))
+RATE_LIMIT_COOLDOWN_SEC = float(os.getenv("GATEWAY_RATE_LIMIT_COOLDOWN_SEC", "120"))
 
 
 class ErrorKind(str, Enum):
@@ -53,6 +54,23 @@ def classify_error_text(text: str) -> ErrorKind:
     if "timeout" in msg or "timed out" in msg:
         return ErrorKind.TIMEOUT
     if "rate limit" in msg or "429" in msg or "rate_limit" in msg:
+        return ErrorKind.RATE_LIMIT
+    if any(
+        t in msg
+        for t in (
+            "503",
+            "504",
+            "service unavailable",
+            "capacity",
+            "overloaded",
+            "overload",
+            "quota exceeded",
+            "quota exhausted",
+            "tokens per day",
+            "tpm",
+            "tpd",
+        )
+    ):
         return ErrorKind.RATE_LIMIT
     if any(t in msg for t in ("401", "403", "invalid api key", "authentication")):
         return ErrorKind.FATAL
@@ -100,7 +118,11 @@ def note_provider_success(key: str) -> None:
 
 
 def note_provider_failure(key: str, kind: ErrorKind) -> None:
-    if kind == ErrorKind.RATE_LIMIT or kind == ErrorKind.DECOMMISSIONED:
+    if kind == ErrorKind.RATE_LIMIT:
+        # Transient — gateway retries/backoff handle 429s; do not circuit-break.
+        logger.warning("Gateway model '{}' hit rate_limit (no circuit break)", key)
+        return
+    if kind == ErrorKind.DECOMMISSIONED:
         disable_model(key, f"{kind.value}", cooldown_s=None)
         return
     if kind != ErrorKind.CONNECTION:

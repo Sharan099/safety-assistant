@@ -1,0 +1,17 @@
+{
+  "total": 102,
+  "per_category": {
+    "factual_lookup": 43,
+    "compliance_check": 4,
+    "numeric_safety": 6,
+    "multi_hop": 8,
+    "enumerative": 5,
+    "cross_regulation": 14,
+    "design_implication": 6,
+    "out_of_scope": 4,
+    "hallucination_probe": 4,
+    "guardrail": 3,
+    "prompt_injection": 5
+  },
+  "thin_coverage": []
+}

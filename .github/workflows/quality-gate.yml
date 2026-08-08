@@ -1,0 +1,141 @@
+name: Eval quality gate (run_full)
+
+# CI budget (confirm before raising):
+#   Full local suite: 150 cases / ~896 estimated LLM calls → hours + free-tier risk.
+#   This workflow: eval/ci_gate.jsonl = 21 critical-category cases / ~138 estimated
+#   LLM calls with --skip-ragas (all numeric_safety + samples of compliance_check,
+#   cross_regulation, guardrail, prompt_injection). Enforces eval/thresholds.yaml via
+#   results.json — NOT the legacy scorecard/faithfulness gate.
+#   Raise the subset only if weekly quota/time comfortably absorb it.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  run-full-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install with eval extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[eval]"
+      - name: Start Portkey gateway
+        # LLM_PROVIDER=groq always talks to providers through the local Portkey
+        # gateway (same as local/dev). No Portkey cloud account required.
+        run: |
+          docker compose up -d portkey
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8787/ >/dev/null; then
+              echo "Portkey ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Portkey gateway failed to become ready" >&2
+          docker compose logs portkey || true
+          exit 1
+      - name: Critical-category run_full gate
+        env:
+          LLM_PROVIDER: groq
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          PYTHONPATH: .
+          QDRANT_PATH: ./data/qdrant
+          PORTKEY_GATEWAY_URL: http://127.0.0.1:8787/v1
+          RERANK_PROVIDER: none
+          # Non-interactive: skip smoke (ci_gate.jsonl has no factual_lookup/enumerative
+          # slots) and skip call-budget / smoke prompts.
+        run: |
+          if [ -z "$GROQ_API_KEY" ]; then
+            echo "GROQ_API_KEY secret missing — skipping run_full quality gate"
+            exit 0
+          fi
+          if [ ! -d "$QDRANT_PATH" ] || [ -z "$(ls -A "$QDRANT_PATH" 2>/dev/null)" ]; then
+            echo "Qdrant index missing at $QDRANT_PATH — cannot score retrieval/citation gates"
+            echo "Provision a pre-built index artifact or ingest before enabling this job."
+            exit 1
+          fi
+          # --skip-ragas: CI gate is critical hard-gates + security (numeric_safety,
+          # citation_grounding, guardrail/prompt_injection), not blended faithfulness.
+          # compliance/cross_regulation still run custom_hard_gates; RAGAS avg_* floors
+          # in thresholds.yaml are skipped when metrics are absent. Full local runs
+          # omit --skip-ragas.
+          python -m eval.run_full \
+            --yes \
+            --skip-smoke \
+            --skip-ragas \
+            --gold eval/ci_gate.jsonl \
+            --thresholds eval/thresholds.yaml \
+            --run-id ci-gate \
+            --batch-size 5
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("eval/results/ci-gate/results.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          gate = data.get("gate") or {}
+          cats = gate.get("categories") or {}
+          required = {
+              "numeric_safety",
+              "compliance_check",
+              "cross_regulation",
+              "guardrail",
+              "prompt_injection",
+          }
+          missing = sorted(required - set(cats))
+          if missing:
+              raise SystemExit(f"results.json missing required categories: {missing}")
+
+          # Prove custom citation-grounding hard gates and security scorers ran.
+          citation_seen = False
+          security_seen = False
+          for row in data.get("cases") or []:
+              hard = (row.get("custom_hard_gates") or {}).get("checks") or {}
+              if "citation_grounding" in hard:
+                  citation_seen = True
+              cat = str(row.get("category") or "")
+              if cat == "numeric_safety" and "citation_grounding" not in hard and row.get("error"):
+                  continue
+              if cat in {"guardrail", "prompt_injection"} and (
+                  "attack_succeeded" in row
+                  or "guard_verdicts" in row
+                  or "prompt_injection_guard" in row
+              ):
+                  security_seen = True
+          if not citation_seen:
+              raise SystemExit("no citation_grounding check found in cases")
+          if not security_seen:
+              raise SystemExit("no guardrail/prompt_injection security fields found in cases")
+
+          print(
+              json.dumps(
+                  {
+                      "overall_status": gate.get("overall_status") or data.get("overall_status"),
+                      "critical_failures": gate.get("critical_failures"),
+                      "categories_scored": sorted(cats),
+                      "citation_grounding_seen": citation_seen,
+                      "security_scoring_seen": security_seen,
+                      "n_cases": data.get("n_cases"),
+                  },
+                  indent=2,
+              )
+          )
+          PY
+      - name: Upload results.json
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-gate-results
+          path: eval/results/ci-gate/
+          if-no-files-found: ignore

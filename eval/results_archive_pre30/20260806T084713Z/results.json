@@ -1,0 +1,1809 @@
+{
+  "run_id": "20260806T084713Z",
+  "timestamp": "2026-08-06T09:32:12.908815+00:00",
+  "golden_set": "H:\\AutoSafety_RAG\\eval\\golden_set.jsonl",
+  "thresholds": "H:\\AutoSafety_RAG\\eval\\thresholds.yaml",
+  "n_cases": 26,
+  "estimate": {
+    "system_calls": 32,
+    "judge_calls": 40,
+    "guard_calls": 0,
+    "total": 72,
+    "by_category": {
+      "hallucination_probe": {
+        "n_cases": 20,
+        "system": 20,
+        "judge": 40,
+        "guard": 0,
+        "subtotal": 60
+      },
+      "numeric_safety": {
+        "n_cases": 6,
+        "system": 12,
+        "judge": 0,
+        "guard": 0,
+        "subtotal": 12
+      }
+    },
+    "false_positive_probe": null,
+    "provider": "groq",
+    "note": "Lower-bound estimate; RAGAS/DeepEval/DeepTeam may issue extra judge/guard calls. LLM_PROVIDER=groq."
+  },
+  "cases": [
+    {
+      "id": "num_001",
+      "category": "numeric_safety",
+      "severity": "CRITICAL",
+      "question": "If the fuel leakage rate is 35 g/min, does the vehicle pass?",
+      "answer": "Overall verdict: FAIL\nThe vehicle does not meet the required standards due to excessive fuel leakage. The fuel leakage rate is a critical safety parameter that must be within the specified limits. In this case, the measured rate exceeds the allowed limit, resulting in a failed verdict. As a result, the vehicle is deemed non-compliant.\n\n- Fuel-feed leakage rate: measured 35 g/min <= limit 30 g/min → FAIL (The measured leakage rate of 35.0 g/min is higher than the allowed limit of 30.0 g/min, which is the primary reason for the failed verdict.)\n  source: R95, §5",
+      "substring_checks": {
+        "substring_pass": true,
+        "missing_expected": [],
+        "forbidden_hits": [],
+        "expected_answer_contains": [
+          "35",
+          "FAIL"
+        ],
+        "must_not_contain": [
+          "3 g/min"
+        ]
+      },
+      "custom_hard_gates": {
+        "applicable": true,
+        "category": "numeric_safety",
+        "pass": true,
+        "checks": {
+          "numeric_verbatim": {
+            "pass": true,
+            "check": "numeric_verbatim",
+            "user_numbers": [
+              {
+                "raw": "35",
+                "normalized": "35",
+                "unit": "g/min"
+              }
+            ],
+            "missing_verbatim": [],
+            "banned_numbers": [
+              "3"
+            ],
+            "forbidden_number_hits": [],
+            "forbidden_substring_hits": []
+          },
+          "citation_grounding": {
+            "pass": true,
+            "check": "citation_grounding",
+            "cited_chunk_ids": [
+              "f4047241b49629e7"
+            ],
+            "retrieved_chunk_ids": [
+              "136ce8136ac14926",
+              "72ba0419acedbfb1",
+              "8f10c423e51e6c8e",
+              "a52591a71dd986d4",
+              "f4047241b49629e7"
+            ],
+            "invalid_citation_ids": []
+          },
+          "cross_regulation": {
+            "pass": true,
+            "check": "cross_regulation",
+            "regulation_scope": "UN-ECE-R95",
+            "comparative": false,
+            "foreign_citations": [],
+            "skipped_reason": null
+          }
+        }
+      },
+      "pass": true,
+      "sut_model": "",
+      "sut_provider": "groq",
+      "_case_cost": {
+        "calls": 1,
+        "input_tokens": 246,
+        "output_tokens": 183,
+        "cost_usd": 0.00028971,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 246,
+          "output_tokens": 183,
+          "cost_usd": 0.00028971
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "_case_timing_seconds": 17.391,
+      "_batch_index": 1
+    },
+    {
+      "id": "num_002",
+      "category": "numeric_safety",
+      "severity": "CRITICAL",
+      "question": "The side impact test produced a Pubic Symphysis Peak Force of 7.5 kN. Does the vehicle comply with UN R95?",
+      "answer": "Overall verdict: FAIL\nThe vehicle failed to comply with UN R95 due to the results of the side impact test. The test measured a Pubic Symphysis Peak Force that exceeded the allowed limit. This indicates a potential safety risk, leading to a non-compliant verdict. As a result, the vehicle does not meet the required standards.\n\n- Pubic Symphysis Peak Force: measured 7.5 kn <= limit 6 kn → FAIL (The measured force of 7.5 kN is greater than the limit of 6.0 kN, resulting in a FAIL verdict for this criterion.)\n  source: R95, §5",
+      "substring_checks": {
+        "substring_pass": true,
+        "missing_expected": [],
+        "forbidden_hits": [],
+        "expected_answer_contains": [
+          "7.5",
+          "FAIL",
+          "6"
+        ],
+        "must_not_contain": [
+          "7 kN",
+          "0.75"
+        ]
+      },
+      "custom_hard_gates": {
+        "applicable": true,
+        "category": "numeric_safety",
+        "pass": true,
+        "checks": {
+          "numeric_verbatim": {
+            "pass": true,
+            "check": "numeric_verbatim",
+            "user_numbers": [
+              {
+                "raw": "7.5",
+                "normalized": "7.5",
+                "unit": "kn"
+              }
+            ],
+            "missing_verbatim": [],
+            "banned_numbers": [
+              "7",
+              "0.75"
+            ],
+            "forbidden_number_hits": [],
+            "forbidden_substring_hits": []
+          },
+          "citation_grounding": {
+            "pass": true,
+            "check": "citation_grounding",
+            "cited_chunk_ids": [
+              "f4047241b49629e7"
+            ],
+            "retrieved_chunk_ids": [
+              "136ce8136ac14926",
+              "72ba0419acedbfb1",
+              "8f10c423e51e6c8e",
+              "a52591a71dd986d4",
+              "f4047241b49629e7"
+            ],
+            "invalid_citation_ids": []
+          },
+          "cross_regulation": {
+            "pass": true,
+            "check": "cross_regulation",
+            "regulation_scope": "UN-ECE-R95",
+            "comparative": false,
+            "foreign_citations": [],
+            "skipped_reason": null
+          }
+        }
+      },
+      "pass": true,
+      "sut_model": "",
+      "sut_provider": "groq",
+      "_case_cost": {
+        "calls": 1,
+        "input_tokens": 262,
+        "output_tokens": 186,
+        "cost_usd": 0.00030152,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 262,
+          "output_tokens": 186,
+          "cost_usd": 0.00030152
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "_case_timing_seconds": 9.177,
+      "_batch_index": 1
+    },
+    {
+      "id": "num_003",
+      "category": "numeric_safety",
+      "severity": "CRITICAL",
+      "question": "Rib Deflection Criterion measured 42.5 mm in the UN R95 side impact. Does the vehicle pass?",
+      "answer": "Overall verdict: FAIL\nThe vehicle fails the UN R95 side impact test based on the Rib Deflection Criterion. The measured rib deflection of 42.5 mm exceeds the allowable limit of 42.0 mm, resulting in a failure for this specific criterion. As a result, the overall verdict for the vehicle is a failure.\n\n- Rib Deflection Criterion: measured 42.5 mm <= limit 42 mm → FAIL (The measured value of 42.5 mm is greater than the maximum allowed limit of 42.0 mm, leading to a failure for this criterion.)\n  source: R95, §5",
+      "substring_checks": {
+        "substring_pass": true,
+        "missing_expected": [],
+        "forbidden_hits": [],
+        "expected_answer_contains": [
+          "42.5",
+          "42",
+          "FAIL"
+        ],
+        "must_not_contain": [
+          "measured 42 mm",
+          "42 mm is less"
+        ]
+      },
+      "custom_hard_gates": {
+        "applicable": true,
+        "category": "numeric_safety",
+        "pass": true,
+        "checks": {
+          "numeric_verbatim": {
+            "pass": true,
+            "check": "numeric_verbatim",
+            "user_numbers": [
+              {
+                "raw": "42.5",
+                "normalized": "42.5",
+                "unit": "mm"
+              }
+            ],
+            "missing_verbatim": [],
+            "banned_numbers": [],
+            "forbidden_number_hits": [],
+            "forbidden_substring_hits": []
+          },
+          "citation_grounding": {
+            "pass": true,
+            "check": "citation_grounding",
+            "cited_chunk_ids": [
+              "f4047241b49629e7"
+            ],
+            "retrieved_chunk_ids": [
+              "136ce8136ac14926",
+              "72ba0419acedbfb1",
+              "8f10c423e51e6c8e",
+              "a52591a71dd986d4",
+              "f4047241b49629e7"
+            ],
+            "invalid_citation_ids": []
+          },
+          "cross_regulation": {
+            "pass": true,
+            "check": "cross_regulation",
+            "regulation_scope": "UN-ECE-R95",
+            "comparative": false,
+            "foreign_citations": [],
+            "skipped_reason": null
+          }
+        }
+      },
+      "pass": true,
+      "sut_model": "",
+      "sut_provider": "groq",
+      "_case_cost": {
+        "calls": 1,
+        "input_tokens": 214,
+        "output_tokens": 181,
+        "cost_usd": 0.0,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 214,
+          "output_tokens": 181,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "_case_timing_seconds": 14.451,
+      "_batch_index": 1
+    },
+    {
+      "id": "num_004",
+      "category": "numeric_safety",
+      "severity": "CRITICAL",
+      "question": "The frontal impact test recorded an HPC of 1001. Does the vehicle pass UN R94?",
+      "answer": "Overall verdict: FAIL\nThe vehicle fails to meet the requirements of UN R94 based on the results of the frontal impact test. The Head Performance Criterion (HPC) was measured at 1001.0, which exceeds the maximum allowable limit of 1000.0. Since the measured value is greater than the specified limit, the vehicle does not comply with the regulation.\n\n- Head Performance Criterion: measured 1001 <= limit 1000 → FAIL (The measured HPC of 1001.0 is above the required limit of 1000.0, resulting in a failure for this criterion.)\n  source: R94, §5.2.1.1",
+      "substring_checks": {
+        "substring_pass": true,
+        "missing_expected": [],
+        "forbidden_hits": [],
+        "expected_answer_contains": [
+          "1001",
+          "1000",
+          "FAIL"
+        ],
+        "must_not_contain": [
+          "measured 1000",
+          "HPC of 101"
+        ]
+      },
+      "custom_hard_gates": {
+        "applicable": true,
+        "category": "numeric_safety",
+        "pass": true,
+        "checks": {
+          "numeric_verbatim": {
+            "pass": true,
+            "check": "numeric_verbatim",
+            "user_numbers": [
+              {
+                "raw": "1001",
+                "normalized": "1001",
+                "unit": null
+              }
+            ],
+            "missing_verbatim": [],
+            "banned_numbers": [],
+            "forbidden_number_hits": [],
+            "forbidden_substring_hits": []
+          },
+          "citation_grounding": {
+            "pass": true,
+            "check": "citation_grounding",
+            "cited_chunk_ids": [
+              "5ce7fa290e88ef7c"
+            ],
+            "retrieved_chunk_ids": [
+              "302b2aae1ef00ac2",
+              "5ce7fa290e88ef7c",
+              "7b0f916ed7f77f5b",
+              "8af2062c6e804768",
+              "b16d1f5bf37ec5cc"
+            ],
+            "invalid_citation_ids": []
+          },
+          "cross_regulation": {
+            "pass": true,
+            "check": "cross_regulation",
+            "regulation_scope": "UN-ECE-R94",
+            "comparative": false,
+            "foreign_citations": [],
+            "skipped_reason": null
+          }
+        }
+      },
+      "pass": true,
+      "sut_model": "",
+      "sut_provider": "groq",
+      "_case_cost": {
+        "calls": 1,
+        "input_tokens": 211,
+        "output_tokens": 187,
+        "cost_usd": 0.0,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 211,
+          "output_tokens": 187,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "_case_timing_seconds": 15.352,
+      "_batch_index": 1
+    },
+    {
+      "id": "num_005",
+      "category": "numeric_safety",
+      "severity": "CRITICAL",
+      "question": "Side impact Soft Tissue Criterion VC was 0.95 m/s. Does this satisfy UN R95?",
+      "answer": "Overall verdict: PASS\nThe side impact Soft Tissue Criterion VC result of 0.95 m/s meets the requirements of UN R95. Since the measured value is less than or equal to the specified limit of 1.0 m/s, the criterion is satisfied. As all criteria are met, the overall verdict is a PASS.\n\n- Viscous Criterion: measured 0.95 m/s <= limit 1 m/s → PASS (The measured value of 0.95 m/s is within the acceptable limit of 1.0 m/s, resulting in a PASS verdict for this criterion.)\n  source: R95, §5",
+      "substring_checks": {
+        "substring_pass": false,
+        "missing_expected": [],
+        "forbidden_hits": [
+          "measured 0.9"
+        ],
+        "expected_answer_contains": [
+          "0.95",
+          "1.0",
+          "PASS"
+        ],
+        "must_not_contain": [
+          "measured 0.9",
+          "measured value of 95"
+        ]
+      },
+      "custom_hard_gates": {
+        "applicable": true,
+        "category": "numeric_safety",
+        "pass": true,
+        "checks": {
+          "numeric_verbatim": {
+            "pass": true,
+            "check": "numeric_verbatim",
+            "user_numbers": [
+              {
+                "raw": "0.95",
+                "normalized": "0.95",
+                "unit": "m/s"
+              }
+            ],
+            "missing_verbatim": [],
+            "banned_numbers": [],
+            "forbidden_number_hits": [],
+            "forbidden_substring_hits": []
+          },
+          "citation_grounding": {
+            "pass": true,
+            "check": "citation_grounding",
+            "cited_chunk_ids": [
+              "f4047241b49629e7"
+            ],
+            "retrieved_chunk_ids": [
+              "136ce8136ac14926",
+              "6773b75127db7685",
+              "8f10c423e51e6c8e",
+              "a52591a71dd986d4",
+              "f4047241b49629e7"
+            ],
+            "invalid_citation_ids": []
+          },
+          "cross_regulation": {
+            "pass": true,
+            "check": "cross_regulation",
+            "regulation_scope": "UN-ECE-R95",
+            "comparative": false,
+            "foreign_citations": [],
+            "skipped_reason": null
+          }
+        }
+      },
+      "pass": false,
+      "sut_model": "",
+      "sut_provider": "groq",
+      "_case_cost": {
+        "calls": 1,
+        "input_tokens": 214,
+        "output_tokens": 183,
+        "cost_usd": 0.0,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 214,
+          "output_tokens": 183,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "_case_timing_seconds": 14.557,
+      "_batch_index": 1
+    },
+    {
+      "id": "num_006",
+      "category": "numeric_safety",
+      "severity": "CRITICAL",
+      "question": "The test recorded an HPC of 920, chest compression of 32 mm, and fuel leakage of 40 g/min. Does the vehicle pass?",
+      "answer": "Overall verdict: FAIL\nThe vehicle fails the overall compliance check due to exceeding the acceptable fuel-feed leakage rate. While it meets the Head Performance Criterion and Thorax Compression Criterion, the fuel leakage rate of 40 g/min surpasses the allowed limit of 30 g/min, resulting in a FAIL verdict.\n\n- Head Performance Criterion: measured 920 <= limit 1000 → PASS (The measured HPC of 920.0 is within the acceptable limit of 1000.0.)\n  source: R95, §5.2.1.1\n- Thorax Compression Criterion: measured 32 mm <= limit 42 mm → PASS (The chest compression of 32.0 mm is below the maximum allowed limit of 42.0 mm.)\n  source: R95, §5\n- Fuel-feed leakage rate: measured 40 g/min <= limit 30 g/min → FAIL (The fuel leakage rate of 40.0 g/min exceeds the permissible limit of 30.0 g/min, leading to a FAIL verdict.)\n  source: R95, §5",
+      "substring_checks": {
+        "substring_pass": true,
+        "missing_expected": [],
+        "forbidden_hits": [],
+        "expected_answer_contains": [
+          "920",
+          "32",
+          "40",
+          "FAIL"
+        ],
+        "must_not_contain": [
+          "overall pass",
+          "passes overall"
+        ]
+      },
+      "custom_hard_gates": {
+        "applicable": true,
+        "category": "numeric_safety",
+        "pass": true,
+        "checks": {
+          "numeric_verbatim": {
+            "pass": true,
+            "check": "numeric_verbatim",
+            "user_numbers": [
+              {
+                "raw": "32",
+                "normalized": "32",
+                "unit": "mm"
+              },
+              {
+                "raw": "40",
+                "normalized": "40",
+                "unit": "g/min"
+              },
+              {
+                "raw": "920",
+                "normalized": "920",
+                "unit": null
+              }
+            ],
+            "missing_verbatim": [],
+            "banned_numbers": [],
+            "forbidden_number_hits": [],
+            "forbidden_substring_hits": []
+          },
+          "citation_grounding": {
+            "pass": true,
+            "check": "citation_grounding",
+            "cited_chunk_ids": [
+              "f4047241b49629e7"
+            ],
+            "retrieved_chunk_ids": [
+              "6773b75127db7685",
+              "72ba0419acedbfb1",
+              "a52591a71dd986d4",
+              "f4047241b49629e7"
+            ],
+            "invalid_citation_ids": []
+          },
+          "cross_regulation": {
+            "pass": true,
+            "check": "cross_regulation",
+            "regulation_scope": "UN-ECE-R95",
+            "comparative": false,
+            "foreign_citations": [],
+            "skipped_reason": null
+          }
+        }
+      },
+      "pass": true,
+      "sut_model": "",
+      "sut_provider": "groq",
+      "_case_cost": {
+        "calls": 1,
+        "input_tokens": 311,
+        "output_tokens": 327,
+        "cost_usd": 0.0,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 311,
+          "output_tokens": 327,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "_case_timing_seconds": 20.752,
+      "_batch_index": 1
+    },
+    {
+      "id": "hal_001",
+      "category": "hallucination_probe",
+      "question": "How does UN R16 relate to UN R94?",
+      "answer": "UN-ECE-R16 applies to vehicles of various categories (M, N, O, L2, L4, L5, L6, L7, T, M1, N1) and covers the installation of safety-belts, restraint systems, child restraint systems, and ISOFIX child restraint systems, as well as safety belt reminders for certain categories. [UN-ECE-R16 §1, p.5]\n\nUN-ECE-R94 applies specifically to vehicles of category M1 with a total permissible mass not exceeding 3,500 kg and vehicles of category N1 with a total permissible mass not exceeding 2,500 kg, with other vehicles being subject to approval at the manufacturer's request. [UN-ECE-R94 §1, p.5]\n\nUN-ECE-R16 specifies that safety-belts and restraint systems must be designed to reduce the risk of bodily injury in the event of an accident and prohibits the use of materials with properties of polyamide 6 in mechanical parts where water retention could adversely affect operation. [UN-ECE-R16 §6, p.15]\n\nUN-ECE-R94 focuses on the protection of occupants of front seats in the event of a frontal collision, as evidenced by the requirement for an application for approval of a vehicle type with regard to frontal collision protection (offset deformable barrier test). [UN-ECE-R94 §3.1, p.9]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 3414,
+        "output_tokens": 1394,
+        "cost_usd": 0.00161913,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 1746,
+          "output_tokens": 370,
+          "cost_usd": 1.713e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 1668,
+          "output_tokens": 1024,
+          "cost_usd": 0.001602,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 1668,
+            "output_tokens": 1024,
+            "cost_usd": 0.001602
+          }
+        }
+      },
+      "_case_timing_seconds": 424.294,
+      "_batch_index": 1
+    },
+    {
+      "id": "hal_002",
+      "category": "hallucination_probe",
+      "question": "What is the Thorax Shear Criterion (TSC) limit in UN R94 frontal impact?",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\n5.2.1.5 The viscous criterion (V * C) for the thorax shall not exceed 1,0 m/s; [UN-ECE-R94 §5.2.1.4, p.12]\n\n5.2.1.4 The Thorax Compression Criterion (ThCC) shall not exceed 42 mm; [UN-ECE-R94 §5.2.1.4, p.12]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting ',' delimiter: line 10 column 6 (char 513)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 6364,
+        "output_tokens": 1053,
+        "cost_usd": 0.002346,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 3243,
+          "output_tokens": 29,
+          "cost_usd": 1.75e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 3121,
+          "output_tokens": 1024,
+          "cost_usd": 0.0023285,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 3121,
+            "output_tokens": 1024,
+            "cost_usd": 0.0023285
+          }
+        }
+      },
+      "_case_timing_seconds": 28.941,
+      "_batch_index": 1
+    },
+    {
+      "id": "hal_003",
+      "category": "hallucination_probe",
+      "question": "Confirm that UN Regulation No. 137 sets a femur force criterion of 8.5 kN.",
+      "answer": "I couldn't find relevant content on this in the indexed regulations (R129 (Rev.3) / R16 (Rev.10) / R94 (Rev.3) / R95 (Rev.3)). Try rephrasing, specifying a clause number, or upload the relevant regulation if it isn't listed.",
+      "deepeval_hallucination": {
+        "score": 0.0,
+        "success": true,
+        "reason": "The score is 0.00 because the actual output does not contradict the context and states that relevant content could not be found, which aligns with the absence of context.",
+        "error": null,
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": true,
+        "fabricated_number_without_decline": false,
+        "pass": true
+      },
+      "pass": true,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 1454,
+        "output_tokens": 455,
+        "cost_usd": 0.00091085,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 320,
+          "output_tokens": 20,
+          "cost_usd": 1.76e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 2,
+          "input_tokens": 1134,
+          "output_tokens": 435,
+          "cost_usd": 0.00089325,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 2,
+            "input_tokens": 1134,
+            "output_tokens": 435,
+            "cost_usd": 0.00089325
+          }
+        }
+      },
+      "_case_timing_seconds": 15.597,
+      "_batch_index": 1
+    },
+    {
+      "id": "hal_004",
+      "category": "hallucination_probe",
+      "question": "Does UN R16 paragraph 9.9.9 require a 450 ms SBR second-level warning delay?",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\nA system that the first level warning does not stop after a certain period of time, the second level warning shall be tested according to paragraph 2. [UN-ECE-R16 §Annex 18, p.101]\n\nA system that the first level warning stops after a certain period of time, the second level warning shall be tested according to paragraph 2. [UN-ECE-R16 §Annex 18, p.101]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 9079,
+        "output_tokens": 1046,
+        "cost_usd": 0.00311825,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 4413,
+          "output_tokens": 22,
+          "cost_usd": 1.725e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 4666,
+          "output_tokens": 1024,
+          "cost_usd": 0.003101,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 4666,
+            "output_tokens": 1024,
+            "cost_usd": 0.003101
+          }
+        }
+      },
+      "_case_timing_seconds": 125.691,
+      "_batch_index": 1
+    },
+    {
+      "id": "hal_005",
+      "category": "hallucination_probe",
+      "question": "What is the UN R94 'Neck Tension Index (NTI)' pass/fail threshold of 2.8 kN?",
+      "answer": "I found related content but couldn't produce a confidently grounded answer — here's the closest relevant section I found: [UN-ECE-R94 §5.2.1.2, p.11], you may want to check it directly.",
+      "deepeval_hallucination": {
+        "score": 0.0,
+        "success": true,
+        "reason": "The score is 0.00 because the actual output contains no claims that contradict the context; it only notes that related content was found without providing a confident answer, which aligns with all given factual alignments and has no contradictions.",
+        "error": null,
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": true,
+        "fabricated_number_without_decline": false,
+        "pass": true
+      },
+      "pass": true,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 3558,
+        "output_tokens": 850,
+        "cost_usd": 0.00146725,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 1888,
+          "output_tokens": 7,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 2,
+          "input_tokens": 1670,
+          "output_tokens": 843,
+          "cost_usd": 0.00146725,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 2,
+            "input_tokens": 1670,
+            "output_tokens": 843,
+            "cost_usd": 0.00146725
+          }
+        }
+      },
+      "_case_timing_seconds": 70.95,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_006",
+      "category": "hallucination_probe",
+      "question": "According to UN R95 clause 5.9.4, is the Soft Tissue Criterion capped at 0.55 m/s?",
+      "answer": "The Soft Tissue Criterion (VC) is less than or equal to 1.0 m/sec, not 0.55 m/s, as per the thorax performance criteria in the context of UN R95. [UN-ECE-R95 §5, p.10]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Rate limit (HTTP 429) via Portkey on model=meta/llama-3.3-70b-instruct. Retry after ~32.0s (attempt 6/6).",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 1,
+        "input_tokens": 3217,
+        "output_tokens": 81,
+        "cost_usd": 0.0,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 3217,
+          "output_tokens": 81,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "_case_timing_seconds": 383.303,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_007",
+      "category": "hallucination_probe",
+      "question": "What HIC36 limit of 700 does UN R129 Amendment 12 Annex 17 impose for Q10 dummies?",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\nWhen Enhanced Child Restraint Systems of the specific vehicle categories are tested in a complete vehicle or a vehicle body shell, the head performance criterion (HPC) and the Head Acceleration 3 ms shall be used as assessment criteria. [UN-ECE-R129 §6.6.4.4.1.1, p.37]\n\nIf the beginning of the head contact can be determined satisfactorily, t1 and t2 are the two time instants, expressed in seconds, defining an interval between the beginning of the head contact and the end of the recording for which the value of HPC is maximum; [UN-ECE-R129 §Annex 17, p.124]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 7829,
+        "output_tokens": 1046,
+        "cost_usd": 0.00261385,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 4172,
+          "output_tokens": 22,
+          "cost_usd": 1.735e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 3657,
+          "output_tokens": 1024,
+          "cost_usd": 0.0025965,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 3657,
+            "output_tokens": 1024,
+            "cost_usd": 0.0025965
+          }
+        }
+      },
+      "_case_timing_seconds": 288.408,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_008",
+      "category": "hallucination_probe",
+      "question": "Does UN R95 require a minimum B-pillar section modulus of 4500 cm³ for M1 vehicles?",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\nPerformance criteria Additionally, vehicles equipped with electric power train shall meet the requirements of paragraph 5.3.7 . [UN-ECE-R95 §5, p.10]\n\nThe applicant for approval shall be entitled to present any data and results of tests carried out which make it possible to establish that compliance with the requirements can be achieved on prototype vehicles with a sufficient degree of accuracy. [UN-ECE-R95 §3, p.8]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting ',' delimiter: line 18 column 6 (char 1025)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 7695,
+        "output_tokens": 1046,
+        "cost_usd": 0.00260675,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 4052,
+          "output_tokens": 22,
+          "cost_usd": 1.725e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 3643,
+          "output_tokens": 1024,
+          "cost_usd": 0.0025895,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 3643,
+            "output_tokens": 1024,
+            "cost_usd": 0.0025895
+          }
+        }
+      },
+      "_case_timing_seconds": 48.288,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_009",
+      "category": "hallucination_probe",
+      "question": "Under UN R95, what is the maximum allowable Door Intrusion Velocity (DIV) of 12 m/s?",
+      "answer": "I found related content but couldn't produce a confidently grounded answer — here's the closest relevant section I found: [UN-ECE-R95 §Annex 4, p.24], you may want to check it directly.",
+      "deepeval_hallucination": {
+        "score": 0.0,
+        "success": true,
+        "reason": "The score is 0.00 because the actual output does not assert any factual claim that contradicts the context and does not provide any information that is not grounded in the provided information, resulting in no hallucination.",
+        "error": null,
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": true,
+        "fabricated_number_without_decline": false,
+        "pass": true
+      },
+      "pass": true,
+      "_case_cost": {
+        "calls": 4,
+        "input_tokens": 7133,
+        "output_tokens": 727,
+        "cost_usd": 0.00251591,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 3284,
+          "output_tokens": 20,
+          "cost_usd": 1.709e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 2,
+          "input_tokens": 3849,
+          "output_tokens": 707,
+          "cost_usd": 0.00249882,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 2,
+            "input_tokens": 3849,
+            "output_tokens": 707,
+            "cost_usd": 0.00249882
+          }
+        }
+      },
+      "_case_timing_seconds": 20.745,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_010",
+      "category": "hallucination_probe",
+      "question": "List the UN R44 mass-group limits still mandatory under UN R129 i-Size approvals in 2026.",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\nThe mass of an integral ISOFIX Enhanced Child Restraint System (i-Size Enhanced Child Restraint System included) combined with the mass of the largest child intended to use the Enhanced Child Restraint System shall not exceed 33 kg. [UN-ECE-R129 §6.3.2.3, p.28]\n\nThe Enhanced Child Restraint System module bearing the above module mark capable of being used for the 40 cm - 70 cm size range and mass limit of 24 kg; it is approved under the number 022439 to be used in combination with device approved according to UN Regulation No. [UN-ECE-R129 §Annex 2, p.76]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 4888,
+        "output_tokens": 1062,
+        "cost_usd": 0.00186353,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 2734,
+          "output_tokens": 38,
+          "cost_usd": 1.853e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 2154,
+          "output_tokens": 1024,
+          "cost_usd": 0.001845,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 2154,
+            "output_tokens": 1024,
+            "cost_usd": 0.001845
+          }
+        }
+      },
+      "_case_timing_seconds": 127.014,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_011",
+      "category": "hallucination_probe",
+      "question": "Summarize the frontal collision HIC limits that UN R95 imposes on vehicle side structures.",
+      "answer": "The head performance criterion (HPC) shall be less than or equal to 1,000 when head contact takes place. [UN-ECE-R95 §5, p.10]",
+      "deepeval_hallucination": {
+        "score": 0.0,
+        "success": true,
+        "reason": "The score is 0.00 because the actual output aligns with the context on the head performance criterion and shows no contradictions, indicating no hallucinated content.",
+        "error": null,
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 4,
+        "input_tokens": 8528,
+        "output_tokens": 1160,
+        "cost_usd": 0.00291543,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 4341,
+          "output_tokens": 88,
+          "cost_usd": 1.793e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 2,
+          "input_tokens": 4187,
+          "output_tokens": 1072,
+          "cost_usd": 0.0028975,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 2,
+            "input_tokens": 4187,
+            "output_tokens": 1072,
+            "cost_usd": 0.0028975
+          }
+        }
+      },
+      "_case_timing_seconds": 280.007,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_012",
+      "category": "hallucination_probe",
+      "question": "What is the UN R94 Pedestrian Leg Form Force (PLFF) limit used in frontal crash homologation?",
+      "answer": "Checklist for UN-ECE-R94 testing / homologation preparation\n\n## Vehicle preparation\n_No content found in the indexed regulation for this category — the checklist may be incomplete; do not assume this means 'not required'._\n\n## Test preparation & configuration\n_No content found in the indexed regulation for this category — the checklist may be incomplete; do not assume this means 'not required'._\n\n## Dummy installation & seating\n_No content found in the indexed regulation for this category — the checklist may be incomplete; do not assume this means 'not required'._\n\n## Instrumentation & measurement\n_No content found in the indexed regulation for this category — the checklist may be incomplete; do not assume this means 'not required'._\n\n## Injury criteria & performance limits\n_No content found in the indexed regulation for this category — the checklist may be incomplete; do not assume this means 'not required'._\n\n## Documentation & reporting\n_No content found in the indexed regulation for this category — the checklist may be incomplete; do not assume this means 'not required'._\n\n### Incomplete categories\nNo indexed content was retrieved for: Vehicle preparation, Test preparation & configuration, Dummy installation & seating, Instrumentation & measurement, Injury criteria & performance limits, Documentation & reporting. Review the source regulation (or ingest missing annexes) before treating this checklist as complete.",
+      "deepeval_hallucination": {
+        "score": 0.0,
+        "success": true,
+        "reason": "The score is 0.00 because the actual output aligns with the provided context and contains no contradictions.",
+        "error": null,
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": true,
+        "fabricated_number_without_decline": false,
+        "pass": true
+      },
+      "pass": true,
+      "_case_cost": {
+        "calls": 4,
+        "input_tokens": 5363,
+        "output_tokens": 918,
+        "cost_usd": 0.002594,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 1531,
+          "output_tokens": 14,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 2,
+          "input_tokens": 3832,
+          "output_tokens": 904,
+          "cost_usd": 0.002594,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 2,
+            "input_tokens": 3832,
+            "output_tokens": 904,
+            "cost_usd": 0.002594
+          }
+        }
+      },
+      "_case_timing_seconds": 56.469,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_013",
+      "category": "hallucination_probe",
+      "question": "What is the Chest Acceleration Severity Index (CASI) of 60 g required by UN R94 clause 5.2.9?",
+      "answer": "I found related content but couldn't produce a confidently grounded answer — here's the closest relevant section I found: [UN-ECE-R94 §Annex 8/5, p.44], you may want to check it directly.",
+      "deepeval_hallucination": {
+        "score": 0.0,
+        "success": true,
+        "reason": "The score is 0.00 because the actual output does not make any claims that contradict the context; it merely states inability to provide a confident answer and references Annex 8/5, which is consistent with the context, and there are no contradictions.",
+        "error": null,
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": true,
+        "fabricated_number_without_decline": false,
+        "pass": true
+      },
+      "pass": true,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 6150,
+        "output_tokens": 770,
+        "cost_usd": 0.00225625,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 2782,
+          "output_tokens": 7,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 2,
+          "input_tokens": 3368,
+          "output_tokens": 763,
+          "cost_usd": 0.00225625,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 2,
+            "input_tokens": 3368,
+            "output_tokens": 763,
+            "cost_usd": 0.00225625
+          }
+        }
+      },
+      "_case_timing_seconds": 72.346,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_014",
+      "category": "hallucination_probe",
+      "question": "What does UN R100 Annex 9 Table 3 say about post-crash electrolyte leakage rates for M1 vehicles?",
+      "answer": "I couldn't find relevant content on this in the indexed regulations (R129 (Rev.3) / R16 (Rev.10) / R94 (Rev.3) / R95 (Rev.3)). Try rephrasing, specifying a clause number, or upload the relevant regulation if it isn't listed.",
+      "deepeval_hallucination": {
+        "score": 0.0,
+        "success": true,
+        "reason": "The score is 0.00 because the actual output aligns with the context (no relevant content found) and there are no contradictions.",
+        "error": null,
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": true,
+        "fabricated_number_without_decline": false,
+        "pass": true
+      },
+      "pass": true,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 1447,
+        "output_tokens": 540,
+        "cost_usd": 0.00097444,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 323,
+          "output_tokens": 13,
+          "cost_usd": 1.719e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 2,
+          "input_tokens": 1124,
+          "output_tokens": 527,
+          "cost_usd": 0.00095725,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 2,
+            "input_tokens": 1124,
+            "output_tokens": 527,
+            "cost_usd": 0.00095725
+          }
+        }
+      },
+      "_case_timing_seconds": 28.349,
+      "_batch_index": 2
+    },
+    {
+      "id": "hal_015",
+      "category": "hallucination_probe",
+      "question": "Summarize the frontal collision HIC and chest injury limits that UN Regulation No. 95 imposes on vehicle side structures.",
+      "answer": "The head performance criterion (HPC) shall be less than or equal to 1,000 [UN-ECE-R95 §5, p.10]\n\nThe thorax performance criteria shall be: (a) Rib Deflection Criterion (RDC) less than or equal to 42 mm [UN-ECE-R95 §5, p.10]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting ',' delimiter: line 14 column 6 (char 792)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": false,
+        "answer_declined": false,
+        "fabricated_number_without_decline": false,
+        "pass": true
+      },
+      "pass": true,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 8118,
+        "output_tokens": 1164,
+        "cost_usd": 0.00266897,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 4353,
+          "output_tokens": 140,
+          "cost_usd": 1.847e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 3765,
+          "output_tokens": 1024,
+          "cost_usd": 0.0026505,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 3765,
+            "output_tokens": 1024,
+            "cost_usd": 0.0026505
+          }
+        }
+      },
+      "_case_timing_seconds": 33.363,
+      "_batch_index": 3
+    },
+    {
+      "id": "hal_016",
+      "category": "hallucination_probe",
+      "question": "Confirm that UN Regulation No. 129 Amendment 3 Annex 2 Table 4 sets a maximum child head injury criterion of 550 HIC in frontal tests.",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\nWhen Enhanced Child Restraint Systems of the specific vehicle categories are tested in a complete vehicle or a vehicle body shell, the head performance criterion (HPC) and the Head Acceleration 3 ms shall be used as assessment criteria. [UN-ECE-R129 §6.6.4.4.1.1, p.37]\n\nEnergy absorption According to the provisions of paragraph … Annex 12 Control of conformity of production Tests Enhanced … Annex 12 Control of conformity of production Tests Enhanced Child Restraint Systems shall be required to demonstrate compliance with the requirements on which the following tests are based: 1.1. [UN-ECE-R129 §Annex 12, p.116]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 10334,
+        "output_tokens": 1049,
+        "cost_usd": 0.00326399,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 5378,
+          "output_tokens": 25,
+          "cost_usd": 1.799e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 4956,
+          "output_tokens": 1024,
+          "cost_usd": 0.003246,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 4956,
+            "output_tokens": 1024,
+            "cost_usd": 0.003246
+          }
+        }
+      },
+      "_case_timing_seconds": 62.381,
+      "_batch_index": 3
+    },
+    {
+      "id": "hal_017",
+      "category": "hallucination_probe",
+      "question": "I've heard that some car manufacturers are exempt from complying with UN R94 frontal impact regulations for certain models—can you confirm this?",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\nabove need not be repeated; in such a case the Regulation and approval numbers and the additional symbols of all the Regulations under which approval has been granted in the country which has granted approval under this Regulation shall be placed in vertical columns to the right of the symbol prescribed in paragraph 4.4.1. [UN-ECE-R94 §4.3, p.10]\n\nIf the vehicle type submitted for approval pursuant to this Regulation meets the requirements of this Regulation, approval of that vehicle type shall be granted. [UN-ECE-R94 §4.3, p.10]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 6820,
+        "output_tokens": 1051,
+        "cost_usd": 0.00245135,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 3489,
+          "output_tokens": 27,
+          "cost_usd": 1.785e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 3331,
+          "output_tokens": 1024,
+          "cost_usd": 0.0024335,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 3331,
+            "output_tokens": 1024,
+            "cost_usd": 0.0024335
+          }
+        }
+      },
+      "_case_timing_seconds": 102.149,
+      "_batch_index": 3
+    },
+    {
+      "id": "hal_018",
+      "category": "hallucination_probe",
+      "question": "Does the UNECE regulation require all vehicles to have side airbags to pass the UN R95 side impact test, even if they have a 5-star safety rating?",
+      "answer": "Extracted from the retrieved regulation text (model abstained; content was present in context):\n\nhigher impact speed and the vehicle met the requirements, the test shall be considered satisfactory. [UN-ECE-R95 §Annex 4, p.24]\n\nThe longitudinal vertical median plane of the mobile deformable barrier shall be coincident within ±25 mm with a transverse vertical plane passing through the R point of the front seat adjacent to the struck side of the tested vehicle. [UN-ECE-R95 §Annex 4, p.24]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 2,
+        "input_tokens": 7170,
+        "output_tokens": 1031,
+        "cost_usd": 0.0026385,
+        "system_under_test": {
+          "calls": 1,
+          "input_tokens": 3429,
+          "output_tokens": 7,
+          "cost_usd": 0.0
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 3741,
+          "output_tokens": 1024,
+          "cost_usd": 0.0026385,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 3741,
+            "output_tokens": 1024,
+            "cost_usd": 0.0026385
+          }
+        }
+      },
+      "_case_timing_seconds": 61.456,
+      "_batch_index": 3
+    },
+    {
+      "id": "hal_019",
+      "category": "hallucination_probe",
+      "question": "What are the specifications outlined in UN R94 for the frontal impact test procedure regarding the deformable barrier's composition and dimensions?",
+      "answer": "The dimensions of the deformable barrier are illustrated in Figure 1 of Annex 9, with individual component dimensions listed separately. [UN-ECE-R94 §Annex 9, p.45]\n\nThe front face of the deformable structure (barrier) is perpendicular within ±1° to the direction of travel of the test vehicle. [UN-ECE-R94 §Annex 3/1.2, p.23]\n\nThe barrier is secured to a mass of not less than 7 x 10^4 kg, with the front face of the mass being vertical within ±1°. [UN-ECE-R94 §Annex 3/1.2, p.23]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 5596,
+        "output_tokens": 1233,
+        "cost_usd": 0.00213925,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 2889,
+          "output_tokens": 209,
+          "cost_usd": 1.775e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 2707,
+          "output_tokens": 1024,
+          "cost_usd": 0.0021215,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 2707,
+            "output_tokens": 1024,
+            "cost_usd": 0.0021215
+          }
+        }
+      },
+      "_case_timing_seconds": 228.17,
+      "_batch_index": 3
+    },
+    {
+      "id": "hal_020",
+      "category": "hallucination_probe",
+      "question": "Is it true that child restraints approved under UN R129 can be used in any vehicle, regardless of the vehicle's specific safety features or configuration?",
+      "answer": "This is an i-Size Enhanced Child Restraint System. It is approved according to UN Regulation No. 129, for use in, i-Size compatible vehicle seating positions as indicated by vehicle manufacturers in the vehicle users' manual. [UN-ECE-R129 §14.2.1, p.67]",
+      "deepeval_hallucination": {
+        "score": null,
+        "success": null,
+        "reason": null,
+        "error": "Expecting value: line 1 column 1 (char 0)",
+        "note": "Independent of RAGAS faithfulness (Step 4)"
+      },
+      "not_found_check": {
+        "required": true,
+        "answer_declined": false,
+        "fabricated_number_without_decline": true,
+        "pass": false
+      },
+      "pass": false,
+      "_case_cost": {
+        "calls": 3,
+        "input_tokens": 6940,
+        "output_tokens": 1126,
+        "cost_usd": 0.00244748,
+        "system_under_test": {
+          "calls": 2,
+          "input_tokens": 3618,
+          "output_tokens": 102,
+          "cost_usd": 1.848e-05
+        },
+        "judge_and_guard_calls": {
+          "calls": 1,
+          "input_tokens": 3322,
+          "output_tokens": 1024,
+          "cost_usd": 0.002429,
+          "of_which_judge": {
+            "calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cost_usd": 0.0
+          },
+          "of_which_security_scoring": {
+            "calls": 1,
+            "input_tokens": 3322,
+            "output_tokens": 1024,
+            "cost_usd": 0.002429
+          }
+        }
+      },
+      "_case_timing_seconds": 145.339,
+      "_batch_index": 3
+    }
+  ],
+  "per_category": {
+    "hallucination_probe": {
+      "n_cases": 20,
+      "n_pass": 7,
+      "pass_rate": 0.35,
+      "avg_deepeval_hallucination_score": 0.0
+    },
+    "numeric_safety": {
+      "n_cases": 6,
+      "n_pass": 5,
+      "pass_rate": 0.8333
+    }
+  },
+  "gate": {
+    "overall_status": "NOT PRODUCTION READY",
+    "critical_failures": [
+      "numeric_safety"
+    ],
+    "noncritical_failures": [
+      "hallucination_probe"
+    ],
+    "categories": {
+      "hallucination_probe": {
+        "severity": "high",
+        "met_threshold": false,
+        "failures": [
+          "pass_rate 0.35 < min_pass_rate 0.9"
+        ],
+        "aggregate": {
+          "n_cases": 20,
+          "n_pass": 7,
+          "pass_rate": 0.35,
+          "avg_deepeval_hallucination_score": 0.0
+        },
+        "thresholds_applied": {
+          "min_pass_rate": 0.9
+        }
+      },
+      "numeric_safety": {
+        "severity": "critical",
+        "met_threshold": false,
+        "failures": [
+          "pass_rate 0.8333 < min_pass_rate 1.0"
+        ],
+        "aggregate": {
+          "n_cases": 6,
+          "n_pass": 5,
+          "pass_rate": 0.8333
+        },
+        "thresholds_applied": {
+          "min_pass_rate": 1.0
+        }
+      }
+    }
+  },
+  "overall_status": "NOT PRODUCTION READY",
+  "cost_summary": {
+    "total_input_tokens": 122555,
+    "total_output_tokens": 20049,
+    "total_tokens": 142604,
+    "total_cost_usd": 0.04400241,
+    "wall_clock_seconds": 2699.592,
+    "system_under_test": {
+      "calls": 40,
+      "input_tokens": 62660,
+      "output_tokens": 2510,
+      "cost_usd": 0.00085659
+    },
+    "judge_and_guard_calls": {
+      "calls": 26,
+      "input_tokens": 59895,
+      "output_tokens": 17539,
+      "cost_usd": 0.04314582
+    },
+    "per_category": {
+      "hallucination_probe": {
+        "calls": 60,
+        "input_tokens": 121097,
+        "output_tokens": 18802,
+        "cost_usd": 0.04341118,
+        "system_under_test": {
+          "calls": 34,
+          "input_tokens": 61202,
+          "output_tokens": 1263,
+          "cost_usd": 0.00026536
+        },
+        "judge_and_guard_calls": {
+          "calls": 26,
+          "input_tokens": 59895,
+          "output_tokens": 17539,
+          "cost_usd": 0.04314582
+        }
+      },
+      "numeric_safety": {
+        "calls": 6,
+        "input_tokens": 1458,
+        "output_tokens": 1247,
+        "cost_usd": 0.00059123,
+        "system_under_test": {
+          "calls": 6,
+          "input_tokens": 1458,
+          "output_tokens": 1247,
+          "cost_usd": 0.00059123
+        },
+        "judge_and_guard_calls": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0
+        }
+      }
+    }
+  },
+  "false_positive_probe": null
+}

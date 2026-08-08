@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "description": "Summary index of timestamped eval runs under eval/results/.",
+  "runs": [
+    {
+      "run_id": "20260807T232542Z",
+      "parent_run_id": "20260807T232542Z",
+      "merged_from_run_ids": [
+        "20260807T232542Z"
+      ],
+      "mode": "finalize_from_partial",
+      "timestamp": "2026-08-08T07:30:45.150189+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/20260807T232542Z/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 32,
+      "n_rescored": 0,
+      "total_cost_usd": 0.03858166,
+      "total_tokens": 84800,
+      "wall_clock_seconds": 0.0,
+      "critical_failures": [
+        "compliance_check",
+        "cross_regulation",
+        "guardrail",
+        "numeric_safety",
+        "prompt_injection"
+      ],
+      "noncritical_failures": [
+        "design_implication",
+        "hallucination_probe",
+        "multi_hop"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 0.3333,
+          "attack_success_rate": null,
+          "n_cases": 3,
+          "ragas_averages": {
+            "faithfulness": null,
+            "answer_relevancy": null,
+            "context_precision": null,
+            "context_recall": null
+          }
+        },
+        "cross_regulation": {
+          "pass_rate": 0.6667,
+          "attack_success_rate": null,
+          "n_cases": 3,
+          "ragas_averages": {
+            "faithfulness": null,
+            "answer_relevancy": null,
+            "context_precision": null,
+            "context_recall": null
+          }
+        },
+        "design_implication": {
+          "pass_rate": 0.6667,
+          "attack_success_rate": null,
+          "n_cases": 3,
+          "ragas_averages": {
+            "faithfulness": null,
+            "answer_relevancy": null,
+            "context_precision": null,
+            "context_recall": null
+          }
+        },
+        "enumerative": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 2,
+          "ragas_averages": {
+            "faithfulness": null,
+            "answer_relevancy": null,
+            "context_precision": null,
+            "context_recall": null
+          }
+        },
+        "factual_lookup": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 5,
+          "ragas_averages": {
+            "faithfulness": null,
+            "answer_relevancy": null,
+            "context_precision": null,
+            "context_recall": null
+          }
+        },
+        "guardrail": {
+          "pass_rate": 0.0,
+          "attack_success_rate": 1.0,
+          "n_cases": 3,
+          "ragas_averages": null
+        },
+        "hallucination_probe": {
+          "pass_rate": 0.0,
+          "attack_success_rate": null,
+          "n_cases": 3,
+          "ragas_averages": null
+        },
+        "multi_hop": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 2,
+          "ragas_averages": {
+            "faithfulness": null,
+            "answer_relevancy": null,
+            "context_precision": null,
+            "context_recall": null
+          }
+        },
+        "numeric_safety": {
+          "pass_rate": 0.0,
+          "attack_success_rate": null,
+          "n_cases": 3,
+          "ragas_averages": null
+        },
+        "out_of_scope": {
+          "pass_rate": 1.0,
+          "attack_success_rate": null,
+          "n_cases": 2,
+          "ragas_averages": null
+        },
+        "prompt_injection": {
+          "pass_rate": 0.6667,
+          "attack_success_rate": 0.3333,
+          "n_cases": 3,
+          "ragas_averages": null
+        }
+      }
+    },
+    {
+      "run_id": "e2e-ranking-verify-20260808",
+      "timestamp": "2026-08-08T08:10:14.048355+00:00",
+      "path": "H:/AutoSafety_RAG/eval/results/e2e-ranking-verify-20260808/results.json",
+      "overall_status": "NOT PRODUCTION READY",
+      "n_cases": 4,
+      "total_cost_usd": 0.00433975,
+      "total_tokens": 17013,
+      "wall_clock_seconds": 1884.747,
+      "critical_failures": [
+        "compliance_check",
+        "numeric_safety"
+      ],
+      "noncritical_failures": [
+        "enumerative"
+      ],
+      "per_category_summary": {
+        "compliance_check": {
+          "pass_rate": 0.5,
+          "attack_success_rate": null,
+          "n_cases": 2,
+          "cost_usd": 0.0008098
+        },
+        "enumerative": {
+          "pass_rate": 0.0,
+          "attack_success_rate": null,
+          "n_cases": 1,
+          "cost_usd": 0.00315533
+        },
+        "numeric_safety": {
+          "pass_rate": 0.0,
+          "attack_success_rate": null,
+          "n_cases": 1,
+          "cost_usd": 0.00037462
+        }
+      }
+    }
+  ]
+}

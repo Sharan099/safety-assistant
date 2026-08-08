@@ -1,0 +1,20 @@
+{
+  "strategy": {
+    "mode": "fallback",
+    "on_status_codes": [408, 429, 500, 502, 503, 504]
+  },
+  "retry": { "attempts": 2, "on_status_codes": [429, 500, 502, 503] },
+  "cache": { "mode": "simple", "max_age": 86400 },
+  "request_timeout": 30000,
+  "targets": [
+    {
+      "provider": "google",
+      "api_key": "${GOOGLE_API_KEY}",
+      "request_timeout": 25000,
+      "override_params": {
+        "model": "gemini-2.5-flash",
+        "thinking": { "type": "disabled", "budget_tokens": 0 }
+      }
+    }
+  ]
+}

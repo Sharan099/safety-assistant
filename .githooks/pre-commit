@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Blocks commits that contain common live API key / credential patterns.
+# Install once per clone:
+#   python scripts/install_git_hooks.py
+# (or: git config core.hooksPath .githooks)
+
+set -euo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+if command -v python >/dev/null 2>&1; then
+  PY=python
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  echo "pre-commit: python not found; cannot run secret pattern check" >&2
+  exit 1
+fi
+
+exec "$PY" scripts/check_secret_patterns.py

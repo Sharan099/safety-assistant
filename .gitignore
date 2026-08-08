@@ -1,83 +1,60 @@
-# Secrets & local env
 .env
 .env.local
 frontend/.env.local
 
-# Python
+# FreeLLMAPI declarative seed (generated; contains provider keys)
+data/freellmapi/runtime.config.json
+
 __pycache__/
 *.py[cod]
-*$py.class
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-*.egg-info/
 .venv/
 venv/
 
-# Local database & backups (use ingest pipeline locally)
-/safety_registry.db
+*.db
 *.db-journal
-data/backups/
-data/ocr_cache/
-data/ocr_work/
-data/quarantine/
-data/quarantine_harness/
 
-# Confidential user uploads (never commit)
-storage/confidential/
-
-# Frontend build
 frontend/node_modules/
 frontend/.next/
 frontend/tsconfig.tsbuildinfo
 
-# IDE / tooling
-.cursor/
-*.log
+# Local Cursor state / skills — keep project rules trackable.
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 
-# Ephemeral eval console captures (keep committed CSV/JSON reports only)
-output/*.log
-output/mypy_report.txt
-output/ruff_report.txt
-output/bandit_report.txt
-output/pip_audit_report.txt
-output/pytest_full.txt
-output/tsc_report.txt
+# Eval reports folders (results.json is kept as the single RAGAS artifact)
+reports/
+/results/
+output/
 
-# Session dev workspaces
-sessions/
+# Local HF weights (baked into Docker image at build time) and the auth token
+# that huggingface_hub writes beside them.
+docker/hf_cache/
 
-# Parallel HF Space bundle (separate publish target)
-hf-space-push/
-_hf_deploy/
-_hf_wipe/
+# Local vector store + Docling exports
+data/qdrant/
+data/docling/
+data/vlm_figure_pass/
+data/ocr_compare/
+data/llm_cache/
+data/logs/
+data/traces/
+data/answer_cache/
+data/raw/
+data/jobs.sqlite3
+data/conversations.sqlite3
+data/response_cache.sqlite3
+data/cache_version.json
+groundedness_violations.jsonl
+numeric_hallucination.jsonl
+# Timestamped eval run outputs; keep only the summary index + status ledger tracked
+eval/results/*
+!eval/results/results_index.json
+!eval/results/RUNS_STATUS.md
 
-# Removed-corpus archive (large PDFs; keep local only)
-archive/
-
-# Dev-only output caches & interim eval logs
-output/page_cache/
-output/ocr_compare/
-output/staging_index/
-output/evaluation/
-output/archive/
-output/r14_*
-output/*_diagnosis.*
-output/retrieval_diagnosis.json
-output/verify_retrieval.json
-output/golden_retrieval_eval.json
-output/timing_eval_*.json
-output/phase8_latency.json
-output/structure_rechunk_report.json
-output/e2e_demo_results.*
-output/extraction_fidelity_report.json
-output/ocr_quarantine_results.json
-output/missing_regs_fetch_prep.*
-output/bundle_check.txt
-output/acquired_manifest.json
-output/AUTONOMOUS_RUN_LOG.md
-output/CONSOLIDATION_FINAL.md
-output/FINAL_CONSOLIDATION_LOG.md
-output/HARNESS_AND_FETCH_LOG.md
-output/OCR_QUARANTINE_LOG.md
-output/RUN_AUTHORITATIVE_ELSEWHERE.md
+# Archived orphan evaluation package — stale run artifact (do not re-track)
+archive/evaluation/results.json
+uv.lock

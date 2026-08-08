@@ -1,0 +1,139 @@
+{
+  "_meta": {
+    "review_status": "draft",
+    "purpose": "Homologation / test-preparation checklist categories. Each category runs a SEPARATE retrieval so one hybrid top-k cannot bury dummy seating under injury criteria (or vice versa).",
+    "notes": "Seeded for UN R94/R95 frontal & side impact workflows. Extend retrieval_queries when new regs are indexed. Engineer review recommended."
+  },
+  "categories": [
+    {
+      "id": "vehicle_prep",
+      "label": "Vehicle preparation",
+      "order": 1,
+      "retrieval_queries": [
+        "vehicle preparation before impact test mass fuel tyre pressure",
+        "condition of the vehicle test vehicle shall be",
+        "doors windows sunroof roof openings before the test",
+        "vehicle attitude reference line test preparation"
+      ],
+      "topic_terms": [
+        "vehicle",
+        "preparation",
+        "mass",
+        "fuel",
+        "tyre",
+        "tire",
+        "doors",
+        "windows",
+        "attitude"
+      ]
+    },
+    {
+      "id": "test_prep",
+      "label": "Test preparation & configuration",
+      "order": 2,
+      "retrieval_queries": [
+        "test procedure impact speed barrier configuration",
+        "mobile deformable barrier test configuration",
+        "overlap percentage impact point test set-up",
+        "Annex test procedure preparation of the test"
+      ],
+      "topic_terms": [
+        "test",
+        "procedure",
+        "barrier",
+        "speed",
+        "configuration",
+        "overlap",
+        "annex",
+        "impact"
+      ]
+    },
+    {
+      "id": "dummy_installation",
+      "label": "Dummy installation & seating",
+      "order": 3,
+      "retrieval_queries": [
+        "dummy installation seating position H-point",
+        "longitudinal adjustment device of the seat containing the dummy",
+        "seat-back angle dummy positioning procedure",
+        "Hybrid III ES-2 dummy installation annex"
+      ],
+      "topic_terms": [
+        "dummy",
+        "seating",
+        "seat",
+        "H-point",
+        "installation",
+        "positioning",
+        "Hybrid",
+        "ES-2"
+      ]
+    },
+    {
+      "id": "instrumentation",
+      "label": "Instrumentation & measurement",
+      "order": 4,
+      "retrieval_queries": [
+        "instrumentation transducers CFC channel class measurement",
+        "accelerometer load cell instrumentation requirements",
+        "ISO 6487 measurement data channels",
+        "recording equipment sampling frequency filtering"
+      ],
+      "topic_terms": [
+        "instrumentation",
+        "transducer",
+        "accelerometer",
+        "CFC",
+        "channel",
+        "measurement",
+        "ISO",
+        "6487",
+        "filtering"
+      ]
+    },
+    {
+      "id": "injury_criteria",
+      "label": "Injury criteria & performance limits",
+      "order": 5,
+      "retrieval_queries": [
+        "performance criteria shall not exceed injury criteria",
+        "Head Performance Criterion HPC HIC limit",
+        "Thorax Compression Criterion ThCC Rib Deflection RDC",
+        "Viscous Criterion VC Pubic Symphysis Peak Force"
+      ],
+      "topic_terms": [
+        "performance",
+        "criteria",
+        "shall",
+        "exceed",
+        "HPC",
+        "HIC",
+        "ThCC",
+        "RDC",
+        "VC",
+        "injury",
+        "limit"
+      ]
+    },
+    {
+      "id": "documentation",
+      "label": "Documentation & reporting",
+      "order": 6,
+      "retrieval_queries": [
+        "test report documentation communication of results",
+        "application for approval documentation particulars",
+        "information document type approval documentation",
+        "report shall include photographs measurements recorded"
+      ],
+      "topic_terms": [
+        "report",
+        "documentation",
+        "approval",
+        "information",
+        "particulars",
+        "communication",
+        "photographs"
+      ]
+    }
+  ]
+}

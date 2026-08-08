@@ -6,7 +6,8 @@ import os
 
 import httpx
 
-CONNECT_TIMEOUT_S = float(os.getenv("GATEWAY_CONNECT_TIMEOUT", "3"))
+# 3s was too aggressive on some networks (ConnectTimeout before TLS finishes).
+CONNECT_TIMEOUT_S = float(os.getenv("GATEWAY_CONNECT_TIMEOUT", "15"))
 READ_TIMEOUT_S = float(os.getenv("GATEWAY_READ_TIMEOUT", "60"))
 
 

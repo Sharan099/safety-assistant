@@ -15,7 +15,32 @@ from backend.app.gateway.model_registry import ModelSpec
 
 _PASSAGE_MARKER_RE = re.compile(r"(?=\[S\d+\])")
 _CONTEXT_HEADER = "RETRIEVED CONTEXT"
-_QUESTION_HEADER = "QUESTION:"
+_CONTEXT_HEADER_ALT = "Context (grouped by regulation, citation IDs are authoritative):"
+_QUESTION_SPLIT_RE = re.compile(r"\n\nQuestion:\s*", re.I)
+
+
+def _has_context_block(content: str) -> bool:
+    return _CONTEXT_HEADER in content or _CONTEXT_HEADER_ALT in content
+
+
+def _split_context_and_question(content: str) -> tuple[str, str, str]:
+    """Return (prefix_with_header, context_passages_block, trailing_user_instructions)."""
+    if _CONTEXT_HEADER in content:
+        before, rest = content.split(_CONTEXT_HEADER, 1)
+        prefix = before + _CONTEXT_HEADER + "\n"
+    elif _CONTEXT_HEADER_ALT in content:
+        before, rest = content.split(_CONTEXT_HEADER_ALT, 1)
+        prefix = before + _CONTEXT_HEADER_ALT + "\n"
+    else:
+        return "", content, ""
+
+    match = _QUESTION_SPLIT_RE.search(rest)
+    if not match:
+        return prefix, rest, ""
+    ctx = rest[: match.start()]
+    trailing = rest[match.end() :].lstrip()
+    question_part = f"Question: {trailing}" if trailing else ""
+    return prefix, ctx, question_part
 
 
 def _i(name: str, default: int) -> int:
@@ -36,22 +61,21 @@ def estimate_tokens(text: str) -> int:
 
 def trim_prompt_for_gateway(prompt: str) -> str:
     """Cap passage count and context token budget before routing."""
-    if not prompt or _CONTEXT_HEADER not in prompt:
+    if not prompt or not _has_context_block(prompt):
         return _truncate_text(prompt, GATEWAY_CONTEXT_TOKEN_BUDGET)
 
-    before, rest = prompt.split(_CONTEXT_HEADER, 1)
-    header = _CONTEXT_HEADER + rest.split(_QUESTION_HEADER, 1)[0]
-    question_part = ""
-    if _QUESTION_HEADER in rest:
-        question_part = _QUESTION_HEADER + rest.split(_QUESTION_HEADER, 1)[1]
+    prefix, ctx, question_part = _split_context_and_question(prompt)
 
-    passages = _split_passages(header)
+    passages = _split_passages(ctx)
     if len(passages) > GATEWAY_MAX_PASSAGES:
         passages = passages[:GATEWAY_MAX_PASSAGES]
 
     context_body = "\n\n".join(passages).strip()
     context_body = _truncate_text(context_body, GATEWAY_CONTEXT_TOKEN_BUDGET)
-    return f"{before}{_CONTEXT_HEADER}\n{context_body}\n\n{question_part}".strip()
+    parts = [prefix.rstrip(), context_body]
+    if question_part:
+        parts.append(question_part)
+    return "\n\n".join(p for p in parts if p).strip()
 
 
 def fit_messages_for_model(
@@ -67,7 +91,7 @@ def fit_messages_for_model(
     for msg in messages:
         role = msg.get("role", "user")
         content = msg.get("content", "")
-        if role == "user" and _CONTEXT_HEADER in content:
+        if role == "user" and _has_context_block(content):
             content = trim_prompt_for_gateway(content)
         content = _truncate_text(content, budget)
         budget -= estimate_tokens(content)
@@ -89,7 +113,7 @@ def compress_messages(
     out: list[dict[str, str]] = []
     for msg in messages:
         content = msg.get("content", "")
-        if msg.get("role") == "user" and _CONTEXT_HEADER in content:
+        if msg.get("role") == "user" and _has_context_block(content):
             content = _compress_user_prompt(content, level=level)
         out.append({"role": msg.get("role", "user"), "content": content})
     return fit_messages_for_model(out, spec, max_output_tokens=max_output_tokens)
@@ -105,15 +129,10 @@ def _split_passages(context_block: str) -> list[str]:
 
 
 def _compress_user_prompt(prompt: str, *, level: int) -> str:
-    if _CONTEXT_HEADER not in prompt:
+    if not _has_context_block(prompt):
         return _truncate_text(prompt, max(400, GATEWAY_CONTEXT_TOKEN_BUDGET // (level + 1)))
 
-    before, rest = prompt.split(_CONTEXT_HEADER, 1)
-    question_part = ""
-    ctx = rest
-    if _QUESTION_HEADER in rest:
-        ctx, question_part = rest.split(_QUESTION_HEADER, 1)
-        question_part = _QUESTION_HEADER + question_part
+    prefix, ctx, question_part = _split_context_and_question(prompt)
 
     passages = _split_passages(ctx)
     if not passages:
@@ -131,7 +150,10 @@ def _compress_user_prompt(prompt: str, *, level: int) -> str:
     ctx_body = "\n\n".join(passages)
     budget = max(300, GATEWAY_CONTEXT_TOKEN_BUDGET // (level + 1))
     ctx_body = _truncate_text(ctx_body, budget)
-    return f"{before}{_CONTEXT_HEADER}\n{ctx_body}\n\n{question_part}".strip()
+    parts = [prefix.rstrip(), ctx_body]
+    if question_part:
+        parts.append(question_part)
+    return "\n\n".join(p for p in parts if p).strip()
 
 
 def _truncate_text(text: str, max_tokens: int) -> str:

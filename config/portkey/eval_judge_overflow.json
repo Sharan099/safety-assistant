@@ -1,0 +1,37 @@
+{
+  "strategy": {
+    "mode": "fallback",
+    "on_status_codes": [404, 408, 413, 429, 500, 502, 503, 504]
+  },
+  "request_timeout": 18000,
+  "targets": [
+    {
+      "provider": "groq",
+      "api_key": "${GROQ_API_KEY}",
+      "request_timeout": 15000,
+      "override_params": { "model": "llama-3.3-70b-versatile" }
+    },
+    {
+      "provider": "openai",
+      "custom_host": "http://host.docker.internal:3001/v1",
+      "api_key": "${FREELLMAPI_UNIFIED_KEY}",
+      "request_timeout": 18000,
+      "metadata": {
+        "logical_provider": "freellmapi",
+        "service": "freellmapi",
+        "model_routing": "auto",
+        "equivalent_host_url": "http://localhost:3001/v1"
+      },
+      "override_params": { "model": "auto" }
+    },
+    {
+      "provider": "google",
+      "api_key": "${GOOGLE_API_KEY}",
+      "request_timeout": 10000,
+      "override_params": {
+        "model": "gemini-2.5-flash",
+        "thinking": { "type": "disabled", "budget_tokens": 0 }
+      }
+    }
+  ]
+}

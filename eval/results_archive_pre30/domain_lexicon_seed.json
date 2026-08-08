@@ -1,0 +1,106 @@
+{
+  "_meta": {
+    "purpose": "Review-only seed for Fix 5 acronyms + DESIGN_IMPLICATION concepts",
+    "do_not_auto_merge": true,
+    "targets": [
+      "config/acronyms.json",
+      "config/design_components.json"
+    ]
+  },
+  "acronym_candidates_by_regulation": {
+    "UN-ECE-R94": {
+      "REESS": "Coupling system for charging the Rechargeable Electrical Energy Storage System",
+      "SOC": "State of Charge",
+      "HPC": "head performance criterion",
+      "NIC": "Injury Criteria for the neck",
+      "ThCC": "Thorax Compression Criterion",
+      "FFC": "femur force criterion",
+      "TCFC": "tibia compression force criterion",
+      "TI": "tibia index",
+      "HPC36": "Head Performance Criterion",
+      "THCC": "Thorax Compression Criterion",
+      "Fz": "tibia compressive force criterion is determined by the compressive load",
+      "GM": "As determined using the pelvic angle gauge",
+      "soaked": "Each leg assembly shall be maintained",
+      "ii": "Annex 11"
+    },
+    "UN-ECE-R95": {
+      "REESS": "Coupling system for charging the Rechargeable Electrical Energy Storage System",
+      "HPC": "head performance criterion",
+      "RDC": "Rib Deflection Criterion",
+      "VC": "Soft Tissue Criterion",
+      "PSPF": "Pubic Symphysis Peak Force",
+      "APF": "Abdominal Peak Force",
+      "MDB": "mobile deformable barrier",
+      "M*": "If the momentum change"
+    },
+    "UN-ECE-R16": {
+      "CRF": "Those child restraint fixtures",
+      "T0": "start of the impact",
+      "CRS": "Suitable for particular ISOFIX child restraint systems"
+    },
+    "UN-ECE-R129": {
+      "iSize": "Integral Universal ISOFIX Enhanced Child Restraint Systems",
+      "harness": "ECRS belt",
+      "UI": "Unique Identifier",
+      "CRF": "Enhanced Child Restraint Fixture",
+      "T0": "start of the impact",
+      "GUM": "General Uncertainty Measurement",
+      "t0": "time of first contact between sample material and head form",
+      "APTS": "Q6 and Q10 are instrumented using Abdominal Pressure Twin Sensors",
+      "HPC": "Head Performance Criterion",
+      "G1": "Minimum Upper Leg Thickness",
+      "F1": "Minimum Abdomen Depth",
+      "G2": "This measurement shall be taken while maintaining the maximum upper leg thickness",
+      "F2": "Maximum Abdomen Depth",
+      "ILD": "Indentation Load Deflection"
+    }
+  },
+  "concept_phrase_hits": {
+    "UN-ECE-R94": [
+      "door",
+      "passenger compartment",
+      "safety belt",
+      "anchorage",
+      "REESS",
+      "electrolyte",
+      "seat-back",
+      "H point"
+    ],
+    "UN-ECE-R95": [
+      "door",
+      "passenger compartment",
+      "safety-belt",
+      "anchorage",
+      "REESS",
+      "electrolyte",
+      "seat-back",
+      "H point",
+      "mobile deformable barrier",
+      "side impact"
+    ],
+    "UN-ECE-R16": [
+      "door",
+      "passenger compartment",
+      "safety-belt",
+      "safety belt",
+      "anchorage",
+      "seat-back",
+      "Emergency Locking Retractor",
+      "reminder",
+      "geometry of the belt"
+    ],
+    "UN-ECE-R129": [
+      "door",
+      "intrusion",
+      "passenger compartment",
+      "safety-belt",
+      "safety belt",
+      "anchorage",
+      "seat-back",
+      "H point",
+      "side impact",
+      "Emergency Locking Retractor"
+    ]
+  }
+}

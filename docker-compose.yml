@@ -1,13 +1,19 @@
+name: passive-safety-cae-agent
+
 services:
   postgres:
     image: pgvector/pgvector:pg16
+    container_name: passive-safety-cae-agent-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: passive_safety
       POSTGRES_PASSWORD: change_me
       POSTGRES_DB: passive_safety
     ports:
-      - "5432:5432"
+      # Host port 5433, not 5432 — this machine also runs a sibling project's
+      # Postgres container on 5432 (see docs/ADR/0004). Avoids a port clash
+      # when both stacks are up at once.
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

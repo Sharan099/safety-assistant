@@ -29,6 +29,12 @@ extend-exclude = ["packages/domain/migrations/versions"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.per-file-ignores]
+# FastAPI's `Depends(...)` in a parameter default is the framework's
+# documented dependency-injection pattern, not the mutable-default-argument
+# bug B008 exists to catch.
+"apps/api/**" = ["B008"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true

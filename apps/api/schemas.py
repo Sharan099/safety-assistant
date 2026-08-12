@@ -1,0 +1,54 @@
+"""API request/response models.
+
+Distinct from `packages.domain` (ORM) and reuses `packages.analysis.models`
+(already Pydantic) directly for analysis results — no need to redeclare
+those. See UI_UX_DESIGN_BRIEF.md for what the eventual UI reads from these.
+"""
+
+from __future__ import annotations
+
+import datetime
+import uuid
+from typing import Any
+
+from pydantic import BaseModel
+
+
+class RunSummary(BaseModel):
+    id: uuid.UUID
+    run_id: str
+    vehicle_name: str
+    model_version: str
+    solver: str | None
+    solver_version: str | None
+    impact_type: str | None
+    impact_speed: float | None
+    quality_status: str
+    created_at: datetime.datetime
+
+
+class RunDetail(RunSummary):
+    dummy_version: str | None
+    seat_configuration: dict[str, Any] | None
+    restraint_configuration: dict[str, Any] | None
+    result_processing_version: str | None
+    metadata: dict[str, Any] | None
+
+
+class CreateInvestigationRequest(BaseModel):
+    run_a_id: str
+    run_b_id: str
+    question: str
+    primary_metric: str | None = None
+    title: str | None = None
+
+
+class InvestigationSummary(BaseModel):
+    id: uuid.UUID
+    title: str
+    question: str
+    state: str
+    decision: str | None
+    run_a_id: str
+    run_b_id: str
+    created_at: datetime.datetime

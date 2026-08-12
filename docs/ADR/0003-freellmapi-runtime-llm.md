@@ -41,6 +41,19 @@ Configuration is env-var driven only (`LLM_PROVIDER`, `LLM_BASE_URL`,
 `LLM_MODEL`, `LLM_API_KEY` — see `.env.example`). No model name is hardcoded
 anywhere in application code.
 
+## Update — 2026-08-13, Phase 14 implementation
+
+`packages/agent/llm.py` implements the `LLMProvider`/`MockProvider`/
+`FreeLLMAPIProvider` design above. Confirmed live against the actual
+FreeLLMAPI container running on this host (docs/ADR/0004): an
+unauthenticated request to `/v1/models` returns `401 {"error": {"message":
+"Invalid API key"}}` — no credential for it is available in this
+environment. `FreeLLMAPIProvider.complete()` was exercised against that
+live endpoint and correctly raised `LLMUnavailableError` rather than
+hanging, retrying silently, or crashing uncaught — the TRD.md Section 30
+failure path this ADR requires. Once a real `freellmapi-<key>` is available,
+set `LLM_API_KEY`/`LLM_MODEL` in `.env` and no code changes are needed.
+
 ## Consequences
 
 - Given FreeLLMAPI's explicit "no SLA" stance, `packages/analysis` (the

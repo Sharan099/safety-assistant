@@ -18,7 +18,16 @@ from sqlalchemy.orm import Session
 
 from apps.api.deps import get_db, get_or_create_default_project, get_or_create_default_user
 from apps.api.parquet_io import read_signal
-from apps.api.schemas import CreateInvestigationRequest, InvestigationSummary
+from apps.api.schemas import (
+    AgentRunResult,
+    CreateInvestigationRequest,
+    EngineerReviewRequest,
+    EvidenceSummary,
+    HypothesisSummary,
+    InvestigationSummary,
+)
+from packages.agent.graph import run_investigation
+from packages.agent.llm import get_provider
 from packages.analysis.comparability import assess_comparability
 from packages.analysis.configuration import compare_configuration
 from packages.analysis.global_response import compare_global_response
@@ -32,10 +41,14 @@ from packages.analysis.models import (
 from packages.analysis.quality import run_quality_gate
 from packages.analysis.signals import analyze_signal_pair
 from packages.domain.core import Signal, SignalDefinition, SimulationRun
+from packages.domain.db import get_settings
 from packages.domain.investigation import (
     AnalysisEvent,
     ComparabilityAssessment,
     ConfigurationDiff,
+    EngineerReview,
+    Evidence,
+    Hypothesis,
     Investigation,
     InvestigationRun,
     QualityGateResult,
@@ -77,6 +90,26 @@ def _config(run: SimulationRun) -> dict[str, Any]:
     return dict(config)
 
 
+def _summary(
+    session: Session, investigation: Investigation, run_a: SimulationRun, run_b: SimulationRun
+) -> InvestigationSummary:
+    primary_metric = None
+    if investigation.primary_metric_id is not None:
+        signal_def = session.get(SignalDefinition, investigation.primary_metric_id)
+        primary_metric = signal_def.canonical_name if signal_def is not None else None
+    return InvestigationSummary(
+        id=investigation.id,
+        title=investigation.title,
+        question=investigation.question,
+        primary_metric=primary_metric,
+        state=investigation.state,
+        decision=investigation.decision,
+        run_a_id=run_a.run_id,
+        run_b_id=run_b.run_id,
+        created_at=investigation.created_at,
+    )
+
+
 @router.post("/investigations", response_model=InvestigationSummary, status_code=201)
 def create_investigation(body: CreateInvestigationRequest, session: Session = Depends(get_db)) -> InvestigationSummary:
     run_a = _get_run_or_404(session, body.run_a_id)
@@ -84,11 +117,23 @@ def create_investigation(body: CreateInvestigationRequest, session: Session = De
     project = get_or_create_default_project(session)
     user = get_or_create_default_user(session)
 
+    # primary_metric is a canonical signal name (e.g. "chest_deflection");
+    # Investigation.primary_metric_id is the SignalDefinition it resolves to.
+    # An unrecognized name is left NULL rather than guessed — PR-002:
+    # "Unknown values must remain explicitly unknown."
+    primary_metric_id = None
+    if body.primary_metric:
+        signal_def = session.query(SignalDefinition).filter_by(canonical_name=body.primary_metric).one_or_none()
+        if signal_def is None:
+            raise HTTPException(status_code=422, detail=f"unknown primary_metric: {body.primary_metric!r}")
+        primary_metric_id = signal_def.id
+
     investigation = Investigation(
         project_id=project.id,
         created_by=user.id,
         title=body.title or f"{run_a.run_id} vs {run_b.run_id}",
         question=body.question,
+        primary_metric_id=primary_metric_id,
         state="RUNS_SELECTED",
     )
     session.add(investigation)
@@ -102,32 +147,14 @@ def create_investigation(body: CreateInvestigationRequest, session: Session = De
     )
     session.commit()
 
-    return InvestigationSummary(
-        id=investigation.id,
-        title=investigation.title,
-        question=investigation.question,
-        state=investigation.state,
-        decision=investigation.decision,
-        run_a_id=run_a.run_id,
-        run_b_id=run_b.run_id,
-        created_at=investigation.created_at,
-    )
+    return _summary(session, investigation, run_a, run_b)
 
 
 @router.get("/investigations/{investigation_id}", response_model=InvestigationSummary)
 def get_investigation(investigation_id: uuid.UUID, session: Session = Depends(get_db)) -> InvestigationSummary:
     investigation = _get_investigation_or_404(session, investigation_id)
     run_a, run_b = _investigation_run_ids(session, investigation)
-    return InvestigationSummary(
-        id=investigation.id,
-        title=investigation.title,
-        question=investigation.question,
-        state=investigation.state,
-        decision=investigation.decision,
-        run_a_id=run_a.run_id,
-        run_b_id=run_b.run_id,
-        created_at=investigation.created_at,
-    )
+    return _summary(session, investigation, run_a, run_b)
 
 
 @router.post("/investigations/{investigation_id}/quality", response_model=dict[str, QualityGateSummary])
@@ -332,3 +359,117 @@ def analyze_signal(
     investigation.state = "SIGNAL_ANALYSIS"
     session.commit()
     return result
+
+
+@router.post("/investigations/{investigation_id}/run-agent", response_model=AgentRunResult)
+def run_agent(investigation_id: uuid.UUID, session: Session = Depends(get_db)) -> AgentRunResult:
+    """The full LangGraph investigation graph — TRD.md §17. Runs the whole
+    deterministic pipeline (quality -> global response -> configuration diff
+    -> comparability -> signal analysis -> knowledge/historical retrieval)
+    and drafts one hypothesis, then stops at ENGINEER_REVIEW (or BLOCKED on
+    quality failure) for a human decision — the agent never finalizes one
+    itself (PRD.md §19 Human-in-the-Loop)."""
+    investigation = _get_investigation_or_404(session, investigation_id)
+
+    llm = None
+    settings = get_settings()
+    if settings.llm_provider and settings.llm_provider != "none":
+        try:
+            llm = get_provider(settings)
+        except ValueError:
+            llm = None  # unconfigured provider — proceed deterministic-only, per TRD.md §30
+
+    final_state = run_investigation(session, investigation.id, llm=llm)
+    session.refresh(investigation)
+
+    hypotheses = (
+        session.query(Hypothesis)
+        .filter_by(investigation_id=investigation.id)
+        .order_by(Hypothesis.created_at.desc())
+        .limit(len(final_state.get("hypotheses", [])) or 1)
+        .all()
+    )
+    evidence_count = session.query(Evidence).filter_by(investigation_id=investigation.id).count()
+
+    return AgentRunResult(
+        investigation_id=investigation.id,
+        state=investigation.state,
+        blocked_reason=final_state.get("blocked_reason"),
+        hypotheses=[
+            HypothesisSummary(
+                id=h.id,
+                title=h.title,
+                description=h.description,
+                status=h.status,
+                confidence_basis=h.confidence_basis,
+                created_at=h.created_at,
+            )
+            for h in hypotheses
+        ],
+        evidence_count=evidence_count,
+    )
+
+
+@router.get("/investigations/{investigation_id}/evidence", response_model=list[EvidenceSummary])
+def list_evidence(investigation_id: uuid.UUID, session: Session = Depends(get_db)) -> list[EvidenceSummary]:
+    _get_investigation_or_404(session, investigation_id)
+    rows = session.query(Evidence).filter_by(investigation_id=investigation_id).order_by(Evidence.created_at).all()
+    return [
+        EvidenceSummary(
+            id=e.id,
+            evidence_type=e.evidence_type,
+            source_type=e.source_type,
+            content=e.content,
+            created_at=e.created_at,
+        )
+        for e in rows
+    ]
+
+
+@router.get("/investigations/{investigation_id}/hypotheses", response_model=list[HypothesisSummary])
+def list_hypotheses(investigation_id: uuid.UUID, session: Session = Depends(get_db)) -> list[HypothesisSummary]:
+    _get_investigation_or_404(session, investigation_id)
+    rows = session.query(Hypothesis).filter_by(investigation_id=investigation_id).order_by(Hypothesis.created_at).all()
+    return [
+        HypothesisSummary(
+            id=h.id,
+            title=h.title,
+            description=h.description,
+            status=h.status,
+            confidence_basis=h.confidence_basis,
+            created_at=h.created_at,
+        )
+        for h in rows
+    ]
+
+
+@router.post("/investigations/{investigation_id}/review", status_code=201)
+def submit_engineer_review(
+    investigation_id: uuid.UUID, body: EngineerReviewRequest, session: Session = Depends(get_db)
+) -> dict[str, Any]:
+    """APP_FLOW.md §16: the human decision boundary. The agent stops at
+    ENGINEER_REVIEW/BLOCKED; only an explicit review moves the investigation
+    to DECISION — never automatic."""
+    investigation = _get_investigation_or_404(session, investigation_id)
+    user = get_or_create_default_user(session)
+
+    valid_decisions = {
+        "ACCEPT",
+        "REJECT",
+        "MODIFY",
+        "REQUEST_SIGNAL",
+        "REQUEST_SOURCE",
+        "REQUEST_CONTROLLED_COMPARISON",
+        "MARK_INCONCLUSIVE",
+    }
+    if body.decision not in valid_decisions:
+        raise HTTPException(status_code=422, detail=f"decision must be one of {sorted(valid_decisions)}")
+
+    review = EngineerReview(
+        investigation_id=investigation.id, reviewer_id=user.id, decision=body.decision, comment=body.comment
+    )
+    session.add(review)
+
+    investigation.state = "DECISION" if body.decision in ("ACCEPT", "REJECT") else "FOLLOW_UP"
+    session.commit()
+    return {"review_id": str(review.id), "investigation_state": investigation.state}

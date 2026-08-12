@@ -43,10 +43,43 @@ class CreateInvestigationRequest(BaseModel):
     title: str | None = None
 
 
+class EngineerReviewRequest(BaseModel):
+    # ACCEPT | REJECT | MODIFY | REQUEST_SIGNAL | REQUEST_SOURCE |
+    # REQUEST_CONTROLLED_COMPARISON | MARK_INCONCLUSIVE — APP_FLOW.md Section 16
+    decision: str
+    comment: str | None = None
+
+
+class EvidenceSummary(BaseModel):
+    id: uuid.UUID
+    evidence_type: str
+    source_type: str
+    content: str | None
+    created_at: datetime.datetime
+
+
+class HypothesisSummary(BaseModel):
+    id: uuid.UUID
+    title: str
+    description: str | None
+    status: str
+    confidence_basis: str | None
+    created_at: datetime.datetime
+
+
+class AgentRunResult(BaseModel):
+    investigation_id: uuid.UUID
+    state: str
+    blocked_reason: str | None
+    hypotheses: list[HypothesisSummary]
+    evidence_count: int
+
+
 class InvestigationSummary(BaseModel):
     id: uuid.UUID
     title: str
     question: str
+    primary_metric: str | None = None
     state: str
     decision: str | None
     run_a_id: str

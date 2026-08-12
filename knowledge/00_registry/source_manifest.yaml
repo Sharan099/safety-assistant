@@ -1,0 +1,196 @@
+# Source manifest — Passive Safety CAE Investigation Agent
+#
+# Registry of every knowledge-source document known to the system. See
+# `TRD.md` §10-13 and `BACKEND_SCHEMA.md` §18 (`knowledge_sources`) for the
+# schema this manifest seeds.
+#
+# Rules (PRD.md §7, TRD.md §12):
+#   - Only documents listed here may be treated as available knowledge.
+#   - `legal_status` and `authority` must never be inferred generously.
+#   - Absent categories are represented explicitly (see `not_available` below),
+#     never silently filled with fabricated content.
+#
+# `sha256` was computed from the original files in `Knowledge source/`
+# (untouched) on 2026-08-12. The canonical copies under `knowledge/` must
+# match these hashes; re-run `scripts/verify_manifest.py` (Phase 4) after any
+# copy to confirm no corruption occurred.
+
+schema_version: 1
+generated_at: "2026-08-12T00:00:00Z"
+
+sources:
+  - source_id: unece-un-r16
+    filename: UN_R16.pdf
+    title: "UN Regulation No. 16 — Safety-belts, restraint systems, child restraint systems"
+    category: REGULATION
+    authority: AUTHORITATIVE
+    publisher: UNECE
+    canonical_path: knowledge/01_regulations/unece/UN_R16/UN_R16.pdf
+    original_path: "Knowledge source/UN_R16.pdf"
+    sha256: 442b059e51a3154a8294fc10cb00b17fcbfac295237b87a62e383f08e0f48991
+    size_bytes: 1804806
+    date_added: "2026-06-29"
+    legal_status: PUBLIC_OFFICIAL_DOCUMENT
+    processing_status: NOT_INGESTED
+
+  - source_id: unece-un-r94
+    filename: UN_R94.pdf
+    title: "UN Regulation No. 94 — Frontal collision protection"
+    category: REGULATION
+    authority: AUTHORITATIVE
+    publisher: UNECE
+    canonical_path: knowledge/01_regulations/unece/UN_R94/UN_R94.pdf
+    original_path: "Knowledge source/UN_R94.pdf"
+    sha256: acd8a96b97cb1e9e425eece3857c9ac10387dced4c7811252a8c18ed2d719615
+    size_bytes: 1671219
+    date_added: "2026-06-29"
+    legal_status: PUBLIC_OFFICIAL_DOCUMENT
+    processing_status: NOT_INGESTED
+
+  - source_id: unece-un-r95
+    filename: UN_R95.pdf
+    title: "UN Regulation No. 95 — Lateral collision protection"
+    category: REGULATION
+    authority: AUTHORITATIVE
+    publisher: UNECE
+    canonical_path: knowledge/01_regulations/unece/UN_R95/UN_R95.pdf
+    original_path: "Knowledge source/UN_R95.pdf"
+    sha256: bb3120f4596c94bcda6476443eaca5e8e6de3bed0c0295b49b6d43cc610f161f
+    size_bytes: 2529710
+    date_added: "2026-06-29"
+    legal_status: PUBLIC_OFFICIAL_DOCUMENT
+    processing_status: NOT_INGESTED
+
+  - source_id: unece-un-r129
+    filename: UN_R129.pdf
+    title: "UN Regulation No. 129 — Enhanced Child Restraint Systems (i-Size)"
+    category: REGULATION
+    authority: AUTHORITATIVE
+    publisher: UNECE
+    canonical_path: knowledge/01_regulations/unece/UN_R129/UN_R129.pdf
+    original_path: "Knowledge source/UN_R129.pdf"
+    sha256: 16e2b8ffd12ca5664d7ce5550529a7f51701f03230f98281718e02862f0073f0
+    size_bytes: 3150884
+    date_added: "2026-06-29"
+    legal_status: PUBLIC_OFFICIAL_DOCUMENT
+    processing_status: NOT_INGESTED
+
+  - source_id: lsdyna-r17-theory
+    filename: LS-DYNA_Manual_Theory_R17.pdf
+    title: "LS-DYNA Theory Manual R17"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: LSTC / Ansys
+    canonical_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Theory_R17.pdf
+    original_path: "Knowledge source/LS-DYNA_Manual_Theory_R17.pdf"
+    sha256: 68689fd5f005360cab81d4718dd632ff1bc91891bd686c8fd6c085a6716b8857
+    size_bytes: 14012502
+    date_added: "2026-08-12"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: lsdyna-r17-vol-i
+    filename: LS-DYNA_Manual_Vol_I_R17.pdf
+    title: "LS-DYNA Keyword User's Manual, Volume I, R17"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: LSTC / Ansys
+    canonical_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Vol_I_R17.pdf
+    original_path: "Knowledge source/LS-DYNA_Manual_Vol_I_R17.pdf"
+    sha256: 3981b61e88dd3aeef1e81cb527d0d7b0a26a3ec7ceef1ed51ecafc3d42ac3ef1
+    size_bytes: 34399172
+    date_added: "2026-08-12"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: lsdyna-r17-vol-ii
+    filename: LS-DYNA_Manual_Vol_II_R17.pdf
+    title: "LS-DYNA Keyword User's Manual, Volume II, R17"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: LSTC / Ansys
+    canonical_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Vol_II_R17.pdf
+    original_path: "Knowledge source/LS-DYNA_Manual_Vol_II_R17.pdf"
+    sha256: 00f17dc29e93b6b13302fc4ea6efb004c993cf7560b933a5ecb40b926bf16e28
+    size_bytes: 14772665
+    date_added: "2026-08-12"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: lsdyna-r17-vol-iii
+    filename: LS-DYNA_Manual_Vol_III_R17.pdf
+    title: "LS-DYNA Keyword User's Manual, Volume III (Multiphysics), R17"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: LSTC / Ansys
+    canonical_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Vol_III_R17.pdf
+    original_path: "Knowledge source/LS-DYNA_Manual_Vol_III_R17.pdf"
+    sha256: ce8995d90713b544b1d482da31bf97b187e7fc575d9b3a2a2160a30392fe8083
+    size_bytes: 4455069
+    date_added: "2026-08-12"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: lsdyna-r17-users-guide
+    filename: LS-DYNA_Users_Guide.pdf
+    title: "LS-DYNA User's Guide"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: LSTC / Ansys
+    canonical_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Users_Guide.pdf
+    original_path: "Knowledge source/LS-DYNA_Users_Guide.pdf"
+    sha256: a6ceecfd798ae0fe77bd7f6649340561fc806bb4382d2120d655b123ced874db
+    size_bytes: 8845447
+    date_added: "2026-08-12"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: lsdyna-examples-manual
+    filename: ls-dyna-examples-manual.pdf
+    title: "LS-DYNA Examples Manual"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: LSTC / Ansys
+    canonical_path: knowledge/02_official_docs/ls_dyna/r17/ls-dyna-examples-manual.pdf
+    original_path: "Knowledge source/ls-dyna-examples-manual.pdf"
+    sha256: 9148f3053e5b5f9a1e10ca35ba1c0699d593416fd40443574db07c0bede0e56f
+    size_bytes: 1965497
+    date_added: "2026-08-12"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: pam-crash-spec-sheet
+    filename: cc-PAM-Crash-Spec-Sheet.pdf
+    title: "PAM-CRASH Specification Sheet (public marketing/reference sheet)"
+    category: REFERENCE
+    authority: REFERENCE
+    publisher: ESI Group
+    canonical_path: knowledge/02_official_docs/pam_crash/cc-PAM-Crash-Spec-Sheet.pdf
+    original_path: "Knowledge source/cc-PAM-Crash-Spec-Sheet.pdf"
+    sha256: c66f371c963ac204d1dabe00a62a1421225406d885b9ba5c4958e876e2e28396
+    size_bytes: 118409
+    date_added: "2026-08-12"
+    legal_status: PUBLIC_MARKETING_DOCUMENT
+    processing_status: NOT_INGESTED
+    notes: >
+      NOT a substitute for a licensed PAM-CRASH technical manual. Must never
+      be cited as authoritative for PAM-CRASH solver behavior — see PRD.md §7.
+
+# Explicitly represent what is NOT available, per TRD.md §12. Do not fabricate
+# content to cover these gaps.
+not_available:
+  - category: OFFICIAL_DOCUMENTATION
+    item: LS-DYNA Database Manual
+    status: NOT_AVAILABLE
+  - category: OFFICIAL_DOCUMENTATION
+    item: Licensed PAM-CRASH technical reference manuals
+    status: NOT_AUTHORIZED
+  - category: OFFICIAL_DOCUMENTATION
+    item: Additional ANSYS Mechanical documentation
+    status: NOT_AVAILABLE
+  - category: INTERNAL
+    item: Company internal engineering reports
+    status: NOT_AVAILABLE
+  - category: HISTORICAL
+    item: Real historical investigation records
+    status: NOT_AVAILABLE

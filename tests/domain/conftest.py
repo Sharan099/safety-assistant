@@ -5,6 +5,12 @@ port 5433) with migrations applied (`uv run alembic upgrade head`). These
 are integration tests against a real database, not mocks — BACKEND_SCHEMA.md
 data invariants (FKs, uniqueness, JSONB) only mean something against real
 Postgres/pgvector.
+
+Known gap: there is no separate test database yet, so these tests share
+Postgres with anything `scripts/generate_synthetic_dataset.py` has loaded.
+Fixtures must therefore avoid colliding with real synthetic-benchmark rows
+(e.g. use `__test` suffixes on unique keys) rather than assuming a clean DB.
+A dedicated test DB is Phase-20 hardening work, not a Phase-6 blocker.
 """
 
 from collections.abc import Iterator

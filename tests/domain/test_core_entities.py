@@ -69,7 +69,10 @@ def test_core_chain_round_trip(session: Session) -> None:
     model_version.source_artifact_id = artifact.id  # the other side of the cycle
     session.flush()
 
-    signal_def = SignalDefinition(name="Chest Deflection", canonical_name="chest_deflection", unit="mm")
+    # A distinct canonical_name from the real synthetic-benchmark signal
+    # definitions (scripts/generate_synthetic_dataset.py) — those rows are
+    # committed outside this test's transaction and would collide otherwise.
+    signal_def = SignalDefinition(name="Chest Deflection (test)", canonical_name="chest_deflection__test", unit="mm")
     session.add(signal_def)
     session.flush()
 

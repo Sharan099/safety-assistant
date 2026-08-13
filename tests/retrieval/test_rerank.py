@@ -2,7 +2,7 @@
 
 import uuid
 
-from packages.retrieval.rerank import LexicalAuthorityReranker, RerankCandidate, rerank
+from packages.retrieval.rerank import CrossEncoderReranker, LexicalAuthorityReranker, RerankCandidate, rerank
 
 
 def _candidate(content: str, authority: str = "REFERENCE", fused_score: float = 0.1) -> RerankCandidate:
@@ -51,5 +51,46 @@ def test_rerank_results_are_sorted_descending() -> None:
 
 def test_rerank_empty_candidates_returns_empty() -> None:
     reranker = LexicalAuthorityReranker()
+    observation = rerank(reranker, "query", [])
+    assert observation.results == []
+
+
+# CrossEncoderReranker — docs/ADR/0015. No @requires_db: exercises the
+# model directly, not the database. Downloads the small ONNX model to the
+# local fastembed cache on first run (~80 MB) if not already cached.
+def test_cross_encoder_ranks_the_genuinely_relevant_candidate_first() -> None:
+    reranker = CrossEncoderReranker()
+    relevant = _candidate("Frontal collision protection requirements for occupant restraint systems.")
+    irrelevant = _candidate("The recipe calls for two cups of flour and a pinch of salt.")
+    observation = rerank(reranker, "frontal collision occupant protection", [irrelevant, relevant])
+    assert observation.results[0].id == relevant.id
+
+
+def test_cross_encoder_score_is_the_raw_model_logit_not_summed_with_fused_score() -> None:
+    """Unlike LexicalAuthorityReranker's additive adjustment, a real
+    cross-encoder fully re-scores — a candidate with a much higher
+    fused_score but irrelevant content must still lose to a genuinely
+    relevant one with a low fused_score."""
+    reranker = CrossEncoderReranker()
+    relevant_but_low_fused = _candidate(
+        "Frontal collision protection requirements for occupant restraint systems.", fused_score=0.001
+    )
+    irrelevant_but_high_fused = _candidate(
+        "The recipe calls for two cups of flour and a pinch of salt.", fused_score=100.0
+    )
+    observation = rerank(
+        reranker, "frontal collision occupant protection", [irrelevant_but_high_fused, relevant_but_low_fused]
+    )
+    assert observation.results[0].id == relevant_but_low_fused.id
+
+
+def test_cross_encoder_model_identity_is_reported() -> None:
+    reranker = CrossEncoderReranker()
+    assert reranker.model_name == "Xenova/ms-marco-MiniLM-L-6-v2"
+    assert reranker.model_version == "v1"
+
+
+def test_cross_encoder_empty_candidates_returns_empty() -> None:
+    reranker = CrossEncoderReranker()
     observation = rerank(reranker, "query", [])
     assert observation.results == []

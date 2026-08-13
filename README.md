@@ -203,25 +203,30 @@ search within that bounded scope.
 ## Testing & evaluation
 
 ```powershell
-uv run pytest                              # 187 tests, all against real fixtures/corpus where applicable
+uv run pytest                              # 191 tests, all against real fixtures/corpus where applicable
 uv run python evals/scenario_eval.py       # numerical accuracy, all 10 synthetic scenarios
 uv run python evals/retrieval_eval.py      # full-pipeline Recall@5/@10/MRR
 uv run python evals/level3_hybrid_eval.py  # per-stage BM25/Dense/RRF/reranker comparison + NDCG@10
+uv run python evals/embedding_benchmark.py # embedding candidate comparison (docs/ADR/0014)
+uv run python evals/reranker_benchmark.py  # reranker candidate comparison (docs/ADR/0015)
 ```
 
 ## Limitations
 
-- **Docling, OCR (tesseract), and a real cross-encoder reranker are not
-  installed** — 12 GB free disk measured at decision time; each would
-  resolve several GB of `torch`/`transformers`. All three are
-  `Protocol`-based swap points (`docs/ADR/0007`, `0011`, `0012`) requiring
-  no changes above their respective modules once installed. (Dense
-  retrieval's placeholder *was* the same category of gap — resolved in
-  `docs/ADR/0014` via `fastembed`/ONNX Runtime, which carries none of
-  `torch`'s disk risk.)
-- **`HashingEmbeddingProvider` remains available as the "mock" tier**
-  (deterministic, no model download) for tests — production defaults to
-  real semantic embeddings (`docs/ADR/0014`).
+- **Docling and OCR (tesseract) are not installed** — 12 GB free disk
+  measured at decision time; Docling would resolve several GB of
+  `torch`/`transformers`. Both are `Protocol`-based swap points
+  (`docs/ADR/0011`) requiring no changes above their respective modules
+  once installed.
+- **A real cross-encoder reranker is implemented and benchmarked but not
+  the production default** (`docs/ADR/0015`) — it genuinely improves
+  ranking quality (NDCG@10 0.954 vs 0.938) but measured at ~3.5s/query on
+  this CPU, too slow for an interactive Copilot turn. Available via
+  `CrossEncoderReranker`/`get_cross_encoder_reranker()` for contexts that
+  accept that cost.
+- **Dense retrieval uses real semantic embeddings** as of `docs/ADR/0014`
+  (`fastembed`/ONNX Runtime, no `torch`) — the earlier hashing placeholder
+  is now the explicit "mock" tier for tests only, never production.
 - **PDF ingestion is bounded to 20 pages/document**; CAE deck parsing is
   bounded to main + direct includes. Both are real, working, and tested at
   real scale — just not the entire 1.3 GB corpus at unlimited depth.

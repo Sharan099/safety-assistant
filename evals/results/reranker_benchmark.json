@@ -1,0 +1,29 @@
+{
+  "golden_set_size": 8,
+  "results": [
+    {
+      "model_name": "lexical-authority-heuristic",
+      "model_version": "v1",
+      "recall@10": 1.0,
+      "mrr": 0.9166666666666666,
+      "ndcg@10": 0.9375,
+      "avg_latency_ms": 5.518575004316517
+    },
+    {
+      "model_name": "Xenova/ms-marco-MiniLM-L-6-v2",
+      "model_version": "v1",
+      "recall@10": 1.0,
+      "mrr": 0.9375,
+      "ndcg@10": 0.9538662191964322,
+      "avg_latency_ms": 3522.931100000278
+    },
+    {
+      "model_name": "Xenova/ms-marco-MiniLM-L-12-v2",
+      "model_version": "v1",
+      "recall@10": 1.0,
+      "mrr": 0.8541666666666666,
+      "ndcg@10": 0.8913662191964322,
+      "avg_latency_ms": 7507.05302499955
+    }
+  ]
+}

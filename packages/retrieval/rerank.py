@@ -1,24 +1,32 @@
 """Reranker — TRD_LEVEL3.md §20/§25, applied after RRF fusion, before the
 relevance/authority gate.
 
-A real cross-encoder (`sentence-transformers`) is deferred (`docs/ADR/0011`:
-12 GB free disk, `torch`/`transformers` resolve to several GB — a real
-risk, not a style preference). `LexicalAuthorityReranker` is a dependency-
-free stand-in exercising the real architecture slot (RRF -> Reranker ->
-Gate) so nothing downstream has to change when a real model is installed —
-same `Protocol`-swap pattern as `docs/ADR/0007`'s `HashingEmbeddingProvider`.
+`LexicalAuthorityReranker` remains the **production default** —
+`CrossEncoderReranker` (docs/ADR/0015) is implemented, real, and
+benchmarked (`evals/reranker_benchmark.py`), but rejected as the default on
+this machine: it genuinely improves ranking quality (NDCG@10 0.954 vs
+0.938) but measured at ~3.5s/query on this CPU (i5-8250U) — PASSIVE_SAFETY_
+LEVEL3_FINAL_FIX.md §21's evaluation gates require a candidate to clear
+*quality, latency, memory, and storage together*, not quality alone, and
+3.5s per rerank step is not "remain practical on the development machine"
+for an interactive investigation Copilot. `CrossEncoderReranker` stays
+available (real, tested, swappable via the same `Reranker` Protocol) for
+contexts where that latency is acceptable — offline evaluation, or a future
+deployment with faster hardware — rather than deleted.
 
-Score = the fused RRF score, plus a small bonus for literal query-term
-overlap with the chunk's content (rewards exact engineering-identifier
-matches like `*MAT_024`/`HIC15` that a hashed/semantic signal alone won't
-reliably privilege), plus a small authority-tier bonus (AUTHORITATIVE /
-OFFICIAL_DOCUMENTATION content edges out REFERENCE/SYNTHETIC content when
-otherwise close). Never reorders relevance/authority filtering — that gate
-still runs after this, unchanged.
+`LexicalAuthorityReranker`'s score is the fused RRF score plus a small
+bonus for literal query-term overlap (rewards exact engineering-identifier
+matches like `*MAT_024`/`HIC15`) plus a small authority-tier bonus.
+`CrossEncoderReranker`'s score is the model's own raw relevance logit for
+(query, candidate) — a full re-score, not an additive adjustment, matching
+standard cross-encoder reranking architecture (the doc's own diagram:
+"RRF -> top 30-50 -> cross-encoder -> top 5-10"). Neither ever reorders
+relevance/authority filtering — that gate still runs after this, unchanged.
 """
 
 from __future__ import annotations
 
+import functools
 import time
 import uuid
 from dataclasses import dataclass
@@ -73,6 +81,42 @@ class LexicalAuthorityReranker:
             authority_bonus = _AUTHORITY_BONUS.get(c.authority_level, 0.0)
             results.append(RerankResult(id=c.id, rerank_score=c.fused_score + overlap_bonus + authority_bonus))
         return results
+
+
+# Chosen by evals/reranker_benchmark.py (docs/ADR/0015): small, real,
+# CPU-friendly cross-encoder — same substitution rationale as
+# docs/ADR/0014 for the doc's own suggested (but much larger) candidates.
+DEFAULT_CROSS_ENCODER_MODEL = "Xenova/ms-marco-MiniLM-L-6-v2"
+
+
+class CrossEncoderReranker:
+    """The real cross-encoder tier — see module docstring."""
+
+    model_version = "v1"
+
+    def __init__(self, model_name: str = DEFAULT_CROSS_ENCODER_MODEL) -> None:
+        # Local import: avoids paying ONNX Runtime's import cost for callers
+        # that only ever construct LexicalAuthorityReranker.
+        from fastembed.rerank.cross_encoder import TextCrossEncoder
+
+        self.model_name = model_name
+        self._model = TextCrossEncoder(model_name=model_name)
+
+    def score(self, query_text: str, candidates: list[RerankCandidate]) -> list[RerankResult]:
+        if not candidates:
+            return []
+        scores = self._model.rerank(query_text, [c.content for c in candidates])
+        return [RerankResult(id=c.id, rerank_score=float(s)) for c, s in zip(candidates, scores, strict=True)]
+
+
+@functools.lru_cache(maxsize=1)
+def get_cross_encoder_reranker() -> CrossEncoderReranker:
+    """A process-wide singleton for the opt-in high-quality/slow tier — not
+    called by retrieve()'s default path (see module docstring: rejected on
+    latency, not offered as the default). Available for a caller that has
+    explicitly decided the ~3.5s/query cost is acceptable (offline
+    evaluation, a future faster-hardware deployment)."""
+    return CrossEncoderReranker()
 
 
 @dataclass

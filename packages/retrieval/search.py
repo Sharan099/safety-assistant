@@ -9,10 +9,15 @@ see `RetrievedChunk.section_content`.
 
 No reranker (TRD.md §21: benchmark BM25+dense+RRF first, add one only if
 evaluation shows a real need — packages/retrieval/eval.py is that benchmark).
+
+`retrieve()` applies a relevance/authority/dedup guard (packages/retrieval/relevance.py)
+before returning anything — CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md Phase 8:
+"Do not expose raw top-k chunks."
 """
 
 from __future__ import annotations
 
+import re
 import uuid
 from dataclasses import dataclass
 from typing import Any
@@ -30,10 +35,14 @@ from packages.domain.knowledge import (
     KnowledgeSource,
 )
 from packages.retrieval.embeddings import EmbeddingProvider, HashingEmbeddingProvider
+from packages.retrieval.relevance import DEFAULT_MIN_SHARED_TERMS, has_known_authority, is_relevant
 
 RRF_K = 60
 DEFAULT_LIMIT = 10
 CANDIDATE_MULTIPLIER = 4  # fetch this many x `limit` from each retrieval leg before fusing
+MAX_CHUNKS_PER_DOCUMENT = 3  # dedup: cap how much of the top-k one document can dominate
+
+_QUERY_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
 @dataclass
@@ -77,8 +86,22 @@ def _base_query(session: Session, filters: SourceFilter):  # type: ignore[no-unt
     return q
 
 
+def _or_tsquery(query_text: str) -> str | None:
+    """`plainto_tsquery`/`websearch_to_tsquery` AND every term together, which
+    made a realistic multi-term investigation query return zero full-text
+    hits (see module docstring / docs/ADR/0009). OR-joining lets ts_rank do
+    its job of ranking partial matches instead of an all-or-nothing filter."""
+    tokens = _QUERY_TOKEN_RE.findall(query_text.lower())
+    if not tokens:
+        return None
+    return " | ".join(tokens)
+
+
 def full_text_search(session: Session, query_text: str, filters: SourceFilter, *, limit: int) -> list[Any]:
-    tsquery = sa.func.plainto_tsquery("english", query_text)
+    query_string = _or_tsquery(query_text)
+    if query_string is None:
+        return []
+    tsquery = sa.func.to_tsquery("english", query_string)
     tsvector = sa.func.to_tsvector("english", DocumentChunk.content)
     rank = sa.func.ts_rank(tsvector, tsquery)
     q = _base_query(session, filters).filter(tsvector.op("@@")(tsquery)).order_by(rank.desc()).limit(limit)
@@ -109,6 +132,27 @@ def reciprocal_rank_fusion(ranked_id_lists: list[list[uuid.UUID]], *, k: int = R
     return scores
 
 
+def _passes_guard(chunk: RetrievedChunk, query_text: str, *, min_shared_terms: int) -> bool:
+    if not has_known_authority(chunk.authority_level):
+        return False
+    return is_relevant(query_text, chunk.content, min_shared_terms=min_shared_terms)
+
+
+def _deduplicate(results: list[RetrievedChunk]) -> list[RetrievedChunk]:
+    seen_content: set[str] = set()
+    per_document: dict[str, int] = {}
+    deduped: list[RetrievedChunk] = []
+    for r in results:
+        if r.content in seen_content:
+            continue
+        if per_document.get(r.document_key, 0) >= MAX_CHUNKS_PER_DOCUMENT:
+            continue
+        seen_content.add(r.content)
+        per_document[r.document_key] = per_document.get(r.document_key, 0) + 1
+        deduped.append(r)
+    return deduped
+
+
 def retrieve(
     session: Session,
     query_text: str,
@@ -116,7 +160,12 @@ def retrieve(
     filters: SourceFilter | None = None,
     limit: int = DEFAULT_LIMIT,
     provider: EmbeddingProvider | None = None,
+    min_shared_terms: int = DEFAULT_MIN_SHARED_TERMS,
 ) -> list[RetrievedChunk]:
+    """Fuse FTS + vector search, then apply the relevance/authority/dedup
+    guard (packages/retrieval/relevance.py) before returning anything —
+    never raw top-k chunks (CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md Phase 8).
+    """
     filters = filters or SourceFilter()
     candidate_limit = max(limit * CANDIDATE_MULTIPLIER, 20)
 
@@ -132,13 +181,16 @@ def retrieve(
         row_by_id.setdefault(row[0].id, row)
 
     fts_id_set, vector_id_set = set(fts_ids), set(vector_ids)
-    ranked_ids = sorted(fused_scores, key=lambda cid: fused_scores[cid], reverse=True)[:limit]
+    # Rank every fused candidate, not just the first `limit` — filtering
+    # happens after ranking, so a naive pre-filter cutoff would starve the
+    # result set even when enough relevant candidates exist further down.
+    ranked_ids = sorted(fused_scores, key=lambda cid: fused_scores[cid], reverse=True)
 
-    results = []
+    candidates: list[RetrievedChunk] = []
     for chunk_id in ranked_ids:
         chunk, revision, document, knowledge_source, section = row_by_id[chunk_id]
         locator = chunk.source_locator or {}
-        results.append(
+        candidates.append(
             RetrievedChunk(
                 chunk_id=chunk.id,
                 content=chunk.content,
@@ -156,4 +208,6 @@ def retrieve(
                 matched_vector=chunk_id in vector_id_set,
             )
         )
-    return results
+
+    relevant = [c for c in candidates if _passes_guard(c, query_text, min_shared_terms=min_shared_terms)]
+    return _deduplicate(relevant)[:limit]

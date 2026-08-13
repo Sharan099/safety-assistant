@@ -5,6 +5,10 @@ Also exercises the artifacts<->simulation_runs<->model_versions FK cycle
 resolved in docs/ADR/0005 — this is the actual regression test for that fix.
 """
 
+import uuid
+
+import pytest
+import sqlalchemy.exc
 from sqlalchemy.orm import Session
 
 from packages.domain.core import (
@@ -19,6 +23,26 @@ from packages.domain.core import (
     Vehicle,
 )
 from tests.domain.conftest import requires_db
+
+
+@requires_db
+def test_artifact_simulation_run_fk_is_actually_enforced(session: Session) -> None:
+    """docs/ADR/0005's correction: a valid insert succeeding proves nothing
+    about whether a FK constraint exists — only a *rejected* invalid insert
+    does. This is what test_core_chain_round_trip below was missing."""
+    artifact = Artifact(
+        simulation_run_id=uuid.uuid4(),  # does not exist
+        artifact_type="RESULT_DATABASE",
+        filename="d3plot",
+        storage_uri="file:///data/artifacts/does-not-exist/d3plot",
+        sha256="b" * 64,
+    )
+    session.add(artifact)
+    with pytest.raises(sqlalchemy.exc.IntegrityError, match="fk_artifacts_simulation_run_id|foreign key"):
+        session.flush()
+    # Leave cleanup to the `session` fixture's teardown (transaction.rollback())
+    # — rolling back here too risks a double-rollback on the same underlying
+    # connection-level transaction the fixture owns.
 
 
 @requires_db

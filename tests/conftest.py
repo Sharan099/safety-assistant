@@ -41,11 +41,20 @@ requires_db = pytest.mark.skipif(
 
 @pytest.fixture
 def session() -> Iterator[Session]:
-    """A session wrapped in a transaction that's always rolled back."""
+    """A session wrapped in a transaction that's always rolled back.
+
+    `join_transaction_mode="create_savepoint"` (SQLAlchemy 2.0) runs the
+    session inside a SAVEPOINT rather than the outer transaction directly,
+    and transparently restarts it if the ORM's own transaction ends (e.g. a
+    test deliberately triggers and catches an IntegrityError to prove a
+    constraint is enforced). Without this, such a test leaves the
+    connection's outer transaction aborted, and this fixture's own teardown
+    rollback produces a benign-but-confusing SAWarning.
+    """
     engine = get_engine()
     connection = engine.connect()
     transaction = connection.begin()
-    session = Session(bind=connection, expire_on_commit=False)
+    session = Session(bind=connection, join_transaction_mode="create_savepoint", expire_on_commit=False)
     try:
         yield session
     finally:

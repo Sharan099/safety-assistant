@@ -4,53 +4,65 @@ An engineering investigation workstation for passive-safety / occupant-protectio
 CAE engineers — not a chatbot. It helps answer questions like *"why did chest
 deflection increase between Run A and Run B?"* with evidence-backed, traceable
 analysis: quality gates, comparability checks, configuration diffs, signal
-analysis, divergence detection, and citation-grounded regulatory/solver
-retrieval, with an engineer review step before any conclusion is recorded.
+analysis, divergence detection, citation-grounded regulatory/solver retrieval,
+structured LS-DYNA deck queries, and a contextual investigation Copilot — with
+an engineer review step before any conclusion is recorded.
 
 ## Status
 
-**V1 vertical slice complete and working end to end**, backend and UI:
-select two runs → quality gate → comparability → configuration diff →
-signal analysis/divergence → evidence → agent-drafted hypothesis → engineer
-review — all real, tested, and exercised against the real UN_R94/LS-DYNA
-knowledge corpus and the SCN-001..SCN-010 synthetic benchmark. See
-`IMPLEMENTATION_PLAN.md` for the full phased build order and `docs/ADR/` for
-decisions made along the way (10 ADRs so far).
+**V1 vertical slice + Copilot + Level 3 research-grade knowledge layer.**
+Not a production deployment — see Limitations below.
 
-Not yet built: real historical-case data (the retrieval code path exists and
-is honestly empty until investigations are closed), a chosen/benchmarked
-embedding model (an interim deterministic placeholder is in place, see
-`docs/ADR/0007`), report generation, mechanism/animation review, and
-production hardening (auth, audit trail, a dedicated test database).
+- **V1 core workflow** (backend + Next.js UI, port 3010): select two runs →
+  quality gate → comparability → configuration diff → signal analysis/
+  divergence → evidence → agent-drafted hypothesis → engineer review.
+- **Investigation Copilot**: a collapsible chat panel inside the investigation
+  workspace (not a separate `/chat` page) streaming real-time LangGraph
+  workflow visibility over SSE.
+- **Level 3**: connects the real public engineering corpus under
+  `Knowledge source/` (28 files, 1.3 GB — NHTSA vehicle/dummy/restraint FE
+  models, THOR-05F qualification package, OpenRadioss ModelExchange,
+  UN regulations, LS-DYNA manuals) to a validated ingestion pipeline,
+  a real LS-DYNA parser, mandatory Structured + Hybrid RAG (BM25 + dense +
+  RRF + reranker, plus separate structured CAE search), and an evaluated
+  retrieval pipeline. See `PRD_LEVEL3.md` / `TRD_LEVEL3.md` /
+  `CLAUDE_CODE_LEVEL3_INSTRUCTIONS.md` and the Level-3 section below.
+
+See `IMPLEMENTATION_PLAN.md` for the V1 phased build order and `docs/ADR/`
+for every real decision made along the way (13 ADRs).
 
 ## Start here
 
-Read these in order before changing anything — they are the product/technical
+Read these before changing anything — they are the product/technical
 contract, not background reading:
 
-1. `PRD.md` — what this is and why
-2. `TRD.md` — how it's built
+1. `PRD.md` / `TRD.md` — V1 product & technical requirements
+2. `PRD_LEVEL3.md` / `TRD_LEVEL3.md` — Level-3 requirements
 3. `APP_FLOW.md` — the investigation flow and states
-4. `BACKEND_SCHEMA.md` — the data model
+4. `BACKEND_SCHEMA.md` — the V1 data model (Level-3 `cae_*` tables:
+   `packages/domain/cae.py`)
 5. `UI_UX_DESIGN_BRIEF.md` — the UI contract
-6. `IMPLEMENTATION_PLAN.md` — phase-by-phase execution order
-7. `ENVIRONMENT_SETUP.md` — tooling and knowledge-ingestion architecture
-8. `CLAUDE.md` — standing rules for AI-assisted development in this repo
+6. `IMPLEMENTATION_PLAN.md` — V1 phase-by-phase execution order
+7. `ENVIRONMENT_SETUP.md` — tooling, OKF architecture
+8. `CLAUDE.md` / `CLAUDE_CODE_LEVEL3_INSTRUCTIONS.md` — standing AI-development rules
+9. `docs/ADR/` — every real decision, in order
 
 ## Repository layout
 
 ```
-apps/api             FastAPI backend — runs, investigations, knowledge search
+apps/api             FastAPI backend — runs, investigations, knowledge search, copilot
 apps/web              Next.js investigation workspace (port 3010)
-packages/domain        Core entities (43 tables) + Alembic migrations
+packages/domain        Core + copilot + CAE entities, Alembic migrations
 packages/analysis        Deterministic, LLM-free CAE analysis (no LLM calls)
-packages/ingestion         PyMuPDF-based knowledge ingestion pipeline
-packages/retrieval           RAG: Postgres FTS + pgvector + RRF
-packages/agent                  LLMProvider + the LangGraph investigation agent
-knowledge/            Canonical knowledge corpus + registry + OKF concepts
-data/                 Synthetic runs, Parquet signal data (gitignored, regenerable)
-evals/                Golden datasets and evaluation harness (not started)
-docs/ADR/             Architecture decision records
+packages/ingestion         PDF ingestion (PyMuPDF) + archive inspection + QA
+packages/cae                 LS-DYNA keyword scan + lexer/parser/include-graph
+packages/retrieval              BM25 + pgvector + RRF + reranker + structured CAE search
+packages/agent                    LLMProvider + LangGraph investigation agent + Copilot
+knowledge/            Canonical corpus registry + OKF concepts (source PDFs gitignored)
+Knowledge source/     Immutable original corpus (local only, gitignored — see below)
+data/                 Synthetic runs, Parquet signal data, artifacts (gitignored, regenerable)
+evals/                Golden datasets + evaluation harnesses
+docs/ADR/             Architecture decision records (13)
 ```
 
 ## Getting started
@@ -58,10 +70,12 @@ docs/ADR/             Architecture decision records
 ```powershell
 uv sync                                          # install Python deps
 docker compose up -d postgres                    # port 5433 — see docs/ADR/0004
-uv run alembic upgrade head                      # apply the domain schema
+uv run alembic upgrade head                      # apply the domain + CAE schema
 uv run python scripts/generate_synthetic_dataset.py   # SCN-001..010 -> Postgres + Parquet
-uv run python scripts/ingest_documents.py         # UN_R94 (full) + 2 LS-DYNA manuals (60p)
-uv run python scripts/index_knowledge.py          # embed ingested chunks
+uv run python scripts/ingest_level3_pdfs.py       # all 16 registered PDFs (bounded, 20p each)
+uv run python scripts/index_knowledge.py          # embed ingested chunks (idempotent)
+uv run python scripts/ingest_level3_cae_decks.py  # 4 real LS-DYNA deck families -> cae_*
+uv run python scripts/generate_okf_concepts.py    # OKF concept files under knowledge/07_okf/
 uv run uvicorn apps.api.main:app --port 8010      # backend, port 8010 (docs/ADR/0004)
 
 # in another terminal:
@@ -72,18 +86,144 @@ npm run dev                                       # frontend, http://localhost:3
 ```
 
 ```powershell
-uv run pytest              # 67 tests (1 opt-in destructive migration test skipped by default)
+uv run pytest              # 187 tests (1 skipped)
 uv run ruff check .        # lint
-uv run mypy apps packages scripts tests   # strict type check
+uv run mypy apps packages scripts tests conftest.py evals   # strict type check
 ```
 
 Copy `.env.example` to `.env` and fill in secrets before running anything
 that talks to a database or LLM provider. Never commit `.env`.
 
-## Knowledge corpus
+## Knowledge source policy
 
-Source PDFs live in `Knowledge source/` (local, untouched originals) and are
-registered with SHA-256 hashes in `knowledge/00_registry/source_manifest.yaml`.
-See that manifest for exactly which documents are available and their
-authority level — the system must never fabricate content for documents that
-aren't listed there.
+`Knowledge source/` is the single immutable raw-corpus root (`docs/ADR/0010`
+explains why it keeps this name rather than the design docs' spelling,
+`knowledge_source/` — least-disruptive resolution of a real naming conflict
+between the docs and the already-working repo). Never modified, renamed, or
+rewritten — every file's SHA-256 is recorded in
+`knowledge/00_registry/source_manifest.yaml` before anything reads it.
+Proprietary/unverified-license PDFs and every archive are gitignored; only
+the manifest, schemas, and generated OKF markdown are versioned. Large
+archives (up to ~334 MB) are **not** physically duplicated into `knowledge/`
+— disk headroom (`docs/ADR/0011`); the pipeline reads `original_path`
+directly since it's already immutable.
+
+## Level 3: real corpus, LS-DYNA parser, Structured + Hybrid RAG
+
+**Source profiler** (`scripts/profile_knowledge_sources.py` →
+`data/artifacts/source_profile.json`): recursively discovers every file
+and archive member, hashes and classifies each. Last real run: 617 rows
+(28 top-level, 589 archive members).
+
+**Archive processing** (`packages/ingestion/archives.py`): safe ZIP/TAR/
+TAR.GZ/TGZ member inspection — path-traversal, absolute-path,
+decompression-bomb-ratio, duplicate-path, and symlink/hardlink guards —
+without extracting to disk. `safe_extract_member()` extracts one member at
+a time, re-validating independently.
+
+**PDF pipeline** (`packages/ingestion/`): PyMuPDF-based (Docling deferred,
+`docs/ADR/0011` — 12 GB free disk, `torch`/`transformers` too large a risk
+right now). `qa.py`'s `build_extraction_report()` gives every PDF a
+no-silent-loss report (per-page fault isolation, verified with real fault
+injection) — every PDF gets `data/artifacts/extraction_reports/<id>.json`.
+`structure.py` uses PyMuPDF's own `find_tables()`/`get_images()` for real
+table/figure extraction (verified against the real corpus: 17 tables, 54
+figures found in `UN_R94.pdf` alone) — persisted as `DocumentTable`/
+`DocumentFigure` rows, not silently flattened into prose.
+
+**LS-DYNA parser** (`packages/cae/lsdyna/`): a real lexer → parser →
+include-graph resolver. Preserves every keyword's raw text, source file,
+and line span, content-hashed; unknown keywords are never given invented
+meaning. `PART`/`SECTION`/`MAT`/`CONTACT`/`CONTROL`/`DATABASE`/`INCLUDE`
+get real field extraction into dedicated `cae_*` tables
+(`packages/domain/cae.py`); `NODE`/`ELEMENT`/`BOUNDARY`/`CONSTRAIN`/
+`DEFINE`/`PARAMETER` are detected/counted/raw-preserved generically
+(`cae_keywords`) — matching `TRD_LEVEL3.md` §19's own schema, which has no
+`cae_nodes`/`cae_elements` table. The include-graph resolves
+`RESOLVED`/`MISSING`/`CYCLE`/`DUPLICATE`/`AMBIGUOUS`/`OUTSIDE_ROOT` by
+basename match. Verified against real, messy production data: a 39-include
+Honda Accord assembly deck resolves cleanly (a real bug — legitimate
+`../../` navigation being wrongly refused — was found and fixed this way);
+a Silverado deck genuinely reports `AMBIGUOUS` includes because its archive
+has parallel `BASELINE`/`LIGHTWEIGHT` trees with identically-named files —
+correctly *not* guessed.
+
+**Structured + Hybrid RAG** (mandatory, `TRD_LEVEL3.md` §15):
+
+```
+BM25 (real BM25Okapi, rank-bm25)     Dense (pgvector, interim hashing embedding)
+                    \                          /
+                     v                        v
+                       Reciprocal Rank Fusion
+                                |
+                                v
+                Reranker (lexical + authority heuristic)
+                                |
+                                v
+              Authority / relevance / dedup guard
+                                |
+                                v
+                            Evidence
+```
+
+`packages/retrieval/structured.py` (deck/part/material/contact/control/
+database/include queries) is **complementary**, not fused into this ranked
+list (`PRD_LEVEL3.md` §14's own words; `docs/ADR/0012` records this as the
+resolution of a real internal inconsistency between that document's own
+prose and its architecture diagram).
+
+Real measured comparison (`evals/level3_hybrid_eval.py`, not tuned): on the
+current golden set, BM25-only (MRR 0.917) beats raw RRF (MRR 0.677) — the
+interim `HashingEmbeddingProvider`'s word-overlap-only dense leg dilutes
+the fusion rather than helping — and the reranker recovers the full
+pipeline back to BM25-only's quality while genuinely improving NDCG@10 over
+RRF-only (0.938 vs 0.756). A real embedding-model benchmark (`TRD.md` §20)
+is the natural next investment, not a retrieval-code fix.
+
+**OKF** (`knowledge/07_okf/`, `scripts/generate_okf_concepts.py`): one
+curated concept file per ingested document (not one per section — that
+would approach rewriting the whole manual), real extracted content
+(truncated, never LLM-summarized), full source/page/section/authority
+provenance in YAML frontmatter per `ENVIRONMENT_SETUP.md` §12's spec.
+
+**Bounded, not unlimited-depth**: PDFs are ingested to a 20-page bound per
+document (consistent with the pre-existing V1 precedent, `docs/ADR/0006`,
+for an 8 GB RAM dev machine); CAE decks are parsed as their main/"combine"
+file plus *direct* includes only (some individual component files in this
+corpus are 100–170 MB) across 4 real vehicle/dummy-model families. Real
+scale reached anyway: 46,765 real keyword rows, 4,992 parts, 1,724
+materials, 99 contacts across 93 real LS-DYNA files — 2,085 of 2,098 real
+parts (99.4%) have their material genuinely resolvable via structured
+search within that bounded scope.
+
+## Testing & evaluation
+
+```powershell
+uv run pytest                              # 187 tests, all against real fixtures/corpus where applicable
+uv run python evals/scenario_eval.py       # numerical accuracy, all 10 synthetic scenarios
+uv run python evals/retrieval_eval.py      # full-pipeline Recall@5/@10/MRR
+uv run python evals/level3_hybrid_eval.py  # per-stage BM25/Dense/RRF/reranker comparison + NDCG@10
+```
+
+## Limitations
+
+- **Docling, OCR (tesseract), and a real cross-encoder reranker are not
+  installed** — 12 GB free disk measured at decision time; each would
+  resolve several GB of `torch`/`transformers`. All three are
+  `Protocol`-based swap points (`docs/ADR/0007`, `0011`, `0012`) requiring
+  no changes above their respective modules once installed.
+- **Dense retrieval uses a deterministic hashing placeholder**
+  (`docs/ADR/0007`), not a real embedding model — word-overlap only, no
+  semantics. Measured, not assumed, to currently be a net drag on fused
+  ranking quality relative to BM25 alone (see the Level-3 section above).
+- **PDF ingestion is bounded to 20 pages/document**; CAE deck parsing is
+  bounded to main + direct includes. Both are real, working, and tested at
+  real scale — just not the entire 1.3 GB corpus at unlimited depth.
+- **No CISS field data** — `Knowledge source/NHTSA_crash_test_field_data/`
+  exists but the profiler found zero files there; recorded `NOT_AVAILABLE`
+  in the manifest rather than assumed present.
+- **No historical-case data, no chosen/benchmarked embedding model, no
+  report generation, no mechanism/animation review, no production
+  hardening** (auth, audit trail, a dedicated test database) — all
+  unchanged from V1's own stated scope.
+- Not a production deployment.

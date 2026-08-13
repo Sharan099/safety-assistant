@@ -60,10 +60,10 @@ export function InvestigationCopilot({ investigationId }: { investigationId: str
   };
 
   return (
-    <section className="rounded border border-neutral-800">
+    <section className="flex h-full flex-col rounded border border-neutral-800 bg-neutral-950">
       <button
         onClick={() => setCollapsed((c) => !c)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left"
+        className="flex w-full shrink-0 items-center justify-between px-4 py-3 text-left"
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-neutral-200">
           Investigation Copilot
@@ -73,8 +73,8 @@ export function InvestigationCopilot({ investigationId }: { investigationId: str
       </button>
 
       {!collapsed && (
-        <div className="border-t border-neutral-800 px-4 py-3">
-          <div ref={scrollRef} className="max-h-96 space-y-3 overflow-y-auto pr-1">
+        <div className="flex min-h-0 flex-1 flex-col border-t border-neutral-800 px-4 py-3">
+          <div ref={scrollRef} className="min-h-[16rem] flex-1 space-y-3 overflow-y-auto pr-1">
             {history.isLoading && <p className="text-sm text-neutral-500">Loading conversation…</p>}
             {!history.isLoading && messages.length === 0 && !pendingUserMessage && (
               <p className="text-sm text-neutral-500">

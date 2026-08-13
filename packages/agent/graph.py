@@ -31,12 +31,26 @@ from sqlalchemy.orm import Session
 from packages.agent import tools
 from packages.agent.evidence import evidence_and_hypothesis
 from packages.agent.llm import LLMProvider
+from packages.agent.persistence import (
+    compute_global_response as persistence_compute_global_response,
+)
+from packages.agent.persistence import (
+    persist_comparability,
+    persist_configuration_diff,
+    persist_quality_results,
+    persist_signal_analysis,
+)
 from packages.agent.state import InvestigationState
 from packages.domain.core import SimulationRun
 from packages.domain.investigation import Investigation, InvestigationRun
 
 
 def build_graph(session: Session, *, llm: LLMProvider | None = None) -> CompiledStateGraph:  # type: ignore[type-arg]
+    def _investigation(state: InvestigationState) -> Investigation:
+        investigation = session.get(Investigation, state["investigation_id"])
+        assert investigation is not None
+        return investigation
+
     def load_runs(state: InvestigationState) -> dict[str, Any]:
         tools.load_run(session, state["run_a_id"])
         tools.load_run(session, state["run_b_id"])
@@ -45,7 +59,13 @@ def build_graph(session: Session, *, llm: LLMProvider | None = None) -> Compiled
     def quality_gate(state: InvestigationState) -> dict[str, Any]:
         run_a = tools.load_run(session, state["run_a_id"])
         run_b = tools.load_run(session, state["run_b_id"])
-        return {"quality_a": tools.tool_run_quality_gate(run_a), "quality_b": tools.tool_run_quality_gate(run_b)}
+        # Persisted (not just kept in graph state) so anything reading the
+        # database afterward — the Copilot context builder, a report, a
+        # human — sees the same result the agent based its reasoning on.
+        # Found missing here originally via tests/agent/test_copilot_context.py.
+        summary_a, summary_b = persist_quality_results(session, _investigation(state), run_a, run_b)
+        session.commit()
+        return {"quality_a": summary_a.model_dump(), "quality_b": summary_b.model_dump()}
 
     def route_after_quality(state: InvestigationState) -> str:
         qa, qb = state["quality_a"], state["quality_b"]
@@ -57,36 +77,48 @@ def build_graph(session: Session, *, llm: LLMProvider | None = None) -> Compiled
         return {"blocked_reason": "quality_gate_failed", "review_required": True}
 
     def blocked_finalize(state: InvestigationState) -> dict[str, Any]:
-        investigation = session.get(Investigation, state["investigation_id"])
-        assert investigation is not None
-        investigation.state = "BLOCKED"
+        _investigation(state).state = "BLOCKED"
         session.commit()
         return {}
 
     def global_response(state: InvestigationState) -> dict[str, Any]:
         run_a = tools.load_run(session, state["run_a_id"])
         run_b = tools.load_run(session, state["run_b_id"])
-        gr = tools.tool_compare_global_response(session, run_a, run_b)
-        return {"global_response": gr} if gr else {}
+        gr = persistence_compute_global_response(session, run_a, run_b)
+        return {"global_response": gr.model_dump()} if gr else {}
 
     def configuration_diff(state: InvestigationState) -> dict[str, Any]:
         run_a = tools.load_run(session, state["run_a_id"])
         run_b = tools.load_run(session, state["run_b_id"])
-        diff = tools.tool_compare_configuration(run_a, run_b)
-        return {"configuration_diff": diff} if diff else {}
+        diff = persist_configuration_diff(session, _investigation(state), run_a, run_b)
+        session.commit()
+        return {"configuration_diff": [d.model_dump() for d in diff]} if diff else {}
 
     def comparability(state: InvestigationState) -> dict[str, Any]:
         run_a = tools.load_run(session, state["run_a_id"])
         run_b = tools.load_run(session, state["run_b_id"])
-        summary = tools.tool_assess_comparability(
+        investigation = _investigation(state)
+
+        # Recompute rather than reconstruct from the (already-dumped-to-dict)
+        # state, matching the API endpoints' "each step is self-sufficient"
+        # design (apps/api/routers/investigations.py) — persist_* functions
+        # are cheap, deterministic, and idempotent (upsert-by-delete).
+        quality_a, quality_b = persist_quality_results(session, investigation, run_a, run_b)
+        gr = persistence_compute_global_response(session, run_a, run_b)
+        diffs = persist_configuration_diff(session, investigation, run_a, run_b)
+
+        summary = persist_comparability(
+            session,
+            investigation,
             run_a,
             run_b,
-            state["quality_a"],
-            state["quality_b"],
-            state.get("global_response"),
-            state.get("configuration_diff"),
+            quality_a,
+            quality_b,
+            global_response=gr,
+            configuration_diffs=diffs,
         )
-        return {"comparability": summary}
+        session.commit()
+        return {"comparability": summary.model_dump()}
 
     def signal_plan(state: InvestigationState) -> dict[str, Any]:
         return {"signal_plan": tools.select_signal_plan(state["primary_metric"])}
@@ -94,11 +126,13 @@ def build_graph(session: Session, *, llm: LLMProvider | None = None) -> Compiled
     def signal_analysis(state: InvestigationState) -> dict[str, Any]:
         run_a = tools.load_run(session, state["run_a_id"])
         run_b = tools.load_run(session, state["run_b_id"])
+        investigation = _investigation(state)
         results = {}
         for signal_name in state.get("signal_plan", []):
-            result = tools.tool_analyze_signal(session, run_a, run_b, signal_name)
+            result = persist_signal_analysis(session, investigation, run_a, run_b, signal_name)
             if result is not None:
-                results[signal_name] = result
+                results[signal_name] = result.model_dump()
+        session.commit()
         return {"signal_results": results}
 
     def knowledge_retrieval(state: InvestigationState) -> dict[str, Any]:

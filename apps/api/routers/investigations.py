@@ -26,11 +26,15 @@ from apps.api.schemas import (
     HypothesisSummary,
     InvestigationSummary,
 )
+from packages.agent import persistence
 from packages.agent.graph import run_investigation
 from packages.agent.llm import get_provider
-from packages.analysis.comparability import assess_comparability
-from packages.analysis.configuration import compare_configuration
-from packages.analysis.global_response import compare_global_response
+from packages.agent.persistence import (
+    persist_comparability,
+    persist_configuration_diff,
+    persist_quality_results,
+    persist_signal_analysis,
+)
 from packages.analysis.models import (
     ComparabilitySummary,
     ConfigDiffEntry,
@@ -38,22 +42,9 @@ from packages.analysis.models import (
     QualityGateSummary,
     SignalAnalysisResult,
 )
-from packages.analysis.quality import run_quality_gate
-from packages.analysis.signals import analyze_signal_pair
 from packages.domain.core import Signal, SignalDefinition, SimulationRun
 from packages.domain.db import get_settings
-from packages.domain.investigation import (
-    AnalysisEvent,
-    ComparabilityAssessment,
-    ConfigurationDiff,
-    EngineerReview,
-    Evidence,
-    Hypothesis,
-    Investigation,
-    InvestigationRun,
-    QualityGateResult,
-    SignalAnalysis,
-)
+from packages.domain.investigation import EngineerReview, Evidence, Hypothesis, Investigation, InvestigationRun
 
 router = APIRouter(tags=["investigations"])
 
@@ -81,13 +72,6 @@ def _investigation_run_ids(session: Session, investigation: Investigation) -> tu
     run_b = session.get(SimulationRun, by_role["COMPARISON"])
     assert run_a is not None and run_b is not None
     return run_a, run_b
-
-
-def _config(run: SimulationRun) -> dict[str, Any]:
-    config = (run.metadata_ or {}).get("config")
-    if config is None:
-        raise HTTPException(status_code=422, detail=f"run {run.run_id} has no recorded configuration to diff")
-    return dict(config)
 
 
 def _summary(
@@ -176,23 +160,7 @@ def compute_quality(investigation_id: uuid.UUID, session: Session = Depends(get_
     investigation = _get_investigation_or_404(session, investigation_id)
     run_a, run_b = _investigation_run_ids(session, investigation)
 
-    summary_a = run_quality_gate(run_a.run_id, (run_a.metadata_ or {}).get("quality_raw"))
-    summary_b = run_quality_gate(run_b.run_id, (run_b.metadata_ or {}).get("quality_raw"))
-
-    session.query(QualityGateResult).filter_by(investigation_id=investigation.id).delete()
-    for run, summary in ((run_a, summary_a), (run_b, summary_b)):
-        for check in summary.checks:
-            session.add(
-                QualityGateResult(
-                    investigation_id=investigation.id,
-                    simulation_run_id=run.id,
-                    check_type=check.check_type,
-                    status=check.status,
-                    value=check.value,
-                    threshold=check.threshold,
-                    explanation=check.explanation,
-                )
-            )
+    summary_a, summary_b = persist_quality_results(session, investigation, run_a, run_b)
     investigation.state = "QUALITY_CHECK"
     session.commit()
     return {"run_a": summary_a, "run_b": summary_b}
@@ -205,25 +173,10 @@ def compute_global_response(
     investigation = _get_investigation_or_404(session, investigation_id)
     run_a, run_b = _investigation_run_ids(session, investigation)
 
-    signal_a = (
-        session.query(Signal)
-        .join(SignalDefinition)
-        .filter(Signal.simulation_run_id == run_a.id, SignalDefinition.canonical_name == "vehicle_pulse")
-        .one_or_none()
-    )
-    signal_b = (
-        session.query(Signal)
-        .join(SignalDefinition)
-        .filter(Signal.simulation_run_id == run_b.id, SignalDefinition.canonical_name == "vehicle_pulse")
-        .one_or_none()
-    )
-    if signal_a is None or signal_b is None:
+    comparison = persistence.compute_global_response(session, run_a, run_b)
+    if comparison is None:
         raise HTTPException(status_code=422, detail="vehicle_pulse signal not available for one or both runs")
 
-    time_a, values_a = read_signal(signal_a.storage_uri, "vehicle_pulse")
-    _time_b, values_b = read_signal(signal_b.storage_uri, "vehicle_pulse")
-
-    comparison = compare_global_response(run_a.run_id, run_b.run_id, time_a, values_a, values_b)
     investigation.state = "GLOBAL_RESPONSE"
     session.commit()
     return comparison
@@ -236,20 +189,12 @@ def compute_configuration_diff(
     investigation = _get_investigation_or_404(session, investigation_id)
     run_a, run_b = _investigation_run_ids(session, investigation)
 
-    diffs = compare_configuration(_config(run_a), _config(run_b))
-
-    session.query(ConfigurationDiff).filter_by(investigation_id=investigation.id).delete()
-    for diff in diffs:
-        session.add(
-            ConfigurationDiff(
-                investigation_id=investigation.id,
-                path=diff.path,
-                run_a_value={"value": diff.run_a_value},
-                run_b_value={"value": diff.run_b_value},
-                change_status=diff.change_status,
-                change_classification=diff.change_classification,
-            )
+    diffs = persist_configuration_diff(session, investigation, run_a, run_b)
+    if diffs is None:
+        raise HTTPException(
+            status_code=422, detail=f"run {run_a.run_id} or {run_b.run_id} has no recorded configuration to diff"
         )
+
     investigation.state = "CONFIGURATION_ANALYSIS"
     session.commit()
     return diffs
@@ -260,55 +205,20 @@ def compute_comparability(investigation_id: uuid.UUID, session: Session = Depend
     investigation = _get_investigation_or_404(session, investigation_id)
     run_a, run_b = _investigation_run_ids(session, investigation)
 
-    quality_a = run_quality_gate(run_a.run_id, (run_a.metadata_ or {}).get("quality_raw"))
-    quality_b = run_quality_gate(run_b.run_id, (run_b.metadata_ or {}).get("quality_raw"))
+    quality_a, quality_b = persist_quality_results(session, investigation, run_a, run_b)
+    global_response = persistence.compute_global_response(session, run_a, run_b)
+    config_diffs = persist_configuration_diff(session, investigation, run_a, run_b)
 
-    global_response: GlobalResponseComparison | None = None
-    config_diffs: list[ConfigDiffEntry] | None = None
-    try:
-        signal_a = (
-            session.query(Signal)
-            .join(SignalDefinition)
-            .filter(Signal.simulation_run_id == run_a.id, SignalDefinition.canonical_name == "vehicle_pulse")
-            .one_or_none()
-        )
-        signal_b = (
-            session.query(Signal)
-            .join(SignalDefinition)
-            .filter(Signal.simulation_run_id == run_b.id, SignalDefinition.canonical_name == "vehicle_pulse")
-            .one_or_none()
-        )
-        if signal_a is not None and signal_b is not None:
-            time_a, values_a = read_signal(signal_a.storage_uri, "vehicle_pulse")
-            _time_b, values_b = read_signal(signal_b.storage_uri, "vehicle_pulse")
-            global_response = compare_global_response(run_a.run_id, run_b.run_id, time_a, values_a, values_b)
-    except (OSError, ValueError):
-        global_response = None
-
-    if (run_a.metadata_ or {}).get("config") is not None and (run_b.metadata_ or {}).get("config") is not None:
-        config_diffs = compare_configuration(_config(run_a), _config(run_b))
-
-    summary = assess_comparability(
-        run_a.run_id,
-        run_b.run_id,
+    summary = persist_comparability(
+        session,
+        investigation,
+        run_a,
+        run_b,
         quality_a,
         quality_b,
         global_response=global_response,
         configuration_diffs=config_diffs,
-        result_processing_version_a=run_a.result_processing_version,
-        result_processing_version_b=run_b.result_processing_version,
     )
-
-    session.query(ComparabilityAssessment).filter_by(investigation_id=investigation.id).delete()
-    for dim in summary.dimensions:
-        session.add(
-            ComparabilityAssessment(
-                investigation_id=investigation.id,
-                dimension=dim.dimension,
-                status=dim.status,
-                explanation=dim.explanation,
-            )
-        )
     investigation.state = "COMPARABILITY_CHECK"
     session.commit()
     return summary
@@ -321,54 +231,12 @@ def analyze_signal(
     investigation = _get_investigation_or_404(session, investigation_id)
     run_a, run_b = _investigation_run_ids(session, investigation)
 
-    signal_def = session.query(SignalDefinition).filter_by(canonical_name=signal_name).one_or_none()
-    if signal_def is None:
+    if session.query(SignalDefinition).filter_by(canonical_name=signal_name).one_or_none() is None:
         raise HTTPException(status_code=404, detail=f"unknown signal: {signal_name}")
 
-    signal_a = (
-        session.query(Signal).filter_by(simulation_run_id=run_a.id, signal_definition_id=signal_def.id).one_or_none()
-    )
-    signal_b = (
-        session.query(Signal).filter_by(simulation_run_id=run_b.id, signal_definition_id=signal_def.id).one_or_none()
-    )
-    if signal_a is None or signal_b is None:
+    result = persist_signal_analysis(session, investigation, run_a, run_b, signal_name)
+    if result is None:
         raise HTTPException(status_code=422, detail=f"signal {signal_name} not available for one or both runs")
-
-    time_s, values_a = read_signal(signal_a.storage_uri, signal_name)
-    _t, values_b = read_signal(signal_b.storage_uri, signal_name)
-
-    result = analyze_signal_pair(signal_name, run_a.run_id, run_b.run_id, time_s, values_a, values_b)
-
-    analysis_row = SignalAnalysis(
-        investigation_id=investigation.id,
-        signal_definition_id=signal_def.id,
-        run_a_signal_id=signal_a.id,
-        run_b_signal_id=signal_b.id,
-        alignment_method="index-aligned",
-        filtering_method="none",
-        metrics={
-            "correlation": result.correlation,
-            "run_a_peak": result.run_a_features.peak,
-            "run_b_peak": result.run_b_features.peak,
-        },
-        algorithm_version=result.provenance.algorithm_version,
-    )
-    session.add(analysis_row)
-    session.flush()
-
-    if result.divergence is not None:
-        session.add(
-            AnalysisEvent(
-                signal_analysis_id=analysis_row.id,
-                event_type="first_divergence",
-                time_ms=result.divergence.time_ms,
-                algorithm_version=result.divergence.provenance.algorithm_version,
-                threshold=result.divergence.threshold,
-                window=result.divergence.window,
-                alignment_method=result.divergence.alignment_method,
-                source_signal_id=signal_a.id,
-            )
-        )
 
     investigation.state = "SIGNAL_ANALYSIS"
     session.commit()

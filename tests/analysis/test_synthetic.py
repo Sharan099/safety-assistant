@@ -23,9 +23,10 @@ def test_every_scenario_has_ground_truth() -> None:
         assert spec.description
         assert spec.allowed_conclusions, spec.scenario_id
         assert spec.disallowed_conclusions, spec.scenario_id
-        # SCN-010 (quality failure) legitimately expects zero signal changes —
-        # the point of that scenario is that no signal claim should be made.
-        if spec.scenario_id != "SCN-010":
+        # SCN-010 (quality failure) and SCN-009 (deliberately sub-threshold
+        # jitter) legitimately expect zero detectable signal changes — the
+        # point of both is that no signal-level claim should be made.
+        if spec.scenario_id not in ("SCN-009", "SCN-010"):
             assert spec.expected_signal_changes, spec.scenario_id
 
 

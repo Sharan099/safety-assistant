@@ -1,0 +1,23 @@
+# Golden retrieval dataset — TRD.md Section 14/Phase 12.
+#
+# Each case: a query an engineer might actually type, and the document_key
+# (knowledge/00_registry/source_manifest.yaml source_id) the top result
+# should come from. Kept small and honest: only covers documents actually
+# ingested (scripts/ingest_documents.py — UN_R94 in full, two LS-DYNA
+# manuals to page 60). Do not add cases for un-ingested documents.
+
+cases:
+  - query: "frontal collision occupant protection"
+    expected_document_key: unece-un-r94
+  - query: "dummy tibia index bending moment"
+    expected_document_key: unece-un-r94
+  - query: "vehicle category M1 scope of regulation"
+    expected_document_key: unece-un-r94
+  - query: "crush strength determination displacement interval"
+    expected_document_key: unece-un-r94
+  - query: "compressive axial force critical bending moment"
+    expected_document_key: unece-un-r94
+  - query: "airbag liner reference geometry venting leakage of gas"
+    expected_document_key: lsdyna-r17-theory
+  - query: "adaptive refinement forming contact draw bead"
+    expected_document_key: lsdyna-r17-theory

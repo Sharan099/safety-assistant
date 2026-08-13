@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import pathlib
 import sys
+from collections.abc import Sequence
 
 import pandas as pd
 import yaml
@@ -41,6 +42,24 @@ from packages.domain.core import (  # noqa: E402
     Vehicle,
 )
 from packages.domain.db import get_engine  # noqa: E402
+from packages.domain.investigation import (  # noqa: E402
+    AnalysisEvent,
+    ComparabilityAssessment,
+    ConfigurationDiff,
+    ControlledComparisonRequest,
+    EngineerReview,
+    Evidence,
+    EvidenceContradiction,
+    Finding,
+    Hypothesis,
+    HypothesisEvidenceLink,
+    Investigation,
+    InvestigationMetric,
+    InvestigationRun,
+    QualityGateResult,
+    RecommendedAction,
+    SignalAnalysis,
+)
 
 SIGNAL_GROUPS = {
     "occupant": ["chest_acceleration", "chest_deflection", "chest_velocity", "pelvis_acceleration", "torso_rotation"],
@@ -104,11 +123,58 @@ def _get_or_create_org(session: Session) -> Organization:
     return org
 
 
+def _clear_investigations_referencing(session: Session, run_ids: Sequence[object]) -> None:
+    """Any real investigation an engineer created against these runs (e.g. via
+    the API while exploring) must be torn down before the runs themselves can
+    be deleted — Artifact.simulation_run_id-style FK chains, but through
+    InvestigationRun. Regenerating the benchmark is a full reset, not a
+    partial one; see docs/ADR/0008."""
+    investigation_ids = [
+        row[0]
+        for row in session.query(InvestigationRun.investigation_id)
+        .filter(InvestigationRun.simulation_run_id.in_(run_ids))
+        .all()
+    ]
+    if not investigation_ids:
+        return
+
+    hypothesis_ids = [
+        row[0] for row in session.query(Hypothesis.id).filter(Hypothesis.investigation_id.in_(investigation_ids)).all()
+    ]
+    signal_analysis_ids = [
+        row[0]
+        for row in session.query(SignalAnalysis.id).filter(SignalAnalysis.investigation_id.in_(investigation_ids)).all()
+    ]
+
+    session.execute(delete(HypothesisEvidenceLink).where(HypothesisEvidenceLink.hypothesis_id.in_(hypothesis_ids)))
+    session.execute(delete(AnalysisEvent).where(AnalysisEvent.signal_analysis_id.in_(signal_analysis_ids)))
+    session.execute(delete(SignalAnalysis).where(SignalAnalysis.investigation_id.in_(investigation_ids)))
+    session.execute(delete(EvidenceContradiction).where(EvidenceContradiction.investigation_id.in_(investigation_ids)))
+    session.execute(delete(QualityGateResult).where(QualityGateResult.investigation_id.in_(investigation_ids)))
+    session.execute(
+        delete(ComparabilityAssessment).where(ComparabilityAssessment.investigation_id.in_(investigation_ids))
+    )
+    session.execute(delete(ConfigurationDiff).where(ConfigurationDiff.investigation_id.in_(investigation_ids)))
+    session.execute(
+        delete(ControlledComparisonRequest).where(ControlledComparisonRequest.investigation_id.in_(investigation_ids))
+    )
+    session.execute(delete(Hypothesis).where(Hypothesis.investigation_id.in_(investigation_ids)))
+    session.execute(delete(Evidence).where(Evidence.investigation_id.in_(investigation_ids)))
+    session.execute(delete(Finding).where(Finding.investigation_id.in_(investigation_ids)))
+    session.execute(delete(RecommendedAction).where(RecommendedAction.investigation_id.in_(investigation_ids)))
+    session.execute(delete(EngineerReview).where(EngineerReview.investigation_id.in_(investigation_ids)))
+    session.execute(delete(InvestigationMetric).where(InvestigationMetric.investigation_id.in_(investigation_ids)))
+    session.execute(delete(InvestigationRun).where(InvestigationRun.investigation_id.in_(investigation_ids)))
+    session.execute(delete(Investigation).where(Investigation.id.in_(investigation_ids)))
+    session.flush()
+
+
 def _clear_previous_load(session: Session, project: Project | None) -> None:
     if project is None:
         return
     run_ids = [r.id for r in session.query(SimulationRun).filter_by(project_id=project.id).all()]
     if run_ids:
+        _clear_investigations_referencing(session, run_ids)
         session.execute(delete(Signal).where(Signal.simulation_run_id.in_(run_ids)))
         session.execute(delete(SimulationRun).where(SimulationRun.id.in_(run_ids)))
     session.query(ModelVersion).filter(

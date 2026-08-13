@@ -35,11 +35,11 @@ class PageExtraction:
     page_number: int  # 1-indexed, matching how engineers cite PDF pages
     text: str
     char_count: int
-    text_quality: float  # 0..1, see `_text_quality`
+    text_quality: float  # 0..1, see `text_quality()`
     needs_ocr: bool
 
 
-def _text_quality(text: str) -> float:
+def text_quality(text: str) -> float:
     stripped = text.strip()
     if not stripped:
         return 0.0
@@ -58,7 +58,7 @@ def extract_pages(pdf_path: str, *, max_pages: int | None = None) -> list[PageEx
         page_count = len(doc) if max_pages is None else min(max_pages, len(doc))
         for i in range(page_count):
             text = doc[i].get_text("text")
-            quality = _text_quality(text)
+            quality = text_quality(text)
             pages.append(
                 PageExtraction(
                     page_number=i + 1,

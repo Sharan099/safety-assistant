@@ -31,6 +31,12 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
+    # apps/web's dev server (docs/ADR/0004: port 3010, not the common 3000
+    # default, to avoid colliding with a sibling project on this host).
+    # Override via env as a JSON array, e.g. CORS_ORIGINS='["https://example.com"]'
+    # (pydantic-settings' default parsing for list-typed fields).
+    cors_origins: list[str] = ["http://localhost:3010", "http://127.0.0.1:3010"]
+
 
 @lru_cache
 def get_settings() -> Settings:

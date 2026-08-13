@@ -2,6 +2,9 @@ import type {
   AgentRunResult,
   ComparabilitySummary,
   ConfigDiffEntry,
+  CopilotFinalEvent,
+  CopilotMessageSummary,
+  CopilotStepEvent,
   EvidenceSummary,
   GlobalResponseComparison,
   HypothesisSummary,
@@ -91,5 +94,58 @@ export const api = {
   searchKnowledge: (q: string, params?: { source_type?: string; authority_level?: string; limit?: number }) => {
     const search = new URLSearchParams({ q, ...(params as Record<string, string>) });
     return request<RetrievedChunk[]>(`/knowledge/search?${search.toString()}`);
+  },
+
+  listCopilotMessages: (id: string) => request<CopilotMessageSummary[]>(`/investigations/${id}/copilot/messages`),
+
+  // SSE, not JSON — native `EventSource` can't send a POST body, so this
+  // reads the streaming fetch() response manually. One callback fires per
+  // "step" event (real-time LangGraph node progress) and once more with
+  // "final" (the completed, grounded reply) or "error".
+  streamCopilotMessage: async (
+    investigationId: string,
+    message: string,
+    handlers: {
+      onStep: (event: CopilotStepEvent) => void;
+      onFinal: (event: CopilotFinalEvent) => void;
+      onError: (detail: string) => void;
+    },
+  ): Promise<void> => {
+    const res = await fetch(`${API_BASE}/investigations/${investigationId}/copilot/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+    if (!res.ok || !res.body) {
+      handlers.onError(`Could not reach the Copilot (HTTP ${res.status}).`);
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      let boundary = buffer.indexOf("\n\n");
+      while (boundary !== -1) {
+        const block = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+
+        const eventMatch = /^event: (.+)$/m.exec(block);
+        const dataMatch = /^data: (.+)$/m.exec(block);
+        if (eventMatch && dataMatch) {
+          const eventType = eventMatch[1];
+          const data = JSON.parse(dataMatch[1]);
+          if (eventType === "step") handlers.onStep(data as CopilotStepEvent);
+          else if (eventType === "final") handlers.onFinal(data as CopilotFinalEvent);
+          else if (eventType === "error") handlers.onError((data as { detail: string }).detail);
+        }
+        boundary = buffer.indexOf("\n\n");
+      }
+    }
   },
 };

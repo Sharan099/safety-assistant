@@ -10,6 +10,7 @@ import { ComparabilityMatrix } from "@/components/ComparabilityMatrix";
 import { HypothesisCard } from "@/components/HypothesisCard";
 import { EvidenceCard } from "@/components/EvidenceCard";
 import { SignalChart } from "@/components/SignalChart";
+import { InvestigationCopilot } from "@/components/InvestigationCopilot";
 
 const SIGNAL_OPTIONS = [
   "chest_deflection",
@@ -149,6 +150,8 @@ export default function InvestigationWorkspace() {
         </SecondaryButton>
         {actionError && <span className="text-sm text-red-400">{actionError}</span>}
       </div>
+
+      <InvestigationCopilot investigationId={id} />
 
       {quality && (
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2">

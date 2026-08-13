@@ -163,6 +163,39 @@ export interface AgentRunResult {
   evidence_count: number;
 }
 
+export interface CopilotToolActivity {
+  tool_name: string;
+  status: string;
+  result_summary: string;
+}
+
+export interface CopilotMessageSummary {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  evidence_refs: string[];
+  suggested_actions: string[];
+  unknowns: string[];
+  llm_degraded: boolean;
+  tool_activity: CopilotToolActivity[];
+  created_at: string;
+}
+
+export interface CopilotStepEvent {
+  node: string;
+  detail: string;
+}
+
+export interface CopilotFinalEvent {
+  message: string;
+  intent: string | null;
+  evidence_refs: string[];
+  tool_activity: CopilotToolActivity[];
+  suggested_actions: string[];
+  unknowns: string[];
+  llm_degraded: boolean;
+}
+
 export interface RetrievedChunk {
   chunk_id: string;
   content: string;

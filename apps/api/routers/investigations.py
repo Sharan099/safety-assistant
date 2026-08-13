@@ -150,6 +150,20 @@ def create_investigation(body: CreateInvestigationRequest, session: Session = De
     return _summary(session, investigation, run_a, run_b)
 
 
+@router.get("/investigations", response_model=list[InvestigationSummary])
+def list_investigations(session: Session = Depends(get_db)) -> list[InvestigationSummary]:
+    """Dashboard.md Section 3 / UI_UX_DESIGN_BRIEF.md Section 7: "Open investigations"."""
+    investigations = session.query(Investigation).order_by(Investigation.created_at.desc()).limit(100).all()
+    summaries = []
+    for investigation in investigations:
+        try:
+            run_a, run_b = _investigation_run_ids(session, investigation)
+        except HTTPException:
+            continue  # skip malformed rows rather than failing the whole list
+        summaries.append(_summary(session, investigation, run_a, run_b))
+    return summaries
+
+
 @router.get("/investigations/{investigation_id}", response_model=InvestigationSummary)
 def get_investigation(investigation_id: uuid.UUID, session: Session = Depends(get_db)) -> InvestigationSummary:
     investigation = _get_investigation_or_404(session, investigation_id)
@@ -473,3 +487,36 @@ def submit_engineer_review(
     investigation.state = "DECISION" if body.decision in ("ACCEPT", "REJECT") else "FOLLOW_UP"
     session.commit()
     return {"review_id": str(review.id), "investigation_state": investigation.state}
+
+
+@router.get("/investigations/{investigation_id}/signals/{signal_name}/timeseries")
+def get_signal_timeseries(
+    investigation_id: uuid.UUID, signal_name: str, session: Session = Depends(get_db)
+) -> dict[str, Any]:
+    """Raw samples for the Signal Workspace chart (UI_UX_DESIGN_BRIEF.md §13) —
+    `analyze` returns features/divergence, not the curve itself."""
+    investigation = _get_investigation_or_404(session, investigation_id)
+    run_a, run_b = _investigation_run_ids(session, investigation)
+
+    signal_def = session.query(SignalDefinition).filter_by(canonical_name=signal_name).one_or_none()
+    if signal_def is None:
+        raise HTTPException(status_code=404, detail=f"unknown signal: {signal_name}")
+
+    signal_a = (
+        session.query(Signal).filter_by(simulation_run_id=run_a.id, signal_definition_id=signal_def.id).one_or_none()
+    )
+    signal_b = (
+        session.query(Signal).filter_by(simulation_run_id=run_b.id, signal_definition_id=signal_def.id).one_or_none()
+    )
+    if signal_a is None or signal_b is None:
+        raise HTTPException(status_code=422, detail=f"signal {signal_name} not available for one or both runs")
+
+    time_s, values_a = read_signal(signal_a.storage_uri, signal_name)
+    _t, values_b = read_signal(signal_b.storage_uri, signal_name)
+    return {
+        "signal": signal_name,
+        "time_s": time_s.tolist(),
+        "run_a": values_a.tolist(),
+        "run_b": values_b.tolist(),
+        "unit": signal_def.unit,
+    }

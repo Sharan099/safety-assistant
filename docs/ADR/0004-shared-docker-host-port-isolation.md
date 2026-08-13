@@ -32,3 +32,24 @@ container already **running and healthy** on `127.0.0.1:3001`).
 - If FreeLLMAPI is ever stopped/removed from the shared host, `LLMProvider`
   must fail gracefully per TRD §30 (preserve state, surface "unavailable",
   allow retry) rather than assume it's always reachable.
+
+## Update — 2026-08-13, Phase 17-18 (non-Docker ports)
+
+The same problem exists outside Docker: this host also runs
+`H:\AutoSafety_RAG`'s own FastAPI backend on `127.0.0.1:8000` (with its own
+security-header middleware — confirmed by curling it and seeing CSP/HSTS
+headers this project's API never sets) and its Next.js frontend on
+`0.0.0.0:3000`. Both are extremely common defaults, so this project
+deliberately avoids them too:
+
+- `apps/api` (FastAPI/uvicorn): port **8010** — not committed to a script
+  default anywhere; run explicitly with `uv run uvicorn apps.api.main:app
+  --port 8010`.
+- `apps/web` (Next.js): port **3010** — set directly in `package.json`'s
+  `dev`/`start` scripts, so `npm run dev` never needs the flag repeated.
+- `apps/web/.env.local.example`'s `NEXT_PUBLIC_API_URL` points at
+  `http://localhost:8010/api/v1` accordingly.
+
+General rule for this repo: before hardcoding *any* "default" port, check
+`netstat -ano` on this host first — assume common ports (3000, 5432, 8000,
+8080, ...) are taken by sibling projects until proven otherwise.

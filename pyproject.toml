@@ -19,6 +19,7 @@ dependencies = [
     "pydantic-settings>=2.15.0",
     "pymupdf>=1.28.2",
     "pyyaml>=6.0",
+    "rank-bm25>=0.2.2",
     "scipy>=1.18.0",
     "sqlalchemy>=2.0.52",
     "uvicorn[standard]>=0.52.1",
@@ -43,6 +44,12 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# No stub package exists (types-rank-bm25 isn't published) and the package
+# itself ships no py.typed marker.
+module = "rank_bm25"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

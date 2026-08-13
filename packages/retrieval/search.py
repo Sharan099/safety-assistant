@@ -1,5 +1,4 @@
-"""Baseline RAG: PostgreSQL FTS + pgvector + metadata filters + RRF —
-TRD.md §19/§22, CLAUDE_CODE_BOOTSTRAP_PROMPT.md §14.
+"""Structured + Hybrid RAG — TRD.md §19/§22, TRD_LEVEL3.md §15/§20-25.
 
 "Parent-child expansion" (TRD.md §19) is implemented via the chunk's
 containing `DocumentSection`, not a separate parent-chunk hierarchy:
@@ -7,22 +6,33 @@ containing `DocumentSection`, not a separate parent-chunk hierarchy:
 section a chunk belongs to is the natural "parent" broader-context unit —
 see `RetrievedChunk.section_content`.
 
-No reranker (TRD.md §21: benchmark BM25+dense+RRF first, add one only if
-evaluation shows a real need — packages/retrieval/eval.py is that benchmark).
+Structured CAE search (`packages/retrieval/structured.py`) is deliberately
+NOT fused into this module's RRF ranking. PRD_LEVEL3.md §14 states outright:
+"Structured search is complementary to RAG" — a `CaePart`/`CaeMaterial` row
+has no principled way to share a rank with a text chunk's BM25/dense score,
+and the existing tool list (PRD_LEVEL3.md §26) already keeps
+`retrieve_knowledge` and `retrieve_structured_cae` as two separate tools.
+The retrieval pipeline this module implements is:
 
-`retrieve()` applies a relevance/authority/dedup guard (packages/retrieval/relevance.py)
-before returning anything — CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md Phase 8:
-"Do not expose raw top-k chunks."
+    BM25 (packages/retrieval/bm25.py, real BM25Okapi — docs/ADR/0012)
+        +
+    Dense (pgvector, packages/retrieval/embeddings.py)
+        v
+    RRF (reciprocal_rank_fusion)
+        v
+    Reranker (packages/retrieval/rerank.py)
+        v
+    Authority/relevance/dedup guard (packages/retrieval/relevance.py) —
+    CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md Phase 8: "Do not expose raw top-k
+    chunks."
 """
 
 from __future__ import annotations
 
-import re
 import uuid
 from dataclasses import dataclass
 from typing import Any
 
-import sqlalchemy as sa
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -34,15 +44,15 @@ from packages.domain.knowledge import (
     Embedding,
     KnowledgeSource,
 )
+from packages.retrieval.bm25 import Bm25Index, bm25_search, build_bm25_index
 from packages.retrieval.embeddings import EmbeddingProvider, HashingEmbeddingProvider
 from packages.retrieval.relevance import DEFAULT_MIN_SHARED_TERMS, has_known_authority, is_relevant
+from packages.retrieval.rerank import LexicalAuthorityReranker, RerankCandidate, Reranker, rerank
 
 RRF_K = 60
 DEFAULT_LIMIT = 10
 CANDIDATE_MULTIPLIER = 4  # fetch this many x `limit` from each retrieval leg before fusing
 MAX_CHUNKS_PER_DOCUMENT = 3  # dedup: cap how much of the top-k one document can dominate
-
-_QUERY_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
 @dataclass
@@ -65,6 +75,7 @@ class RetrievedChunk(BaseModel):
     page_start: int | None
     page_end: int | None
     fused_score: float
+    rerank_score: float
     matched_fts: bool
     matched_vector: bool
 
@@ -86,26 +97,24 @@ def _base_query(session: Session, filters: SourceFilter):  # type: ignore[no-unt
     return q
 
 
-def _or_tsquery(query_text: str) -> str | None:
-    """`plainto_tsquery`/`websearch_to_tsquery` AND every term together, which
-    made a realistic multi-term investigation query return zero full-text
-    hits (see module docstring / docs/ADR/0009). OR-joining lets ts_rank do
-    its job of ranking partial matches instead of an all-or-nothing filter."""
-    tokens = _QUERY_TOKEN_RE.findall(query_text.lower())
-    if not tokens:
-        return None
-    return " | ".join(tokens)
-
-
-def full_text_search(session: Session, query_text: str, filters: SourceFilter, *, limit: int) -> list[Any]:
-    query_string = _or_tsquery(query_text)
-    if query_string is None:
+def full_text_search(
+    session: Session, query_text: str, filters: SourceFilter, *, limit: int, bm25_index: Bm25Index | None = None
+) -> list[Any]:
+    """The BM25 leg (docs/ADR/0012 — replaces the earlier `ts_rank`
+    approximation, docs/ADR/0009). `bm25_index` lets a caller reuse one
+    index across many queries (packages/retrieval eval harness) instead of
+    rebuilding it per call; `retrieve()` builds one itself when not given."""
+    index = bm25_index if bm25_index is not None else build_bm25_index(session)
+    ranked_chunk_ids = bm25_search(index, query_text, limit=limit)
+    if not ranked_chunk_ids:
         return []
-    tsquery = sa.func.to_tsquery("english", query_string)
-    tsvector = sa.func.to_tsvector("english", DocumentChunk.content)
-    rank = sa.func.ts_rank(tsvector, tsquery)
-    q = _base_query(session, filters).filter(tsvector.op("@@")(tsquery)).order_by(rank.desc()).limit(limit)
-    return q.all()  # type: ignore[no-any-return]  # _base_query is untyped (SQLAlchemy query-builder chain)
+
+    rows = _base_query(session, filters).filter(DocumentChunk.id.in_(ranked_chunk_ids)).all()
+    # SQL `IN` doesn't preserve order — restore the real BM25 ranking, and
+    # drop any id a filter (source_type/authority_level/document_key)
+    # excluded from `rows`.
+    row_by_chunk_id = {row[0].id: row for row in rows}
+    return [row_by_chunk_id[cid] for cid in ranked_chunk_ids if cid in row_by_chunk_id]
 
 
 def vector_search(
@@ -160,16 +169,18 @@ def retrieve(
     filters: SourceFilter | None = None,
     limit: int = DEFAULT_LIMIT,
     provider: EmbeddingProvider | None = None,
+    reranker: Reranker | None = None,
+    bm25_index: Bm25Index | None = None,
     min_shared_terms: int = DEFAULT_MIN_SHARED_TERMS,
 ) -> list[RetrievedChunk]:
-    """Fuse FTS + vector search, then apply the relevance/authority/dedup
-    guard (packages/retrieval/relevance.py) before returning anything —
-    never raw top-k chunks (CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md Phase 8).
-    """
+    """BM25 + dense -> RRF -> reranker -> relevance/authority/dedup guard
+    (packages/retrieval/relevance.py) -> never raw top-k chunks
+    (CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md Phase 8)."""
     filters = filters or SourceFilter()
+    reranker = reranker or LexicalAuthorityReranker()
     candidate_limit = max(limit * CANDIDATE_MULTIPLIER, 20)
 
-    fts_rows = full_text_search(session, query_text, filters, limit=candidate_limit)
+    fts_rows = full_text_search(session, query_text, filters, limit=candidate_limit, bm25_index=bm25_index)
     vector_rows = vector_search(session, query_text, filters, limit=candidate_limit, provider=provider)
 
     fts_ids = [row[0].id for row in fts_rows]
@@ -184,10 +195,10 @@ def retrieve(
     # Rank every fused candidate, not just the first `limit` — filtering
     # happens after ranking, so a naive pre-filter cutoff would starve the
     # result set even when enough relevant candidates exist further down.
-    ranked_ids = sorted(fused_scores, key=lambda cid: fused_scores[cid], reverse=True)
+    fused_ranked_ids = sorted(fused_scores, key=lambda cid: fused_scores[cid], reverse=True)
 
     candidates: list[RetrievedChunk] = []
-    for chunk_id in ranked_ids:
+    for chunk_id in fused_ranked_ids:
         chunk, revision, document, knowledge_source, section = row_by_id[chunk_id]
         locator = chunk.source_locator or {}
         candidates.append(
@@ -204,10 +215,24 @@ def retrieve(
                 page_start=locator.get("page_start"),
                 page_end=locator.get("page_end"),
                 fused_score=fused_scores[chunk_id],
+                rerank_score=fused_scores[chunk_id],  # overwritten below once reranked
                 matched_fts=chunk_id in fts_id_set,
                 matched_vector=chunk_id in vector_id_set,
             )
         )
+
+    if candidates:
+        rerank_candidates = [
+            RerankCandidate(
+                id=c.chunk_id, content=c.content, authority_level=c.authority_level, fused_score=c.fused_score
+            )
+            for c in candidates
+        ]
+        observation = rerank(reranker, query_text, rerank_candidates)
+        rerank_score_by_id = {r.id: r.rerank_score for r in observation.results}
+        for c in candidates:
+            c.rerank_score = rerank_score_by_id.get(c.chunk_id, c.fused_score)
+        candidates.sort(key=lambda c: c.rerank_score, reverse=True)
 
     relevant = [c for c in candidates if _passes_guard(c, query_text, min_shared_terms=min_shared_terms)]
     return _deduplicate(relevant)[:limit]

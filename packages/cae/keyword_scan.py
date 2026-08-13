@@ -17,26 +17,10 @@ import pathlib
 import re
 from dataclasses import dataclass, field
 
-_KEYWORD_LINE_RE = re.compile(r"^\*([A-Za-z0-9_]+)")
+from packages.cae.lsdyna.registry import registry_roots
+from packages.cae.lsdyna.registry import root_for as _registry_root_for
 
-# High-value registry roots — TRD_LEVEL3.md §8 / PRD_LEVEL3.md §11. A scanned
-# keyword "counts toward" a root if it equals the root exactly (e.g. `*PART`)
-# or is a documented sub-variant (`*PART_COMPOSITE` still counts as a PART).
-_REGISTRY_ROOTS = [
-    "NODE",
-    "ELEMENT",
-    "PART",
-    "SECTION",
-    "MAT",
-    "CONTACT",
-    "BOUNDARY",
-    "CONSTRAIN",
-    "CONTROL",
-    "DATABASE",
-    "DEFINE",
-    "PARAMETER",
-    "INCLUDE",
-]
+_KEYWORD_LINE_RE = re.compile(r"^\*([A-Za-z0-9_]+)")
 
 # Filename/path tokens -> free-text model hint. Heuristic only, per
 # PRD_LEVEL3.md §13 "Model hints" column — never treated as a validated
@@ -62,20 +46,14 @@ _MODEL_HINT_TOKENS = {
 class KeywordScanResult:
     keyword_counts: dict[str, int] = field(default_factory=dict)
     include_count: int = 0
-    root_counts: dict[str, int] = field(default_factory=dict)  # per _REGISTRY_ROOTS
+    root_counts: dict[str, int] = field(default_factory=dict)  # per keyword_registry.yaml's roots
     model_hints: list[str] = field(default_factory=list)
     line_count: int = 0
 
 
-def _root_for(keyword: str) -> str | None:
-    for root in _REGISTRY_ROOTS:
-        if keyword == root or keyword.startswith(root + "_"):
-            return root
-    return None
-
-
 def scan_keywords(text: str) -> KeywordScanResult:
     result = KeywordScanResult()
+    roots = registry_roots()
     for line in text.splitlines():
         result.line_count += 1
         stripped = line.strip()
@@ -87,7 +65,7 @@ def scan_keywords(text: str) -> KeywordScanResult:
         keyword = match.group(1).upper()
         result.keyword_counts[keyword] = result.keyword_counts.get(keyword, 0) + 1
 
-        root = _root_for(keyword)
+        root = _registry_root_for(keyword, roots)
         if root is not None:
             result.root_counts[root] = result.root_counts.get(root, 0) + 1
         if root == "INCLUDE":

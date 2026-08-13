@@ -22,7 +22,7 @@ from typing import Literal
 
 from packages.cae.lsdyna.models import ParsedDeck
 
-EdgeStatus = Literal["RESOLVED", "MISSING", "CYCLE", "DUPLICATE", "AMBIGUOUS", "OUTSIDE_ROOT"]
+EdgeStatus = Literal["RESOLVED", "MISSING", "CYCLE", "DUPLICATE", "AMBIGUOUS", "OUTSIDE_ROOT", "SKIPPED_TOO_LARGE"]
 
 
 @dataclass

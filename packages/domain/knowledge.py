@@ -94,6 +94,13 @@ class DocumentPage(Base, UUIDPrimaryKeyMixin):
     ocr_used: Mapped[bool] = mapped_column(Boolean, default=False)
     ocr_confidence: Mapped[float | None] = mapped_column(Double)
 
+    # DISCOVERED | EXTRACTED | NEEDS_REVIEW | FAILED — PASSIVE_SAFETY_LEVEL3_FINAL_FIX.md
+    # §7's page-state list, collapsed to the subset this pipeline can
+    # actually populate honestly (no OCR/VLM engine installed — see
+    # docs/ADR/0011/0016 — so OCR_REQUIRED/OCR_COMPLETE/VISUAL_REVIEW_REQUIRED
+    # would be indistinguishable from NEEDS_REVIEW here; not invented).
+    status: Mapped[str] = mapped_column(Text, default="DISCOVERED")
+
     metadata_: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSONB)
 
 

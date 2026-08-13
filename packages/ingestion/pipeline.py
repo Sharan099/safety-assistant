@@ -222,6 +222,12 @@ def ingest_document(
     pages = extract_pages(str(pdf_path), max_pages=max_pages)
     page_rows: dict[int, DocumentPage] = {}
     for p in pages:
+        # PASSIVE_SAFETY_LEVEL3_FINAL_FIX.md §7: every page carries a state.
+        # NEEDS_REVIEW here means "flagged, never OCR'd" (no OCR engine
+        # installed — docs/ADR/0011) rather than the doc's separate
+        # OCR_REQUIRED/OCR_COMPLETE states, which this pipeline cannot
+        # honestly populate without an actual OCR pass.
+        status = "NEEDS_REVIEW" if p.needs_ocr else "EXTRACTED"
         row = DocumentPage(
             document_revision_id=revision.id,
             page_number=p.page_number,
@@ -229,6 +235,7 @@ def ingest_document(
             text_quality=p.text_quality,
             layout_quality=0.0 if p.needs_ocr else 1.0,
             ocr_used=False,
+            status=status,
         )
         session.add(row)
         page_rows[p.page_number] = row

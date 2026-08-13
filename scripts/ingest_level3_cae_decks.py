@@ -1,15 +1,11 @@
-"""Bounded ingestion of representative real LS-DYNA decks into cae_* —
-TRD_LEVEL3.md §43/Instructions §36: "conservative concurrency," run only
-after the smoke test (tests/test_level3_smoke.py) passes.
+"""Recursive ingestion of real LS-DYNA decks into cae_* —
+PASSIVE_SAFETY_LEVEL3_FINAL_FIX.md §8: moved from "main deck + direct
+includes only" to full transitive resolution (packages/cae/lsdyna/resolve.py),
+docs/ADR/0016.
 
-Each entry below is a real "main"/"combine" deck — the small file that
-issues *INCLUDE for the actual (often 10s-100s of MB) component decks —
-plus its *direct* includes only. This is deliberately not an attempt to
-parse every single file in every archive (some individual component files
-here are 100+ MB; the include graph and parser are already proven correct
-at real scale by the smoke test's 39-include Accord deck and by
-docs/ADR/'s note on this exact tradeoff) — it is real corpus breadth
-(4 distinct vehicle/dummy model families) without unbounded depth.
+Individual component files over 20 MB are recorded as reached but not
+opened (`SKIPPED_TOO_LARGE`, resolve.py's own safety bound) — real memory
+safety on an 8 GB machine, not silently pretending they don't exist.
 
 Usage:
     uv run python scripts/ingest_level3_cae_decks.py
@@ -25,14 +21,51 @@ sys.path.insert(0, str(ROOT))
 
 from sqlalchemy.orm import Session  # noqa: E402
 
-from packages.cae.lsdyna.include_graph import build_include_graph  # noqa: E402
-from packages.cae.lsdyna.models import ParsedDeck  # noqa: E402
-from packages.cae.lsdyna.parser import parse_deck  # noqa: E402
 from packages.cae.lsdyna.persistence import FileMeta, persist_deck  # noqa: E402
+from packages.cae.lsdyna.resolve import resolve_recursive  # noqa: E402
+from packages.domain.cae import (  # noqa: E402
+    CaeContact,
+    CaeControl,
+    CaeDatabase,
+    CaeDeck,
+    CaeFile,
+    CaeInclude,
+    CaeKeyword,
+    CaeMaterial,
+    CaePart,
+    CaeSection,
+)
 from packages.domain.db import get_engine  # noqa: E402
 from packages.domain.knowledge import KnowledgeSource  # noqa: E402
-from packages.ingestion.archives import ArchiveMember, inspect_archive, read_member_bytes  # noqa: E402
+from packages.ingestion.archives import inspect_archive  # noqa: E402
 from packages.ingestion.manifest import get_source  # noqa: E402
+
+
+def _clear_existing_deck(session: Session, deck_key: str) -> None:
+    """persist_deck() is idempotent per deck_key (returns the existing row
+    unchanged) — the right behavior for a genuine re-run with the same
+    parser, wrong for re-running with a *deeper* resolution (this script's
+    move from direct-includes-only to recursive). Clears the old, shallower
+    deck first, matching the regenerate-by-clearing precedent in
+    scripts/generate_synthetic_dataset.py (docs/ADR/0008)."""
+    deck = session.query(CaeDeck).filter_by(deck_key=deck_key).one_or_none()
+    if deck is None:
+        return
+    for model in (
+        CaePart,
+        CaeMaterial,
+        CaeSection,
+        CaeContact,
+        CaeControl,
+        CaeDatabase,
+        CaeInclude,
+        CaeKeyword,
+        CaeFile,
+    ):
+        session.query(model).filter_by(deck_id=deck.id).delete()
+    session.delete(deck)
+    session.commit()
+
 
 # (source_id, main deck member path within its archive)
 TARGETS = [
@@ -63,29 +96,6 @@ def _get_or_create_knowledge_source(session: Session, meta: dict[str, object]) -
     return ks
 
 
-def _resolve_direct_includes(
-    archive_path: pathlib.Path, main_member: str, main_deck: ParsedDeck, all_members: list[ArchiveMember]
-) -> tuple[dict[str, ParsedDeck], dict[str, FileMeta]]:
-    decks: dict[str, ParsedDeck] = {main_member: main_deck}
-    file_meta: dict[str, FileMeta] = {}
-    member_by_path = {m.path: m for m in all_members}
-    main_member_row = member_by_path.get(main_member)
-    file_meta[main_member] = FileMeta(
-        sha256=(main_member_row.sha256 or "") if main_member_row else "",
-        size_bytes=main_member_row.size_bytes if main_member_row else 0,
-        archive_member_path=main_member,
-    )
-
-    targets = {inc.filename.split("/")[-1] for inc in main_deck.includes if inc.filename}
-    for m in all_members:
-        base = m.path.split("/")[-1]
-        if base in targets and m.path.endswith((".k", ".key", ".inc")) and not m.safety_issues:
-            text = read_member_bytes(archive_path, m.path).decode("utf-8", errors="replace")
-            decks[m.path] = parse_deck(text, m.path)
-            file_meta[m.path] = FileMeta(sha256=m.sha256 or "", size_bytes=m.size_bytes, archive_member_path=m.path)
-    return decks, file_meta
-
-
 def main() -> None:
     with Session(get_engine()) as session:
         for source_id, main_member in TARGETS:
@@ -93,25 +103,35 @@ def main() -> None:
             archive_path = ROOT / meta["original_path"]
             manifest = inspect_archive(archive_path)
 
-            main_text = read_member_bytes(archive_path, main_member).decode("utf-8", errors="replace")
-            main_deck = parse_deck(main_text, main_member)
-            decks, file_meta = _resolve_direct_includes(archive_path, main_member, main_deck, manifest.members)
+            result = resolve_recursive(archive_path, main_member, manifest.members)
 
-            graph = build_include_graph(decks)
+            member_by_path = {m.path: m for m in manifest.members}
+            file_meta = {
+                relpath: FileMeta(
+                    sha256=member_by_path[relpath].sha256 or "",
+                    size_bytes=member_by_path[relpath].size_bytes,
+                    archive_member_path=relpath,
+                )
+                for relpath in result.decks
+            }
+
             ks = _get_or_create_knowledge_source(session, meta)
             deck_key = f"{source_id}::{main_member}"
+            _clear_existing_deck(session, deck_key)
             deck = persist_deck(
                 session,
                 knowledge_source_id=ks.id,
                 deck_key=deck_key,
                 main_file_relpath=main_member,
-                decks=decks,
-                graph=graph,
+                decks=result.decks,
+                graph=result.graph,
                 file_meta=file_meta,
             )
+            skipped_note = f", {len(result.skipped_too_large)} skipped (too large)" if result.skipped_too_large else ""
+            truncated_note = " [TRUNCATED at max_files]" if result.truncated else ""
             print(
-                f"[{deck.include_status}] {source_id}: {len(main_deck.includes)} include(s), "
-                f"{len(decks)} deck file(s) parsed"
+                f"[{deck.include_status}] {source_id}: {len(result.decks)} deck file(s) parsed"
+                f"{skipped_note}{truncated_note}"
             )
 
 

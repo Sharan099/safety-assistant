@@ -22,6 +22,7 @@ from typing import Literal
 import pymupdf
 
 from packages.ingestion.extract import MIN_CHARS_FOR_RELIABLE_TEXT, text_quality
+from packages.ingestion.router import route_document, summarize_routes
 from packages.ingestion.structure import extract_figures, extract_tables
 
 ExtractionStatus = Literal["PASS", "PASS_WITH_WARNINGS", "NEEDS_REVIEW", "FAIL"]
@@ -46,6 +47,11 @@ class ExtractionReport:
     engine_version: str
     ocr_engine: str
     status: ExtractionStatus
+    # packages/ingestion/router.py: {"SIMPLE_DIGITAL": n, "COMPLEX_LAYOUT": n,
+    # "SCANNED_IMAGE_ONLY": n} — which engine each page was routed to want,
+    # not just what PyMuPDF happened to do (Instructions §4/§9/§10: "use a
+    # router instead of one parser for every document").
+    route_summary: dict[str, int]
 
     def to_dict(self) -> dict[str, object]:
         return dataclasses.asdict(self)
@@ -68,6 +74,7 @@ def _fail_report(source_sha256: str, original_page_count: int, engine_version: s
         engine_version=engine_version,
         ocr_engine="NOT_AVAILABLE",
         status="FAIL",
+        route_summary={"SIMPLE_DIGITAL": 0, "COMPLEX_LAYOUT": 0, "SCANNED_IMAGE_ONLY": 0},
     )
 
 
@@ -92,6 +99,7 @@ def build_extraction_report(pdf_path: str, source_sha256: str, *, max_pages: int
     low_quality_pages: list[int] = []
     failed_pages: list[int] = []
     warning_pages: set[int] = set()
+    ocr_needed_pages: set[int] = set()
     table_pages: set[int] = set()
     figure_pages: set[int] = set()
 
@@ -105,6 +113,7 @@ def build_extraction_report(pdf_path: str, source_sha256: str, *, max_pages: int
             if needs_ocr:
                 pages_without_text += 1
                 warning_pages.add(page_number)
+                ocr_needed_pages.add(page_number)
             else:
                 pages_with_text += 1
             if 0 < quality < LOW_QUALITY_THRESHOLD:
@@ -133,6 +142,13 @@ def build_extraction_report(pdf_path: str, source_sha256: str, *, max_pages: int
     else:
         status = "PASS"
 
+    routes = route_document(
+        total_pages=page_count,
+        pages_needing_ocr=ocr_needed_pages,
+        pages_with_tables=table_pages,
+        pages_with_figures=figure_pages,
+    )
+
     return ExtractionReport(
         source_sha256=source_sha256,
         original_page_count=original_page_count,
@@ -149,4 +165,5 @@ def build_extraction_report(pdf_path: str, source_sha256: str, *, max_pages: int
         engine_version=engine_version,
         ocr_engine="NOT_AVAILABLE",
         status=status,
+        route_summary=summarize_routes(routes),
     )

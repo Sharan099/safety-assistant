@@ -57,7 +57,13 @@ def extract_pages(pdf_path: str, *, max_pages: int | None = None) -> list[PageEx
     with pymupdf.open(pdf_path) as doc:  # type: ignore[no-untyped-call]  # pymupdf stubs incomplete
         page_count = len(doc) if max_pages is None else min(max_pages, len(doc))
         for i in range(page_count):
-            text = doc[i].get_text("text")
+            # PyMuPDF occasionally emits an embedded NUL byte from certain
+            # font/encoding quirks — invisible in a rendered PDF, but
+            # PostgreSQL's text type flatly rejects it. Found at real scale
+            # (page 1001+ of a 2000-page manual, past where the old 20-page
+            # bound ever reached) — stripped, not fabricated: a NUL byte was
+            # never going to render as meaningful content either way.
+            text = doc[i].get_text("text").replace("\x00", "")
             quality = text_quality(text)
             pages.append(
                 PageExtraction(

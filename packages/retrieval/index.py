@@ -8,7 +8,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from packages.domain.knowledge import DocumentChunk, Embedding
-from packages.retrieval.embeddings import EmbeddingProvider, HashingEmbeddingProvider
+from packages.retrieval.embeddings import EmbeddingProvider, get_default_embedding_provider
 
 
 def index_chunks(
@@ -17,7 +17,7 @@ def index_chunks(
     *,
     document_revision_id: object | None = None,
 ) -> int:
-    provider = provider or HashingEmbeddingProvider()
+    provider = provider or get_default_embedding_provider()  # real semantic embeddings — docs/ADR/0014
 
     query = session.query(DocumentChunk)
     if document_revision_id is not None:

@@ -45,7 +45,7 @@ from packages.domain.knowledge import (
     KnowledgeSource,
 )
 from packages.retrieval.bm25 import Bm25Index, bm25_search, build_bm25_index
-from packages.retrieval.embeddings import EmbeddingProvider, HashingEmbeddingProvider
+from packages.retrieval.embeddings import EmbeddingProvider, get_default_embedding_provider
 from packages.retrieval.relevance import DEFAULT_MIN_SHARED_TERMS, has_known_authority, is_relevant
 from packages.retrieval.rerank import LexicalAuthorityReranker, RerankCandidate, Reranker, rerank
 
@@ -120,7 +120,7 @@ def full_text_search(
 def vector_search(
     session: Session, query_text: str, filters: SourceFilter, *, limit: int, provider: EmbeddingProvider | None = None
 ) -> list[Any]:
-    provider = provider or HashingEmbeddingProvider()
+    provider = provider or get_default_embedding_provider()  # real semantic embeddings — docs/ADR/0014
     query_vector = provider.embed(query_text)
     distance = Embedding.embedding.cosine_distance(query_vector)
     q = (

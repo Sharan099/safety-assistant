@@ -1,19 +1,34 @@
-"""EmbeddingProvider — TRD.md §20.
+"""EmbeddingProvider — TRD.md §20, PASSIVE_SAFETY_LEVEL3_FINAL_FIX.md §5/§16.
 
-"Do not commit to an embedding model before benchmarking." `HashingEmbeddingProvider`
-is the interim default: deterministic, dependency-free, fully offline
-feature-hashed bag-of-words. It exists so `packages/retrieval` works
-end-to-end (real pgvector storage, real cosine search, real RRF fusion)
-without pulling in a multi-hundred-MB model (sentence-transformers/torch) on
-an 8 GB RAM dev machine before that benchmark happens — see docs/ADR/0007.
+Three tiers, matching the final-fix doc's "local / remote / mock" provider
+architecture — business logic (`packages/retrieval/search.py`) depends only
+on the `EmbeddingProvider` Protocol, never on a specific tier:
 
-Retrieval quality is modest (word-overlap only, no semantics). Swap in a
-real model by implementing this same `Protocol` once TRD.md §20's benchmark
-picks one; nothing above this layer needs to change.
+- **local** (`FastEmbedProvider`, production default as of `docs/ADR/0014`):
+  real semantic embeddings via `fastembed` — ONNX Runtime, not
+  `sentence-transformers`/`torch`. `docs/ADR/0011` deferred Docling/a real
+  reranker specifically because `torch` risks disk exhaustion (12 GB free
+  measured); `fastembed`'s small quantized models (~70-90 MB) carry none of
+  that risk and were benchmarked, not assumed, to beat the hashing
+  placeholder — see `evals/embedding_benchmark.py` /
+  `evals/results/embedding_benchmark.json`.
+- **remote**: no concrete implementation. `LLM_BASE_URL`/`LLM_API_KEY`
+  (`docs/ADR/0003`) point at FreeLLMAPI, but no credentials are configured
+  in this environment (`.env` doesn't exist here) — building a remote
+  provider with no way to test it against a real endpoint would risk
+  exactly the kind of silent, unverified bug the "never silently substitute
+  a fake capability" rule exists to prevent. The `EmbeddingProvider`
+  Protocol is the only integration point a real remote implementation would
+  need; nothing above this module changes when one is added.
+- **mock** (`HashingEmbeddingProvider`, formerly the interim default):
+  deterministic, dependency-free, fully offline feature-hashed
+  bag-of-words. Kept for tests — no network, no model download, no
+  variance.
 """
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import math
 import re
@@ -31,6 +46,8 @@ class EmbeddingProvider(Protocol):
 
 
 class HashingEmbeddingProvider:
+    """The "mock" tier — see module docstring."""
+
     model_name = "hashing-bow"
     model_version = "v1"
 
@@ -51,3 +68,41 @@ class HashingEmbeddingProvider:
         if norm > 0:
             vector = [v / norm for v in vector]
         return vector
+
+
+# Chosen by evals/embedding_benchmark.py (docs/ADR/0014), not by leaderboard
+# reputation: measured MRR 0.838 vs BAAI/bge-small-en-v1.5's 0.729 and the
+# hashing placeholder's 0.249 on the real golden set, with faster indexing
+# too (22.9s vs 143.8s for the same 475 real chunks). Both real candidates
+# tied on Recall@5/@10 (1.00) — MRR was the deciding metric.
+DEFAULT_FASTEMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+
+class FastEmbedProvider:
+    """The "local" real-semantic tier — see module docstring. Loads the
+    ONNX model once per instance (~1-2s); `embed()` itself is fast
+    (tens of ms) since the model is already resident."""
+
+    model_version = "v1"
+
+    def __init__(self, model_name: str = DEFAULT_FASTEMBED_MODEL) -> None:
+        # Local import: avoids paying ONNX Runtime's import cost for callers
+        # that only ever construct HashingEmbeddingProvider.
+        from fastembed import TextEmbedding
+
+        self.model_name = model_name
+        self._model = TextEmbedding(model_name=model_name)
+        self.dimensions = next(m["dim"] for m in TextEmbedding.list_supported_models() if m["model"] == model_name)
+
+    def embed(self, text: str) -> list[float]:
+        (vector,) = self._model.embed([text])
+        return vector.tolist()  # type: ignore[no-any-return]
+
+
+@functools.lru_cache(maxsize=1)
+def get_default_embedding_provider() -> FastEmbedProvider:
+    """A process-wide singleton — loading the ONNX model costs ~1-2s;
+    `packages/retrieval/search.py`'s `retrieve()`/`vector_search()` are
+    called once per API request/Copilot turn, so reloading it fresh every
+    call would be pure waste for identical output."""
+    return FastEmbedProvider()

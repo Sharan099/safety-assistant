@@ -70,9 +70,10 @@ def main() -> None:
         print(f"MRR:       {mrr:.3f}")
         print()
         print(
-            "Note: retrieval uses the interim HashingEmbeddingProvider (docs/ADR/0007) — "
-            "word-overlap only, no semantics. Low scores here motivate benchmarking a real "
-            "embedding model (TRD.md Section 20), not a retrieval-code bug."
+            "Note: retrieval uses FastEmbedProvider (sentence-transformers/all-MiniLM-L6-v2, "
+            "docs/ADR/0014) for the dense leg as of Level 3 — real semantic embeddings, chosen "
+            "by evals/embedding_benchmark.py, not the earlier HashingEmbeddingProvider placeholder "
+            "(docs/ADR/0007, still available as the mock tier for tests)."
         )
 
 

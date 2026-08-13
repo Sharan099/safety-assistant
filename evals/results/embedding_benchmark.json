@@ -1,0 +1,45 @@
+{
+  "hardware": "Intel i5-8250U, 8 GB RAM, GeForce 940MX 2 GB (PASSIVE_SAFETY_LEVEL3_FINAL_FIX.md header)",
+  "golden_set_size": 8,
+  "results": [
+    {
+      "label": "hashing-bow (baseline, mock tier)",
+      "model_name": "hashing-bow",
+      "model_version": "v1",
+      "dimensions": 256,
+      "newly_embedded_chunks": 0,
+      "indexing_time_s": 0.709,
+      "peak_ram_bytes_during_indexing": 5051969,
+      "recall@5": 0.75,
+      "recall@10": 0.875,
+      "mrr": 0.24895833333333334,
+      "avg_query_latency_ms": 30.248262497480027
+    },
+    {
+      "label": "BAAI/bge-small-en-v1.5 (local tier candidate)",
+      "model_name": "BAAI/bge-small-en-v1.5",
+      "model_version": "v1",
+      "dimensions": 384,
+      "newly_embedded_chunks": 475,
+      "indexing_time_s": 143.812,
+      "peak_ram_bytes_during_indexing": 16462184,
+      "recall@5": 1.0,
+      "recall@10": 1.0,
+      "mrr": 0.7291666666666666,
+      "avg_query_latency_ms": 30.557212499843445
+    },
+    {
+      "label": "sentence-transformers/all-MiniLM-L6-v2 (local tier candidate)",
+      "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+      "model_version": "v1",
+      "dimensions": 384,
+      "newly_embedded_chunks": 475,
+      "indexing_time_s": 22.92,
+      "peak_ram_bytes_during_indexing": 16249048,
+      "recall@5": 1.0,
+      "recall@10": 1.0,
+      "mrr": 0.8375,
+      "avg_query_latency_ms": 48.5209125054098
+    }
+  ]
+}

@@ -133,9 +133,9 @@ def main() -> None:
             f"\nReranker: {reranker.model_name} {reranker.model_version} (docs/ADR/0012 — real cross-encoder deferred)"
         )
         print(
-            "\nNote: retrieval uses the interim HashingEmbeddingProvider (docs/ADR/0007) for the "
-            "dense leg — word-overlap only, no semantics. Any BM25 advantage over Dense above "
-            "reflects that honestly, not a BM25 implementation bug."
+            "\nNote: retrieval uses FastEmbedProvider (sentence-transformers/all-MiniLM-L6-v2, "
+            "docs/ADR/0014) for the dense leg as of Level 3 — real semantic embeddings, not the "
+            "earlier HashingEmbeddingProvider placeholder (docs/ADR/0007)."
         )
 
 

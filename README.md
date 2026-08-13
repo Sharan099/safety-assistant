@@ -151,7 +151,7 @@ correctly *not* guessed.
 **Structured + Hybrid RAG** (mandatory, `TRD_LEVEL3.md` §15):
 
 ```
-BM25 (real BM25Okapi, rank-bm25)     Dense (pgvector, interim hashing embedding)
+BM25 (real BM25Okapi, rank-bm25)     Dense (pgvector, real semantic embeddings)
                     \                          /
                      v                        v
                        Reciprocal Rank Fusion
@@ -172,13 +172,17 @@ list (`PRD_LEVEL3.md` §14's own words; `docs/ADR/0012` records this as the
 resolution of a real internal inconsistency between that document's own
 prose and its architecture diagram).
 
-Real measured comparison (`evals/level3_hybrid_eval.py`, not tuned): on the
-current golden set, BM25-only (MRR 0.917) beats raw RRF (MRR 0.677) — the
-interim `HashingEmbeddingProvider`'s word-overlap-only dense leg dilutes
-the fusion rather than helping — and the reranker recovers the full
-pipeline back to BM25-only's quality while genuinely improving NDCG@10 over
-RRF-only (0.938 vs 0.756). A real embedding-model benchmark (`TRD.md` §20)
-is the natural next investment, not a retrieval-code fix.
+Dense retrieval uses real semantic embeddings
+(`sentence-transformers/all-MiniLM-L6-v2` via `fastembed`/ONNX Runtime —
+`docs/ADR/0014`), chosen by `evals/embedding_benchmark.py` against the
+hashing placeholder it replaced: MRR 0.838 vs 0.249 on the real golden set,
+no `torch` dependency. Real measured comparison
+(`evals/level3_hybrid_eval.py`, not tuned): BM25-only (MRR 0.917) and
+Dense-only (MRR 0.838) are both individually strong, but naive RRF fusion
+of the two actually *dilutes* to MRR 0.806 on this small (8-query) golden
+set — a real, reported-as-measured RRF characteristic, not a bug. The
+reranker recovers past both individual legs to MRR 0.938 and NDCG@10 0.954
+(vs RRF-only's 0.852).
 
 **OKF** (`knowledge/07_okf/`, `scripts/generate_okf_concepts.py`): one
 curated concept file per ingested document (not one per section — that
@@ -211,11 +215,13 @@ uv run python evals/level3_hybrid_eval.py  # per-stage BM25/Dense/RRF/reranker c
   installed** — 12 GB free disk measured at decision time; each would
   resolve several GB of `torch`/`transformers`. All three are
   `Protocol`-based swap points (`docs/ADR/0007`, `0011`, `0012`) requiring
-  no changes above their respective modules once installed.
-- **Dense retrieval uses a deterministic hashing placeholder**
-  (`docs/ADR/0007`), not a real embedding model — word-overlap only, no
-  semantics. Measured, not assumed, to currently be a net drag on fused
-  ranking quality relative to BM25 alone (see the Level-3 section above).
+  no changes above their respective modules once installed. (Dense
+  retrieval's placeholder *was* the same category of gap — resolved in
+  `docs/ADR/0014` via `fastembed`/ONNX Runtime, which carries none of
+  `torch`'s disk risk.)
+- **`HashingEmbeddingProvider` remains available as the "mock" tier**
+  (deterministic, no model download) for tests — production defaults to
+  real semantic embeddings (`docs/ADR/0014`).
 - **PDF ingestion is bounded to 20 pages/document**; CAE deck parsing is
   bounded to main + direct includes. Both are real, working, and tested at
   real scale — just not the entire 1.3 GB corpus at unlimited depth.

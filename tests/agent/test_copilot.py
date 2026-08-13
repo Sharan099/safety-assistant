@@ -8,7 +8,7 @@ import uuid
 import pytest
 from sqlalchemy.orm import Session
 
-from packages.agent.copilot import run_copilot_turn
+from packages.agent.copilot import run_copilot_turn, stream_copilot_turn
 from packages.agent.graph import run_investigation
 from packages.agent.llm import LLMMessage, LLMResponse, LLMUnavailableError
 from packages.domain.copilot import CopilotConversation, CopilotMessage, CopilotToolCall
@@ -141,6 +141,27 @@ def test_empty_message_rejected(session: Session) -> None:
     investigation_id = _scn001_investigation(session)
     with pytest.raises(ValueError, match="empty"):
         run_copilot_turn(session, investigation_id, "   ")
+
+
+@requires_db
+def test_stream_yields_one_step_per_node_then_final(session: Session) -> None:
+    """This is what gives the UI real-time workflow visibility — verify the
+    generator actually yields incrementally (one event per graph node), not
+    just a single event at the end."""
+    investigation_id = _scn001_investigation(session)
+
+    events = list(stream_copilot_turn(session, investigation_id, "Compare the crash pulse"))
+
+    step_events = [e for e in events if e.type == "step"]
+    final_events = [e for e in events if e.type == "final"]
+
+    assert [e.node for e in step_events] == ["load_context", "classify_intent", "dispatch_tools", "ground_response"]
+    assert all(e.detail for e in step_events)
+    assert len(final_events) == 1
+    assert final_events[0].state is not None
+    assert final_events[0].state["intent"] == "COMPARE_RUNS"
+    # The final event comes after every step event, not interleaved.
+    assert events[-1].type == "final"
 
 
 @requires_db

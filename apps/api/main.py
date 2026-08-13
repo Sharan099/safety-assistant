@@ -8,7 +8,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from apps.api.routers import investigations, knowledge, runs
+from apps.api.routers import copilot, investigations, knowledge, runs
 from packages.domain.db import get_settings
 
 app = FastAPI(
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(runs.router, prefix="/api/v1")
 app.include_router(investigations.router, prefix="/api/v1")
 app.include_router(knowledge.router, prefix="/api/v1")
+app.include_router(copilot.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health", tags=["health"])

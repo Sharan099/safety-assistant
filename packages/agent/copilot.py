@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import datetime
 import uuid
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any, TypedDict
 
@@ -632,16 +633,49 @@ def _get_or_create_conversation(session: Session, investigation_id: uuid.UUID) -
     return conversation
 
 
-def run_copilot_turn(
-    session: Session, investigation_id: uuid.UUID, message: str, *, llm: LLMProvider | None = None
-) -> CopilotState:
-    """One question -> one persisted user message + one persisted assistant
-    message (with its CopilotToolCall rows) -> final CopilotState.
+_STEP_LABELS = {
+    "load_context": "Loading investigation context",
+    "classify_intent": "Classifying intent",
+    "dispatch_tools": "Selecting and running tools",
+    "ground_response": "Drafting grounded response",
+}
 
-    Validates the investigation exists before anything else — an unknown
-    investigation_id must fail clearly, not silently create an orphaned
-    conversation (CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md Phase 12: "invalid
-    investigation" is an explicit required test case).
+
+@dataclass
+class CopilotStepEvent:
+    """One node's completion — this is the unit the UI's real-time workflow
+    trace is built from (apps/api/routers/copilot.py streams these as SSE).
+    `type="final"` carries the complete `CopilotState` in `state`; every
+    other event is a progress step with nothing else to act on.
+    """
+
+    type: str  # "step" | "final"
+    node: str | None = None
+    detail: str | None = None
+    state: dict[str, Any] | None = None
+
+
+def _step_detail(node_name: str, partial: dict[str, Any]) -> str:
+    if node_name == "classify_intent":
+        return f"Classified intent: {partial.get('intent')}"
+    if node_name == "dispatch_tools":
+        tool_names = [t["tool_name"] for t in partial.get("tool_calls", [])]
+        return f"Ran tool(s): {', '.join(tool_names)}" if tool_names else "No tool call was needed"
+    return _STEP_LABELS.get(node_name, node_name)
+
+
+def stream_copilot_turn(
+    session: Session, investigation_id: uuid.UUID, message: str, *, llm: LLMProvider | None = None
+) -> Iterator[CopilotStepEvent]:
+    """Generator: one `CopilotStepEvent` per graph node as it completes
+    (LangGraph's `.stream(..., stream_mode="updates")`), then a final event
+    with the complete state — after persisting the user message, the
+    assistant message, and its CopilotToolCall rows.
+
+    Validates the investigation exists and the message is non-empty before
+    anything else — an unknown investigation_id must fail clearly, not
+    silently create an orphaned conversation (CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md
+    Phase 12: "invalid investigation" is an explicit required test case).
     """
     if session.get(Investigation, investigation_id) is None:
         raise ValueError(f"investigation not found: {investigation_id}")
@@ -653,7 +687,11 @@ def run_copilot_turn(
     session.commit()
 
     graph = build_copilot_graph(session, llm=llm)
-    final_state: CopilotState = graph.invoke({"investigation_id": investigation_id, "message": message})  # type: ignore[assignment]
+    final_state: dict[str, Any] = {}
+    for update in graph.stream({"investigation_id": investigation_id, "message": message}, stream_mode="updates"):
+        for node_name, partial in update.items():
+            final_state.update(partial)
+            yield CopilotStepEvent(type="step", node=node_name, detail=_step_detail(node_name, partial))
 
     assistant_message = CopilotMessage(
         conversation_id=conversation.id,
@@ -681,4 +719,18 @@ def run_copilot_turn(
         )
     session.commit()
 
+    yield CopilotStepEvent(type="final", state=final_state)
+
+
+def run_copilot_turn(
+    session: Session, investigation_id: uuid.UUID, message: str, *, llm: LLMProvider | None = None
+) -> CopilotState:
+    """Non-streaming convenience wrapper over `stream_copilot_turn` — drains
+    the generator and returns just the final state. Used by tests and any
+    caller that doesn't need live step-by-step updates."""
+    final_state: CopilotState | None = None
+    for event in stream_copilot_turn(session, investigation_id, message, llm=llm):
+        if event.type == "final":
+            final_state = event.state  # type: ignore[assignment]  # dict[str, Any] structurally matches CopilotState
+    assert final_state is not None
     return final_state

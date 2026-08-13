@@ -85,3 +85,25 @@ class InvestigationSummary(BaseModel):
     run_a_id: str
     run_b_id: str
     created_at: datetime.datetime
+
+
+class CopilotMessageRequest(BaseModel):
+    message: str
+
+
+class CopilotToolActivity(BaseModel):
+    tool_name: str
+    status: str
+    result_summary: str
+
+
+class CopilotMessageSummary(BaseModel):
+    id: uuid.UUID
+    role: str
+    content: str
+    evidence_refs: list[str]
+    suggested_actions: list[str]
+    unknowns: list[str]
+    llm_degraded: bool
+    tool_activity: list[CopilotToolActivity] = []
+    created_at: datetime.datetime

@@ -1,16 +1,17 @@
 """Shared fixtures for every integration test package under tests/.
 
-Requires the project's Postgres container (`docker compose up -d postgres`,
-port 5433) with migrations applied (`uv run alembic upgrade head`). These
-are integration tests against a real database, not mocks — BACKEND_SCHEMA.md
+Requires Postgres (`docker compose up -d postgres`, port 5433). These are
+integration tests against a real database, not mocks — BACKEND_SCHEMA.md
 data invariants (FKs, uniqueness, JSONB) only mean something against real
 Postgres/pgvector.
 
-Known gap: there is no separate test database yet, so these tests share
-Postgres with anything `scripts/generate_synthetic_dataset.py` has loaded.
-Fixtures must therefore avoid colliding with real synthetic-benchmark rows
-(e.g. use `__test` suffixes on unique keys) rather than assuming a clean DB.
-A dedicated test DB is Phase-20 hardening work, not a Phase-6 blocker.
+The root `conftest.py` points the whole session at an isolated
+`passive_safety_test` database (migrated and self-seeded automatically,
+never the shared dev database) — see that file for how. Fixtures still
+avoid colliding with the seeded synthetic-benchmark rows (e.g. `__test`
+suffixes on unique keys) since that data is real and other tests depend on
+it being there, but there's no risk of colliding with a developer's own
+manual dev-DB experiments anymore.
 """
 
 from collections.abc import Iterator

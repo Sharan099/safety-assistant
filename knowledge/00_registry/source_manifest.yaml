@@ -176,6 +176,283 @@ sources:
       NOT a substitute for a licensed PAM-CRASH technical manual. Must never
       be cited as authoritative for PAM-CRASH solver behavior — see PRD.md §7.
 
+  # --- Level 3 real corpus — PRD_LEVEL3.md §4, added 2026-08-13 ---
+  # Discovered by scripts/profile_knowledge_sources.py from the immutable
+  # "Knowledge source/" root (docs/ADR/0010 explains the folder-name choice
+  # vs the Level-3 docs' "knowledge_source/" spelling). `sha256`/`size_bytes`
+  # are exactly what the profiler measured — see data/artifacts/source_profile.json.
+  #
+  # `legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE` for every entry below,
+  # same as the pre-existing LS-DYNA manual entries: these are real public
+  # NHTSA / OpenRadioss downloads, but this repository has not independently
+  # verified each dataset's specific redistribution terms — TRD.md §12/
+  # TRD_LEVEL3.md §4 forbid inventing a license, so it is marked unverified
+  # rather than assumed public-domain.
+  #
+  # `canonical_path: null` for the 12 archives (not the 5 PDFs): physically
+  # copying ~1.19 GB of archives into `knowledge/` is not attempted — this
+  # machine has 12 GB free disk (docs/ADR/0011). Archives are immutable
+  # already under `Knowledge source/`; the CAE/archive pipeline
+  # (packages/ingestion/archives.py) reads member content directly from
+  # `original_path`, so a duplicate canonical copy adds disk risk for no
+  # benefit. The 5 PDFs are small (~67 MB total) and get real canonical
+  # copies, consistent with every other PDF entry in this manifest.
+
+  - source_id: nhtsa-thor-05f-qualification-manual
+    filename: THOR-05F-2025-Qualification-Manual.pdf
+    title: "THOR-05F Qualification Manual (2025)"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: NHTSA
+    canonical_path: knowledge/02_official_docs/nhtsa/THOR-05F-2025-Qualification-Manual.pdf
+    original_path: "Knowledge source/NHTSA_THOR/THOR_05F_V3/ORIGINAL/THOR-05F-2025-Qualification-Manual.pdf"
+    source_url: UNKNOWN
+    sha256: ab2809966c59c03754151f44b26690eaac1b41632b619c27a88498e30d83b334
+    size_bytes: 16071492
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-thor-05f-v3-package
+    filename: THOR-05F-V3.0-package.zip
+    title: "THOR-05F V3.0 FE model package"
+    category: NHTSA_DUMMY_MODEL
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_THOR/THOR_05F_V3/ORIGINAL/THOR-05F-V3.0-package.zip"
+    source_url: UNKNOWN
+    sha256: cbe5747207ee0e1bc2651ef184f16aab486ade33bdbdd5113a1ecf95bd47ba26
+    size_bytes: 208848628
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-adjustable-sled-test-buck
+    filename: Adjustable_Sled_Test_Buck_Multiple_Seating_Configurations.zip
+    title: "Adjustable Sled Test Buck — Multiple Seating Configurations"
+    category: NHTSA_TEST_BUCK
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_occupant_restraint/Adjustable_Sled_Test_Buck/ORIGINIAL/Adjustable_Sled_Test_Buck_Multiple_Seating_Configurations.zip"
+    source_url: UNKNOWN
+    sha256: e315205da426e3b68ddf05d4815006da98f4ee35c7b9a78edc18071ef34935bf
+    size_bytes: 54651645
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-honda-odyssey-2019-seat-belt-ds1
+    filename: dot_63553_DS1.pdf
+    title: "Honda Odyssey 2019 Integrated Seat Belt — DOT dataset summary (dot_63553_DS1)"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: NHTSA / DOT
+    canonical_path: knowledge/02_official_docs/nhtsa/dot_63553_DS1.pdf
+    original_path: "Knowledge source/NHTSA_occupant_restraint/Honda_Odyssey_2019_Integrated_Seat_Belt/ORIGINAL/dot_63553_DS1.pdf"
+    source_url: UNKNOWN
+    sha256: 852a9332b3d5dc85447b68cd3245c182e05ac1a43ebe0eaa1da5be0ea7dd2117
+    size_bytes: 8843969
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-iss-seat-simulation-models-2023
+    filename: NHTSA_ISS_Seat_Simulation_Models_2023.zip
+    title: "NHTSA Integrated Seat System — Seat Simulation Models (2023)"
+    category: NHTSA_RESTRAINT_MODEL
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_occupant_restraint/Honda_Odyssey_2019_Integrated_Seat_Belt/ORIGINAL/NHTSA_ISS_Seat_Simulation_Models_2023.zip"
+    source_url: UNKNOWN
+    sha256: bd6841c6904d6c0f38923954a1085e6e04ab84d07c9c8d3b432a7fc7849e095c
+    size_bytes: 45459400
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-silverado-2007-fe-model
+    filename: silverado-2017.zip
+    title: "Chevrolet Silverado 2007 public FE vehicle model"
+    category: NHTSA_VEHICLE_MODEL
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/Chevrolet_Silverado_2007/ORIGINAL/silverado-2017.zip"
+    source_url: UNKNOWN
+    sha256: e97187b305af3e96e944203e8e5b6e092b7cdcb7b86f0a21979b5c6cad43171b
+    size_bytes: 227175589
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-dodge-neon-1996-fe-model
+    filename: neon-0.7.tar
+    title: "Dodge Neon 1996 public FE vehicle model (v0.7)"
+    category: NHTSA_VEHICLE_MODEL
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/Dodge_Neon_1996/ORIGINAL/neon-0.7.tar"
+    source_url: UNKNOWN
+    sha256: 46eff332f728a009094df71c6300ceb6c9da47dff771e89417edb7226efe8fc7
+    size_bytes: 32122880
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-honda-accord-2014-lightweight-vehicle-report
+    filename: 812237_lightweightvehiclereport.pdf
+    title: "Honda Accord 2014 — Lightweight Vehicle Report (DOT HS 812 237)"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: NHTSA
+    canonical_path: knowledge/02_official_docs/nhtsa/812237_lightweightvehiclereport.pdf
+    original_path: "Knowledge source/NHTSA_vehicle_models/Honda_Accord_2014/ORIGINAL/812237_lightweightvehiclereport.pdf"
+    source_url: UNKNOWN
+    sha256: 4719dcd4fd0309a4bc8334788ce0c669f95d7150bb26dea98f70dd84a1fb0e36
+    size_bytes: 9455099
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-honda-accord-2014-oblique-fe-model
+    filename: Oblique-Accord-Updated-PAB.zip
+    title: "Honda Accord 2014 — Oblique impact FE model (updated PAB)"
+    category: NHTSA_VEHICLE_MODEL
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/Honda_Accord_2014/ORIGINAL/Oblique-Accord-Updated-PAB.zip"
+    source_url: UNKNOWN
+    sha256: c5aacc591a1834b81fad6b44d585b90ee5343e3cdb29da59056daf6c0e492e36
+    size_bytes: 155423555
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-accord-edag-restraint-modeling-report
+    filename: report_13548-edag_vehicle_interior_restraint_modeling_050318_v2.pdf
+    title: "EDAG Vehicle Interior/Restraint Modeling Report (13548, v2)"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: NHTSA / EDAG
+    canonical_path: knowledge/02_official_docs/nhtsa/report_13548-edag_vehicle_interior_restraint_modeling_050318_v2.pdf
+    original_path: "Knowledge source/NHTSA_vehicle_models/Honda_Accord_2014/ORIGINAL/report_13548-edag_vehicle_interior_restraint_modeling_050318_v2.pdf"
+    source_url: UNKNOWN
+    sha256: 97afffd60664d8c7ecc95b542fdaba8e46f2c3f32a08147b11c581827b036a51
+    size_bytes: 24094759
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-structural-countermeasure-cae-models
+    filename: CAE-Models.zip
+    title: "Structural Countermeasure Research Program — CAE models"
+    category: NHTSA_VEHICLE_MODEL
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/Structural_Countermeasure/ORIGINAL/CAE-Models.zip"
+    source_url: UNKNOWN
+    sha256: d135bc02e7a8b1327c14345e50419670bec3dc306b0a7fe015b946a681e2686b
+    size_bytes: 333907605
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-structural-countermeasure-research-report
+    filename: published_812523_structural-countermeasure-research-program.pdf
+    title: "Structural Countermeasure Research Program report (DOT HS 812 523)"
+    category: OFFICIAL_DOCUMENTATION
+    authority: OFFICIAL_DOCUMENTATION
+    publisher: NHTSA
+    canonical_path: knowledge/02_official_docs/nhtsa/published_812523_structural-countermeasure-research-program.pdf
+    original_path: "Knowledge source/NHTSA_vehicle_models/Structural_Countermeasure/ORIGINAL/published_812523_structural-countermeasure-research-program.pdf"
+    source_url: UNKNOWN
+    sha256: 5bdf21be353208e18ac1cc056f7c8915da3cb85034fb35258e3594b6f0f5ffaa
+    size_bytes: 10989082
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-toyota-yaris-2010-fe-model
+    filename: Yaris.tar.gz
+    title: "Toyota Yaris 2010 public FE vehicle model"
+    category: NHTSA_VEHICLE_MODEL
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/Toyota_Yaris_2010/ORIGINAL/Yaris.tar.gz"
+    source_url: UNKNOWN
+    sha256: 11937a5966281d4a68612fe6e43088ab097946a702ff25f42df749a8bd213adf
+    size_bytes: 47597991
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-silverado-ncap-35mph-50th-validation
+    filename: Silverado_NCAP_35mph_50th.zip
+    title: "Chevrolet Silverado — NCAP 35mph 50th percentile validation case"
+    category: NHTSA_VALIDATION_CASE
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/validation_cases/Chevrolet_Silverado_NCAP_35mph_50th/Silverado_NCAP_35mph_50th.zip"
+    source_url: UNKNOWN
+    sha256: 4e02c431b0ab5036404856ee37ee2ad8d5bd330358f365242cacc8359f32351c
+    size_bytes: 1980111
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-accord-ncap-35mph-50th-validation
+    filename: Accord_NCAP_35mph_50th.zip
+    title: "Honda Accord — NCAP 35mph 50th percentile validation case"
+    category: NHTSA_VALIDATION_CASE
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/validation_cases/Honda_Accord_NCAP_35mph_50th/Accord_NCAP_35mph_50th.zip"
+    source_url: UNKNOWN
+    sha256: cf5cb890c347cfb9dd5ff2f04e1ce3b802b6993b18dded393d7d9c6799973509
+    size_bytes: 4854311
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: nhtsa-yaris-ncap-35mph-50th-validation
+    filename: Yaris_NCAP_35mph_50th.zip
+    title: "Toyota Yaris — NCAP 35mph 50th percentile validation case"
+    category: NHTSA_VALIDATION_CASE
+    authority: PUBLIC_RESEARCH
+    publisher: NHTSA
+    canonical_path: null
+    original_path: "Knowledge source/NHTSA_vehicle_models/validation_cases/Toyota_Yaris_NCAP_35mph_50th/Yaris_NCAP_35mph_50th.zip"
+    source_url: UNKNOWN
+    sha256: 34ef349c913f3b57806fb3c9e2ad4b8cda8b8c2c6dc5305b39dc6b65931a5e06
+    size_bytes: 1394024
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
+  - source_id: openradioss-modelexchange
+    filename: ModelExchange-main.zip
+    title: "OpenRadioss ModelExchange (main branch snapshot)"
+    category: OPENRADIOSS_REFERENCE
+    authority: PUBLIC_RESEARCH
+    publisher: OpenRadioss / Altair
+    canonical_path: null
+    original_path: "Knowledge source/OpenRadioss/ORIGINAL/ModelExchange-main.zip"
+    source_url: UNKNOWN
+    sha256: 6a2d912e10c661d262cfac90f95ea3bace2227cb5ea4e410dc973236def189f2
+    size_bytes: 79149633
+    date_added: "2026-08-13"
+    legal_status: USER_SUPPLIED_UNVERIFIED_LICENSE
+    processing_status: NOT_INGESTED
+
 # Explicitly represent what is NOT available, per TRD.md §12. Do not fabricate
 # content to cover these gaps.
 not_available:
@@ -194,3 +471,12 @@ not_available:
   - category: HISTORICAL
     item: Real historical investigation records
     status: NOT_AVAILABLE
+  - category: PUBLIC_RESEARCH
+    item: "NHTSA CISS (Crash Investigation Sampling System) field data"
+    status: NOT_AVAILABLE
+    notes: >
+      "Knowledge source/NHTSA_crash_test_field_data/" exists as a folder but
+      scripts/profile_knowledge_sources.py found zero files under it as of
+      2026-08-13 — PRD_LEVEL3.md §4 names CISS as an expected source family,
+      but "the actual corpus is determined by source profiling," and profiling
+      found nothing here. Represented as NOT_AVAILABLE rather than assumed.

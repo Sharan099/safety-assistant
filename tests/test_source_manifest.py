@@ -33,22 +33,31 @@ def _load_manifest() -> dict[str, Any]:
 def test_manifest_loads() -> None:
     manifest = _load_manifest()
     assert manifest["schema_version"] == 1
-    assert len(manifest["sources"]) == 11
+    # 11 original V1 sources + 17 Level-3 real-corpus sources (PRD_LEVEL3.md
+    # §4) registered by scripts/profile_knowledge_sources.py, 2026-08-13.
+    assert len(manifest["sources"]) == 28
 
 
-def test_every_source_has_matching_hash_and_size() -> None:
+def test_every_source_has_matching_original_hash_and_size() -> None:
+    # The original is the one thing every registered source must have,
+    # canonical copy or not (docs/ADR/0011: large archives are not
+    # duplicated into knowledge/ given disk headroom).
     manifest = _load_manifest()
     for source in manifest["sources"]:
-        canonical = ROOT / source["canonical_path"]
         original = ROOT / source["original_path"]
-
-        assert canonical.is_file(), f"missing canonical copy: {canonical}"
         assert original.is_file(), f"missing original: {original}"
-
         assert original.stat().st_size == source["size_bytes"], source["source_id"]
-        assert canonical.stat().st_size == source["size_bytes"], source["source_id"]
-
         assert _sha256(original) == source["sha256"], source["source_id"]
+
+
+def test_every_canonical_copy_that_exists_matches_the_original() -> None:
+    manifest = _load_manifest()
+    for source in manifest["sources"]:
+        if source.get("canonical_path") is None:
+            continue
+        canonical = ROOT / source["canonical_path"]
+        assert canonical.is_file(), f"missing canonical copy: {canonical}"
+        assert canonical.stat().st_size == source["size_bytes"], source["source_id"]
         assert _sha256(canonical) == source["sha256"], source["source_id"]
 
 

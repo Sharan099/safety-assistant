@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from safety_assistant.api.dependencies import Principal, require_scope
+from safety_assistant.api.middleware.ratelimit import rate_limited
 from safety_assistant.generation import AnswerResponse
 from safety_assistant.generation.service import AnswerService
 from safety_assistant.persistence import get_session
@@ -60,7 +61,7 @@ def _scope(req: AskRequest, principal: Principal) -> ScopeFilter:
     )
 
 
-@router.post("/search")
+@router.post("/search", dependencies=[Depends(rate_limited)])
 async def search(
     req: AskRequest,
     principal: Principal = Depends(require_scope("regulation:read")),
@@ -77,7 +78,7 @@ async def search(
     }
 
 
-@router.post("/ask", response_model=AnswerResponse)
+@router.post("/ask", response_model=AnswerResponse, dependencies=[Depends(rate_limited)])
 async def ask(
     req: AskRequest,
     request: Request,

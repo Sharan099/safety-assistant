@@ -47,6 +47,7 @@ class Evidence(BaseModel):
     kind: str
     jurisdiction: str
     authority_level: str
+    data_class: str = "PUBLIC"
     version_id: uuid.UUID
     version_label: str
     version_status: str
@@ -113,6 +114,7 @@ def build_evidence(
                 kind=row.regulation.kind,
                 jurisdiction=row.regulation.jurisdiction,
                 authority_level=row.regulation.authority_level,
+                data_class=row.regulation.data_class,
                 version_id=row.version.id,
                 version_label=row.version.version_label,
                 version_status=row.version.status,

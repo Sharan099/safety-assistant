@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from safety_assistant.agents.graph import RegulatoryAgent
 from safety_assistant.agents.state import AgentState, Budget
+from safety_assistant.config import get_settings
 from safety_assistant.generation.citations import citation_views
 from safety_assistant.generation.schemas import AnswerResponse, AnswerScope
 from safety_assistant.persistence.models import QueryTrace
@@ -64,7 +65,13 @@ class AnswerService:
         k: int | None = None,
     ) -> AnswerResponse:
         trace_id = uuid.uuid4().hex
-        agent = RegulatoryAgent(session, self.retrieval, self.llm, budget=self.budget)
+        agent = RegulatoryAgent(
+            session,
+            self.retrieval,
+            self.llm,
+            budget=self.budget,
+            llm_data_classes=tuple(get_settings().llm_data_classes),
+        )
         state = agent.run(query, scope=scope, k=k, today=today, trace_id=trace_id)
         resp = self._to_response(trace_id, query, state)
         self._persist(session, resp, state, principal, scopes)

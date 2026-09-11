@@ -35,7 +35,13 @@ async def ingest(
     if req.source_key not in registry.keys():
         raise HTTPException(404, "source_key is not in the registry allowlist")
     out = await run_in_threadpool(
-        ingest_source, session, req.source_key, registry=registry, force=req.force, activate=req.activate
+        ingest_source,
+        session,
+        req.source_key,
+        registry=registry,
+        force=req.force,
+        activate=req.activate,
+        actor=principal.subject,
     )
     return {
         "run_id": str(out.run_id),

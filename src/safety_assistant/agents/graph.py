@@ -46,12 +46,18 @@ def _ms(t0: float) -> float:
 
 class RegulatoryAgent:
     def __init__(
-        self, session: Session, retrieval: RetrievalService, llm: LLMProvider | None, budget: Budget | None = None
+        self,
+        session: Session,
+        retrieval: RetrievalService,
+        llm: LLMProvider | None,
+        budget: Budget | None = None,
+        llm_data_classes: tuple[str, ...] = ("PUBLIC",),
     ):
         self.tools = Tools(session, retrieval)
         self.session = session
         self.llm = llm
         self.budget = budget or Budget()
+        self.llm_data_classes = frozenset(llm_data_classes)
         self.graph = self._build()
 
     # ------------------------------------------------------------------ nodes
@@ -182,6 +188,17 @@ class RegulatoryAgent:
                 **state,
                 "mode": "EVIDENCE_ONLY",
                 "warnings": state["warnings"] + ["no LLM configured: evidence-only mode"],
+            }
+        confidential = [e for e in state["evidence"] if e.data_class not in self.llm_data_classes]
+        if confidential:
+            return {
+                **state,
+                "mode": "EVIDENCE_ONLY",
+                "warnings": state["warnings"]
+                + [
+                    "evidence includes data classes the configured LLM provider is not cleared for "
+                    f"({sorted({e.data_class for e in confidential})}): evidence-only mode"
+                ],
             }
         if state.get("llm_calls", 0) >= self.budget.max_llm_calls:
             return {

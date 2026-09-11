@@ -172,3 +172,46 @@ def _ev(eid: str, content: str) -> Evidence:
         storage_uri="file://x",
         token_count=10,
     )
+
+
+def test_rate_limiter_token_bucket() -> None:
+    from safety_assistant.api.middleware import RateLimiter
+
+    lim = RateLimiter(per_minute=3)
+    assert [lim.allow("u", now=0.0) for _ in range(4)] == [True, True, True, False]
+    assert lim.allow("other", now=0.0)  # independent buckets
+    assert lim.allow("u", now=20.0)  # refilled one token after 20 s at 3/min
+
+
+def test_confidential_evidence_never_reaches_a_public_only_llm() -> None:
+    from safety_assistant.agents.graph import RegulatoryAgent
+
+    class Boom:
+        name = model = "must-not-be-called"
+
+        def generate(self, *a, **k):  # type: ignore[no-untyped-def]
+            raise AssertionError("LLM was called with confidential evidence")
+
+    agent = RegulatoryAgent.__new__(RegulatoryAgent)
+    agent.llm = Boom()  # type: ignore[assignment]
+    agent.llm_data_classes = frozenset({"PUBLIC"})
+    from safety_assistant.agents.state import Budget
+
+    agent.budget = Budget()
+    ev = _ev("E1", "confidential text")
+    ev.data_class = "CONFIDENTIAL"
+    state = agent.generate(
+        {
+            "evidence": [ev],
+            "warnings": [],
+            "llm_calls": 0,
+            "started": 0.0,
+            "timings": {},
+            "scope": None,
+            "intent": "x",
+            "route": "standard",
+            "regulation_keys": [],
+            "query": "q",
+        }
+    )  # type: ignore[typeddict-item,arg-type]
+    assert state["mode"] == "EVIDENCE_ONLY" and any("not cleared" in w for w in state["warnings"])

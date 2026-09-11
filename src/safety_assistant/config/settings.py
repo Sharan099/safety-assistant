@@ -54,6 +54,16 @@ class Settings(BaseSettings):
     llm_api_key: str = ""
     llm_model: str = ""
     llm_timeout_seconds: float = 30.0
+    # Data classes the configured LLM provider is cleared to see (explicit policy,
+    # never inferred from a model name). CONFIDENTIAL evidence with a PUBLIC-only
+    # provider degrades to evidence-only mode.
+    llm_data_classes: list[str] = ["PUBLIC"]
+
+    # Hosts the SSRF-safe fetcher may download from (https only, public IPs only).
+    fetch_allowed_hosts: list[str] = ["unece.org", "www.unece.org"]
+
+    # Per-principal request budget for /ask and /search (in-process token bucket).
+    rate_limit_per_minute: int = 60
 
     # Retrieval candidate sizes (CLAUDE.md §8 starting points; tune from evals only).
     retrieval_dense_top_k: int = 30

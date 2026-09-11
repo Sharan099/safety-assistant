@@ -149,6 +149,7 @@ def ingest_source(
     force: bool = False,
     activate: bool = True,
     max_pages: int | None = None,
+    actor: str | None = None,
 ) -> IngestOutcome:
     settings = settings or get_settings()
     registry = registry or get_registry()
@@ -162,6 +163,8 @@ def ingest_source(
         embedder=embedder or get_embedding_provider(),
         repo_root=repo_root or pathlib.Path.cwd(),
     )
+    if actor:
+        ctx.stats["actor"] = actor  # audit: who triggered a privileged ingestion
     session.add(ctx.run)
     session.flush()
 
@@ -300,6 +303,8 @@ def _unchanged(version: RegulationVersion, e: SourceEntry, ctx: _Ctx) -> bool:
 def _download(ctx: _Ctx, version: RegulationVersion, e: SourceEntry) -> bytes:
     path = ctx.repo_root / e.local_path
     if not path.is_file():
+        if e.source_uri and e.source_uri_status == "VERIFIED":
+            return _fetch_remote(ctx, version, e)
         raise QuarantineError(f"registered local copy missing: {e.local_path}")
     if path.stat().st_size > ctx.settings.ingest_max_file_bytes:
         raise QuarantineError(f"file exceeds ingest_max_file_bytes: {path.stat().st_size}")
@@ -308,6 +313,35 @@ def _download(ctx: _Ctx, version: RegulationVersion, e: SourceEntry) -> bytes:
         version, VersionStatus.DOWNLOADED, f"read {len(data)} bytes from registered local copy", bytes=len(data)
     )
     return data
+
+
+def _fetch_remote(ctx: _Ctx, version: RegulationVersion, e: SourceEntry) -> bytes:
+    """SSRF-safe conditional download for sources whose official URI is verified."""
+    from safety_assistant.ingestion.fetch.http import FetchRefused, fetch_pdf
+
+    art = ctx.session.get(SourceArtifact, version.source_artifact_id)
+    try:
+        result = fetch_pdf(
+            e.source_uri or "",
+            allowed_hosts=frozenset(h.lower() for h in ctx.settings.fetch_allowed_hosts),
+            max_bytes=ctx.settings.ingest_max_file_bytes,
+            etag=art.etag if art else None,
+            last_modified=art.last_modified if art else None,
+        )
+    except FetchRefused as exc:
+        raise QuarantineError(f"fetch refused: {exc}") from exc
+    if result.status == 304 or result.data is None:
+        raise QuarantineError("source unchanged upstream (304) but no local copy is present")
+    if art is not None:
+        art.etag, art.last_modified, art.retrieved_at = result.etag, result.last_modified, _now()
+    ctx.advance(
+        version,
+        VersionStatus.DOWNLOADED,
+        f"fetched {len(result.data)} bytes from {result.final_url}",
+        etag=result.etag,
+        last_modified=str(result.last_modified),
+    )
+    return result.data
 
 
 def _validate(ctx: _Ctx, version: RegulationVersion, e: SourceEntry, data: bytes) -> Any:

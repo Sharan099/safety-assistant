@@ -31,8 +31,30 @@ class EmbedStats:
     embedded: int
 
 
+def snapshot_embeddings(
+    session: Session, version: RegulationVersion, provider: EmbeddingProvider
+) -> dict[str, list[float]]:
+    """chunk_sha256 → vector for this version's current chunks; taken *before* a
+    structural rewrite deletes them, so unchanged content is not re-embedded."""
+    rows = session.execute(
+        select(Chunk.chunk_sha256, ChunkEmbedding.embedding)
+        .join(ChunkEmbedding, ChunkEmbedding.chunk_id == Chunk.id)
+        .where(
+            Chunk.version_id == version.id,
+            ChunkEmbedding.model_name == provider.model_name,
+            ChunkEmbedding.model_version == provider.model_version,
+        )
+    ).all()
+    return {sha: list(vec) for sha, vec in rows}
+
+
 def embed_version_chunks(
-    session: Session, version: RegulationVersion, provider: EmbeddingProvider, *, batch_size: int = _BATCH
+    session: Session,
+    version: RegulationVersion,
+    provider: EmbeddingProvider,
+    *,
+    batch_size: int = _BATCH,
+    reuse_pool: dict[str, list[float]] | None = None,
 ) -> EmbedStats:
     chunks = session.scalars(select(Chunk).where(Chunk.version_id == version.id).order_by(Chunk.ordinal)).all()
     already = set(
@@ -53,7 +75,7 @@ def embed_version_chunks(
     # Content-addressed reuse across sibling versions of the same regulation.
     sibling_ids = select(RegulationVersion.id).where(RegulationVersion.regulation_id == version.regulation_id)
     wanted_shas = {c.chunk_sha256 for c in todo}
-    reusable: dict[str, list[float]] = {}
+    reusable: dict[str, list[float]] = dict(reuse_pool or {})
     rows = session.execute(
         select(Chunk.chunk_sha256, ChunkEmbedding.embedding)
         .join(ChunkEmbedding, ChunkEmbedding.chunk_id == Chunk.id)

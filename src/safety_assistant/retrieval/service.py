@@ -191,6 +191,8 @@ class RetrievalService:
                         content=rows[c].chunk.content,
                         authority_level=rows[c].regulation.authority_level,
                         fused_score=fused[c],
+                        normative=rows[c].section.normative,
+                        chunk_type=rows[c].chunk.chunk_type,
                     )
                     for c in fused_order
                 ],
@@ -201,7 +203,11 @@ class RetrievalService:
                 fused_order.sort(key=lambda c: rerank_scores[c], reverse=True)
             timings["rerank"] = _ms(t0)
 
-        # guard + diversify
+        # guard + diversify. The per-version cap only makes sense when several
+        # documents compete; a query scoped to one regulation may legitimately be
+        # answered by many chunks of that one text.
+        distinct_versions = {rows[c].version.id for c in fused_order}
+        cap = k if len(distinct_versions) <= 1 else max(MAX_CHUNKS_PER_VERSION, -(-k // 2))
         selected: list[tuple[CandidateRow, LegRanks]] = []
         per_version: dict[uuid.UUID, int] = {}
         seen_sha: set[str] = set()
@@ -228,7 +234,7 @@ class RetrievalService:
                 rejected += 1
                 entry["rejected"] = "relevance_floor"
                 continue
-            if row.chunk.chunk_sha256 in seen_sha or per_version.get(row.version.id, 0) >= MAX_CHUNKS_PER_VERSION:
+            if row.chunk.chunk_sha256 in seen_sha or per_version.get(row.version.id, 0) >= cap:
                 entry["rejected"] = "dedup"
                 continue
             seen_sha.add(row.chunk.chunk_sha256)

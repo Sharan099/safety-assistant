@@ -24,7 +24,8 @@ _HISTORICAL_HINT_RE = re.compile(
     r"\b(previous|earlier|old(?:er)?|former|superseded|historical|before|prior|used to|originally)\b", re.IGNORECASE
 )
 _CHANGE_HINT_RE = re.compile(
-    r"\b(chang(?:e|ed|es)|amend(?:ed|ment|ments)?|differ(?:s|ence|ences)?|compar(?:e|ed|ison)|updated?|new in|what's new|revision)\b",
+    r"\b(chang(?:e|ed|es)|amend(?:ed|ment|ments)?|differ(?:s|ence|ences)?|compar(?:e|ed|ison)"
+    r"|updated?|new in|what's new|revision)\b",
     re.IGNORECASE,
 )
 _DEFINITION_HINT_RE = re.compile(r"\b(defin(?:e|ed|ition)|what is (?:a|an|the)|meaning of|means)\b", re.IGNORECASE)

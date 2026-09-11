@@ -38,7 +38,12 @@ from safety_assistant.ingestion.chunk import (
     chunker_config_hash,
 )
 from safety_assistant.ingestion.fetch.blobstore import BlobStore, blob_store_from_uri, sha256_bytes
-from safety_assistant.ingestion.index.embed import INDEX_SCHEMA_VERSION, EmbedStats, embed_version_chunks
+from safety_assistant.ingestion.index.embed import (
+    INDEX_SCHEMA_VERSION,
+    EmbedStats,
+    embed_version_chunks,
+    snapshot_embeddings,
+)
 from safety_assistant.ingestion.normalize import (
     NormalizedDocument,
     normalize_generic,
@@ -91,6 +96,7 @@ class _Ctx:
     embedder: EmbeddingProvider
     repo_root: pathlib.Path
     stats: dict[str, Any] = dataclasses.field(default_factory=dict)
+    reuse_pool: dict[str, list[float]] = dataclasses.field(default_factory=dict)
 
     def event(
         self, to_status: str, message: str, *, from_status: str | None = None, level: str = "INFO", **payload: Any
@@ -437,7 +443,9 @@ def _chunk(
         )
         return
 
-    # Rewrite structure for this version (embeddings for identical content are reused by index stage).
+    # Rewrite structure for this version; keep this version's embeddings by content hash
+    # so the index stage re-embeds only chunks whose text actually changed.
+    ctx.reuse_pool = snapshot_embeddings(s, version, ctx.embedder)
     s.execute(delete(Chunk).where(Chunk.version_id == version.id))
     s.execute(delete(CrossReference).where(CrossReference.version_id == version.id))
     s.execute(delete(Table).where(Table.version_id == version.id))
@@ -555,7 +563,7 @@ def _page_index(nd: NormalizedDocument, ids: dict[str, uuid.UUID]) -> Any:
 
 def _index(ctx: _Ctx, version: RegulationVersion) -> None:
     started = _now()
-    stats: EmbedStats = embed_version_chunks(ctx.session, version, ctx.embedder)
+    stats: EmbedStats = embed_version_chunks(ctx.session, version, ctx.embedder, reuse_pool=ctx.reuse_pool)
     version.index_schema_version = INDEX_SCHEMA_VERSION
     ctx.stats.update(
         embed_total=stats.total,

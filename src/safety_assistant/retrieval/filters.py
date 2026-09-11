@@ -65,8 +65,21 @@ KNOWN_AUTHORITY_LEVELS = frozenset(
 DEFAULT_MIN_SHARED_TERMS = 2
 
 
+def light_stem(token: str) -> str:
+    """Deterministic English suffix stripping (no dictionary): doors→door,
+    categories→category, applies→apply, exceeded→exceed. Deliberately
+    conservative — identifiers and short tokens are left alone."""
+    if len(token) <= 4 or not token.isalpha():
+        return token
+    for suffix, repl in (("ies", "y"), ("sses", "ss"), ("ing", ""), ("edly", ""), ("ed", ""), ("es", ""), ("s", "")):
+        if token.endswith(suffix) and len(token) - len(suffix) >= 3:
+            stem = token[: -len(suffix)] + repl
+            return stem if suffix != "s" or not token.endswith("ss") else token
+    return token
+
+
 def significant_tokens(text: str) -> set[str]:
-    return {t for t in _TOKEN_RE.findall(text.lower()) if t not in _STOPWORDS and len(t) > 2}
+    return {light_stem(t) for t in _TOKEN_RE.findall(text.lower()) if t not in _STOPWORDS and len(t) > 2}
 
 
 def shared_term_count(query_text: str, content: str) -> int:
@@ -77,7 +90,9 @@ def is_relevant(query_text: str, content: str, *, min_shared_terms: int = DEFAUL
     query_terms = significant_tokens(query_text)
     if not query_terms:
         return True
-    return shared_term_count(query_text, content) >= min(min_shared_terms, len(query_terms))
+    # Very short queries ("ISOFIX definition") carry one real term; demand one match, not two.
+    required = 1 if len(query_terms) <= 2 else min(min_shared_terms, len(query_terms))
+    return shared_term_count(query_text, content) >= required
 
 
 def has_known_authority(authority_level: str) -> bool:

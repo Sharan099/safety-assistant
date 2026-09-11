@@ -11,6 +11,8 @@ class RerankCandidate:
     content: str
     authority_level: str
     fused_score: float
+    normative: bool | None = None
+    chunk_type: str = "TEXT"
 
 
 class Reranker(Protocol):

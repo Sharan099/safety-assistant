@@ -28,13 +28,13 @@ from sqlalchemy.orm import Session
 
 from safety_assistant.domain.regulations import RETRIEVABLE_CURRENT, RETRIEVABLE_HISTORICAL
 from safety_assistant.persistence.models import Chunk, Regulation, RegulationVersion
-from safety_assistant.retrieval.filters import ScopeFilter
+from safety_assistant.retrieval.filters import ScopeFilter, light_stem
 
 _TOKEN_RE = re.compile(r"\d+(?:\.\d+)+|[a-z0-9_*]+")
 
 
 def tokenize(text: str) -> list[str]:
-    return _TOKEN_RE.findall(text.lower())
+    return [light_stem(t) for t in _TOKEN_RE.findall(text.lower())]
 
 
 @dataclass(frozen=True)

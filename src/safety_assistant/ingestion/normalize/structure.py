@@ -25,10 +25,13 @@ from dataclasses import dataclass, field
 
 from safety_assistant.ingestion.parse.contract import ParsedPage
 
-NORMALIZER_VERSION = "2.0.0"
+NORMALIZER_VERSION = "2.0.1"
 
-_CLAUSE_ALONE_RE = re.compile(r"^\s*(\d+(?:\.\d+)*)\.\s*$")
+# "5.2.1.8." or "6.3.1" alone on a line; a bare integer needs its dot ("3.") so page numbers never qualify.
+_CLAUSE_ALONE_RE = re.compile(r"^\s*(\d+(?:\.\d+)+|\d+(?=\.))\.?\s*$")
 _CLAUSE_LEAD_RE = re.compile(r"^\s*(\d+(?:\.\d+)*)\.\s+(\S.*)$")
+# "6.3.1 Material" — dotted number without trailing dot followed by a capitalised title.
+_CLAUSE_LEAD_NODOT_RE = re.compile(r"^\s*(\d+(?:\.\d+)+)\s+([A-Z].{1,80})$")
 _ANNEX_RE = re.compile(r"^\s*Annex\s+(\d+[A-Z]?)\s*(?:[-–—]\s*(Appendix\s+\d+))?\s*$", re.IGNORECASE)
 _APPENDIX_RE = re.compile(r"^\s*Appendix\s+(\d+)\s*$", re.IGNORECASE)
 _SYMBOL_HEADER_RE = re.compile(r"^\s*E/ECE/(?:TRANS/505|324)\S*\s*$")
@@ -235,15 +238,24 @@ def normalize_regulation(pages: list[ParsedPage]) -> NormalizedDocument:
                 )
                 pending_title_for = current
 
-        for line in lines:
-            s = line.strip()
-            if not s:
-                continue
+        stripped = [ln.strip() for ln in lines if ln.strip()]
+        for li, s in enumerate(stripped):
             m_alone = _CLAUSE_ALONE_RE.match(s)
-            m_lead = None if m_alone else _CLAUSE_LEAD_RE.match(s)
+            m_lead = None if m_alone else (_CLAUSE_LEAD_RE.match(s) or _CLAUSE_LEAD_NODOT_RE.match(s))
             match = m_alone or m_lead
             number = match.group(1) if match else None
             if number is not None and _plausible_successor(current_number, _components(number)):
+                # Footnote markers ("3." alone) can look like a top-level clause. If the
+                # next line continues the *current* sequence instead, this is not a clause.
+                nxt = _CLAUSE_ALONE_RE.match(stripped[li + 1]) if li + 1 < len(stripped) else None
+                if (
+                    m_alone
+                    and nxt
+                    and _plausible_successor(current_number, _components(nxt.group(1)))
+                    and not _plausible_successor(_components(number), _components(nxt.group(1)))
+                ):
+                    current.lines.append(s)
+                    continue
                 comps = _components(number)
                 depth = len(comps)
                 parent_path = open_paths.get(depth - 1) if depth > 1 else (scope.rstrip("/") or None)

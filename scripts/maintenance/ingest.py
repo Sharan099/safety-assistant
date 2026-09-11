@@ -1,9 +1,9 @@
 """Ingest registered sources through the lifecycle.
 
-    uv run python scripts/maintenance/ingest.py                 # every registry entry
-    uv run python scripts/maintenance/ingest.py unece-un-r94    # one source
-    uv run python scripts/maintenance/ingest.py --force ...     # re-run even if unchanged
-    uv run python scripts/maintenance/ingest.py --max-pages 20  # bounded smoke run
+uv run python scripts/maintenance/ingest.py                 # every registry entry
+uv run python scripts/maintenance/ingest.py unece-un-r94    # one source
+uv run python scripts/maintenance/ingest.py --force ...     # re-run even if unchanged
+uv run python scripts/maintenance/ingest.py --max-pages 20  # bounded smoke run
 """
 
 from __future__ import annotations
@@ -35,7 +35,12 @@ def main(argv: list[str] | None = None) -> int:
         t0 = time.perf_counter()
         with Session(get_engine(), expire_on_commit=False) as session:
             out = ingest_source(
-                session, key, registry=registry, force=args.force, activate=not args.no_activate, max_pages=args.max_pages
+                session,
+                key,
+                registry=registry,
+                force=args.force,
+                activate=not args.no_activate,
+                max_pages=args.max_pages,
             )
         line = {
             "source_key": key,

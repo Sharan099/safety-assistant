@@ -209,20 +209,22 @@ part of the repository. Options:
   Preserves everything; roughly doubles migration effort; README/architecture must
   explain two products.
 
-**Status: awaiting user decision (asked at end of M0).** M1 onward is planned for A;
-B changes M1/M15 scope only.
+**Decision (user, 2026-09-11): A — regulatory-only product.** CAE subsystem
+(`packages/analysis`, `packages/cae`, investigation/copilot agent, runs/investigations
+API, synthetic scenarios, `apps/web` investigation UI, `data/parquet`, CAE tests) is
+frozen at tag `pre-rebuild-baseline` and will be removed at cutover (M16).
 
 ## 4. Milestone log
 
 | Milestone | Status | Evidence |
 |---|---|---|
 | M0 audit + baseline + checkpoint | **done 2026-09-11** | this ledger §1–3; tag `pre-rebuild-baseline`; tests 209/1 skipped; evals above |
-| M1 packaging / boundaries | pending | |
-| M2 canonical regulatory model | pending | |
-| M3 incremental ingestion | pending | |
-| M4 structural parsing/chunking | pending | |
-| M5 hybrid retrieval | pending | |
-| M6 evaluation baseline | pending | |
+| M1 packaging / boundaries | **done** | `src/safety_assistant/` (src layout, hatchling), `config/settings.py` profiles (production refuses hashing/mock/no-auth/dev password), typed providers, `migrations/` chain 0001 |
+| M2 canonical regulatory model | **done** | `persistence/models/regulatory.py` + `operations.py` (14 tables), `domain/regulations/lifecycle.py` state machine; migration round-trips up/down/up |
+| M3 incremental ingestion | **done** | `ingestion/workflows/ingest.py`: DISCOVERED→…→ACTIVE, parse/chunk/embed idempotency keys, `SKIPPED_UNCHANGED` no-op re-runs (measured 1.3 s), quarantine + attempt budget, atomic supersession; blob store content-addressed; 16/16 sources ACTIVE, 18,599 chunks |
+| M4 structural parsing/chunking | **done** | `normalize/structure.py` clause tree with annex scope, TOC/footnote guards, definitions (R94 63, R16 71, R95 52, R129 89), cross-refs (R94 127 → 100 resolved); `chunk/structural.py` exact citation labels, merged tiny siblings keep inline numbers, table chunks carry headers |
+| M5 hybrid retrieval | **done** | `retrieval/service.py`: SQL scope before ranking, dense (HNSW) + BM25 (cached, in-memory scope) + exact-identifier leg → RRF → normative-aware heuristic rerank → guard/diversify → parent + cross-ref expansion; ~200–250 ms/query p50 |
+| M6 evaluation baseline | **done** | `evals/datasets/regulatory_v1.yaml` 47 cases / 16 slices (39 section-level); `scripts/eval/retrieval.py`; results in `evals/results/`; see §7 |
 | M7 grounded generation | pending | |
 | M8 temporal RAG | pending | |
 | M9 change-impact | pending | |
@@ -235,10 +237,33 @@ B changes M1/M15 scope only.
 | M16 docs + cleanup | pending | |
 | M17 full validation | pending | |
 
+## 7. Measured retrieval results (new system)
+
+Dataset `regulatory_v1`, 47 cases (39 with section-level truth), corpus 18,599 chunks,
+git e537783+, 2026-09-11. Relevance = section path match (chunk level), k_eval=20.
+
+| leg | R@5 | R@10 | R@20 | P@5 | Hit@5 | MRR | nDCG@10 | p50 ms |
+|---|---|---|---|---|---|---|---|---|
+| dense only | 0.655 | 0.775 | 0.836 | 0.179 | 0.769 | 0.530 | 0.558 | 113 |
+| sparse only (BM25) | 0.673 | 0.834 | 0.870 | 0.179 | 0.769 | 0.560 | 0.597 | 66 |
+| hybrid RRF | 0.700 | 0.877 | 0.901 | 0.179 | 0.821 | 0.598 | 0.637 | 195 |
+| hybrid RRF + rerank | 0.753 | 0.875 | 0.901 | 0.200 | 0.872 | 0.625 | 0.660 | 205 |
+| full (+ exact leg, parent/xref) | **0.779** | **0.901** | **0.926** | 0.205 | **0.897** | **0.664** | **0.692** | 254 |
+
+Iteration record (full leg, same dataset): first run MRR 0.627 / R@10 0.761 →
+light stemming + short-query guard + normative-aware rerank 0.657 / 0.825 →
+scope-aware diversification cap 0.664 / 0.901. Weakest slices: numeric_threshold MRR 0.505
+(annex computation text competes with the body clause), multi_clause_reasoning (n=1).
+Note the earlier README's "RRF dilutes" observation does not hold here: RRF beats both legs.
+
 ## 5. Decisions and deletions log
 
 - 2026-09-11 — Tag `pre-rebuild-baseline` created at af051f2. Rebuild continues on `main`.
 - 2026-09-11 — Existing ADR numbering retained; new ADRs start at 0019.
+- 2026-09-11 — New schema lives in a new database (`safety_assistant`), new Alembic chain under `migrations/`; the legacy `passive_safety` DB and `packages/domain/migrations` are left untouched for recovery (ADR-0019).
+- 2026-09-11 — Embedding column fixed at 384-d (all-MiniLM-L6-v2) with HNSW index; a different model is a schema migration by design (ADR-0019).
+- 2026-09-11 — LS-DYNA manuals / NHTSA reports stay in the corpus as `kind=MANUAL|TECHNICAL_REPORT|STANDARD` supporting documents (never `REGULATION`); registry `sources.yaml` schema v2 replaces `source_manifest.yaml` at cutover.
+- 2026-09-11 — `packages/ingestion/archives.py` + `profiling.py` (archive/LS-DYNA corpus profiler) classified ARCHIVE under decision A (no archive ingestion in the regulatory product).
 
 ## 6. Definition-of-Done checklist (from PRODUCTION_REBUILD_CHECKLIST.md, tracked here)
 

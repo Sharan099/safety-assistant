@@ -76,7 +76,7 @@ def corpus(clean_db, db_session, tmp_path: pathlib.Path):  # type: ignore[no-unt
 @pytest.fixture
 def client(corpus, monkeypatch: pytest.MonkeyPatch):  # type: ignore[no-untyped-def]
     from safety_assistant.api.routes import query as q
-    from safety_assistant.generation import AnswerService
+    from safety_assistant.generation.service import AnswerService
     from safety_assistant.retrieval import RetrievalService
     from safety_assistant.retrieval.service import RetrievalConfig
 

@@ -115,8 +115,86 @@ def build_pdf(path: pathlib.Path, revision: int) -> bytes:
     return data
 
 
-def registry_for(tmp: pathlib.Path, revisions: tuple[int, ...] = (1, 2)) -> SourceRegistry:
+def build_r998_pdf(path: pathlib.Path) -> bytes:
+    """A second, single-version fictional regulation (lateral) for comparison routes."""
+    pages = [
+        [
+            "Agreement",
+            "Addendum 997: UN Regulation No. 998",
+            "Revision 1",
+            "Incorporating all valid text up to:",
+            "01 series of amendments - Date of entry into force: 1 June 2020",
+            "E/ECE/TRANS/505/Rev.3/Add.997/Rev.1",
+            "4 June 2020",
+        ],
+        [
+            "E/ECE/TRANS/505/Rev.3/Add.997/Rev.1",
+            "2",
+            "1.",
+            "Scope",
+            "This Regulation applies to vehicles of category M1 in a lateral collision.",
+            "2.",
+            "Definitions",
+            "2.1.",
+            '"R point" means the seating reference point specified by the manufacturer.',
+            "3.",
+            "Specifications",
+            "3.1.",
+            "Performance criteria",
+            "3.1.1.",
+            "The head performance criterion (HPC) shall be less than or equal to 1,000.",
+            "3.1.2.",
+            "The rib deflection criterion (RDC) shall be less than or equal to 42 mm.",
+            "3.1.3.",
+            "The pubic symphysis peak force (PSPF) shall be less than or equal to 6 kN.",
+        ],
+    ]
+    doc = pymupdf.open()
+    for lines in pages:
+        page = doc.new_page(width=595, height=842)
+        y = 60
+        for line in lines:
+            page.insert_text((60, y), line, fontsize=10)
+            y += 16
+    data = doc.tobytes(deflate=True, garbage=0)
+    doc.close()
+    path.write_bytes(data)
+    return data
+
+
+def registry_for(
+    tmp: pathlib.Path, revisions: tuple[int, ...] = (1, 2), *, include_r998: bool = False
+) -> SourceRegistry:
     entries = []
+    if include_r998:
+        p = tmp / "UN_R998_rev1.pdf"
+        data = build_r998_pdf(p)
+        entries.append(
+            SourceEntry(
+                source_key="test-un-r998-rev1",
+                regulation_key="UN-R998",
+                kind="REGULATION",
+                title="UN Regulation No. 998 — Synthetic lateral collision protection (test fixture)",
+                authority="UNECE",
+                jurisdiction="UNECE-1958-AGREEMENT",
+                authority_level="AUTHORITATIVE",
+                publisher="test",
+                source_uri="https://example.invalid/r998",
+                source_uri_status="TEST",
+                local_path=p.name,
+                sha256=hashlib.sha256(data).hexdigest(),
+                size_bytes=len(data),
+                license="TEST_FIXTURE",
+                version=VersionInfo(
+                    label="Rev.1 (01 series)",
+                    series="01",
+                    revision="Rev.1",
+                    document_symbol="E/ECE/TRANS/505/Rev.3/Add.997/Rev.1",
+                    published_at=datetime.date(2020, 6, 4),
+                    valid_from=datetime.date(2020, 6, 1),
+                ),
+            )
+        )
     for rev in revisions:
         p = tmp / f"UN_R999_rev{rev}.pdf"
         data = build_pdf(p, rev)

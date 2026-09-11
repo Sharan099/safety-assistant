@@ -15,7 +15,8 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from safety_assistant.api.dependencies import Principal, require_scope
-from safety_assistant.generation import AnswerResponse, AnswerService
+from safety_assistant.generation import AnswerResponse
+from safety_assistant.generation.service import AnswerService
 from safety_assistant.persistence import get_session
 from safety_assistant.persistence.models import (
     Chunk,

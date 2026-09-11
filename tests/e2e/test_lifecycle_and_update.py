@@ -167,3 +167,19 @@ def test_corrupted_source_is_quarantined_not_ingested(clean_db, db_session, env,
     assert db_session.scalar(select(func.count(Chunk.id))) == 0
     svc = _service(env)
     assert svc.search(db_session, "thorax compression", k=3).bundle.evidence == []
+
+
+def test_change_impact_diff_between_versions(clean_db, db_session, env) -> None:  # type: ignore[no-untyped-def]
+    from safety_assistant.ingestion.diff import diff_versions, find_version
+
+    _ingest(db_session, env, "test-un-r999-rev1")
+    _ingest(db_session, env, "test-un-r999-rev2")
+    a, b = find_version(db_session, REG_KEY, "Rev.1"), find_version(db_session, REG_KEY, "Rev.2")
+    assert a is not None and b is not None
+    d = diff_versions(db_session, a, b)
+    assert [c.path for c in d.added] == ["3.2.4"]
+    assert [c.path for c in d.changed] == ["3.2.2"]
+    assert d.removed == [] and d.unchanged >= 14
+    assert "-The thorax compression criterion (ThCC) shall not exceed 42 mm." in d.changed[0].diff
+    assert "+The thorax compression criterion (ThCC) shall not exceed 45 mm." in d.changed[0].diff
+    assert d.summary()["normative_changes"] == ["3.2.2", "3.2.4"]

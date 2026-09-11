@@ -225,7 +225,7 @@ frozen at tag `pre-rebuild-baseline` and will be removed at cutover (M16).
 | M4 structural parsing/chunking | **done** | `normalize/structure.py` clause tree with annex scope, TOC/footnote guards, definitions (R94 63, R16 71, R95 52, R129 89), cross-refs (R94 127 → 100 resolved); `chunk/structural.py` exact citation labels, merged tiny siblings keep inline numbers, table chunks carry headers |
 | M5 hybrid retrieval | **done** | `retrieval/service.py`: SQL scope before ranking, dense (HNSW) + BM25 (cached, in-memory scope) + exact-identifier leg → RRF → normative-aware heuristic rerank → guard/diversify → parent + cross-ref expansion; ~200–250 ms/query p50 |
 | M6 evaluation baseline | **done** | `evals/datasets/regulatory_v1.yaml` 47 cases / 16 slices (39 section-level); `scripts/eval/retrieval.py`; results in `evals/results/`; see §7 |
-| M7 grounded generation | pending | |
+| M7 grounded generation | **done** | `generation/`: GroundedDraft schema, gate (ambiguous / no-version-on-date / unknown regulation / no evidence / weak + one acronym rewrite), citation + numeric validation, modes GENERATED/EVIDENCE_ONLY/ABSTAINED, QueryTrace per request; API `/ask`, `/search`, `/evidence/{id}`, `/regulations`, `/feedback`, admin ingest/audit; RBAC scopes; health live/ready/deps |
 | M8 temporal RAG | pending | |
 | M9 change-impact | pending | |
 | M10 bounded agent | pending | |
@@ -236,6 +236,20 @@ frozen at tag `pre-rebuild-baseline` and will be removed at cutover (M16).
 | M15 frontend | pending | |
 | M16 docs + cleanup | pending | |
 | M17 full validation | pending | |
+
+## 6b. Test pyramid (new suite, `uv run pytest`; legacy suite `uv run pytest tests/legacy -o addopts=""`)
+
+| Category | Location | Tests | Needs |
+|---|---|---|---|
+| unit | `tests/unit` | 53 | nothing |
+| parser golden (real UN R94/R16 page text fixtures) | `tests/parser_golden` | 9 | nothing |
+| security / adversarial | `tests/security` | 24 | PostgreSQL for 5 |
+| integration (API `/ask` with mock LLM over synthetic corpus) | `tests/integration` | 7 | PostgreSQL |
+| e2e (lifecycle, idempotent rerun, v1→v2 update with 2/12 re-embeds, quarantine) | `tests/e2e` | 4 | PostgreSQL |
+| evaluation (dataset + report provenance) | `tests/evaluation` | 3 | nothing |
+| retrieval regression (real corpus; skipped otherwise) | `tests/retrieval_regression` | 3 | ingested corpus |
+| **total new** | | **98 passed** (2026-09-11) | |
+| legacy (pre-rebuild, deleted at cutover) | `tests/legacy` | 209 passed / 1 skipped | legacy DB |
 
 ## 7. Measured retrieval results (new system)
 

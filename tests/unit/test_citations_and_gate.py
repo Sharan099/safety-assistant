@@ -1,0 +1,70 @@
+import datetime
+import uuid
+
+from safety_assistant.generation import GroundedDraft, rewrite_query, validate_draft
+from safety_assistant.generation.citations import canonical_number, claimed_numbers
+from safety_assistant.generation.schemas import Claim
+from safety_assistant.retrieval.context import Evidence, LegRanks
+
+
+def _ev(eid: str, content: str) -> Evidence:
+    return Evidence(
+        evidence_id=eid,
+        chunk_id=uuid.uuid4(),
+        regulation_key="UN-R94",
+        regulation_title="t",
+        kind="REGULATION",
+        jurisdiction="UNECE",
+        authority_level="AUTHORITATIVE",
+        version_id=uuid.uuid4(),
+        version_label="Rev.4",
+        version_status="ACTIVE",
+        valid_from=datetime.date(2021, 6, 9),
+        valid_to=None,
+        published_at=None,
+        section_id=uuid.uuid4(),
+        section_path="5.2.1.8",
+        section_number="5.2.1.8.",
+        section_title=None,
+        annex=None,
+        normative=True,
+        chunk_type="TEXT",
+        page_start=13,
+        page_end=13,
+        citation_label="UN R94 Rev.4 §5.2.1.8 (p. 13)",
+        content=content,
+        ranks=LegRanks(fused_score=0.1),
+        source_sha256="x" * 64,
+        source_uri=None,
+        storage_uri="file://x",
+        token_count=10,
+    )
+
+
+def test_canonical_numbers() -> None:
+    assert canonical_number("1,3") == "1.3" and canonical_number("1,000") == "1000"
+    assert canonical_number("3,500") == "3500" and canonical_number("1.25") == "1.25"
+    assert claimed_numbers("exceed 1,3; HPC 1,000; item 1") == {"1.3", "1000"}
+
+
+def test_validation_accepts_supported_and_rejects_invented_numbers_and_ids() -> None:
+    ev = [_ev("E1", "The tibia index (TI) shall not exceed 1,3 at either location.")]
+    draft = GroundedDraft(
+        answer="x",
+        claims=[
+            Claim(text="The tibia index shall not exceed 1.3.", evidence_ids=["E1"]),
+            Claim(text="The tibia index shall not exceed 1.5.", evidence_ids=["E1"]),
+            Claim(text="Stated in clause 9.", evidence_ids=["E9"]),
+            Claim(text="This is my reading with number 77.", evidence_ids=["E1"], kind="INTERPRETATION"),
+        ],
+    )
+    kept, report = validate_draft(draft, ev)
+    assert [c.text for c in kept] == ["The tibia index shall not exceed 1.3.", "This is my reading with number 77."]
+    statuses = [c.status for c in report.claims]
+    assert statuses == ["SUPPORTED", "NUMERIC_MISMATCH", "UNSUPPORTED_EVIDENCE_ID", "SUPPORTED"]
+    assert report.unknown_evidence_ids == ["E9"] and report.dropped_claims == 2 and report.ok is False
+
+
+def test_rewrite_expands_known_acronyms() -> None:
+    assert rewrite_query("HPC limit in R94") == "HPC (head performance criterion) limit in R94"
+    assert rewrite_query("frontal collision") is None

@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from safety_assistant.ingestion.normalize.structure import NormalizedDocument, NormSection
 from safety_assistant.ingestion.parse.contract import ParsedTable
 
-CHUNKER_VERSION = "2.0.1"
+CHUNKER_VERSION = "2.0.2"
 TARGET_MIN_TOKENS = 120
 TARGET_MAX_TOKENS = 500
 TABLE_ROWS_PER_CHUNK = 25
@@ -83,7 +83,11 @@ class CitationContext:
 
     @property
     def prefix(self) -> str:
-        return f"{self.regulation_key.replace('-', ' ')} {self.version_label.split(' ')[0]}"
+        return f"{self.regulation_label} {self.version_label.split(' ')[0]}"
+
+    @property
+    def regulation_label(self) -> str:
+        return self.regulation_key.replace("-", " ")
 
 
 def _breadcrumb(section: NormSection, by_path: dict[str, NormSection]) -> list[str]:
@@ -148,7 +152,9 @@ def chunk_document(doc: NormalizedDocument, tables: list[ParsedTable], ctx: Cita
         meta: dict[str, object],
     ) -> None:  # noqa: E501
         nonlocal ordinal
-        header = f"{ctx.prefix} › " + " › ".join(_breadcrumb(section, by_path))
+        # Version-independent header: identical clause text in two versions must hash
+        # identically so embeddings are reused; the citation label carries the version.
+        header = f"{ctx.regulation_label} › " + " › ".join(_breadcrumb(section, by_path))
         body = f"{header}\n{content}"
         drafts.append(
             ChunkDraft(
@@ -266,9 +272,15 @@ def _section_text(section: NormSection) -> str:
 
 
 def _table_is_indexable(t: ParsedTable) -> bool:
-    """Drawings/approval marks are often detected as 'tables' with near-empty cells."""
+    """Drawings/approval marks are often detected as 'tables' with near-empty cells.
+    A table with real headers is meaningful at any size; a header-less one needs
+    at least two columns and some substantive cell text."""
     cells = [c for r in t.rows for c in r if c and c.strip()]
-    return len(t.rows) >= 2 and max((len(r) for r in t.rows), default=0) >= 2 and sum(len(c) for c in cells) >= 40
+    if not t.rows or max((len(r) for r in t.rows), default=0) < 2:
+        return False
+    if t.headers and sum(1 for h in t.headers if h and h.strip()) >= 2:
+        return len(cells) >= 2
+    return len(t.rows) >= 2 and sum(len(c) for c in cells) >= 40
 
 
 def _section_for_page(doc: NormalizedDocument, page: int) -> NormSection:

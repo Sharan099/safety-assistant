@@ -32,6 +32,7 @@ from safety_assistant.evaluation.metrics import (
     reciprocal_rank,
 )
 from safety_assistant.persistence.models import Chunk, Regulation, RegulationVersion, Section
+from safety_assistant.providers.embeddings import EmbeddingProvider
 from safety_assistant.retrieval import RetrievalConfig, RetrievalService, ScopeFilter
 from safety_assistant.retrieval.sparse import get_index
 
@@ -191,7 +192,12 @@ def _aggregate(cases: list[CaseResult]) -> dict[str, float | None]:
 
 
 def run_evaluation(
-    session: Session, dataset: GoldDataset, *, legs: list[str] | None = None, base_config: RetrievalConfig | None = None
+    session: Session,
+    dataset: GoldDataset,
+    *,
+    legs: list[str] | None = None,
+    base_config: RetrievalConfig | None = None,
+    embedder: EmbeddingProvider | None = None,
 ) -> EvalReport:
     base = base_config or RetrievalConfig()
     bm25 = get_index(session)
@@ -206,7 +212,7 @@ def run_evaluation(
     )
     for leg in legs or list(LEGS):
         cfg = dataclasses.replace(base, **LEGS[leg])
-        service = RetrievalService(config=cfg, bm25_index=bm25)
+        service = RetrievalService(config=cfg, bm25_index=bm25, embedder=embedder)
         report.legs.append(evaluate_leg(session, dataset, leg, service=service))
         report.versions.setdefault("embedding_model", service.embedder.model_name if cfg.use_dense else None)
         if cfg.use_reranker and service.reranker:

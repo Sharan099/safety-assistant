@@ -46,3 +46,4 @@ Thumbs.db
 
 # --- content-addressed artifact store (dev filesystem backend) ---
 data/artifacts/sha256/
+data/artifacts-test/

@@ -1,0 +1,324 @@
+# Source registry — the ONLY sources ingestion may touch (allowlist).
+#
+# schema_version 2. One entry per (document, consolidated version) PDF.
+#   regulation_key   stable identity across amendments (regulations.regulation_key)
+#   kind             REGULATION | STANDARD | TECHNICAL_REPORT | MANUAL
+#   version.*        the consolidated text's own label/series/revision and dates
+#                    (published_at = document date; valid_from = entry into force of
+#                    the latest amendment incorporated). Read from the cover page and
+#                    reviewed by a human; the cover-page parser cross-checks them.
+#                    Absent dates mean UNKNOWN, never assumed.
+#   source_uri       official location. *_status records whether it was verified.
+#   sha256/size      of the immutable local copy; the pipeline refuses mismatches.
+# Nothing here is inferred generously: authority_level and license are as recorded.
+schema_version: 2
+sources:
+- source_key: unece-un-r16
+  regulation_key: UN-R16
+  kind: REGULATION
+  title: UN Regulation No. 16 — Safety-belts, restraint systems, child restraint systems and ISOFIX child restraint
+    systems
+  authority: UNECE
+  jurisdiction: UNECE-1958-AGREEMENT
+  authority_level: AUTHORITATIVE
+  publisher: UNECE
+  data_class: PUBLIC
+  source_uri: https://unece.org/transport/vehicle-regulations-wp29/standards/addenda-1958-agreement-regulations-0-20
+  source_uri_status: LANDING_PAGE_UNVERIFIED
+  local_path: knowledge/01_regulations/unece/UN_R16/UN_R16.pdf
+  sha256: 442b059e51a3154a8294fc10cb00b17fcbfac295237b87a62e383f08e0f48991
+  size_bytes: 1804806
+  media_type: application/pdf
+  license: PUBLIC_OFFICIAL_DOCUMENT
+  version:
+    label: Rev.7 (06 series, Suppl. 2)
+    series: '06'
+    revision: Rev.7
+    document_symbol: E/ECE/324/Rev.1/Add.15/Rev.7
+    published_at: '2012-10-02'
+    valid_from: '2012-07-26'
+- source_key: unece-un-r94
+  regulation_key: UN-R94
+  kind: REGULATION
+  title: UN Regulation No. 94 — Protection of the occupants in the event of a frontal collision
+  authority: UNECE
+  jurisdiction: UNECE-1958-AGREEMENT
+  authority_level: AUTHORITATIVE
+  publisher: UNECE
+  data_class: PUBLIC
+  source_uri: https://unece.org/transport/vehicle-regulations-wp29/standards/addenda-1958-agreement-regulations-81-100
+  source_uri_status: LANDING_PAGE_UNVERIFIED
+  local_path: knowledge/01_regulations/unece/UN_R94/UN_R94.pdf
+  sha256: acd8a96b97cb1e9e425eece3857c9ac10387dced4c7811252a8c18ed2d719615
+  size_bytes: 1671219
+  media_type: application/pdf
+  license: PUBLIC_OFFICIAL_DOCUMENT
+  version:
+    label: Rev.4 (04 series)
+    series: '04'
+    revision: Rev.4
+    document_symbol: E/ECE/324/Rev.1/Add.93/Rev.4
+    published_at: '2022-12-29'
+    valid_from: '2021-06-09'
+- source_key: unece-un-r95
+  regulation_key: UN-R95
+  kind: REGULATION
+  title: UN Regulation No. 95 — Protection of the occupants in the event of a lateral collision
+  authority: UNECE
+  jurisdiction: UNECE-1958-AGREEMENT
+  authority_level: AUTHORITATIVE
+  publisher: UNECE
+  data_class: PUBLIC
+  source_uri: https://unece.org/transport/vehicle-regulations-wp29/standards/addenda-1958-agreement-regulations-81-100
+  source_uri_status: LANDING_PAGE_UNVERIFIED
+  local_path: knowledge/01_regulations/unece/UN_R95/UN_R95.pdf
+  sha256: bb3120f4596c94bcda6476443eaca5e8e6de3bed0c0295b49b6d43cc610f161f
+  size_bytes: 2529710
+  media_type: application/pdf
+  license: PUBLIC_OFFICIAL_DOCUMENT
+  version:
+    label: Rev.3 (04 series)
+    series: '04'
+    revision: Rev.3
+    document_symbol: E/ECE/324/Rev.1/Add.94/Rev.3
+    published_at: '2022-12-30'
+    valid_from: '2021-01-03'
+- source_key: unece-un-r129
+  regulation_key: UN-R129
+  kind: REGULATION
+  title: UN Regulation No. 129 — Enhanced Child Restraint Systems used on board of motor vehicles (i-Size)
+  authority: UNECE
+  jurisdiction: UNECE-1958-AGREEMENT
+  authority_level: AUTHORITATIVE
+  publisher: UNECE
+  data_class: PUBLIC
+  source_uri: https://unece.org/transport/vehicle-regulations-wp29/standards/addenda-1958-agreement-regulations-121-140
+  source_uri_status: LANDING_PAGE_UNVERIFIED
+  local_path: knowledge/01_regulations/unece/UN_R129/UN_R129.pdf
+  sha256: 16e2b8ffd12ca5664d7ce5550529a7f51701f03230f98281718e02862f0073f0
+  size_bytes: 3150884
+  media_type: application/pdf
+  license: PUBLIC_OFFICIAL_DOCUMENT
+  version:
+    label: Rev.3 (02 series, Suppl. 2)
+    series: '02'
+    revision: Rev.3
+    document_symbol: E/ECE/324/Rev.2/Add.128/Rev.3
+    published_at: '2018-10-19'
+    valid_from: '2018-07-19'
+- source_key: nhtsa-thor-05f-qualification-manual
+  regulation_key: NHTSA-THOR-05F-QUAL
+  kind: STANDARD
+  title: THOR-05F Qualification Manual (2025)
+  authority: NHTSA
+  jurisdiction: US-FEDERAL
+  authority_level: OFFICIAL_DOCUMENTATION
+  publisher: NHTSA
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/nhtsa/THOR-05F-2025-Qualification-Manual.pdf
+  sha256: ab2809966c59c03754151f44b26690eaac1b41632b619c27a88498e30d83b334
+  size_bytes: 16071492
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: '2025'
+- source_key: nhtsa-honda-odyssey-2019-seat-belt-ds1
+  regulation_key: NHTSA-DOT-63553-DS1
+  kind: TECHNICAL_REPORT
+  title: NHTSA / DOT report 63553 DS1 — 2019 Honda Odyssey seat-belt modelling
+  authority: NHTSA
+  jurisdiction: US-FEDERAL
+  authority_level: HISTORICAL
+  publisher: NHTSA / DOT
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/nhtsa/dot_63553_DS1.pdf
+  sha256: 852a9332b3d5dc85447b68cd3245c182e05ac1a43ebe0eaa1da5be0ea7dd2117
+  size_bytes: 8843969
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: DS1
+- source_key: nhtsa-honda-accord-2014-lightweight-vehicle-report
+  regulation_key: NHTSA-812237
+  kind: TECHNICAL_REPORT
+  title: NHTSA DOT HS 812 237 — Lightweight vehicle report (2014 Honda Accord)
+  authority: NHTSA
+  jurisdiction: US-FEDERAL
+  authority_level: HISTORICAL
+  publisher: NHTSA
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/nhtsa/812237_lightweightvehiclereport.pdf
+  sha256: 4719dcd4fd0309a4bc8334788ce0c669f95d7150bb26dea98f70dd84a1fb0e36
+  size_bytes: 9455099
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: '812237'
+- source_key: nhtsa-structural-countermeasure-research-report
+  regulation_key: NHTSA-812523
+  kind: TECHNICAL_REPORT
+  title: NHTSA DOT HS 812 523 — Structural countermeasure research program
+  authority: NHTSA
+  jurisdiction: US-FEDERAL
+  authority_level: HISTORICAL
+  publisher: NHTSA
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/nhtsa/published_812523_structural-countermeasure-research-program.pdf
+  sha256: 5bdf21be353208e18ac1cc056f7c8915da3cb85034fb35258e3594b6f0f5ffaa
+  size_bytes: 10989082
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: '812523'
+- source_key: nhtsa-accord-edag-restraint-modeling-report
+  regulation_key: NHTSA-EDAG-13548
+  kind: TECHNICAL_REPORT
+  title: EDAG vehicle interior restraint modelling report 13548 (Honda Accord)
+  authority: NHTSA
+  jurisdiction: US-FEDERAL
+  authority_level: HISTORICAL
+  publisher: NHTSA / EDAG
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/nhtsa/report_13548-edag_vehicle_interior_restraint_modeling_050318_v2.pdf
+  sha256: 97afffd60664d8c7ecc95b542fdaba8e46f2c3f32a08147b11c581827b036a51
+  size_bytes: 24094759
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: v2 2018-05-03
+- source_key: lsdyna-r17-theory
+  regulation_key: LSDYNA-R17-THEORY
+  kind: MANUAL
+  title: LS-DYNA Theory Manual R17
+  authority: ANSYS-LST
+  jurisdiction: VENDOR
+  authority_level: OFFICIAL_DOCUMENTATION
+  publisher: LSTC / Ansys
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Theory_R17.pdf
+  sha256: 68689fd5f005360cab81d4718dd632ff1bc91891bd686c8fd6c085a6716b8857
+  size_bytes: 14012502
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: R17
+- source_key: lsdyna-r17-vol-i
+  regulation_key: LSDYNA-R17-VOL-I
+  kind: MANUAL
+  title: LS-DYNA Keyword User's Manual Vol. I R17
+  authority: ANSYS-LST
+  jurisdiction: VENDOR
+  authority_level: OFFICIAL_DOCUMENTATION
+  publisher: LSTC / Ansys
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Vol_I_R17.pdf
+  sha256: 3981b61e88dd3aeef1e81cb527d0d7b0a26a3ec7ceef1ed51ecafc3d42ac3ef1
+  size_bytes: 34399172
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: R17
+- source_key: lsdyna-r17-vol-ii
+  regulation_key: LSDYNA-R17-VOL-II
+  kind: MANUAL
+  title: LS-DYNA Keyword User's Manual Vol. II (Material Models) R17
+  authority: ANSYS-LST
+  jurisdiction: VENDOR
+  authority_level: OFFICIAL_DOCUMENTATION
+  publisher: LSTC / Ansys
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Vol_II_R17.pdf
+  sha256: 00f17dc29e93b6b13302fc4ea6efb004c993cf7560b933a5ecb40b926bf16e28
+  size_bytes: 14772665
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: R17
+- source_key: lsdyna-r17-vol-iii
+  regulation_key: LSDYNA-R17-VOL-III
+  kind: MANUAL
+  title: LS-DYNA Keyword User's Manual Vol. III (Multi-Physics) R17
+  authority: ANSYS-LST
+  jurisdiction: VENDOR
+  authority_level: OFFICIAL_DOCUMENTATION
+  publisher: LSTC / Ansys
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Manual_Vol_III_R17.pdf
+  sha256: ce8995d90713b544b1d482da31bf97b187e7fc575d9b3a2a2160a30392fe8083
+  size_bytes: 4455069
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: R17
+- source_key: lsdyna-r17-users-guide
+  regulation_key: LSDYNA-R17-USERS-GUIDE
+  kind: MANUAL
+  title: LS-DYNA User's Guide R17
+  authority: ANSYS-LST
+  jurisdiction: VENDOR
+  authority_level: OFFICIAL_DOCUMENTATION
+  publisher: LSTC / Ansys
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/ls_dyna/r17/LS-DYNA_Users_Guide.pdf
+  sha256: a6ceecfd798ae0fe77bd7f6649340561fc806bb4382d2120d655b123ced874db
+  size_bytes: 8845447
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: R17
+- source_key: lsdyna-examples-manual
+  regulation_key: LSDYNA-EXAMPLES
+  kind: MANUAL
+  title: LS-DYNA Examples Manual
+  authority: ANSYS-LST
+  jurisdiction: VENDOR
+  authority_level: OFFICIAL_DOCUMENTATION
+  publisher: LSTC / Ansys
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/ls_dyna/r17/ls-dyna-examples-manual.pdf
+  sha256: 9148f3053e5b5f9a1e10ca35ba1c0699d593416fd40443574db07c0bede0e56f
+  size_bytes: 1965497
+  media_type: application/pdf
+  license: USER_SUPPLIED_UNVERIFIED_LICENSE
+  version:
+    label: undated
+- source_key: pam-crash-spec-sheet
+  regulation_key: PAMCRASH-SPEC
+  kind: MANUAL
+  title: PAM-Crash specification sheet
+  authority: ESI
+  jurisdiction: VENDOR
+  authority_level: REFERENCE
+  publisher: ESI Group
+  data_class: PUBLIC
+  source_uri: null
+  source_uri_status: UNKNOWN
+  local_path: knowledge/02_official_docs/pam_crash/cc-PAM-Crash-Spec-Sheet.pdf
+  sha256: c66f371c963ac204d1dabe00a62a1421225406d885b9ba5c4958e876e2e28396
+  size_bytes: 118409
+  media_type: application/pdf
+  license: PUBLIC_MARKETING_DOCUMENT
+  version:
+    label: undated

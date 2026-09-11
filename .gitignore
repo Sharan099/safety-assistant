@@ -43,3 +43,6 @@ Thumbs.db
 # --- IDE ---
 .vscode/
 .idea/
+
+# --- content-addressed artifact store (dev filesystem backend) ---
+data/artifacts/sha256/

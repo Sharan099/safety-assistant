@@ -14,6 +14,7 @@ _CLAUSE_RE = re.compile(
     r"(?<![\w.])(?:§\s*|para(?:graph)?s?\.?\s+|clause\s+)?(?P<num>\d{1,2}(?:\.\d{1,3}){1,6})\.?(?![\w.]|\s*(?:mm|kn|kg|km|m/s|ms|g|%))",
     re.IGNORECASE,
 )
+_OTHER_REG_RE = re.compile(r"\b(?P<fam>FMVSS|GTR|CMVSS|ADR|AIS|GB|JIS)\s*(?P<num>\d{1,4})\b", re.IGNORECASE)
 _ANNEX_RE = re.compile(r"\bannex\s+(?P<num>\d{1,2}[A-Z]?)\b", re.IGNORECASE)
 _YEAR_RE = re.compile(
     r"\b(?:as\s+of|as\s+at|in\s+force\s+(?:in|on)|effective\s+(?:in|on)|before|prior\s+to|until|in|during|back\s+in)\s+(?P<y>(?:19|20)\d{2})\b",
@@ -21,7 +22,10 @@ _YEAR_RE = re.compile(
 )
 _ISO_DATE_RE = re.compile(r"\b(?P<d>(?:19|20)\d{2}-\d{2}-\d{2})\b")
 _HISTORICAL_HINT_RE = re.compile(
-    r"\b(previous|earlier|old(?:er)?|former|superseded|historical|before|prior|used to|originally)\b", re.IGNORECASE
+    r"\b(?:(?:previous|earlier|old(?:er)?|former|prior|original)\s+"
+    r"(?:version|text|series|revision|amendment|edition|requirement|limit)"
+    r"|superseded|historical|historically|used to|originally|back then)\b",
+    re.IGNORECASE,
 )
 _CHANGE_HINT_RE = re.compile(
     r"\b(chang(?:e|ed|es)|amend(?:ed|ment|ments)?|differ(?:s|ence|ences)?|compar(?:e|ed|ison)"
@@ -65,6 +69,10 @@ def parse_query_scope(text: str, *, today: datetime.date | None = None) -> Query
     scope = QueryScope()
     for m in _REG_RE.finditer(text):
         key = f"UN-R{int(m.group('num'))}"
+        if key not in scope.regulation_keys:
+            scope.regulation_keys.append(key)
+    for m in _OTHER_REG_RE.finditer(text):
+        key = f"{m.group('fam').upper()}-{int(m.group('num'))}"
         if key not in scope.regulation_keys:
             scope.regulation_keys.append(key)
     for m in _CLAUSE_RE.finditer(text):

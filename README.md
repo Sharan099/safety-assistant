@@ -1,240 +1,142 @@
-# Passive Safety CAE Investigation Agent
+# Safety Assistant — regulatory knowledge system for automotive passive safety
 
-An engineering investigation workstation for passive-safety / occupant-protection
-CAE engineers — not a chatbot. It helps answer questions like *"why did chest
-deflection increase between Run A and Run B?"* with evidence-backed, traceable
-analysis: quality gates, comparability checks, configuration diffs, signal
-analysis, divergence detection, citation-grounded regulatory/solver retrieval,
-structured LS-DYNA deck queries, and a contextual investigation Copilot — with
-an engineer review step before any conclusion is recorded.
+**Problem:** engineers need exact, current, citable answers from UN vehicle-safety regulations (R16, R94, R95, R129, …) — with the right *version*, the right *clause*, the numbers unchanged, and an honest "not in the corpus" when that is the truth. Generic PDF chatbots get the version wrong, invent clause numbers and round limits.
 
-## Status
+Safety Assistant is a versioned, auditable retrieval system: structure-aware ingestion of consolidated regulation texts, hybrid retrieval with temporal scoping, grounded generation under a citation contract, and programmatic validation of every claim.
 
-**V1 vertical slice + Copilot + Level 3 research-grade knowledge layer.**
-Not a production deployment — see Limitations below.
+## Demo
 
-- **V1 core workflow** (backend + Next.js UI, port 3010): select two runs →
-  quality gate → comparability → configuration diff → signal analysis/
-  divergence → evidence → agent-drafted hypothesis → engineer review.
-- **Investigation Copilot**: a collapsible chat panel inside the investigation
-  workspace (not a separate `/chat` page) streaming real-time LangGraph
-  workflow visibility over SSE.
-- **Level 3**: connects the real public engineering corpus under
-  `Knowledge source/` (28 files, 1.3 GB — NHTSA vehicle/dummy/restraint FE
-  models, THOR-05F qualification package, OpenRadioss ModelExchange,
-  UN regulations, LS-DYNA manuals) to a validated ingestion pipeline,
-  a real LS-DYNA parser, mandatory Structured + Hybrid RAG (BM25 + dense +
-  RRF + reranker, plus separate structured CAE search), and an evaluated
-  retrieval pipeline. See `PRD_LEVEL3.md` / `TRD_LEVEL3.md` /
-  `CLAUDE_CODE_LEVEL3_INSTRUCTIONS.md` and the Level-3 section below.
-
-See `IMPLEMENTATION_PLAN.md` for the V1 phased build order and `docs/ADR/`
-for every real decision made along the way (13 ADRs).
-
-## Start here
-
-Read these before changing anything — they are the product/technical
-contract, not background reading:
-
-1. `PRD.md` / `TRD.md` — V1 product & technical requirements
-2. `PRD_LEVEL3.md` / `TRD_LEVEL3.md` — Level-3 requirements
-3. `APP_FLOW.md` — the investigation flow and states
-4. `BACKEND_SCHEMA.md` — the V1 data model (Level-3 `cae_*` tables:
-   `packages/domain/cae.py`)
-5. `UI_UX_DESIGN_BRIEF.md` — the UI contract
-6. `IMPLEMENTATION_PLAN.md` — V1 phase-by-phase execution order
-7. `ENVIRONMENT_SETUP.md` — tooling, OKF architecture
-8. `CLAUDE.md` / `CLAUDE_CODE_LEVEL3_INSTRUCTIONS.md` — standing AI-development rules
-9. `docs/ADR/` — every real decision, in order
-
-## Repository layout
+Run locally in about ten minutes (see [Local setup](#local-setup)). The UI shows, for every answer, the evidence id → regulation → version → section → page → validity window → source SHA-256, and states explicitly when it abstains.
 
 ```
-apps/api             FastAPI backend — runs, investigations, knowledge search, copilot
-apps/web              Next.js investigation workspace (port 3010)
-packages/domain        Core + copilot + CAE entities, Alembic migrations
-packages/analysis        Deterministic, LLM-free CAE analysis (no LLM calls)
-packages/ingestion         PDF ingestion (PyMuPDF) + archive inspection + QA
-packages/cae                 LS-DYNA keyword scan + lexer/parser/include-graph
-packages/retrieval              BM25 + pgvector + RRF + reranker + structured CAE search
-packages/agent                    LLMProvider + LangGraph investigation agent + Copilot
-knowledge/            Canonical corpus registry + OKF concepts (source PDFs gitignored)
-Knowledge source/     Immutable original corpus (local only, gitignored — see below)
-data/                 Synthetic runs, Parquet signal data, artifacts (gitignored, regenerable)
-evals/                Golden datasets + evaluation harnesses
-docs/ADR/             Architecture decision records (13)
+$ curl -s localhost:8010/api/v1/ask -d '{"query":"What is the tibia index limit in UN R94?"}' -H 'content-type: application/json'
+{ "mode": "EVIDENCE_ONLY", "citations": [ { "evidence_id": "E1", "label": "UN R94 Rev.4 §5.2.1.3–5.2.1.8 (pp. 12–13)",
+  "version_label": "Rev.4 (04 series)", "valid_from": "2021-06-09", "version_status": "ACTIVE", "source_sha256": "acd8a96b…" } ], … }
+
+$ curl -s localhost:8010/api/v1/ask -d '{"query":"What was the tibia index limit in UN R94 as of 2015?"}' …
+{ "mode": "ABSTAINED", "abstain_reason": "no_version_valid_on_date",
+  "answer": "No ingested version of UN-R94 was in force on 2015-12-31; …" }
 ```
 
-## Getting started
+## Measured results
 
-```powershell
-uv sync                                          # install Python deps
-docker compose up -d postgres                    # port 5433 — see docs/ADR/0004
-uv run alembic upgrade head                      # apply the domain + CAE schema
-uv run python scripts/generate_synthetic_dataset.py   # SCN-001..010 -> Postgres + Parquet
-uv run python scripts/ingest_level3_pdfs.py       # all 16 registered PDFs (bounded, 20p each)
-uv run python scripts/index_knowledge.py          # embed ingested chunks (idempotent)
-uv run python scripts/ingest_level3_cae_decks.py  # 4 real LS-DYNA deck families -> cae_*
-uv run python scripts/generate_okf_concepts.py    # OKF concept files under knowledge/07_okf/
-uv run uvicorn apps.api.main:app --port 8010      # backend, port 8010 (docs/ADR/0004)
+All numbers below were produced by code in this repository on the stated corpus; nothing is estimated. Raw result files with git SHA, corpus fingerprint, model and config versions live in `evals/results/`.
 
-# in another terminal:
-cd apps/web
-cp .env.local.example .env.local
-npm install
-npm run dev                                       # frontend, http://localhost:3010
-```
+**Retrieval** — dataset `regulatory_v1` (47 cases, 16 slices; 39 with section-level truth), corpus 21,910 chunks / 16 documents, git `f82ce5a`, 2026-09-12. Relevance = clause-path match; k_eval = 20.
 
-```powershell
-uv run pytest              # 187 tests (1 skipped)
-uv run ruff check .        # lint
-uv run mypy apps packages scripts tests conftest.py evals   # strict type check
-```
+| Pipeline leg | R@5 | R@10 | R@20 | P@5 | Hit@5 | MRR | nDCG@10 | p50 ms |
+|---|---|---|---|---|---|---|---|---|
+| dense only (pgvector HNSW, all-MiniLM-L6-v2) | 0.597 | 0.793 | 0.831 | 0.159 | 0.718 | 0.523 | 0.555 | 130 |
+| sparse only (BM25, stemmed) | 0.686 | 0.821 | 0.870 | 0.185 | 0.795 | 0.546 | 0.582 | 81 |
+| hybrid RRF | 0.675 | 0.852 | 0.859 | 0.179 | 0.795 | 0.576 | 0.614 | 226 |
+| hybrid RRF + reranker | 0.734 | 0.875 | 0.901 | 0.205 | 0.846 | 0.597 | 0.639 | 232 |
+| **full** (+ exact-clause leg, parent/cross-ref expansion) | **0.759** | **0.901** | **0.926** | **0.210** | **0.872** | **0.636** | **0.671** | 269 |
 
-Copy `.env.example` to `.env` and fill in secrets before running anything
-that talks to a database or LLM provider. Never commit `.env`.
+Regulation-level hit@5 is 0.955 on every leg. The regression gate (`tests/retrieval_regression`) fails CI if the full-pipeline MRR drops below 0.60 or any of 23 stable cases loses its clause from the top 10.
 
-## Knowledge source policy
+**Load** — laptop (Intel i5-8250U, 8 GB), 2 uvicorn workers, no LLM, `scripts/eval/load_test.py`:
 
-`Knowledge source/` is the single immutable raw-corpus root (`docs/ADR/0010`
-explains why it keeps this name rather than the design docs' spelling,
-`knowledge_source/` — least-disruptive resolution of a real naming conflict
-between the docs and the already-working repo). Never modified, renamed, or
-rewritten — every file's SHA-256 is recorded in
-`knowledge/00_registry/source_manifest.yaml` before anything reads it.
-Proprietary/unverified-license PDFs and every archive are gitignored; only
-the manifest, schemas, and generated OKF markdown are versioned. Large
-archives (up to ~334 MB) are **not** physically duplicated into `knowledge/`
-— disk headroom (`docs/ADR/0011`); the pipeline reads `original_path`
-directly since it's already immutable.
+| Endpoint | Users | Duration | Requests | rps | p50 | p95 | p99 | Errors |
+|---|---|---|---|---|---|---|---|---|
+| `/api/v1/search` | 1 | 30 s | 97 | 3.2 | 286 ms | 398 ms | 429 ms | 0 |
+| `/api/v1/search` | 5 | 60 s | 334 | 5.5 | 742 ms | 1.37 s | 7.9 s¹ | 0 |
+| `/api/v1/ask` (evidence-only) | 5 | 45 s | 180 | 3.9 | 1.14 s | 2.39 s | 3.22 s | 0 |
 
-## Level 3: real corpus, LS-DYNA parser, Structured + Hybrid RAG
+¹ p99 includes the per-worker BM25 index build on first request (~3–5 s for 21,910 chunks); steady-state p99 is under 2 s.
 
-**Source profiler** (`scripts/profile_knowledge_sources.py` →
-`data/artifacts/source_profile.json`): recursively discovers every file
-and archive member, hashes and classifies each. Last real run: 617 rows
-(28 top-level, 589 archive members).
+**Generation / refusal** — the citation contract and abstention gates are verified by tests (mock LLM, schema output): hallucinated evidence ids and numbers absent from the cited text are rejected; no-version-on-date, unknown regulation and ambiguous queries abstain. No LLM-based answer-quality metrics are published because no LLM provider was available in this environment — see [Known limitations](#known-limitations).
 
-**Archive processing** (`packages/ingestion/archives.py`): safe ZIP/TAR/
-TAR.GZ/TGZ member inspection — path-traversal, absolute-path,
-decompression-bomb-ratio, duplicate-path, and symlink/hardlink guards —
-without extracting to disk. `safe_extract_member()` extracts one member at
-a time, re-validating independently.
+**Ingestion** — 16 sources, 11,700 sections (275 typed definitions), 847 cross-references (648 resolved within the same text), 9,022 tables, 4,120 figures. Re-ingesting an unchanged source is a 1–2 s no-op; the synthetic v1→v2 update test re-embeds 2 of 12 chunks.
 
-**PDF pipeline** (`packages/ingestion/`): PyMuPDF-based (Docling deferred,
-`docs/ADR/0011` — 12 GB free disk, `torch`/`transformers` too large a risk
-right now). `qa.py`'s `build_extraction_report()` gives every PDF a
-no-silent-loss report (per-page fault isolation, verified with real fault
-injection) — every PDF gets `data/artifacts/extraction_reports/<id>.json`.
-`structure.py` uses PyMuPDF's own `find_tables()`/`get_images()` for real
-table/figure extraction (verified against the real corpus: 17 tables, 54
-figures found in `UN_R94.pdf` alone) — persisted as `DocumentTable`/
-`DocumentFigure` rows, not silently flattened into prose.
-
-**LS-DYNA parser** (`packages/cae/lsdyna/`): a real lexer → parser →
-include-graph resolver. Preserves every keyword's raw text, source file,
-and line span, content-hashed; unknown keywords are never given invented
-meaning. `PART`/`SECTION`/`MAT`/`CONTACT`/`CONTROL`/`DATABASE`/`INCLUDE`
-get real field extraction into dedicated `cae_*` tables
-(`packages/domain/cae.py`); `NODE`/`ELEMENT`/`BOUNDARY`/`CONSTRAIN`/
-`DEFINE`/`PARAMETER` are detected/counted/raw-preserved generically
-(`cae_keywords`) — matching `TRD_LEVEL3.md` §19's own schema, which has no
-`cae_nodes`/`cae_elements` table. The include-graph resolves
-`RESOLVED`/`MISSING`/`CYCLE`/`DUPLICATE`/`AMBIGUOUS`/`OUTSIDE_ROOT` by
-basename match. Verified against real, messy production data: a 39-include
-Honda Accord assembly deck resolves cleanly (a real bug — legitimate
-`../../` navigation being wrongly refused — was found and fixed this way);
-a Silverado deck genuinely reports `AMBIGUOUS` includes because its archive
-has parallel `BASELINE`/`LIGHTWEIGHT` trees with identically-named files —
-correctly *not* guessed.
-
-**Structured + Hybrid RAG** (mandatory, `TRD_LEVEL3.md` §15):
+## Architecture
 
 ```
-BM25 (real BM25Okapi, rank-bm25)     Dense (pgvector, real semantic embeddings)
-                    \                          /
-                     v                        v
-                       Reciprocal Rank Fusion
-                                |
-                                v
-                Reranker (lexical + authority heuristic)
-                                |
-                                v
-              Authority / relevance / dedup guard
-                                |
-                                v
-                            Evidence
+                  registry (allowlist, SHA-256, version dates)
+                                  │
+   ingest:  DISCOVERED → DOWNLOADED → VALIDATED → PARSED → NORMALIZED → CHUNKED → INDEXED → VERIFIED → ACTIVE
+            fetch (SSRF-safe)  magic/size/hash  PyMuPDF   clause tree   structural   fastembed  consistency  atomic
+            blob store (s3://) page limits      tables    annex scope   citation lbl HNSW       checks       supersede
+                                  │
+   PostgreSQL 16 + pgvector: regulations · regulation_versions · source_artifacts · sections · tables · figures
+                             cross_references · chunks · chunk_embeddings · ingestion_runs/events · query_traces …
+                                  │
+   ask:     parse scope (regulation, clause, as-of date) → authz data classes → SQL scope (status + validity)
+            → dense top-30 ∥ BM25 top-30 ∥ exact-clause leg → RRF → rerank → guard/diversify
+            → parent + cross-ref expansion → evidence gate (abstain / one rewrite / proceed)
+            → LLM under schema (evidence ids) → citation + numeric validation → QueryTrace
+                                  │
+   FastAPI (RBAC scopes, rate limit, request ids, OTel, Prometheus)  ←  Next.js evidence-first UI
 ```
 
-`packages/retrieval/structured.py` (deck/part/material/contact/control/
-database/include queries) is **complementary**, not fused into this ranked
-list (`PRD_LEVEL3.md` §14's own words; `docs/ADR/0012` records this as the
-resolution of a real internal inconsistency between that document's own
-prose and its architecture diagram).
+The bounded agent (`agents/graph.py`, LangGraph) adds two routes on top of the standard path: **comparison** (one scoped retrieval per named regulation) and **change analysis** (section-level diff between the two latest versions as data for the model). Budgets — retrieval attempts, LLM calls, tool calls, wall-clock — are enforced in code.
 
-Dense retrieval uses real semantic embeddings
-(`sentence-transformers/all-MiniLM-L6-v2` via `fastembed`/ONNX Runtime —
-`docs/ADR/0014`), chosen by `evals/embedding_benchmark.py` against the
-hashing placeholder it replaced: MRR 0.838 vs 0.249 on the real golden set,
-no `torch` dependency. Real measured comparison
-(`evals/level3_hybrid_eval.py`, not tuned): BM25-only (MRR 0.917) and
-Dense-only (MRR 0.838) are both individually strong, but naive RRF fusion
-of the two actually *dilutes* to MRR 0.806 on this small (8-query) golden
-set — a real, reported-as-measured RRF characteristic, not a bug. The
-reranker recovers past both individual legs to MRR 0.938 and NDCG@10 0.954
-(vs RRF-only's 0.852).
+## Why these decisions
 
-**OKF** (`knowledge/07_okf/`, `scripts/generate_okf_concepts.py`): one
-curated concept file per ingested document (not one per section — that
-would approach rewriting the whole manual), real extracted content
-(truncated, never LLM-summarized), full source/page/section/authority
-provenance in YAML frontmatter per `ENVIRONMENT_SETUP.md` §12's spec.
+| Decision | Why | ADR |
+|---|---|---|
+| PostgreSQL + pgvector as the only store | one system of record for metadata, audit and vectors; HNSW meets the measured latency; no second database to keep consistent | [0019](docs/ADR/0019-canonical-store-and-schema-cutover.md) |
+| Structural chunks (clause tree), not fixed windows | citations must name exact clauses; merged tiny siblings keep numbers inline; tables carry headers | [0020](docs/ADR/0020-structural-chunking.md) |
+| Dense + BM25 with reciprocal-rank fusion | measured: RRF beats either leg alone (MRR 0.576 vs 0.523/0.546); ranks fuse, raw scores are never summed | [0021](docs/ADR/0021-hybrid-retrieval-and-rrf.md) |
+| Heuristic reranker by default, cross-encoder opt-in | +0.02 MRR / +0.025 nDCG for ~5 ms; the cross-encoder costs ~3.5 s/query on CPU | [0022](docs/ADR/0022-reranking.md) |
+| Versions with validity windows + lifecycle states | "latest" means latest *in force*, never latest downloaded; historical queries filter before ranking | [0023](docs/ADR/0023-temporal-regulation-model.md) |
+| Citation contract with programmatic validation | the model may not invent ids, pages or numbers; violations are dropped, not trusted | [0024](docs/ADR/0024-citation-contract.md) |
+| Bounded LangGraph, no swarm | routing/decomposition is deterministic; the LLM only synthesises under schema | [0025](docs/ADR/0025-bounded-agent.md) |
+| Typed provider interfaces, fakes only in `test` | production refuses hashing embeddings, mock LLM, anonymous auth at startup | [0026](docs/ADR/0026-provider-abstraction-and-fakes.md) |
+| Explicit data-class policy per LLM provider | confidential evidence never reaches a provider that is not cleared; policy is config, not a model-name heuristic | [0027](docs/ADR/0027-security-policy.md) |
+| ECS Fargate + RDS + S3, no Kubernetes | one stateless service and two managed stores do not justify a cluster | [0028](docs/ADR/0028-deployment-architecture.md) |
 
-**Bounded, not unlimited-depth**: PDFs are ingested to a 20-page bound per
-document (consistent with the pre-existing V1 precedent, `docs/ADR/0006`,
-for an 8 GB RAM dev machine); CAE decks are parsed as their main/"combine"
-file plus *direct* includes only (some individual component files in this
-corpus are 100–170 MB) across 4 real vehicle/dummy-model families. Real
-scale reached anyway: 46,765 real keyword rows, 4,992 parts, 1,724
-materials, 99 contacts across 93 real LS-DYNA files — 2,085 of 2,098 real
-parts (99.4%) have their material genuinely resolvable via structured
-search within that bounded scope.
+## Ingestion, versioning, freshness
 
-## Testing & evaluation
+- **Registry** `knowledge/00_registry/sources.yaml` is the allowlist: regulation identity, kind, jurisdiction, authority level, data class, official URI, SHA-256/size, and the consolidated text's own version label, series, revision, publication and entry-into-force dates (human-reviewed; the cover-page parser cross-checks them and logs disagreements).
+- **Idempotency keys**: parse = `source_sha256 + parser_version + parser_config_hash`; chunk = `parsed_hash + chunker_version + chunker_config_hash`; embed = `chunk_sha256 + model_version + dimensions`; index = `chunk_id + index_schema_version`. Unchanged content is never re-embedded — chunk content is version-independent so an amendment reuses every untouched clause's vector.
+- **Lifecycle** is a state machine (`domain/regulations/lifecycle.py`); only `ACTIVE` versions are retrievable for current queries, `ACTIVE|SUPERSEDED` for as-of queries. Activation supersedes the previous version in the same transaction and closes its validity window. Bad files are quarantined with an attempt budget; every transition is an `ingestion_events` row.
+- **Freshness**: `sa_freshness_lag_days{regulation}` (publication → activation) and `ingestion_runs.stats`.
 
-```powershell
-uv run pytest                              # 191 tests, all against real fixtures/corpus where applicable
-uv run python evals/scenario_eval.py       # numerical accuracy, all 10 synthetic scenarios
-uv run python evals/retrieval_eval.py      # full-pipeline Recall@5/@10/MRR
-uv run python evals/level3_hybrid_eval.py  # per-stage BM25/Dense/RRF/reranker comparison + NDCG@10
-uv run python evals/embedding_benchmark.py # embedding candidate comparison (docs/ADR/0014)
-uv run python evals/reranker_benchmark.py  # reranker candidate comparison (docs/ADR/0015)
+## Retrieval pipeline
+
+Details in [docs/retrieval-design.md](docs/retrieval-design.md). Highlights: SQL scope (status, validity, regulation, data class) before any ranking; exact identifiers (`5.2.1.8`, `Annex 3`) route to a dedicated leg with weight 2 in RRF; BM25 is a process-cached index with in-memory scope filtering; the heuristic reranker rewards literal overlap, authority and normative clauses for requirement-seeking questions; the diversification cap is scope-aware; parent sections and resolved cross-references are attached to each evidence item within a token budget.
+
+## Evaluation
+
+`evals/datasets/regulatory_v1.yaml` — 47 cases across 16 slices (exact clause, paraphrase, identifier, definition, numeric threshold, units, table/annex, exception, multi-clause, cross-reference, comparison, historical, change analysis, ambiguous, unanswerable, adversarial). Growth target: 200–500. `uv run safety-assistant eval-retrieval` measures every leg independently and records provenance. See [docs/evaluation.md](docs/evaluation.md).
+
+## Security and governance
+
+RBAC scopes on every route (`regulation:read`, `chat:query`, `confidential:query`, `document:ingest`, `audit:read`, `system:admin`) via API keys or OIDC/JWKS; authorization narrows the retrieval universe by data class *before* ranking; SSRF-safe fetcher (https, allowlist, public-IP DNS check per hop, size cap, conditional GET); file validation (magic bytes, size, page count, hash against the registry); prompt-injection signals recorded and never executed; explicit LLM data-class policy; per-principal rate limit; audit actor on privileged ingestion; secrets from the environment/secret manager only. Threat model: [docs/security-threat-model.md](docs/security-threat-model.md).
+
+## Reliability and observability
+
+Liveness/readiness with dependency health (an LLM outage degrades to evidence-only, it never flips readiness); reranker failure degrades to fused order; structured JSON logs with request ids; OpenTelemetry spans for retrieval, agent, LLM and ingestion; Prometheus metrics (`/metrics`) for request/stage latency, answer modes, citation-validation failures, retrieval no-hit, LLM calls/tokens, ingestion runs, freshness lag; alert rules and a dashboard in `infra/monitoring/`. Runbook: [docs/operations-runbook.md](docs/operations-runbook.md).
+
+## Local setup
+
+```bash
+uv sync --extra s3                          # Python 3.12+, uv
+docker compose up -d postgres               # pgvector on localhost:5433
+cp .env.example .env
+uv run safety-assistant migrate             # creates schema in DATABASE_URL (create the database first if needed)
+# put the registered PDFs under knowledge/ (see sources.yaml), then:
+uv run python scripts/maintenance/verify_registry.py
+uv run safety-assistant ingest              # ~25 min for all 16 sources on a laptop; regulations alone ~2 min
+uv run uvicorn safety_assistant.api.main:app --port 8010
+cd frontend && npm install && cp .env.local.example .env.local && npm run dev   # http://localhost:3010
 ```
 
-## Limitations
+Quality gates: `make lint types test` (119 tests; PostgreSQL required for integration/e2e), `make eval`, `make load`, `cd frontend && npm run test:e2e`.
 
-- **Docling and OCR (tesseract) are not installed** — 12 GB free disk
-  measured at decision time; Docling would resolve several GB of
-  `torch`/`transformers`. Both are `Protocol`-based swap points
-  (`docs/ADR/0011`) requiring no changes above their respective modules
-  once installed.
-- **A real cross-encoder reranker is implemented and benchmarked but not
-  the production default** (`docs/ADR/0015`) — it genuinely improves
-  ranking quality (NDCG@10 0.954 vs 0.938) but measured at ~3.5s/query on
-  this CPU, too slow for an interactive Copilot turn. Available via
-  `CrossEncoderReranker`/`get_cross_encoder_reranker()` for contexts that
-  accept that cost.
-- **Dense retrieval uses real semantic embeddings** as of `docs/ADR/0014`
-  (`fastembed`/ONNX Runtime, no `torch`) — the earlier hashing placeholder
-  is now the explicit "mock" tier for tests only, never production.
-- **PDF ingestion is bounded to 20 pages/document**; CAE deck parsing is
-  bounded to main + direct includes. Both are real, working, and tested at
-  real scale — just not the entire 1.3 GB corpus at unlimited depth.
-- **No CISS field data** — `Knowledge source/NHTSA_crash_test_field_data/`
-  exists but the profiler found zero files there; recorded `NOT_AVAILABLE`
-  in the manifest rather than assumed present.
-- **No historical-case data, no chosen/benchmarked embedding model, no
-  report generation, no mechanism/animation review, no production
-  hardening** (auth, audit trail, a dedicated test database) — all
-  unchanged from V1's own stated scope.
-- Not a production deployment.
+## Deployment
+
+- Image: `infra/docker/Dockerfile` (multi-stage uv build, non-root, read-only root fs, embedding model baked in, healthcheck). Full local stack with MinIO: `docker compose -f infra/docker/compose.yaml up --build`.
+- CI: `.github/workflows/ci.yml` (ruff, mypy, all test tiers, container build, Trivy, SBOM), `security.yml` (pip-audit, bandit, gitleaks, semgrep), `eval.yml` (nightly retrieval evaluation; real corpus restored from a bucket when configured), `release.yml` (ghcr image with provenance + SBOM on tags).
+- Infrastructure: `infra/terraform/` — ALB (TLS 1.3) → ECS Fargate service with circuit-breaker rollback → RDS PostgreSQL 16 (TLS forced, encrypted, 14-day backups/PITR, multi-AZ in production) + versioned, encrypted S3 artifacts + Secrets Manager + CloudWatch alarms. Container: `APP_ENV=production`, `AUTH_MODE=oidc`.
+
+## Known limitations
+
+- **No LLM-judged generation metrics.** No LLM provider was reachable while building this; generation was verified with a schema-compliant mock. Groundedness/correctness/refusal rates on the gold set are therefore not published. The harness (`AnswerService` + `evals/datasets`) is ready; run it with a configured provider before making quality claims.
+- **One version per regulation in the corpus.** Historical and change-analysis behaviour is proven end-to-end on a synthetic two-version regulation (`tests/e2e`), not yet on two real UNECE consolidations; ingesting an earlier revision is a registry entry away.
+- **Dataset size** is 47 cases (target 200–500); one case (`r129-003`) is still `DRAFT`.
+- **Parser**: PyMuPDF only; scanned pages are flagged `NEEDS_REVIEW`, not OCR'd; table extraction is best-effort (drawings detected as tables are filtered). Docling/OCR plug in behind `DocumentParser`.
+- **Official source URIs** in the registry are landing pages marked `LANDING_PAGE_UNVERIFIED`; the fetcher is only used for entries marked `VERIFIED`.
+- **Rate limiter and BM25 index are per process** (documented ponytail ceilings); a shared limiter/index is the upgrade path beyond a few replicas.
+- **Terraform is unapplied** in this repository (no cloud account); it is validated for structure, not by a real `apply`.
+- Supporting documents (LS-DYNA manuals, NHTSA reports) are in the corpus as `MANUAL`/`TECHNICAL_REPORT`; they are never presented as regulations.

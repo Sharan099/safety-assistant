@@ -226,16 +226,16 @@ frozen at tag `pre-rebuild-baseline` and will be removed at cutover (M16).
 | M5 hybrid retrieval | **done** | `retrieval/service.py`: SQL scope before ranking, dense (HNSW) + BM25 (cached, in-memory scope) + exact-identifier leg → RRF → normative-aware heuristic rerank → guard/diversify → parent + cross-ref expansion; ~200–250 ms/query p50 |
 | M6 evaluation baseline | **done** | `evals/datasets/regulatory_v1.yaml` 47 cases / 16 slices (39 section-level); `scripts/eval/retrieval.py`; results in `evals/results/`; see §7 |
 | M7 grounded generation | **done** | `generation/`: GroundedDraft schema, gate (ambiguous / no-version-on-date / unknown regulation / no evidence / weak + one acronym rewrite), citation + numeric validation, modes GENERATED/EVIDENCE_ONLY/ABSTAINED, QueryTrace per request; API `/ask`, `/search`, `/evidence/{id}`, `/regulations`, `/feedback`, admin ingest/audit; RBAC scopes; health live/ready/deps |
-| M8 temporal RAG | pending | |
-| M9 change-impact | pending | |
-| M10 bounded agent | pending | |
-| M11 security/RBAC | pending | |
-| M12 observability | pending | |
-| M13 perf/load/fault | pending | |
-| M14 deployment/IaC | pending | |
-| M15 frontend | pending | |
-| M16 docs + cleanup | pending | |
-| M17 full validation | pending | |
+| M8 temporal RAG | **done** | validity windows + lifecycle in SQL scope; `as_of` parsing; `/regulations/{key}/versions?as_of`; e2e: current → v2, as-of → v1, before v1 → abstain |
+| M9 change-impact | **done** | `ingestion/diff/sections.py` (path + content-hash diff, unified text), `/regulations/{key}/diff`, agent change_analysis route; e2e on synthetic v1→v2 |
+| M10 bounded agent | **done** | `agents/graph.py` LangGraph: parse → route (standard / comparison / change_analysis) → gate → one rewrite → generate → validate; Budget (3 retrievals, 1 LLM call, 8 tools, 45 s); typed tools |
+| M11 security/RBAC | **done** | api_key + OIDC/JWKS, 5 roles → scopes, authz narrows data classes before ranking; SSRF-safe fetcher (ETag/If-Modified-Since); LLM data-class policy; rate limit; audit actor; 30 security tests |
+| M12 observability | **done** | JSON logs with request ids, OpenTelemetry spans (retrieval/agent/llm/ingest), Prometheus `/metrics` (request/stage latency, answer modes, citation failures, no-hit, LLM calls/tokens, ingestion, freshness lag), alerts + dashboard in `infra/monitoring` |
+| M13 perf/load/fault | **done** | fault injection tests (reranker crash → degraded, embedding crash → 503/500 with request id, DB down → 503, event loop non-blocking); load: /search 5 users 5.5 rps p50 742 ms p95 1.37 s, 0 errors (see §8) |
+| M14 deployment/IaC | **done (Terraform unapplied)** | multi-stage non-root image, compose stack with MinIO, CLI, S3 blob store, CI/security/eval/release workflows, Terraform ALB+ECS Fargate+RDS+S3+alarms |
+| M15 frontend | **done** | `frontend/` Next.js evidence-first UI; Playwright 3/3 against the live API |
+| M16 docs + cleanup | **done** | cutover commit f0281de removed apps/, packages/, tests/legacy, old scripts/evals, 17 root markdown files; README, SECURITY, CONTRIBUTING, CHANGELOG, LICENSE, docs/*.md, ADR-0019…0028 |
+| M17 full validation | **done** | see §9 final gates |
 
 ## 6b. Test pyramid (new suite, `uv run pytest`; legacy suite `uv run pytest tests/legacy -o addopts=""`)
 
@@ -292,3 +292,61 @@ Unchecked until evidence is committed. See CLAUDE.md §22 for the authoritative 
 - [ ] Auth/RBAC, privileged endpoints, authz-before-retrieval, upload/fetch validation, SSRF, parser limits, injection suite, provider policy, cache policy, scans
 - [ ] Liveness/readiness, timeouts/retries/backoff, DLQ, structured logs, OTel, metrics, SLOs, load/fault tests, backup/rollback
 - [ ] Reproducible hardened Docker, IaC, release workflow, CHANGELOG
+
+
+## 8. Final measurements (2026-09-12, git f82ce5a and later)
+
+Corpus (`safety_assistant` DB): 16 regulations/documents, 16 versions all ACTIVE, 11,700 sections
+(275 typed definitions), 21,910 chunks = 21,910 embeddings (384-d, HNSW), 9,022 tables, 4,120 figures,
+847 cross-references (648 resolved). Regulations: UN R16 Rev.7 (393 chunks), R94 Rev.4 (277),
+R95 Rev.3 (345), R129 Rev.3 (598).
+
+Retrieval, `regulatory_v1` (47 cases / 39 with section truth), k_eval 20:
+
+| leg | R@5 | R@10 | R@20 | P@5 | Hit@5 | MRR | nDCG@10 | p50 ms | p95 ms |
+|---|---|---|---|---|---|---|---|---|---|
+| dense | 0.597 | 0.793 | 0.831 | 0.159 | 0.718 | 0.523 | 0.555 | 130 | 357 |
+| sparse | 0.686 | 0.821 | 0.870 | 0.185 | 0.795 | 0.546 | 0.582 | 81 | 137 |
+| hybrid RRF | 0.675 | 0.852 | 0.859 | 0.179 | 0.795 | 0.576 | 0.614 | 226 | 345 |
+| + reranker | 0.734 | 0.875 | 0.901 | 0.205 | 0.846 | 0.597 | 0.639 | 232 | 502 |
+| full | 0.759 | 0.901 | 0.926 | 0.210 | 0.872 | 0.636 | 0.671 | 269 | 366 |
+
+Load (laptop i5-8250U, 2 uvicorn workers, no LLM, rate limit off):
+/search 1 user 30 s: 97 req, 3.2 rps, p50 286 / p95 398 / p99 429 ms, 0 errors.
+/search 5 users 60 s: 334 req, 5.5 rps, p50 742 / p95 1,373 / p99 7,918 ms (first-request BM25 build), 0 errors.
+/ask evidence-only 5 users 45 s: 180 req, 3.9 rps, p50 1,137 / p95 2,389 / p99 3,223 ms, 0 errors.
+
+Generation/refusal: verified by contract tests with a schema-compliant mock; **no LLM-judged metrics**
+(no provider available). Frontend E2E: Playwright 3/3.
+
+## 9. Final gates (2026-09-12)
+
+| Gate | Result |
+|---|---|
+| `ruff check` / `ruff format --check` (src, tests, scripts, migrations) | pass |
+| `mypy --strict` (src, scripts/eval, scripts/maintenance) | pass, 100 files |
+| `pytest` (new suite) | **119 passed** — unit 53, parser golden 9, security 30, integration 16, e2e 5, evaluation 3, retrieval regression 3 |
+| Retrieval regression gate | pass (MRR 0.636 ≥ 0.60 floor; 23/23 stable cases) |
+| Playwright E2E | 3/3 |
+| Frontend `tsc --noEmit`, `eslint` | pass |
+| Container build / Trivy / SBOM | defined in `ci.yml`; **not executed here** (Docker build not run in this session — Docker Desktop was memory-constrained) |
+| Dependency / secret / SAST scans | defined in `security.yml`; not executed here |
+| Terraform | written, **not applied** |
+
+## 10. Deletions and archives (cutover commit f0281de)
+
+Deleted (recoverable at `pre-rebuild-baseline`): `apps/api`, `apps/web`, `packages/{domain,ingestion,retrieval,agent,analysis,cae}`,
+`tests/legacy` (209 tests), `scripts/{generate_synthetic_dataset,ingest_documents,ingest_level3_pdfs,ingest_level3_cae_decks,index_knowledge,profile_knowledge_sources,generate_okf_concepts}.py`,
+`evals/{retrieval_eval,level3_hybrid_eval,scenario_eval,embedding_benchmark,reranker_benchmark}.py`, `evals/golden_retrieval_set.yaml`,
+`knowledge/00_registry/source_manifest.yaml`, `knowledge/07_okf/**`, `knowledge/0{3,4,5,6}_*/README.md`, `data/parquet`, `data/synthetic`,
+root: `APP_FLOW, BACKEND_SCHEMA, CLAUDE_CODE_BOOTSTRAP_PROMPT, CLAUDE_CODE_COPILOT_CHANGE_REQUEST, CLAUDE_CODE_LEVEL3_INSTRUCTIONS,
+CLAUDE_KICKOFF_PROMPT, ENVIRONMENT_SETUP, IMPLEMENTATION_PLAN, PASSIVE_SAFETY_LEVEL3_FINAL_FIX, PRD, PRD_COPILOT_UPDATE, PRD_LEVEL3(1), PRODUCTION_REBUILD_CHECKLIST, TRD, TRD_LEVEL3, UI_UX_DESIGN_BRIEF, UI_UX_DESIGN_BRIEF_LEVEL3` (.md), root `alembic.ini`.
+Archived: `evals/baselines/pre-rebuild_{embedding,reranker}_benchmark.json`; ADR-0001…0018 kept as history.
+Untouched on purpose: the pre-rebuild `passive_safety` database and the local `Knowledge source/` folder.
+
+## 11. Known limitations (honest list)
+
+See README "Known limitations": no LLM-judged generation metrics; one real version per regulation
+(temporal behaviour proven on a synthetic two-version regulation); 47-case dataset (target 200–500),
+one DRAFT case; PyMuPDF-only parsing (no OCR); registry source URIs unverified landing pages;
+per-process rate limiter and BM25 index; Terraform unapplied; container build/scans not run in this session.

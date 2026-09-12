@@ -47,3 +47,10 @@ Thumbs.db
 # --- content-addressed artifact store (dev filesystem backend) ---
 data/artifacts/sha256/
 data/artifacts-test/
+
+# --- frontend (Next.js + Playwright) ---
+frontend/node_modules/
+frontend/.next/
+frontend/test-results/
+frontend/playwright-report/
+frontend/.env.local

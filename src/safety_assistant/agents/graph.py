@@ -216,6 +216,9 @@ class RegulatoryAgent:
         user = build_user_message(state["query"], state["evidence"], scope_note)
         if state.get("extra_context"):
             user = user.replace("<question>", f"{state['extra_context']}\n\n<question>", 1)
+        if state.get("conversation_context"):
+            ctx = f"<conversation_context>\n{state['conversation_context']}\n</conversation_context>"
+            user = user.replace("<question>", f"{ctx}\n\n<question>", 1)
         t0 = time.perf_counter()
         try:
             with span("llm.generate", provider=self.llm.name, model=self.llm.model):
@@ -349,9 +352,11 @@ class RegulatoryAgent:
         k: int | None = None,
         today: Any = None,
         trace_id: str | None = None,
+        conversation_context: str | None = None,
     ) -> AgentState:
         initial: AgentState = {
             "query": query,
+            "conversation_context": conversation_context,
             "base_scope": scope or ScopeFilter(),
             "k": k,
             "today": today,

@@ -34,7 +34,8 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 | `evaluation/*` | KEEP | | |
 | `config/settings.py` | MIGRATE | | add upload bounds, queue settings, session/cookie settings |
 | `cli.py` | MIGRATE | | add `worker` command |
-| **new** `conversations/`, `documents/`, `identity/` (or `auth/`), `workers/` | — | v2 product foundation | created in Phases C–D |
+| **new** `identity/service.py`, `conversations/service.py`, `api/routes/{me,conversations}.py`, `persistence/models/{identity,conversations}.py` | — | v2 product foundation | created Phase C |
+| **new** `documents/`, `workers/` | — | upload + async ingestion | Phase D |
 
 ## Frontend — `frontend/`
 

@@ -9,7 +9,7 @@ Tag `pre-v2-product-rebuild` and branch `backup/pre-v2-product-rebuild` at `0c7a
 ## D-002 — Forward migrations only (decided)
 `migrations/versions/0001` stays. Identity/workspace, document scope/jobs and conversations arrive as `0002+`. Squash requires explicit owner approval (`CLAUDE.md` approval conditions) — not requested.
 
-## D-003 — Async ingestion transport (proposed → default: PostgreSQL-backed job table + worker process)
+## D-003 — Async ingestion transport (decided by owner 2026-09-12: A, PostgreSQL-backed job table + worker process)
 TRD lists "existing proven Celery/worker abstraction" and Redis; **neither exists in the repo** (`grep` for celery/redis in `src`: only a rate-limiter comment). Options:
 - **A (default): `ingestion_jobs` table + `SELECT … FOR UPDATE SKIP LOCKED` worker (`safety-assistant worker` CLI).** Zero new services, transactional with the version row, visible via the same DB the UI already reads; satisfies "async", "bounded retries", "idempotent". Ceiling: single-DB polling; upgrade path is Celery/Redis behind the same `enqueue()` seam when throughput demands.
 - B: Add Redis + Celery now. New service + dependency without a measured need → violates "minimal dependencies" and the "no major framework/service not in TRD without decision" gate (Redis *is* in TRD, but the abstraction it references does not exist).
@@ -40,10 +40,10 @@ Internal `VersionStatus` unchanged; spec statuses (`UPLOADED…READY`) are a pur
 ## D-010 — Roles (decided, ADR-0029 §4)
 Membership roles use TRD names (`engineer`, `knowledge_admin`, `auditor`, `org_admin`) mapped onto the existing scope model; legacy role names stay valid for API keys so the 30 security tests and CI keys keep working.
 
-## D-011 — API prefix (decided, ADR-0029 §6)
-New product routes under `/v1`. Existing `/ask`, `/search`, `/evidence`, `/regulations*`, `/admin/*`, `/health/*` unchanged until Phase G (tests + eval scripts depend on them).
+## D-011 — API prefix (decided, corrected in Phase C)
+Every existing route already lives under `/api/v1`; new product routes join the same prefix. No split, nothing to move in Phase G.
 
-## D-012 — Browser session (proposed, ADR-0029 §6; changes the auth trust model → owner confirmation required)
+## D-012 — Browser session (decided by owner 2026-09-12; ADR-0029 §6)
 HS256 JWT (pyjwt) in `HttpOnly; SameSite=Lax; Secure` cookie, 12 h; mutating cookie-auth requests require `X-Requested-With`. `dev-login` refused when `APP_ENV=production`. OIDC remains the production path (login redirect → cookie).
 
 ## D-013 — Frontend route/component inventory (Phase B low-fi gate; defaults from `03_UI_UX_DESIGN_SPEC.md`)
@@ -52,3 +52,9 @@ Shell: `AppShell` (top bar: WorkspaceSwitcher · SourceScopeSelector · SystemSt
 Feature components: chat = `ConversationList`, `ConversationHeader`, `MessageList`, `AssistantMessage` (answer-mode badge Grounded / Evidence only / Insufficient evidence), `CitationMarker`, `Composer`; evidence = `EvidencePanel`, `EvidenceCard`; documents = `DocumentTable`, `DocumentStatus`, `UploadDropzone`, `UploadMetadataForm`, `IngestionTimeline`; common = `EmptyState`, `ErrorState`, `PermissionDenied`, `LoadingSkeleton`.
 Primitives: shadcn/ui (Button, Input, Textarea, Select, Checkbox, Dialog, DropdownMenu, Tooltip, Tabs, Sheet, Table, Badge, Progress, Skeleton, Toast, Alert). Tokens: Engineering Cobalt as CSS variables in `styles/tokens.css`; Inter; 4 px spacing; radius 8/12.
 Server state: TanStack Query for documents/jobs polling and conversations; forms: React Hook Form + zod for upload metadata only. No global client-state library.
+
+## D-014 — Migration numbering (decided, Phase C)
+`0002_identity`, `0003_conversations` shipped in Phase C; document scope + ingestion jobs become `0004` in Phase D (ADR-0029 text updated).
+
+## D-015 — API-key principals own no user data (decided, Phase C)
+API keys remain role-only (scripts/CI/eval). `/me`, conversations and uploads require a persisted user (`require_user` → 403). OIDC subjects are resolved to a user row only when one exists (provisioned via `safety-assistant users add`); no just-in-time membership.

@@ -4,6 +4,7 @@ safety-assistant ingest [source_key ...] [--force] [--no-activate]
 safety-assistant migrate
 safety-assistant eval-retrieval [--legs full sparse ...]
 safety-assistant ready            # exit 0 when readiness dependencies pass
+safety-assistant users add --email E --name N --role engineer|knowledge_admin|auditor|org_admin [--workspace W]
 """
 
 from __future__ import annotations
@@ -52,6 +53,25 @@ def _migrate(args: argparse.Namespace) -> int:
     cfg = Config(str(root / "migrations" / "alembic.ini"))
     cfg.set_main_option("script_location", str(root / "migrations"))
     command.upgrade(cfg, args.revision)
+    return 0
+
+
+def _users_add(args: argparse.Namespace) -> int:
+    from sqlalchemy.orm import Session
+
+    from safety_assistant.identity.service import create_user, create_workspace, default_organization, user_by_email
+    from safety_assistant.persistence import get_engine
+
+    with Session(get_engine()) as session:
+        if user_by_email(session, args.email) is not None:
+            print(f"user {args.email} already exists", file=sys.stderr)
+            return 1
+        user = create_user(session, email=args.email, display_name=args.name, role=args.role)
+        if args.workspace:
+            org = default_organization(session)
+            create_workspace(session, organization_id=org.id, name=args.workspace, owner=user)
+        session.commit()
+        print(json.dumps({"user_id": str(user.id), "email": user.email, "role": args.role}))
     return 0
 
 
@@ -104,6 +124,13 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=_eval_retrieval)
     p = sub.add_parser("ready")
     p.set_defaults(fn=_ready)
+    users = sub.add_parser("users").add_subparsers(dest="users_cmd", required=True)
+    p = users.add_parser("add")
+    p.add_argument("--email", required=True)
+    p.add_argument("--name", required=True)
+    p.add_argument("--role", required=True, choices=["engineer", "knowledge_admin", "auditor", "org_admin"])
+    p.add_argument("--workspace", default=None, help="also create this workspace with the user as owner")
+    p.set_defaults(fn=_users_add)
     args = ap.parse_args(argv)
     return int(args.fn(args))
 

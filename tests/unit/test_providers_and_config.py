@@ -14,6 +14,8 @@ PROD: dict[str, str] = {
     # explicit real providers: the test conftest exports the fake ones via env
     "embedding_provider": "fastembed",
     "llm_provider": "none",
+    "session_secret": "production-session-secret-of-adequate-length",
+    "dev_login_enabled": "false",
 }
 
 
@@ -28,6 +30,8 @@ def test_production_accepts_a_real_configuration() -> None:
         {"llm_provider": "mock"},
         {"auth_mode": "none"},
         {"database_url": "postgresql+psycopg://u:change_me@db/x"},
+        {"dev_login_enabled": "true"},
+        {"session_secret": "short"},
     ],
 )
 def test_production_refuses_fakes_and_dev_defaults(bad: dict[str, str]) -> None:

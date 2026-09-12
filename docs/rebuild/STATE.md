@@ -49,15 +49,14 @@ Backend `src/safety_assistant/` — 7,507 LOC, FastAPI + SQLAlchemy 2 + Alembic 
 |---|---|---|
 | A baseline + inventory | **done 2026-09-12** | this file; `FILE_LEDGER.md`; `DECISIONS.md` D-001…D-006 |
 | B architecture / schema plan | **done 2026-09-12** | `docs/ADR/0029-v2-product-domain-schema-and-authorization.md`; DECISIONS D-009…D-013 |
-| C backend product foundation (identity, workspace, conversations, preferences) | next — awaiting confirmation of D-003, D-012 | migrations 0002, 0004; `/v1/me`, `/v1/auth/*`, `/v1/conversations*` |
-| D document upload + async ingestion | pending | migration 0003; `/v1/documents*`, `/v1/ingestion-jobs*`; `safety-assistant worker` |
+| C backend product foundation (identity, workspace, conversations, preferences) | **done 2026-09-12** | migrations `0002_identity`, `0003_conversations`; `identity/service.py`, `conversations/service.py`; routes `me.py` (`/me`, `/me/preferences`, `/auth/dev-login`, `/auth/logout`), `conversations.py`; `Principal` carries user/org/workspace ids; cookie sessions + CSRF header; conversation context → `<conversation_context>` (prompt `grounded_v2`); CLI `users add`; tests: unit 60, security 34, integration 24 (incl. migration head→0001→head) — **135 passed**; lint/format/mypy clean |
+| D document upload + async ingestion | next | migration `0004_document_scope_and_jobs`; `/api/v1/documents*`, `/api/v1/ingestion-jobs*`; `safety-assistant worker`; authz predicate in `scoped_statement` + BM25 mirror + equivalence test |
 | E frontend rebuild | pending (design gate: `11_DESIGN_DECISION_WORKSHEET.md` unfilled → defaults in DECISIONS D-006) | |
 | F tests / security / eval | pending | |
 | G cleanup | pending | |
 | H final verification + report | pending | |
 
-## Owner confirmations requested before Phase C code
+## Owner confirmations
 
-1. D-003 DB-backed job queue + worker (no Redis/Celery) — default A.
-2. D-012 browser session = JWT cookie + dev-login (auth trust model change).
-3. D-006/D-013 frontend defaults (no Figma stage available) — needed before Phase E, not C.
+- D-003, D-012: confirmed 2026-09-12.
+- D-006/D-013 frontend defaults: still open; needed before Phase E hi-fi.

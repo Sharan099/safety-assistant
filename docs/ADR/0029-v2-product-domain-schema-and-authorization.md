@@ -1,6 +1,6 @@
 # ADR-0029 — v2 product domain: identity, scoped documents, async jobs, conversations; authorization predicate
 
-Status: proposed (Phase B plan) · Date: 2026-09-12 · Extends: 0019 (canonical regulatory schema), 0027 (security policy)
+Status: accepted (D-003, D-012 confirmed by owner 2026-09-12; Phase C implemented) · Date: 2026-09-12 · Extends: 0019 (canonical regulatory schema), 0027 (security policy)
 
 ## Context
 
@@ -45,7 +45,7 @@ audit_events(id, actor_user_id, organization_id, action, resource_type, resource
 ```
 Data: insert organization `default` (fixed UUID in the migration so it is idempotent). Downgrade drops all seven tables.
 
-### `0003_document_scope_and_jobs`
+### `0004_document_scope_and_jobs` (Phase D; numbered after conversations, which shipped first)
 ```
 regulations + scope TEXT NOT NULL DEFAULT 'AUTHORITATIVE_ORG'
             + organization_id UUID FK NOT NULL   (backfill = default org, then SET NOT NULL)
@@ -61,16 +61,16 @@ ingestion_jobs(id, version_id FK NOT NULL, status QUEUED|RUNNING|SUCCEEDED|FAILE
                requested_by_user_id, created_at, started_at, completed_at)
                INDEX (status, run_after) — worker poll; UNIQUE partial index (version_id) WHERE status IN ('QUEUED','RUNNING') — one live job per version
 ```
-Downgrade: drop `ingestion_jobs`, drop the four columns/constraints (scope information on uploaded documents is lost on downgrade — acceptable, documented).
+Downgrade: drop `ingestion_jobs`, drop the four columns/constraints (0004) (scope information on uploaded documents is lost on downgrade — acceptable, documented).
 
-### `0004_conversations`
+### `0003_conversations` (shipped in Phase C)
 ```
 conversations(id, user_id FK, organization_id FK, workspace_id FK NULL, title, title_locked BOOL DEFAULT false,
               source_scope JSONB NOT NULL, summary TEXT NULL, created_at, updated_at, archived_at)
               INDEX (user_id, updated_at DESC)
-messages(id, conversation_id FK ON DELETE CASCADE, role user|assistant, content TEXT, answer_mode NULL,
-         model NULL, provider NULL, trace_id NULL → query_traces.trace_id (no FK; traces may be pruned), created_at)
-         INDEX (conversation_id, created_at)
+messages(id, conversation_id FK ON DELETE CASCADE, ordinal INT, role user|assistant, content TEXT, answer_mode NULL,
+         model NULL, provider NULL, trace_id NULL → query_traces.trace_id (no FK; traces may be pruned), warnings JSONB, created_at)
+         UNIQUE (conversation_id, ordinal)   -- ordinal is the ordering key; created_at ties inside one transaction
 message_citations(id, message_id FK CASCADE, chunk_id FK ON DELETE SET NULL, version_id FK ON DELETE SET NULL,
          citation_order, citation_label TEXT, quote_excerpt TEXT NULL, retrieval_rank INT NULL, scope TEXT)
 ```
@@ -106,7 +106,7 @@ API keys keep today's role model for scripts/CI. A browser session resolves to a
 
 `ponytail:` single-table polling queue; upgrade path is Celery/Redis behind the same `enqueue()`/`run_once()` seam if job throughput or multi-region needs it.
 
-## Decision 6 — API contract (new routes under `/v1`; existing routes unchanged until Phase G)
+## Decision 6 — API contract (all routes already live under `/api/v1`; new ones join them)
 
 ```
 GET   /v1/me                                   user, memberships, workspaces, preferences

@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from safety_assistant.api.middleware import RequestIdMiddleware
-from safety_assistant.api.routes import admin, health, query, versions
+from safety_assistant.api.routes import admin, conversations, health, me, query, versions
 from safety_assistant.config import get_settings
 from safety_assistant.observability import configure_tracing
 from safety_assistant.observability.logging import configure_logging
@@ -46,8 +46,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+    allow_methods=["GET", "POST", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Requested-With"],
 )
 try:  # optional: auto-instrument HTTP spans when the OTel FastAPI instrumentor is installed
     from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
@@ -59,3 +59,5 @@ app.include_router(health.router)
 app.include_router(query.router)
 app.include_router(versions.router)
 app.include_router(admin.router)
+app.include_router(me.router)
+app.include_router(conversations.router)

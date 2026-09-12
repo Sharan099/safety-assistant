@@ -27,6 +27,8 @@ os.environ.update(
     EMBEDDING_PROVIDER="hashing",
     LLM_PROVIDER="mock",
     AUTH_MODE="none",
+    SESSION_SECRET="test-session-secret-not-for-production-0123456789",
+    DEV_LOGIN_ENABLED="true",
     ARTIFACT_STORE_URI=f"file://{(ROOT / 'data' / 'artifacts-test').as_posix()}",
 )
 

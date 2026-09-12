@@ -1,3 +1,13 @@
+from safety_assistant.persistence.models.conversations import Conversation, Message, MessageCitation
+from safety_assistant.persistence.models.identity import (
+    AuditEvent,
+    Membership,
+    Organization,
+    User,
+    UserPreference,
+    Workspace,
+    WorkspaceMembership,
+)
 from safety_assistant.persistence.models.operations import (
     EvaluationCase,
     IngestionEvent,
@@ -18,6 +28,16 @@ from safety_assistant.persistence.models.regulatory import (
 )
 
 __all__ = [
+    "AuditEvent",
+    "Conversation",
+    "Membership",
+    "Message",
+    "MessageCitation",
+    "Organization",
+    "User",
+    "UserPreference",
+    "Workspace",
+    "WorkspaceMembership",
     "Chunk",
     "ChunkEmbedding",
     "CrossReference",

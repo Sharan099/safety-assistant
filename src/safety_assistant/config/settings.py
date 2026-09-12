@@ -83,6 +83,11 @@ class Settings(BaseSettings):
     api_keys: dict[str, str] = {}  # key -> role, dev/test convenience
     oidc_issuer: str = ""
     oidc_audience: str = ""
+    # Browser sessions (ADR-0029 §6): HS256 JWT in an HttpOnly cookie signed with this secret.
+    session_secret: str = ""
+    session_ttl_hours: int = 12
+    # Dev-only login as a seeded user (no password). Production refuses it.
+    dev_login_enabled: bool = False
 
     @model_validator(mode="after")
     def _production_forbids_fakes(self) -> Settings:
@@ -97,6 +102,10 @@ class Settings(BaseSettings):
             problems.append("AUTH_MODE=none leaves privileged endpoints open")
         if "change_me" in self.database_url:
             problems.append("DATABASE_URL still uses the development password")
+        if self.dev_login_enabled:
+            problems.append("DEV_LOGIN_ENABLED bypasses the identity provider")
+        if len(self.session_secret) < 32:
+            problems.append("SESSION_SECRET must be at least 32 characters")
         if problems:
             raise ValueError("refusing to start in production: " + "; ".join(problems))
         return self

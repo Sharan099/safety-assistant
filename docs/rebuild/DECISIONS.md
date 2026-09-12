@@ -64,3 +64,9 @@ API keys remain role-only (scripts/CI/eval). `/me`, conversations and uploads re
 
 ## D-017 — Upload defaults (decided, Phase D)
 Uploads get `authority_level=REFERENCE`, `data_class=CONFIDENTIAL`, `document_key=DOC-<12 hex>`; same bytes re-uploaded by the same owner/scope return the existing ids (FR-DOC-06); the same bytes by another owner are a separate private document over the same content-addressed artifact. QUARANTINED is terminal (new upload required); FAILED retries ×3 with 1/5/15 min backoff, then manual retry. Archive = `regulations.archived_at`, excluded from every retrieval set. `now()` vs `clock_timestamp()`: the queue uses the database clock throughout.
+
+## D-018 — Frontend stack details (decided, Phase E)
+shadcn/ui generated in its Base UI flavour (`render` prop composition, no Radix). Browser talks to `/api/*` and `/health/*` on its own origin; `next.config.ts` rewrites to `API_INTERNAL_URL` (default `http://localhost:8010`) so the session cookie is first-party and no token ever touches JavaScript. Security headers (CSP, nosniff, DENY framing) set in `next.config.ts`. Light mode only; dark deferred (03 spec allows it).
+
+## D-019 — E2E test topology (decided, Phase E)
+Playwright drives the Next dev server against a live API with `DEV_LOGIN_ENABLED=true` and a separately started `safety-assistant worker`; `tests/e2e/global-setup.ts` seeds three users idempotently through the CLI. The LLM may be real or `none`: flows accept GENERATED or EVIDENCE_ONLY where an answer is expected.

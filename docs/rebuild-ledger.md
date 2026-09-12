@@ -329,7 +329,7 @@ Generation/refusal: verified by contract tests with a schema-compliant mock; **n
 | Retrieval regression gate | pass (MRR 0.636 ≥ 0.60 floor; 23/23 stable cases) |
 | Playwright E2E | 3/3 |
 | Frontend `tsc --noEmit`, `eslint` | pass |
-| Container build / Trivy / SBOM | defined in `ci.yml`; **not executed here** (Docker build not run in this session — Docker Desktop was memory-constrained) |
+| Container build + smoke | **executed 2026-09-12**: `infra/docker/Dockerfile` builds (281 MB, uid 10001); `APP_ENV=production` refuses `AUTH_MODE=none`; unauthenticated `/search` → 401; readiness green against the host database with a non-default role; `/ask` answers from the real corpus. Trivy/SBOM run in `ci.yml` only (not executed locally) |
 | Dependency / secret / SAST scans | defined in `security.yml`; not executed here |
 | Terraform | written, **not applied** |
 
@@ -349,4 +349,4 @@ Untouched on purpose: the pre-rebuild `passive_safety` database and the local `K
 See README "Known limitations": no LLM-judged generation metrics; one real version per regulation
 (temporal behaviour proven on a synthetic two-version regulation); 47-case dataset (target 200–500),
 one DRAFT case; PyMuPDF-only parsing (no OCR); registry source URIs unverified landing pages;
-per-process rate limiter and BM25 index; Terraform unapplied; container build/scans not run in this session.
+per-process rate limiter and BM25 index; Terraform unapplied; Trivy/SBOM/pip-audit/gitleaks/semgrep defined in CI but not executed locally.

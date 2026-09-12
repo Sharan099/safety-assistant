@@ -138,5 +138,5 @@ Quality gates: `make lint types test` (119 tests; PostgreSQL required for integr
 - **Parser**: PyMuPDF only; scanned pages are flagged `NEEDS_REVIEW`, not OCR'd; table extraction is best-effort (drawings detected as tables are filtered). Docling/OCR plug in behind `DocumentParser`.
 - **Official source URIs** in the registry are landing pages marked `LANDING_PAGE_UNVERIFIED`; the fetcher is only used for entries marked `VERIFIED`.
 - **Rate limiter and BM25 index are per process** (documented ponytail ceilings); a shared limiter/index is the upgrade path beyond a few replicas.
-- **Terraform is unapplied** in this repository (no cloud account); it is validated for structure, not by a real `apply`.
+- **Terraform is unapplied** in this repository (no cloud account); it is validated for structure, not by a real `apply`. The container image was built and smoke-tested locally in production mode; Trivy/SBOM/pip-audit/gitleaks/semgrep are wired in CI and were not executed locally.
 - Supporting documents (LS-DYNA manuals, NHTSA reports) are in the corpus as `MANUAL`/`TECHNICAL_REPORT`; they are never presented as regulations.

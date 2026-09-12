@@ -3,7 +3,6 @@
 Profile: APP_ENV=test, hashing embeddings (no model download, deterministic),
 mock LLM, dedicated `safety_assistant_test` database migrated to head.
 Integration/e2e tests that need PostgreSQL are skipped when it is unreachable.
-Tests under tests/legacy have their own conftest and the pre-rebuild database.
 """
 
 from __future__ import annotations

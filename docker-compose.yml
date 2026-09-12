@@ -1,23 +1,22 @@
-name: passive-safety-cae-agent
+# Development database only. The full stack (API + Postgres + MinIO) lives in
+# infra/docker/compose.yaml. Host port is configurable: POSTGRES_PORT=5433 by default.
+name: safety-assistant-dev
 
 services:
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: passive-safety-cae-agent-postgres
+    container_name: passive-safety-cae-agent-postgres # kept: existing local volume/DBs live under this name
     restart: unless-stopped
     environment:
-      POSTGRES_USER: passive_safety
-      POSTGRES_PASSWORD: change_me
-      POSTGRES_DB: passive_safety
+      POSTGRES_USER: ${POSTGRES_USER:-passive_safety}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-passive_safety}
     ports:
-      # Host port 5433, not 5432 — this machine also runs a sibling project's
-      # Postgres container on 5432 (see docs/ADR/0004). Avoids a port clash
-      # when both stacks are up at once.
-      - "5433:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U passive_safety -d passive_safety"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-passive_safety} -d ${POSTGRES_DB:-passive_safety}"]
       interval: 5s
       timeout: 5s
       retries: 10

@@ -9,48 +9,36 @@ __pycache__/
 dist/
 build/
 
-# --- Node / Next.js ---
-node_modules/
-.next/
-out/
-.turbo/
+# --- Node / Next.js (frontend/) ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/test-results/
+frontend/playwright-report/
+frontend/.env.local
 
 # --- Environment / secrets ---
 .env
 .env.*
 !.env.example
 
-# --- Data / artifacts (never commit proprietary or generated data) ---
-data/raw/
-data/artifacts/
-data/parquet/
-data/synthetic/*
-!data/synthetic/.gitkeep
-
-# --- Knowledge corpus (proprietary/licensed source PDFs and generated indexes) ---
+# --- Corpus: licensed source PDFs never enter git; only the registry (hashes) is versioned ---
 knowledge/**/*.pdf
-knowledge/08_extracted/
-knowledge/09_indexes/
-
-# --- Original local knowledge folder (proprietary manuals, never in Git) ---
 /Knowledge source/
 
-# --- Logs ---
+# --- Content-addressed artifact store (development filesystem backend) and test artifacts ---
+data/artifacts/
+data/artifacts-test/
+
+# --- Terraform ---
+infra/terraform/.terraform/
+infra/terraform/*.tfstate*
+infra/terraform/envs/*.tfvars
+!infra/terraform/envs/*.tfvars.example
+
+# --- Logs / OS / IDE ---
 *.log
 .DS_Store
 Thumbs.db
-
-# --- IDE ---
 .vscode/
 .idea/
-
-# --- content-addressed artifact store (dev filesystem backend) ---
-data/artifacts/sha256/
-data/artifacts-test/
-
-# --- frontend (Next.js + Playwright) ---
-frontend/node_modules/
-frontend/.next/
-frontend/test-results/
-frontend/playwright-report/
-frontend/.env.local

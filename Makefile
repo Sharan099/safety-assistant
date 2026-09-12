@@ -1,5 +1,5 @@
 # Developer entry points. Everything runs through uv.
-.PHONY: setup db migrate ingest api test test-legacy lint types eval load docker up down
+.PHONY: setup db migrate ingest api test lint types eval load docker up down
 
 setup:            ## install dependencies (incl. s3 extra)
 	uv sync --extra s3
@@ -13,8 +13,6 @@ api:              ## run the API on :8010
 	uv run uvicorn safety_assistant.api.main:app --port 8010 --reload
 test:             ## rebuilt test suite (unit, golden, security, integration, e2e, evaluation, regression)
 	uv run pytest -q
-test-legacy:      ## pre-rebuild suite (own database; deleted at cutover)
-	uv run pytest tests/legacy -o addopts="" -q
 lint:
 	uv run ruff check src tests scripts migrations && uv run ruff format --check src tests scripts
 types:

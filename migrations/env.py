@@ -1,8 +1,8 @@
 """Alembic environment for the safety_assistant schema.
 
 DATABASE_URL comes from `safety_assistant.config.Settings` (env-driven), never
-from alembic.ini. The legacy `packages/domain/migrations` chain targets the
-pre-rebuild database and is untouched (docs/ADR/0019).
+from alembic.ini. The pre-rebuild schema lives in a separate database and is not
+managed by this chain (docs/ADR/0019-canonical-store-and-schema-cutover.md).
 """
 
 from __future__ import annotations

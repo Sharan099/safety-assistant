@@ -440,8 +440,8 @@ cases:
   acceptable_citations: ["UN R95 Rev.3 §5.2.1.2"]
   answerability: answerable
   review_status: REVIEWED
-# ---------------------------------------------------------------- baseline document-level cases (carried over)
-- case_id: legacy-001
+# ---------------------------------------------------------------- document-level cases carried over from the pre-rebuild golden set
+- case_id: doc-001
   query: "frontal collision occupant protection"
   query_type: paraphrase
   difficulty: easy
@@ -452,7 +452,7 @@ cases:
   answerability: answerable
   notes: "document-level only (pre-rebuild golden set)"
   review_status: REVIEWED
-- case_id: legacy-002
+- case_id: doc-002
   query: "dummy tibia index bending moment"
   query_type: paraphrase
   difficulty: medium
@@ -463,7 +463,7 @@ cases:
   acceptable_citations: []
   answerability: answerable
   review_status: REVIEWED
-- case_id: legacy-003
+- case_id: doc-003
   query: "crush strength determination displacement interval"
   query_type: table_annex
   difficulty: medium
@@ -474,7 +474,7 @@ cases:
   acceptable_citations: []
   answerability: answerable
   review_status: REVIEWED
-- case_id: legacy-004
+- case_id: doc-004
   query: "airbag liner reference geometry venting leakage of gas"
   query_type: paraphrase
   difficulty: medium
@@ -486,7 +486,7 @@ cases:
   answerability: answerable
   notes: "supporting solver documentation; document-family level only"
   review_status: REVIEWED
-- case_id: legacy-005
+- case_id: doc-005
   query: "lightweight vehicle structural countermeasure body structure"
   query_type: paraphrase
   difficulty: medium
@@ -497,7 +497,7 @@ cases:
   acceptable_citations: []
   answerability: answerable
   review_status: REVIEWED
-- case_id: legacy-006
+- case_id: doc-006
   query: "THOR-05F dummy qualification procedure"
   query_type: paraphrase
   difficulty: easy

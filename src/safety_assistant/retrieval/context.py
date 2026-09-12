@@ -56,6 +56,8 @@ class Evidence(BaseModel):
     published_at: datetime.date | None
     section_id: uuid.UUID
     section_path: str
+    # Sibling paths merged into this chunk by the chunker (tiny clauses); a citation covers them too.
+    merged_paths: list[str] = []
     section_number: str | None
     section_title: str | None
     annex: str | None
@@ -123,6 +125,7 @@ def build_evidence(
                 published_at=row.version.published_at,
                 section_id=row.section.id,
                 section_path=row.section.path,
+                merged_paths=list((row.chunk.metadata_ or {}).get("merged_paths") or []),
                 section_number=row.section.section_number,
                 section_title=row.section.title,
                 annex=row.section.annex,

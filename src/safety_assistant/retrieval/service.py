@@ -49,6 +49,9 @@ class RetrievalConfig:
     use_sparse: bool = True
     use_exact: bool = True
     use_reranker: bool = True
+    # RRF leg weights (ranks only; a weight scales one leg's 1/(k+rank) contribution).
+    dense_weight: float = 0.75  # tuned 2026-09-12 on regulatory_v1+v2 (docs/evaluation.md)
+    sparse_weight: float = 1.0
     expand_parents: bool = True
     expand_cross_refs: bool = True
     min_shared_terms: int = DEFAULT_MIN_SHARED_TERMS
@@ -57,7 +60,11 @@ class RetrievalConfig:
     @classmethod
     def from_settings(cls, s: Settings) -> RetrievalConfig:
         return cls(
-            dense_top_k=s.retrieval_dense_top_k, sparse_top_k=s.retrieval_sparse_top_k, final_k=s.retrieval_final_k
+            dense_top_k=s.retrieval_dense_top_k,
+            sparse_top_k=s.retrieval_sparse_top_k,
+            final_k=s.retrieval_final_k,
+            dense_weight=s.retrieval_dense_weight,
+            sparse_weight=s.retrieval_sparse_weight,
         )
 
 
@@ -187,7 +194,11 @@ class RetrievalService:
             timings["exact"] = _ms(t0)
 
         lists, weights = [], []
-        for ids, w in ((dense_ids, 1.0), (sparse_ids, 1.0), (exact_ids, EXACT_LEG_WEIGHT)):
+        for ids, w in (
+            (dense_ids, self.config.dense_weight),
+            (sparse_ids, self.config.sparse_weight),
+            (exact_ids, EXACT_LEG_WEIGHT),
+        ):
             if ids:
                 lists.append(ids)
                 weights.append(w)

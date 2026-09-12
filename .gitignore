@@ -42,3 +42,6 @@ infra/terraform/envs/*.tfvars
 Thumbs.db
 .vscode/
 .idea/
+
+# --- evaluation caches (LLM outputs; regenerable) ---
+evals/cache/

@@ -69,6 +69,8 @@ class Settings(BaseSettings):
     retrieval_dense_top_k: int = 30
     retrieval_sparse_top_k: int = 30
     retrieval_final_k: int = 10
+    retrieval_dense_weight: float = 0.75  # RRF leg weights; tuned on evals/datasets (see docs/evaluation.md)
+    retrieval_sparse_weight: float = 1.0
 
     # Ingestion resource limits (CLAUDE.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024

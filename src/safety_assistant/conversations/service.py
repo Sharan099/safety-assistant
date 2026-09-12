@@ -42,9 +42,7 @@ def validate_source_scope(scope: SourceScope, principal: Principal) -> SourceSco
     """Requested workspaces must be ones the principal belongs to; nothing is silently dropped."""
     if any(w not in principal.workspace_ids for w in scope.workspace_ids):
         raise ScopeNotAuthorized("workspace not in the caller's memberships")
-    if "WORKSPACE" in scope.scopes and not scope.workspace_ids and not principal.workspace_ids:
-        raise ScopeNotAuthorized("WORKSPACE scope requested but the caller has no workspaces")
-    return scope
+    return scope  # bare WORKSPACE = "all my workspaces" (possibly none) — nothing to widen or narrow
 
 
 def _now() -> dt.datetime:

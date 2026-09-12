@@ -7,7 +7,7 @@ import datetime
 import uuid
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Text
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -28,6 +28,41 @@ class IngestionRun(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     git_sha: Mapped[str | None] = mapped_column(Text)
     # counts per stage, durations, reused/recomputed flags, freshness lag seconds
     stats: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+
+
+class IngestionJob(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
+    """Queue row for one version (ADR-0029 §5). Claimed with FOR UPDATE SKIP LOCKED by the worker;
+    `ingestion_runs` remain the per-attempt execution log (error_internal_ref points at one)."""
+
+    __tablename__ = "ingestion_jobs"
+    __table_args__ = (
+        Index("ix_ingestion_jobs_poll", "status", "run_after"),
+        Index(
+            "uq_ingestion_jobs_live_version",
+            "version_id",
+            unique=True,
+            postgresql_where=text("status IN ('QUEUED','RUNNING')"),
+        ),
+    )
+
+    version_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("regulation_versions.id", ondelete="CASCADE"), index=True
+    )
+    # QUEUED | RUNNING | SUCCEEDED | FAILED | QUARANTINED | CANCELLED
+    status: Mapped[str] = mapped_column(Text, default="QUEUED")
+    # Spec stage vocabulary shown to users: UPLOADED VALIDATING PARSING CHUNKING EMBEDDING INDEXING VERIFYING READY
+    stage: Mapped[str] = mapped_column(Text, default="UPLOADED")
+    attempt: Mapped[int] = mapped_column(Integer, default=0)
+    max_attempts: Mapped[int] = mapped_column(Integer, default=3)
+    run_after: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
+    locked_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
+    locked_by: Mapped[str | None] = mapped_column(Text)
+    error_code: Mapped[str | None] = mapped_column(Text)
+    error_public_message: Mapped[str | None] = mapped_column(Text)
+    error_internal_ref: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("ingestion_runs.id"))
+    requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    started_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class IngestionEvent(Base, UUIDPrimaryKeyMixin):

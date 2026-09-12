@@ -35,7 +35,7 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 | `config/settings.py` | MIGRATE | | add upload bounds, queue settings, session/cookie settings |
 | `cli.py` | MIGRATE | | add `worker` command |
 | **new** `identity/service.py`, `conversations/service.py`, `api/routes/{me,conversations}.py`, `persistence/models/{identity,conversations}.py` | — | v2 product foundation | created Phase C |
-| **new** `documents/`, `workers/` | — | upload + async ingestion | Phase D |
+| **new** `documents/service.py`, `workers/ingestion.py`, `retrieval/authz.py`, `domain/documents.py`, `api/routes/documents.py` | — | upload + async ingestion + authz predicate | created Phase D |
 
 ## Frontend — `frontend/`
 
@@ -59,7 +59,7 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 
 | Path | Action |
 |---|---|
-| `versions/0001_canonical_regulatory_schema.py`, `env.py`, `alembic.ini` | KEEP — forward migrations only (`0002_…` identity/workspace, `0003_…` documents scope + jobs, `0004_…` conversations). No squash (D-002) |
+| `versions/0001_canonical_regulatory_schema.py`, `env.py`, `alembic.ini` | KEEP — forward migrations only: `0002_identity`, `0003_conversations`, `0004_document_scope_and_jobs` shipped. No squash (D-002) |
 
 ## Evals, scripts, data
 

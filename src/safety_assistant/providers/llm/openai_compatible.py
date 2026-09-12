@@ -103,9 +103,16 @@ class OpenAICompatibleProvider:
             model=str(data.get("model", self.model)),
             provider=self.name,
             finish_reason=choice.get("finish_reason"),
-            usage=data.get("usage"),  # type: ignore[arg-type,unused-ignore]
+            usage=_int_usage(data.get("usage")),
             parsed=parsed,
         )
+
+
+def _int_usage(raw: object) -> dict[str, int] | None:
+    """Keep only integer counters; gateways nest per-provider detail dicts under usage."""
+    if not isinstance(raw, dict):
+        return None
+    return {k: v for k, v in raw.items() if isinstance(v, int) and not isinstance(v, bool)} or None
 
 
 def _strip_fences(text: str) -> str:

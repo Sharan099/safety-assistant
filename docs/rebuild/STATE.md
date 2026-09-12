@@ -50,7 +50,7 @@ Backend `src/safety_assistant/` — 7,507 LOC, FastAPI + SQLAlchemy 2 + Alembic 
 | A baseline + inventory | **done 2026-09-12** | this file; `FILE_LEDGER.md`; `DECISIONS.md` D-001…D-006 |
 | B architecture / schema plan | **done 2026-09-12** | `docs/ADR/0029-v2-product-domain-schema-and-authorization.md`; DECISIONS D-009…D-013 |
 | C backend product foundation (identity, workspace, conversations, preferences) | **done 2026-09-12** | migrations `0002_identity`, `0003_conversations`; `identity/service.py`, `conversations/service.py`; routes `me.py` (`/me`, `/me/preferences`, `/auth/dev-login`, `/auth/logout`), `conversations.py`; `Principal` carries user/org/workspace ids; cookie sessions + CSRF header; conversation context → `<conversation_context>` (prompt `grounded_v2`); CLI `users add`; tests: unit 60, security 34, integration 24 (incl. migration head→0001→head) — **135 passed**; lint/format/mypy clean |
-| D document upload + async ingestion | next | migration `0004_document_scope_and_jobs`; `/api/v1/documents*`, `/api/v1/ingestion-jobs*`; `safety-assistant worker`; authz predicate in `scoped_statement` + BM25 mirror + equivalence test |
+| D document upload + async ingestion | **done 2026-09-12** | migration `0004_document_scope_and_jobs` (scope/org/workspace/owner/archived_at on `regulations`, `ingestion_jobs`); `retrieval/authz.py` predicate in `scoped_statement` + BM25 `VersionMeta` mirror + SQLite-backed equivalence test (50 cases); `documents/service.py` (upload, dedupe, jobs, archive, promote), `workers/ingestion.py` (SKIP LOCKED claim, backoff, public error codes), `ingest_version`/`discover_source` share the stage pipeline with `ingest_source`; routes `/documents*`, `/ingestion-jobs*`, `/admin/ingest` → 202 enqueue; `/ask` + conversation messages take `source_scope`; CLI `worker`; provider fix: gateway usage dicts. Tests **150 passed** (upload e2e ×9 incl. isolation/quarantine/retry/promote/archive). Retrieval eval full leg: R@5 0.759 · R@10 0.913 · MRR 0.627 · nDCG@10 0.668 (gate ≥0.60, 23/23 stable) |
 | E frontend rebuild | pending (design gate: `11_DESIGN_DECISION_WORKSHEET.md` unfilled → defaults in DECISIONS D-006) | |
 | F tests / security / eval | pending | |
 | G cleanup | pending | |
@@ -59,4 +59,7 @@ Backend `src/safety_assistant/` — 7,507 LOC, FastAPI + SQLAlchemy 2 + Alembic 
 ## Owner confirmations
 
 - D-003, D-012: confirmed 2026-09-12.
-- D-006/D-013 frontend defaults: still open; needed before Phase E hi-fi.
+- D-006/D-013 frontend defaults: proceeding with spec defaults (owner asked to complete through to the web application).
+
+## LLM (measured 2026-09-12)
+Local gateway `freellmapi` (:3001) → free tiers (Groq/OVH/NVIDIA/Gemini…). `LLM_MODEL=auto` routes with fallback; individual models rate-limit (429) or return reasoning in `content` when `max_tokens` is small. One real `/ask` (R94 ThCC) → GENERATED "shall not exceed 42 mm", validated, 41 s wall (routing retries). Plan for Phase F: sequential judged evaluation with on-disk caching, `max_tokens ≥ 1024`, bounded case count per run.

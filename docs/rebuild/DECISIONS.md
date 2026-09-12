@@ -58,3 +58,9 @@ Server state: TanStack Query for documents/jobs polling and conversations; forms
 
 ## D-015 — API-key principals own no user data (decided, Phase C)
 API keys remain role-only (scripts/CI/eval). `/me`, conversations and uploads require a persisted user (`require_user` → 403). OIDC subjects are resolved to a user row only when one exists (provisioned via `safety-assistant users add`); no just-in-time membership.
+
+## D-016 — One worker path for uploads and registry sources (decided, Phase D)
+`POST /admin/ingest` now returns 202 and enqueues (`discover_source` stages the registry bytes into the blob store; the worker runs `ingest_version`). The operator CLI `safety-assistant ingest` keeps the synchronous `ingest_source` for batch corpus builds (same stage functions, `_pipeline`). `ingest_version` skips unchanged ACTIVE versions like `ingest_source`.
+
+## D-017 — Upload defaults (decided, Phase D)
+Uploads get `authority_level=REFERENCE`, `data_class=CONFIDENTIAL`, `document_key=DOC-<12 hex>`; same bytes re-uploaded by the same owner/scope return the existing ids (FR-DOC-06); the same bytes by another owner are a separate private document over the same content-addressed artifact. QUARANTINED is terminal (new upload required); FAILED retries ×3 with 1/5/15 min backoff, then manual retry. Archive = `regulations.archived_at`, excluded from every retrieval set. `now()` vs `clock_timestamp()`: the queue uses the database clock throughout.

@@ -11,6 +11,7 @@ from safety_assistant.persistence.models.identity import (
 from safety_assistant.persistence.models.operations import (
     EvaluationCase,
     IngestionEvent,
+    IngestionJob,
     IngestionRun,
     QueryTrace,
     UserFeedback,
@@ -44,6 +45,7 @@ __all__ = [
     "EvaluationCase",
     "Figure",
     "IngestionEvent",
+    "IngestionJob",
     "IngestionRun",
     "QueryTrace",
     "Regulation",

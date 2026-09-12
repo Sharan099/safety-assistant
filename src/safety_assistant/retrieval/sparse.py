@@ -28,6 +28,7 @@ from sqlalchemy.orm import Session
 
 from safety_assistant.domain.regulations import RETRIEVABLE_CURRENT, RETRIEVABLE_HISTORICAL
 from safety_assistant.persistence.models import Chunk, Regulation, RegulationVersion
+from safety_assistant.retrieval.authz import DocumentRef, anonymous_allows
 from safety_assistant.retrieval.filters import ScopeFilter, light_stem
 
 _TOKEN_RE = re.compile(r"\d+(?:\.\d+)+|[a-z0-9_*]+")
@@ -46,10 +47,13 @@ class VersionMeta:
     kind: str
     authority_level: str
     data_class: str
+    doc: DocumentRef
 
     def in_scope(self, scope: ScopeFilter, today: datetime.date | None) -> bool:
         statuses = RETRIEVABLE_HISTORICAL if (scope.include_superseded or scope.as_of) else RETRIEVABLE_CURRENT
         if self.status not in {x.value for x in statuses} or self.data_class not in scope.data_classes:
+            return False
+        if not (scope.authz.allows(self.doc) if scope.authz is not None else anonymous_allows(self.doc)):
             return False
         d = scope.effective_date(today)
         if self.valid_from is not None and self.valid_from > d:
@@ -117,7 +121,16 @@ def build_index(session: Session) -> Bm25Index:
     )
     rows = session.execute(stmt.add_columns(Chunk.version_id)).all()
     versions = {
-        v.id: VersionMeta(v.status, v.valid_from, v.valid_to, r.regulation_key, r.kind, r.authority_level, r.data_class)
+        v.id: VersionMeta(
+            v.status,
+            v.valid_from,
+            v.valid_to,
+            r.regulation_key,
+            r.kind,
+            r.authority_level,
+            r.data_class,
+            DocumentRef(r.id, r.scope, r.organization_id, r.workspace_id, r.owner_user_id, r.archived_at is not None),
+        )
         for v, r in session.execute(
             select(RegulationVersion, Regulation).join(Regulation, Regulation.id == RegulationVersion.regulation_id)
         ).all()

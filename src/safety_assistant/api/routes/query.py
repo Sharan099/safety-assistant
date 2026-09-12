@@ -16,6 +16,7 @@ from starlette.concurrency import run_in_threadpool
 
 from safety_assistant.api.dependencies import Principal, require_scope
 from safety_assistant.api.middleware.ratelimit import rate_limited
+from safety_assistant.conversations.service import ScopeNotAuthorized, SourceScope, validate_source_scope
 from safety_assistant.generation import AnswerResponse
 from safety_assistant.generation.service import AnswerService
 from safety_assistant.persistence import get_session
@@ -28,6 +29,7 @@ from safety_assistant.persistence.models import (
     UserFeedback,
 )
 from safety_assistant.retrieval import RetrievalService, ScopeFilter
+from safety_assistant.retrieval.authz import Authz, sql_for_principal
 
 router = APIRouter(prefix="/api/v1", tags=["query"])
 
@@ -50,15 +52,48 @@ class AskRequest(BaseModel):
     regulation_keys: list[str] = Field(default_factory=list, max_length=10)
     include_superseded: bool = False
     k: int | None = Field(default=None, ge=1, le=20)
+    # Optional selection of authorized sources (FR-CHAT-04); ignored for principals without a user.
+    source_scope: SourceScope | None = None
+
+
+def scope_for(
+    principal: Principal,
+    *,
+    as_of: datetime.date | None = None,
+    regulation_keys: tuple[str, ...] = (),
+    include_superseded: bool = False,
+    source_scope: SourceScope | None = None,
+) -> ScopeFilter:
+    """Authorization narrows the universe before ranking: data class + document predicate (ADR-0029 §4)."""
+    authz = None
+    if principal.user_id is not None:
+        ss = validate_source_scope(source_scope or SourceScope(), principal)
+        authz = Authz.from_principal(
+            principal,
+            source_scopes=tuple(ss.scopes),
+            workspace_ids=tuple(ss.workspace_ids),
+            document_ids=tuple(ss.document_ids),
+        )
+    return ScopeFilter(
+        as_of=as_of,
+        regulation_keys=regulation_keys,
+        include_superseded=include_superseded,
+        data_classes=principal.data_classes,
+        authz=authz,
+    )
 
 
 def _scope(req: AskRequest, principal: Principal) -> ScopeFilter:
-    return ScopeFilter(
-        as_of=req.as_of,
-        regulation_keys=tuple(req.regulation_keys),
-        include_superseded=req.include_superseded,
-        data_classes=principal.data_classes,  # authorization narrows the universe before ranking
-    )
+    try:
+        return scope_for(
+            principal,
+            as_of=req.as_of,
+            regulation_keys=tuple(req.regulation_keys),
+            include_superseded=req.include_superseded,
+            source_scope=req.source_scope,
+        )
+    except ScopeNotAuthorized as exc:
+        raise HTTPException(403, str(exc)) from exc
 
 
 @router.post("/search", dependencies=[Depends(rate_limited)])
@@ -111,7 +146,7 @@ def evidence(
         .join(RegulationVersion, RegulationVersion.id == Chunk.version_id)
         .join(Regulation, Regulation.id == RegulationVersion.regulation_id)
         .join(SourceArtifact, SourceArtifact.id == RegulationVersion.source_artifact_id)
-        .where(Chunk.id == chunk_id, Regulation.data_class.in_(principal.data_classes))
+        .where(Chunk.id == chunk_id, Regulation.data_class.in_(principal.data_classes), sql_for_principal(principal))
     ).first()
     if row is None:
         raise HTTPException(404, "evidence not found")

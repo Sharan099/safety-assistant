@@ -11,8 +11,10 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from safety_assistant.api.dependencies import Principal, require_scope
+from safety_assistant.documents.service import enqueue
+from safety_assistant.identity.service import record_audit
 from safety_assistant.ingestion.sources import get_registry
-from safety_assistant.ingestion.workflows import ingest_source
+from safety_assistant.ingestion.workflows import discover_source
 from safety_assistant.persistence import get_session
 from safety_assistant.persistence.models import IngestionEvent, IngestionRun, QueryTrace
 
@@ -21,35 +23,39 @@ router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
 class IngestRequest(BaseModel):
     source_key: str = Field(min_length=1, max_length=200)
-    force: bool = False
-    activate: bool = True
 
 
-@router.post("/ingest")
+@router.post("/ingest", status_code=202)
 async def ingest(
     req: IngestRequest,
     principal: Principal = Depends(require_scope("document:ingest")),
     session: Session = Depends(get_session),
 ) -> dict[str, Any]:
+    """Queue a registry source for the ingestion worker (ADR-0029 §5). Expensive work never runs
+    inside a request; poll /ingestion-jobs/{id} or /admin/ingestion/runs for progress."""
     registry = get_registry()
     if req.source_key not in registry.keys():
         raise HTTPException(404, "source_key is not in the registry allowlist")
-    out = await run_in_threadpool(
-        ingest_source,
+    try:
+        version = await run_in_threadpool(discover_source, session, req.source_key, registry=registry)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+    job = enqueue(session, version.id, requested_by=principal.user_id)
+    record_audit(
         session,
-        req.source_key,
-        registry=registry,
-        force=req.force,
-        activate=req.activate,
-        actor=principal.subject,
+        action="ingestion.enqueue",
+        resource_type="regulation_version",
+        resource_id=str(version.id),
+        actor_user_id=principal.user_id,
+        actor_subject=principal.subject,
+        metadata={"source_key": req.source_key},
     )
+    session.commit()
     return {
-        "run_id": str(out.run_id),
-        "version_id": str(out.version_id) if out.version_id else None,
-        "status": out.status,
-        "version_status": out.final_version_status,
-        "stats": out.stats,
-        "error": out.error.splitlines()[0][:200] if out.error else None,
+        "ingestion_job_id": str(job.id),
+        "version_id": str(version.id),
+        "status": job.status,
+        "version_status": version.status,
         "actor": principal.subject,
     }
 

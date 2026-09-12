@@ -20,7 +20,6 @@ from safety_assistant.conversations import service as convs
 from safety_assistant.conversations.service import ScopeNotAuthorized, SourceScope
 from safety_assistant.persistence import get_session
 from safety_assistant.persistence.models import Conversation, Message, MessageCitation
-from safety_assistant.retrieval import ScopeFilter
 
 router = APIRouter(prefix="/api/v1/conversations", tags=["conversations"])
 
@@ -165,11 +164,15 @@ async def post_message(
         raise HTTPException(status.HTTP_409_CONFLICT, "conversation is archived")
     if "chat:query" not in principal.scopes:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "scope 'chat:query' required")
-    # ponytail: document/workspace/private predicate lands with migration 0004 (Phase D);
-    # until then the persisted source_scope is recorded and the corpus scope is data-class based.
-    scope = ScopeFilter(
-        as_of=req.as_of, regulation_keys=tuple(req.regulation_keys), data_classes=principal.data_classes
-    )
+    try:
+        scope = query.scope_for(
+            principal,
+            as_of=req.as_of,
+            regulation_keys=tuple(req.regulation_keys),
+            source_scope=SourceScope.model_validate(conv.source_scope),
+        )
+    except ScopeNotAuthorized as exc:  # membership changed since the conversation was created
+        raise HTTPException(status.HTTP_403_FORBIDDEN, str(exc)) from exc
     context = convs.context_for(session, conv)
     answer = await run_in_threadpool(
         query._answers().answer,  # via module: tests swap the service

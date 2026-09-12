@@ -87,6 +87,21 @@ def test_schema_output_is_validated() -> None:
         _provider(bad).generate([LLMMessage(role="user", content="q")], schema=Out)
 
 
+def test_gateway_usage_with_nested_details_is_flattened_to_int_counters() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        usage = {
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "total_tokens": 15,
+            "completion_tokens_details": {"reasoning_tokens": 3},
+            "cost_details": {"upstream_inference_cost": 0},
+        }
+        return httpx.Response(200, json={"choices": [{"message": {"content": "hi"}}], "usage": usage})
+
+    resp = _provider(handler).generate([LLMMessage(role="user", content="q")])
+    assert resp.usage == {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}
+
+
 def test_model_is_mandatory() -> None:
     with pytest.raises(ValueError):
         OpenAICompatibleProvider(base_url="http://x", api_key="", model="")

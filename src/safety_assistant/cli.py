@@ -4,6 +4,7 @@ safety-assistant ingest [source_key ...] [--force] [--no-activate]
 safety-assistant migrate
 safety-assistant eval-retrieval [--legs full sparse ...]
 safety-assistant ready            # exit 0 when readiness dependencies pass
+safety-assistant worker [--poll-seconds 2] [--once]
 safety-assistant users add --email E --name N --role engineer|knowledge_admin|auditor|org_admin [--workspace W]
 """
 
@@ -53,6 +54,23 @@ def _migrate(args: argparse.Namespace) -> int:
     cfg = Config(str(root / "migrations" / "alembic.ini"))
     cfg.set_main_option("script_location", str(root / "migrations"))
     command.upgrade(cfg, args.revision)
+    return 0
+
+
+def _worker(args: argparse.Namespace) -> int:
+    from sqlalchemy.orm import Session
+
+    from safety_assistant.observability.logging import configure_logging
+    from safety_assistant.persistence import get_engine
+    from safety_assistant.workers.ingestion import run_forever, run_once
+
+    configure_logging()
+    if args.once:
+        with Session(get_engine(), expire_on_commit=False) as session:
+            job = run_once(session)
+        print(json.dumps({"job_id": str(job.id), "status": job.status} if job else {"job_id": None}))
+        return 0
+    run_forever(poll_seconds=args.poll_seconds)
     return 0
 
 
@@ -124,6 +142,10 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=_eval_retrieval)
     p = sub.add_parser("ready")
     p.set_defaults(fn=_ready)
+    p = sub.add_parser("worker")
+    p.add_argument("--poll-seconds", type=float, default=2.0)
+    p.add_argument("--once", action="store_true", help="process at most one job and exit")
+    p.set_defaults(fn=_worker)
     users = sub.add_parser("users").add_subparsers(dest="users_cmd", required=True)
     p = users.add_parser("add")
     p.add_argument("--email", required=True)

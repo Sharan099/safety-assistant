@@ -20,7 +20,18 @@ import uuid
 from typing import Any
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Boolean, Date, DateTime, Double, ForeignKey, Index, Integer, Text, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    Double,
+    ForeignKey,
+    Index,
+    Integer,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -30,6 +41,13 @@ from safety_assistant.persistence.base import Base, CreatedAtMixin, UUIDPrimaryK
 
 class Regulation(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     __tablename__ = "regulations"
+    __table_args__ = (
+        CheckConstraint("scope <> 'WORKSPACE' OR workspace_id IS NOT NULL", name="ck_regulations_workspace_scope"),
+        CheckConstraint("scope <> 'PRIVATE_USER' OR owner_user_id IS NOT NULL", name="ck_regulations_private_scope"),
+        Index("ix_regulations_org_scope", "organization_id", "scope"),
+        Index("ix_regulations_workspace_id", "workspace_id"),
+        Index("ix_regulations_owner_user_id", "owner_user_id"),
+    )
 
     # Stable human key, e.g. "UN-R94", "NHTSA-THOR-05F-QUAL". Unique.
     regulation_key: Mapped[str] = mapped_column(Text, unique=True)
@@ -44,6 +62,15 @@ class Regulation(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     authority_level: Mapped[str] = mapped_column(Text)
     # Data classification for provider policy (M11): PUBLIC | CONFIDENTIAL.
     data_class: Mapped[str] = mapped_column(Text, default="PUBLIC")
+    # Source scope + ownership (ADR-0029 §1/§4). A `regulations` row is the logical *Document*:
+    # AUTHORITATIVE_ORG (registry / promoted) | WORKSPACE (workspace_id) | PRIVATE_USER (owner_user_id).
+    # The authorization predicate (retrieval/authz.py) is evaluated on these columns before ranking.
+    scope: Mapped[str] = mapped_column(Text, default="AUTHORITATIVE_ORG")
+    organization_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("organizations.id"))
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("workspaces.id"))
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    # Archived documents leave every retrieval set (current and historical) but keep their rows.
+    archived_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
     metadata_: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSONB)
 
 

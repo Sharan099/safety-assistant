@@ -12,6 +12,10 @@ from __future__ import annotations
 import datetime
 import re
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from safety_assistant.retrieval.authz import Authz
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _STOPWORDS = frozenset(
@@ -108,6 +112,8 @@ class ScopeFilter:
     - ``kinds``/``authority_levels``: metadata restrictions.
     - ``include_superseded``: historical/comparison queries opt in explicitly.
     - ``data_classes``: what the principal is authorised to see (M11).
+    - ``authz``: document-level ownership/scope predicate (ADR-0029 §4). ``None`` = no identity:
+      authoritative documents only.
     """
 
     as_of: datetime.date | None = None
@@ -117,6 +123,7 @@ class ScopeFilter:
     include_superseded: bool = False
     data_classes: tuple[str, ...] = ("PUBLIC",)
     version_ids: tuple[str, ...] = field(default=())
+    authz: Authz | None = None
 
     def effective_date(self, today: datetime.date | None = None) -> datetime.date:
         return self.as_of or today or datetime.date.today()

@@ -14,7 +14,7 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
-Kind = Literal["REGULATION", "STANDARD", "TECHNICAL_REPORT", "MANUAL"]
+Kind = Literal["REGULATION", "STANDARD", "TECHNICAL_REPORT", "MANUAL", "PROJECT_DOCUMENT"]
 
 DEFAULT_REGISTRY_PATH = pathlib.Path("knowledge/00_registry/sources.yaml")
 

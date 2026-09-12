@@ -31,6 +31,7 @@ from sqlalchemy.orm import Session
 
 from safety_assistant.config import Settings, get_settings
 from safety_assistant.domain.regulations import VersionStatus, transition
+from safety_assistant.identity.service import default_organization
 from safety_assistant.ingestion.chunk import (
     CHUNKER_VERSION,
     CitationContext,
@@ -52,7 +53,7 @@ from safety_assistant.ingestion.normalize import (
     parse_cover,
 )
 from safety_assistant.ingestion.parse import DocumentParser, ParsedDocument, PyMuPDFParser
-from safety_assistant.ingestion.sources.registry import SourceEntry, SourceRegistry, get_registry
+from safety_assistant.ingestion.sources.registry import SourceEntry, SourceRegistry, VersionInfo, get_registry
 from safety_assistant.ingestion.validation import ValidationError, validate_pdf_bytes
 from safety_assistant.observability import metrics
 from safety_assistant.persistence.models import (
@@ -198,31 +199,164 @@ def ingest_source(
             ctx.event(version.status, "reprocessing from scratch", from_status=previous, forced=force)
 
         data = _download(ctx, version, entry)
-        validated = _validate(ctx, version, entry, data)
-        artifact = _artifact(ctx, entry, data, validated.sha256)
-        version.source_artifact_id = artifact.id
-        parsed = _parse(ctx, version, data, validated.sha256, max_pages)
-        normalized = _normalize(ctx, version, entry, parsed)
-        _chunk(ctx, version, entry, parsed, normalized)
-        _index(ctx, version)
-        _verify(ctx, version)
-        if activate:
-            _activate(ctx, version, regulation)
-        ctx.run.status = "SUCCEEDED"
-        return _finish(ctx, version)
-
-    except QuarantineError as exc:
-        ctx.run.status = "QUARANTINED"
-        ctx.run.error = str(exc)
-        if version is not None:
-            _mark(ctx, version, VersionStatus.QUARANTINED, str(exc))
+        _pipeline(ctx, regulation, version, entry, data, activate=activate, max_pages=max_pages)
         return _finish(ctx, version)
     except Exception as exc:  # noqa: BLE001 — never let one source kill the stream
+        return _fail(ctx, version, exc)
+
+
+def discover_source(
+    session: Session,
+    source_key: str,
+    *,
+    registry: SourceRegistry | None = None,
+    blob_store: BlobStore | None = None,
+    settings: Settings | None = None,
+    repo_root: pathlib.Path | None = None,
+) -> RegulationVersion:
+    """Registry entry → regulation/version/artifact rows with the local bytes in the blob store,
+    so the queue worker can run `ingest_version` for authoritative sources too (one execution path)."""
+    settings = settings or get_settings()
+    entry = (registry or get_registry()).get(source_key)
+    blobs = blob_store or blob_store_from_uri(settings.artifact_store_uri)
+    regulation = _upsert_regulation(session, entry)
+    version, _ = _get_or_create_version(session, regulation, entry)
+    art = session.get(SourceArtifact, version.source_artifact_id)
+    assert art is not None
+    if not art.storage_uri:
+        path = (repo_root or pathlib.Path.cwd()) / entry.local_path
+        if not path.is_file():
+            raise FileNotFoundError(f"registered local copy missing: {entry.local_path}")
+        if path.stat().st_size > settings.ingest_max_file_bytes:
+            raise ValueError(f"file exceeds ingest_max_file_bytes: {path.stat().st_size}")
+        art.storage_uri = blobs.put(path.read_bytes(), suffix=".pdf")
+        art.retrieved_at = art.retrieved_at or _now()
+    session.flush()
+    return version
+
+
+def ingest_version(
+    session: Session,
+    version_id: uuid.UUID,
+    *,
+    parser: DocumentParser | None = None,
+    blob_store: BlobStore | None = None,
+    embedder: EmbeddingProvider | None = None,
+    settings: Settings | None = None,
+    activate: bool = True,
+    actor: str | None = None,
+    force: bool = False,
+) -> IngestOutcome:
+    """Run the same pipeline for a version whose bytes are already in the blob store
+    (user uploads, ADR-0029 §5). No registry, no download: the artifact row is the source of truth."""
+    settings = settings or get_settings()
+    version = session.get(RegulationVersion, version_id)
+    if version is None:
+        raise KeyError(f"unknown version {version_id}")
+    regulation = session.get(Regulation, version.regulation_id)
+    artifact = session.get(SourceArtifact, version.source_artifact_id)
+    assert regulation is not None and artifact is not None
+    ctx = _Ctx(
+        session=session,
+        run=IngestionRun(
+            source_key=artifact.source_key,
+            version_id=version.id,
+            status="RUNNING",
+            started_at=_now(),
+            git_sha=_git_sha(),
+        ),
+        settings=settings,
+        parser=parser or PyMuPDFParser(),
+        blobs=blob_store or blob_store_from_uri(settings.artifact_store_uri),
+        embedder=embedder or get_embedding_provider(),
+        repo_root=pathlib.Path.cwd(),
+    )
+    if actor:
+        ctx.stats["actor"] = actor
+    session.add(ctx.run)
+    session.flush()
+    try:
+        attempts = int((version.metadata_ or {}).get("attempts", 0)) + 1
+        version.metadata_ = {**(version.metadata_ or {}), "attempts": attempts}
+        entry = _entry_from_rows(regulation, version, artifact)
+        if not force and _unchanged(version, entry, ctx):
+            ctx.run.status = "SKIPPED_UNCHANGED"
+            ctx.event(version.status, "source, parser and chunker configuration unchanged — nothing to do")
+            return _finish(ctx, version)
+        if version.status != VersionStatus.DISCOVERED:
+            previous = version.status
+            version.status = transition(previous, VersionStatus.DISCOVERED, force=True).value
+            ctx.event(version.status, "reprocessing from scratch", from_status=previous, attempt=attempts)
+        data = ctx.blobs.get(artifact.storage_uri)
+        ctx.advance(version, VersionStatus.DOWNLOADED, f"read {len(data)} bytes from artifact store", bytes=len(data))
+        _pipeline(ctx, regulation, version, entry, data, activate=activate, max_pages=None)
+        return _finish(ctx, version)
+    except Exception as exc:  # noqa: BLE001 — outcome carries the failure; the worker decides on retry
+        return _fail(ctx, version, exc)
+
+
+def _entry_from_rows(reg: Regulation, version: RegulationVersion, art: SourceArtifact) -> SourceEntry:
+    """The stage functions read registry fields; for uploads those live on the rows themselves."""
+    return SourceEntry(
+        source_key=art.source_key,
+        regulation_key=reg.regulation_key,
+        kind=reg.kind,
+        title=reg.title,
+        authority=reg.authority,
+        jurisdiction=reg.jurisdiction,
+        authority_level=reg.authority_level,
+        data_class=reg.data_class,
+        source_uri=art.source_uri,
+        local_path=art.filename,
+        sha256=art.sha256,
+        size_bytes=art.size_bytes,
+        media_type=art.media_type,
+        version=VersionInfo(
+            label=version.version_label,
+            series=version.series,
+            revision=version.revision,
+            published_at=version.published_at,
+            valid_from=version.valid_from,
+            valid_to=version.valid_to,
+            document_symbol=(version.metadata_ or {}).get("document_symbol"),
+        ),
+    )
+
+
+def _pipeline(
+    ctx: _Ctx,
+    regulation: Regulation,
+    version: RegulationVersion,
+    entry: SourceEntry,
+    data: bytes,
+    *,
+    activate: bool,
+    max_pages: int | None,
+) -> None:
+    validated = _validate(ctx, version, entry, data)
+    artifact = _artifact(ctx, entry, data, validated.sha256)
+    version.source_artifact_id = artifact.id
+    parsed = _parse(ctx, version, data, validated.sha256, max_pages)
+    normalized = _normalize(ctx, version, entry, parsed)
+    _chunk(ctx, version, entry, parsed, normalized)
+    _index(ctx, version)
+    _verify(ctx, version)
+    if activate:
+        _activate(ctx, version, regulation)
+    ctx.run.status = "SUCCEEDED"
+
+
+def _fail(ctx: _Ctx, version: RegulationVersion | None, exc: BaseException) -> IngestOutcome:
+    if isinstance(exc, QuarantineError):
+        ctx.run.status, ctx.run.error = "QUARANTINED", str(exc)
+        if version is not None:
+            _mark(ctx, version, VersionStatus.QUARANTINED, str(exc))
+    else:
         ctx.run.status = "FAILED"
         ctx.run.error = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()[-2000:]}"
         if version is not None:
             _mark(ctx, version, VersionStatus.FAILED, f"{type(exc).__name__}: {exc}")
-        return _finish(ctx, version)
+    return _finish(ctx, version)
 
 
 # --------------------------------------------------------------------------- stages
@@ -239,6 +373,8 @@ def _upsert_regulation(session: Session, e: SourceEntry) -> Regulation:
             jurisdiction=e.jurisdiction,
             authority_level=e.authority_level,
             data_class=e.data_class,
+            scope="AUTHORITATIVE_ORG",
+            organization_id=default_organization(session).id,
             metadata_={"publisher": e.publisher, "license": e.license},
         )
         session.add(reg)

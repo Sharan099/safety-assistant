@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from safety_assistant.domain.regulations import RETRIEVABLE_CURRENT, RETRIEVABLE_HISTORICAL
 from safety_assistant.persistence.models import Chunk, Regulation, RegulationVersion, Section
+from safety_assistant.retrieval.authz import anonymous_sql
 from safety_assistant.retrieval.filters import ScopeFilter
 
 
@@ -38,6 +39,7 @@ def scoped_statement(
     statuses = RETRIEVABLE_HISTORICAL if (scope.include_superseded or scope.as_of) else RETRIEVABLE_CURRENT
     stmt = stmt.where(RegulationVersion.status.in_([s.value for s in statuses]))
     stmt = stmt.where(Regulation.data_class.in_(list(scope.data_classes)))
+    stmt = stmt.where(scope.authz.sql() if scope.authz is not None else anonymous_sql())
     if scope.version_ids:
         stmt = stmt.where(RegulationVersion.id.in_([uuid.UUID(v) for v in scope.version_ids]))
     else:

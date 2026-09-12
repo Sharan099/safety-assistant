@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from safety_assistant.api.middleware import RequestIdMiddleware
-from safety_assistant.api.routes import admin, conversations, health, me, query, versions
+from safety_assistant.api.routes import admin, conversations, documents, health, me, query, versions
 from safety_assistant.config import get_settings
 from safety_assistant.observability import configure_tracing
 from safety_assistant.observability.logging import configure_logging
@@ -61,3 +61,4 @@ app.include_router(versions.router)
 app.include_router(admin.router)
 app.include_router(me.router)
 app.include_router(conversations.router)
+app.include_router(documents.router)

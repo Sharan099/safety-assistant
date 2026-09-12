@@ -48,16 +48,16 @@ Backend `src/safety_assistant/` — 7,507 LOC, FastAPI + SQLAlchemy 2 + Alembic 
 | Phase | Status | Evidence |
 |---|---|---|
 | A baseline + inventory | **done 2026-09-12** | this file; `FILE_LEDGER.md`; `DECISIONS.md` D-001…D-006 |
-| B architecture / schema plan | next | — |
-| C backend product foundation (identity, workspace, conversations, preferences) | pending | |
-| D document upload + async ingestion | pending | |
+| B architecture / schema plan | **done 2026-09-12** | `docs/ADR/0029-v2-product-domain-schema-and-authorization.md`; DECISIONS D-009…D-013 |
+| C backend product foundation (identity, workspace, conversations, preferences) | next — awaiting confirmation of D-003, D-012 | migrations 0002, 0004; `/v1/me`, `/v1/auth/*`, `/v1/conversations*` |
+| D document upload + async ingestion | pending | migration 0003; `/v1/documents*`, `/v1/ingestion-jobs*`; `safety-assistant worker` |
 | E frontend rebuild | pending (design gate: `11_DESIGN_DECISION_WORKSHEET.md` unfilled → defaults in DECISIONS D-006) | |
 | F tests / security / eval | pending | |
 | G cleanup | pending | |
 | H final verification + report | pending | |
 
-## Open questions (do not block Phase B)
+## Owner confirmations requested before Phase C code
 
-1. Job queue: TRD says "existing proven Celery/worker abstraction" — none exists. See D-003.
-2. Design worksheet unfilled — defaults proposed in D-006; confirm before Phase E hi-fi.
-3. Existing `data_class`/`authority_level` axes vs new `scope` enum — mapping in D-004.
+1. D-003 DB-backed job queue + worker (no Redis/Celery) — default A.
+2. D-012 browser session = JWT cookie + dev-login (auth trust model change).
+3. D-006/D-013 frontend defaults (no Figma stage available) — needed before Phase E, not C.

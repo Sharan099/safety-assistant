@@ -33,3 +33,22 @@ Keep `auth_mode=none|api_key|oidc`. Add a dev-only `dev_login` flow that maps to
 
 ## D-008 — Root spec package location (decided)
 Specs stay at repo root during the rebuild (CLAUDE.md references them by root path). Moved to `docs/product/` in Phase G with CLAUDE.md updated in the same commit.
+
+## D-009 — Lifecycle vocabulary (decided, ADR-0029 §2)
+Internal `VersionStatus` unchanged; spec statuses (`UPLOADED…READY`) are a pure API/UI mapping. `READY` ≡ `ACTIVE`.
+
+## D-010 — Roles (decided, ADR-0029 §4)
+Membership roles use TRD names (`engineer`, `knowledge_admin`, `auditor`, `org_admin`) mapped onto the existing scope model; legacy role names stay valid for API keys so the 30 security tests and CI keys keep working.
+
+## D-011 — API prefix (decided, ADR-0029 §6)
+New product routes under `/v1`. Existing `/ask`, `/search`, `/evidence`, `/regulations*`, `/admin/*`, `/health/*` unchanged until Phase G (tests + eval scripts depend on them).
+
+## D-012 — Browser session (proposed, ADR-0029 §6; changes the auth trust model → owner confirmation required)
+HS256 JWT (pyjwt) in `HttpOnly; SameSite=Lax; Secure` cookie, 12 h; mutating cookie-auth requests require `X-Requested-With`. `dev-login` refused when `APP_ENV=production`. OIDC remains the production path (login redirect → cookie).
+
+## D-013 — Frontend route/component inventory (Phase B low-fi gate; defaults from `03_UI_UX_DESIGN_SPEC.md`)
+Routes: `/login`, `/app/home`, `/app/chat`, `/app/chat/[id]`, `/app/documents`, `/app/documents/upload`, `/app/documents/[id]`, `/app/ingestion`, `/app/settings`, `/app/admin/{corpus,ingestion,audit}` (role-gated).
+Shell: `AppShell` (top bar: WorkspaceSwitcher · SourceScopeSelector · SystemStatus · user menu; left nav 240px; evidence panel 400px collapsible, sheet <1280px).
+Feature components: chat = `ConversationList`, `ConversationHeader`, `MessageList`, `AssistantMessage` (answer-mode badge Grounded / Evidence only / Insufficient evidence), `CitationMarker`, `Composer`; evidence = `EvidencePanel`, `EvidenceCard`; documents = `DocumentTable`, `DocumentStatus`, `UploadDropzone`, `UploadMetadataForm`, `IngestionTimeline`; common = `EmptyState`, `ErrorState`, `PermissionDenied`, `LoadingSkeleton`.
+Primitives: shadcn/ui (Button, Input, Textarea, Select, Checkbox, Dialog, DropdownMenu, Tooltip, Tabs, Sheet, Table, Badge, Progress, Skeleton, Toast, Alert). Tokens: Engineering Cobalt as CSS variables in `styles/tokens.css`; Inter; 4 px spacing; radius 8/12.
+Server state: TanStack Query for documents/jobs polling and conversations; forms: React Hook Form + zod for upload metadata only. No global client-state library.

@@ -1,0 +1,32 @@
+# Prometheus alert rules for the sa_* metrics (scrape GET /metrics on the internal listener).
+groups:
+  - name: safety-assistant
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(sa_http_requests_total{status=~"5.."}[5m])) / sum(rate(sa_http_requests_total[5m])) > 0.02
+        for: 10m
+        labels: { severity: page }
+        annotations: { summary: "5xx rate above 2% for 10m" }
+      - alert: AnswerLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(sa_stage_seconds_bucket{stage="answer_total"}[5m])) by (le)) > 3
+        for: 15m
+        labels: { severity: ticket }
+        annotations: { summary: "answer p95 above 3s (SLO: 3s evidence-only, 10s with LLM)" }
+      - alert: RetrievalNoHitSpike
+        expr: rate(sa_retrieval_no_hit_total[15m]) / rate(sa_stage_seconds_count{stage="evidence"}[15m]) > 0.3
+        for: 30m
+        labels: { severity: ticket }
+        annotations: { summary: "more than 30% of retrievals return no evidence: corpus or index problem" }
+      - alert: CitationValidationFailures
+        expr: increase(sa_citation_validation_failures_total[1h]) > 20
+        labels: { severity: ticket }
+        annotations: { summary: "LLM output failing citation/numeric validation frequently: check prompt/model version" }
+      - alert: IngestionFailures
+        expr: increase(sa_ingestion_runs_total{status=~"FAILED|QUARANTINED"}[24h]) > 0
+        labels: { severity: ticket }
+        annotations: { summary: "an ingestion run failed or was quarantined in the last 24h" }
+      - alert: LLMUnavailable
+        expr: rate(sa_llm_calls_total{outcome!="ok"}[10m]) > 0 and rate(sa_llm_calls_total{outcome="ok"}[10m]) == 0
+        for: 10m
+        labels: { severity: ticket }
+        annotations: { summary: "LLM provider failing; service is in evidence-only mode" }

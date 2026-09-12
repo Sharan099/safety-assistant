@@ -70,4 +70,8 @@ class FilesystemBlobStore:
 def blob_store_from_uri(uri: str) -> BlobStore:
     if uri.startswith("file://"):
         return FilesystemBlobStore(pathlib.Path(uri[len("file://") :]))
-    raise NotImplementedError(f"blob store scheme not supported yet: {uri}")  # S3 adapter: M14
+    if uri.startswith("s3://"):
+        from safety_assistant.ingestion.fetch.s3 import S3BlobStore
+
+        return S3BlobStore.from_uri(uri)
+    raise NotImplementedError(f"blob store scheme not supported: {uri}")

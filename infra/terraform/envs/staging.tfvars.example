@@ -1,0 +1,11 @@
+region          = "eu-central-1"
+environment     = "staging"
+image           = "ghcr.io/OWNER/safety-assistant:0.2.0"
+vpc_id          = "vpc-xxxxxxxx"
+private_subnets = ["subnet-aaaa", "subnet-bbbb"]
+public_subnets  = ["subnet-cccc", "subnet-dddd"]
+certificate_arn = "arn:aws:acm:eu-central-1:123456789012:certificate/xxxx"
+oidc_issuer     = "https://login.example.com/realms/safety"
+oidc_audience   = "safety-assistant"
+alert_email     = "oncall@example.com"
+desired_count   = 1

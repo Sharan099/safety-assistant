@@ -1,0 +1,18 @@
+{
+  "title": "Safety Assistant",
+  "panels": [
+    {"type": "timeseries", "title": "Requests/s by route", "targets": [{"expr": "sum(rate(sa_http_requests_total[1m])) by (route)"}]},
+    {"type": "timeseries", "title": "Answer latency p50/p95/p99", "targets": [
+      {"expr": "histogram_quantile(0.5, sum(rate(sa_stage_seconds_bucket{stage=\"answer_total\"}[5m])) by (le))", "legendFormat": "p50"},
+      {"expr": "histogram_quantile(0.95, sum(rate(sa_stage_seconds_bucket{stage=\"answer_total\"}[5m])) by (le))", "legendFormat": "p95"},
+      {"expr": "histogram_quantile(0.99, sum(rate(sa_stage_seconds_bucket{stage=\"answer_total\"}[5m])) by (le))", "legendFormat": "p99"}]},
+    {"type": "timeseries", "title": "Stage p95 (dense/sparse/rerank/llm)", "targets": [{"expr": "histogram_quantile(0.95, sum(rate(sa_stage_seconds_bucket[5m])) by (le, stage))", "legendFormat": "{{stage}}"}]},
+    {"type": "piechart", "title": "Answer modes", "targets": [{"expr": "sum(increase(sa_answers_total[1h])) by (mode)"}]},
+    {"type": "stat", "title": "Citation validation failures (1h)", "targets": [{"expr": "increase(sa_citation_validation_failures_total[1h])"}]},
+    {"type": "stat", "title": "Retrieval no-hit rate", "targets": [{"expr": "rate(sa_retrieval_no_hit_total[15m]) / rate(sa_stage_seconds_count{stage=\"evidence\"}[15m])"}]},
+    {"type": "timeseries", "title": "LLM tokens/min", "targets": [{"expr": "sum(rate(sa_llm_tokens_total[1m])) by (kind)"}]},
+    {"type": "table", "title": "Freshness lag (days) by regulation", "targets": [{"expr": "sa_freshness_lag_days"}]},
+    {"type": "timeseries", "title": "Ingestion runs", "targets": [{"expr": "sum(increase(sa_ingestion_runs_total[1h])) by (status)"}]},
+    {"type": "stat", "title": "Rate limited (1h)", "targets": [{"expr": "increase(sa_rate_limited_total[1h])"}]}
+  ]
+}

@@ -8,6 +8,7 @@ import uuid
 from collections.abc import Awaitable, Callable
 
 from fastapi import Request, Response
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from safety_assistant.observability import metrics
@@ -23,9 +24,11 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         t0 = time.perf_counter()
         try:
             response = await call_next(request)
-        except Exception:
+        except Exception:  # noqa: BLE001 — convert to a structured 500 that still carries the request id
             log.exception("request failed", extra={"request_id": rid, "path": request.url.path})
-            raise
+            response = JSONResponse(
+                {"detail": "internal error", "request_id": rid}, status_code=500, headers={REQUEST_ID_HEADER: rid}
+            )
         response.headers[REQUEST_ID_HEADER] = rid
         route = getattr(request.scope.get("route"), "path", request.url.path)
         metrics.REQUESTS.labels(route=route, method=request.method, status=str(response.status_code)).inc()

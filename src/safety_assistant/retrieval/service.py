@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime
+import logging
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -31,6 +32,8 @@ from safety_assistant.retrieval.filters import DEFAULT_MIN_SHARED_TERMS, ScopeFi
 from safety_assistant.retrieval.fusion import reciprocal_rank_fusion
 from safety_assistant.retrieval.rerank import apply_reranker
 from safety_assistant.retrieval.sparse import Bm25Index, sparse_search
+
+log = logging.getLogger(__name__)
 
 MAX_CHUNKS_PER_VERSION = 4  # diversification: one document may not fill the whole list
 EXACT_LEG_WEIGHT = 2.0  # an exact clause-id hit is stronger evidence than any single semantic leg
@@ -200,23 +203,29 @@ class RetrievalService:
         # rerank everything fused (filters come after ranking so tight guards don't starve results)
         rerank_scores: dict[uuid.UUID, float] = {}
         rr_meta: dict[str, Any] = {}
+        degraded: list[str] = []
         if fused_order:
             t0 = time.perf_counter()
-            obs = apply_reranker(
-                self.reranker,
-                query,
-                [
-                    RerankCandidate(
-                        id=c,
-                        content=rows[c].chunk.content,
-                        authority_level=rows[c].regulation.authority_level,
-                        fused_score=fused[c],
-                        normative=rows[c].section.normative,
-                        chunk_type=rows[c].chunk.chunk_type,
-                    )
-                    for c in fused_order
-                ],
-            )
+            try:
+                obs = apply_reranker(
+                    self.reranker,
+                    query,
+                    [
+                        RerankCandidate(
+                            id=c,
+                            content=rows[c].chunk.content,
+                            authority_level=rows[c].regulation.authority_level,
+                            fused_score=fused[c],
+                            normative=rows[c].section.normative,
+                            chunk_type=rows[c].chunk.chunk_type,
+                        )
+                        for c in fused_order
+                    ],
+                )
+            except Exception as exc:  # noqa: BLE001 — reranker is a quality stage, never an availability one
+                log.warning("reranker failed, using fused order: %s", exc)
+                degraded.append(f"reranker_failed:{type(exc).__name__}")
+                obs = None
             if obs:
                 rerank_scores = obs.scores
                 rr_meta = {"reranker": obs.model_name, "reranker_version": obs.model_version}
@@ -283,6 +292,7 @@ class RetrievalService:
                 "embedding_model": self.embedder.model_name if cfg.use_dense else None,
                 **rr_meta,
                 "config": dataclasses.asdict(cfg),
+                "degraded": degraded,
             },
             guard_rejected=rejected,
         )

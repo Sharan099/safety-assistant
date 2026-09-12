@@ -1,0 +1,54 @@
+name: eval
+# Retrieval quality gate. The real corpus (UNECE PDFs) is not in the repository,
+# so this job restores it from the artifact bucket; without credentials it runs
+# the synthetic-corpus regression only and reports that honestly.
+on:
+  workflow_dispatch:
+  schedule: [{ cron: "0 5 * * *" }]
+permissions: { contents: read }
+
+jobs:
+  retrieval:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_USER: passive_safety, POSTGRES_PASSWORD: change_me, POSTGRES_DB: passive_safety }
+        ports: ["5433:5432"]
+        options: --health-cmd "pg_isready -U passive_safety" --health-interval 5s --health-retries 20
+    env:
+      CORPUS_BUCKET: ${{ secrets.CORPUS_BUCKET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with: { version: "0.11.14", enable-cache: true }
+      - run: uv sync --frozen --extra s3
+      - name: restore corpus PDFs (optional)
+        if: env.CORPUS_BUCKET != ''
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: uvx --from awscli aws s3 sync "s3://$CORPUS_BUCKET/knowledge" knowledge --exclude "*" --include "*.pdf"
+      - name: ingest + evaluate (real corpus)
+        if: env.CORPUS_BUCKET != ''
+        env:
+          DATABASE_URL: postgresql+psycopg://passive_safety:change_me@localhost:5433/safety_assistant
+        run: |
+          uv run python - <<'PY'
+          import psycopg; from psycopg import sql
+          with psycopg.connect("postgresql://passive_safety:change_me@localhost:5433/passive_safety", autocommit=True) as c:
+              c.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier("safety_assistant")))
+          PY
+          uv run safety-assistant migrate
+          uv run safety-assistant ingest
+          uv run safety-assistant eval-retrieval
+          uv run pytest tests/retrieval_regression -q -p no:cacheprovider
+      - name: synthetic regression only (no corpus credentials)
+        if: env.CORPUS_BUCKET == ''
+        run: |
+          echo "::notice::CORPUS_BUCKET not configured — running synthetic-corpus e2e/integration only"
+          uv run pytest tests/e2e tests/integration -q -p no:cacheprovider
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: eval-results, path: evals/results/*.json, if-no-files-found: ignore }

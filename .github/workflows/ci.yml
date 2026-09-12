@@ -33,6 +33,56 @@ jobs:
       - name: retrieval regression gate (skips when no real corpus is present)
         run: uv run pytest tests/retrieval_regression -q -p no:cacheprovider -rs
 
+  frontend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_USER: passive_safety, POSTGRES_PASSWORD: change_me, POSTGRES_DB: passive_safety }
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U passive_safety" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      APP_ENV: development
+      DATABASE_URL: postgresql+psycopg://passive_safety:change_me@localhost:5433/safety_assistant
+      EMBEDDING_PROVIDER: fastembed
+      LLM_PROVIDER: none
+      AUTH_MODE: none
+      DEV_LOGIN_ENABLED: "true"
+      SESSION_SECRET: ci-session-secret-not-for-production-0123456789
+      ARTIFACT_STORE_URI: file://./data/artifacts-ci
+      API_INTERNAL_URL: http://localhost:8010
+      E2E_REGULATION: UN R999
+      E2E_QUESTION: What is the thorax compression criterion limit in R999?
+      E2E_TERM: thorax
+      E2E_QUESTION_2: What is the head performance criterion in R999?
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with: { version: "0.11.14", enable-cache: true }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: uv sync --frozen --extra s3
+      - name: database + synthetic corpus
+        run: |
+          psql postgresql://passive_safety:change_me@localhost:5433/passive_safety -c "CREATE DATABASE safety_assistant" || true
+          uv run safety-assistant migrate
+          uv run python scripts/maintenance/seed_synthetic_corpus.py
+      - name: api + worker
+        run: |
+          nohup uv run uvicorn safety_assistant.api.main:app --port 8010 > api.log 2>&1 &
+          nohup uv run safety-assistant worker --poll-seconds 1 > worker.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://localhost:8010/health/ready && break || sleep 2; done
+      - name: frontend checks + build
+        working-directory: frontend
+        run: npm ci && npm run typecheck && npm run lint && npm run build
+      - name: playwright
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium && npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: { name: playwright-results, path: frontend/test-results }
+
   container:
     needs: quality
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
 #!/bin/sh
-# Container entrypoint. `api` serves; `migrate` applies schema; `ingest` runs the
-# registry ingestion; anything else is executed verbatim (e.g. a shell for debugging).
+# Container entrypoint. `api` serves; `migrate` applies schema; `worker` runs the ingestion queue
+# worker; `ingest` runs the synchronous registry ingestion; anything else is executed verbatim.
 set -eu
 case "${1:-api}" in
   api)
@@ -10,6 +10,8 @@ case "${1:-api}" in
     exec alembic -c migrations/alembic.ini upgrade head ;;
   ingest)
     shift; exec python -m safety_assistant.cli ingest "$@" ;;
+  worker)
+    shift; exec python -m safety_assistant.cli worker "$@" ;;
   *)
     exec "$@" ;;
 esac

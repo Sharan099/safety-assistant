@@ -46,6 +46,8 @@ services:
       LLM_BASE_URL: ${LLM_BASE_URL:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      DEV_LOGIN_ENABLED: ${DEV_LOGIN_ENABLED:-false}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
     depends_on:
       postgres: { condition: service_healthy }
@@ -62,6 +64,19 @@ services:
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
     deploy: { resources: { limits: { memory: 2g, cpus: "2" } } }
+
+  worker:
+    build: { context: ../.., dockerfile: infra/docker/Dockerfile }
+    command: ["worker"]
+    environment: *appenv
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      minio: { condition: service_healthy }
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    deploy: { resources: { limits: { memory: 3g, cpus: "2" } } }
 
 volumes:
   pgdata:

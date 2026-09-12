@@ -4,28 +4,35 @@ import path from "node:path";
 import { ALICE, BOB, FIXTURES, login, logout } from "./helpers";
 
 // The five required E2E flows (07_TESTING "Frontend E2E"). Real API, real worker, real corpus.
+// Without the licensed corpus (CI) point the flows at the synthetic regulation seeded by
+// scripts/maintenance/seed_synthetic_corpus.py via E2E_REGULATION / E2E_QUESTION / E2E_TERM.
+const REG = process.env.E2E_REGULATION ?? "UN R94";
+const QUESTION = process.env.E2E_QUESTION ?? "What is the tibia index limit in UN R94?";
+const TERM = new RegExp(process.env.E2E_TERM ?? "tibia", "i");
+const QUESTION_2 = process.env.E2E_QUESTION_2 ?? "What is the head performance criterion limit in UN R94?";
+const QUESTION_2_KEY = QUESTION_2.split(" ").slice(3, 6).join(" ");
 
 test("1. login → new chat → answer → open evidence", async ({ page }) => {
   await login(page, ALICE);
   await page.getByTestId("home-new").click();
   await expect(page).toHaveURL(/\/app\/chat$/);
   await expect(page.getByTestId("composer-scope")).toContainText("Verified regulations");
-  await page.getByTestId("query").fill("What is the tibia index limit in UN R94?");
+  await page.getByTestId("query").fill(QUESTION);
   await page.getByTestId("ask").click();
   await expect(page).toHaveURL(/\/app\/chat\/[0-9a-f-]+/);
   const answer = page.getByTestId("answer");
   await expect(answer).toBeVisible();
   await expect(answer).toHaveAttribute("data-mode", /GENERATED|EVIDENCE_ONLY|ABSTAINED/);
   const citation = page.getByTestId("citation").first();
-  await expect(citation).toContainText(/UN R94/);
+  await expect(citation).toContainText(REG);
   await citation.click();
   const card = page.getByTestId("evidence-panel").getByTestId("evidence-card").first();
   await expect(card).toBeVisible();
-  await expect(card).toContainText(/UN R94/);
-  await expect(card).toContainText(/§5\.2\.1\.8|§/);
+  await expect(card).toContainText(REG);
+  await expect(card).toContainText(/§/);
   await expect(card).toContainText(/in force|valid/);
   await expect(card).toContainText(/Verified regulation/);
-  await expect(card).toContainText(/tibia/i);
+  await expect(card).toContainText(TERM);
 });
 
 test("2. login → upload PDF → processing → READY → ask uploaded document", async ({ page }) => {
@@ -55,7 +62,7 @@ test("2. login → upload PDF → processing → READY → ask uploaded document
 test("3. logout → login → conversation restored with messages, citations and scope", async ({ page }) => {
   await login(page, ALICE);
   await page.goto("/app/chat");
-  await page.getByTestId("query").fill("What is the head performance criterion limit in UN R94?");
+  await page.getByTestId("query").fill(QUESTION_2);
   await page.getByTestId("ask").click();
   await expect(page).toHaveURL(/\/app\/chat\/[0-9a-f-]+/);
   const url = page.url();
@@ -66,11 +73,11 @@ test("3. logout → login → conversation restored with messages, citations and
   await expect(page).toHaveURL(/\/login/); // guarded
   await login(page, ALICE);
   await page.goto(url);
-  await expect(page.getByTestId("user-message")).toContainText("head performance criterion");
+  await expect(page.getByTestId("user-message")).toContainText(QUESTION_2_KEY);
   await expect(page.getByTestId("answer")).toBeVisible();
   expect(await page.getByTestId("citation").count()).toBe(citationCount);
   await expect(page.getByTestId("source-scope")).toContainText("Verified regulations");
-  await expect(page.getByTestId("conversation-list")).toContainText("head performance criterion");
+  await expect(page.getByTestId("conversation-list")).toContainText(QUESTION_2_KEY);
 });
 
 test("4. user A private upload → user B denied", async ({ page }) => {

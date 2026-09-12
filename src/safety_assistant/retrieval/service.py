@@ -52,6 +52,9 @@ class RetrievalConfig:
     # RRF leg weights (ranks only; a weight scales one leg's 1/(k+rank) contribution).
     dense_weight: float = 0.75  # tuned 2026-09-12 on regulatory_v1+v2 (docs/evaluation.md)
     sparse_weight: float = 1.0
+    # Rerank only the top-N fused candidates (None = all). Bounds cross-encoder latency; the heuristic
+    # reranker is cheap enough to score everything.
+    rerank_top_n: int | None = None
     expand_parents: bool = True
     expand_cross_refs: bool = True
     min_shared_terms: int = DEFAULT_MIN_SHARED_TERMS
@@ -65,6 +68,7 @@ class RetrievalConfig:
             final_k=s.retrieval_final_k,
             dense_weight=s.retrieval_dense_weight,
             sparse_weight=s.retrieval_sparse_weight,
+            rerank_top_n=s.retrieval_rerank_top_n,
         )
 
 
@@ -211,12 +215,14 @@ class RetrievalService:
         sparse_rank = {c: i for i, c in enumerate(sparse_ids, 1)}
         exact_rank = {c: i for i, c in enumerate(exact_ids, 1)}
 
-        # rerank everything fused (filters come after ranking so tight guards don't starve results)
+        # rerank the fused head (filters come after ranking so tight guards don't starve results)
         rerank_scores: dict[uuid.UUID, float] = {}
         rr_meta: dict[str, Any] = {}
         degraded: list[str] = []
         if fused_order:
             t0 = time.perf_counter()
+            top_n = self.config.rerank_top_n
+            head, tail = (fused_order[:top_n], fused_order[top_n:]) if top_n else (fused_order, [])
             try:
                 obs = apply_reranker(
                     self.reranker,
@@ -230,7 +236,7 @@ class RetrievalService:
                             normative=rows[c].section.normative,
                             chunk_type=rows[c].chunk.chunk_type,
                         )
-                        for c in fused_order
+                        for c in head
                     ],
                 )
             except Exception as exc:  # noqa: BLE001 — reranker is a quality stage, never an availability one
@@ -240,7 +246,7 @@ class RetrievalService:
             if obs:
                 rerank_scores = obs.scores
                 rr_meta = {"reranker": obs.model_name, "reranker_version": obs.model_version}
-                fused_order.sort(key=lambda c: rerank_scores[c], reverse=True)
+                fused_order = sorted(head, key=lambda c: rerank_scores[c], reverse=True) + tail
             timings["rerank"] = _ms(t0)
 
         # guard + diversify. The per-version cap only makes sense when several

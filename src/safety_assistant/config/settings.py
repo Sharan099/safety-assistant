@@ -71,6 +71,7 @@ class Settings(BaseSettings):
     retrieval_final_k: int = 10
     retrieval_dense_weight: float = 0.75  # RRF leg weights; tuned on evals/datasets (see docs/evaluation.md)
     retrieval_sparse_weight: float = 1.0
+    retrieval_rerank_top_n: int | None = None  # cap for expensive rerankers (cross_encoder); None = all
 
     # Ingestion resource limits (CLAUDE.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024

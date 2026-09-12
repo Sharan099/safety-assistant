@@ -249,7 +249,10 @@ def test_archive_removes_document_from_retrieval(client, env, db_session, tmp_pa
     assert r.status_code == 200 and r.json()["status"] == "ARCHIVED"
     assert client.post("/api/v1/ask", json=body, headers=CSRF).json()["mode"] == "ABSTAINED"
     assert client.get("/api/v1/documents?scope=PRIVATE_USER").json()["items"] == []
-    assert client.get("/api/v1/documents?include_archived=true&scope=PRIVATE_USER").json()["items"][0]["status"] == "ARCHIVED"
+    assert (
+        client.get("/api/v1/documents?include_archived=true&scope=PRIVATE_USER").json()["items"][0]["status"]
+        == "ARCHIVED"
+    )
 
 
 def test_failed_job_retries_with_attempt_budget_then_can_be_retried_manually(

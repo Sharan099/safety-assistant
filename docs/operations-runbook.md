@@ -12,7 +12,12 @@
 | ingest / re-ingest | `uv run safety-assistant ingest [source_key] [--force]` — idempotent; unchanged sources are no-ops |
 | add a new regulation version | add a registry entry (new `version.label`, dates, hash), place the PDF, run ingest; activation supersedes the previous version atomically |
 | roll back a bad activation | `UPDATE regulation_versions SET status='SUPERSEDED' … ; UPDATE … SET status='ACTIVE', valid_to=NULL, superseded_by_id=NULL` on the previous version inside one transaction, then `SELECT` to confirm exactly one ACTIVE per regulation; the state machine permits `SUPERSEDED → ACTIVE` |
-| evaluate retrieval | `uv run safety-assistant eval-retrieval` |
+| run the ingestion worker | `uv run safety-assistant worker` (container: `entrypoint.sh worker`) — required for uploads and for `POST /admin/ingest`; scale by running more processes (claims use `FOR UPDATE SKIP LOCKED`) |
+| queue health | `SELECT status, count(*) FROM ingestion_jobs GROUP BY 1` — QUEUED with `run_after` in the past and no worker = stuck queue; RUNNING with `locked_at` older than an hour = a worker died mid-job: set `status='QUEUED'` to let another worker pick it up |
+| inspect a failed upload | job → `error_internal_ref` → `ingestion_runs.error` (internal detail) and `ingestion_events` (stage trail); the user only sees `error_public_message` + the reference |
+| seed a user (dev) | `uv run safety-assistant users add --email … --name … --role engineer [--workspace NAME]`; production users come from OIDC subjects plus a membership row |
+| evaluate retrieval | `uv run safety-assistant eval-retrieval --dataset evals/datasets/regulatory_v2.yaml` |
+| evaluate answers (judged) | `uv sync --extra eval && uv run python scripts/eval/judged.py --ragas --deepeval` (needs `LLM_PROVIDER`) |
 | load test | `scripts/eval/load_test.py` against a server started with `RATE_LIMIT_PER_MINUTE=0` |
 
 ## Deploy / rollback
@@ -28,7 +33,8 @@
 ## Capacity notes
 - Memory: fastembed model (~90 MB) + BM25 index (~150 MB for 22k chunks) per worker; the API task is sized at 3 GB for 2 workers.
 - First request per worker builds the BM25 index (3–5 s at 22k chunks); warm it with a request after deploy or rely on the ALB health check grace period (60 s).
-- Ingestion of the 4,301-page manual peaks around 1.5 GB; run ingestion as a one-off task, not inside the API process.
+- Ingestion of the 4,301-page manual peaks around 1.5 GB; run ingestion in the worker or as a one-off task, never inside the API process (the API only enqueues).
+- `RERANKER=cross_encoder` with `RETRIEVAL_RERANK_TOP_N=12` costs roughly 1–2 s per query on a laptop CPU; keep the heuristic reranker where `/search` latency matters.
 
 ## Dashboards / alerts
 `infra/monitoring/grafana-dashboard.json`, `infra/monitoring/prometheus-alerts.yaml` (5xx rate, answer p95, retrieval no-hit spike, citation validation failures, ingestion failures, LLM unavailable). CloudWatch alarms for ALB 5xx and p95 in Terraform.

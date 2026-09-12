@@ -54,7 +54,7 @@ class RetrievalConfig:
     sparse_weight: float = 1.0
     # Rerank only the top-N fused candidates (None = all). Bounds cross-encoder latency; the heuristic
     # reranker is cheap enough to score everything.
-    rerank_top_n: int | None = None
+    rerank_top_n: int | None = 12
     expand_parents: bool = True
     expand_cross_refs: bool = True
     min_shared_terms: int = DEFAULT_MIN_SHARED_TERMS

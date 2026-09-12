@@ -47,7 +47,8 @@ class Settings(BaseSettings):
 
     embedding_provider: EmbeddingProviderName = "fastembed"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    reranker: RerankerName = "heuristic"
+    # cross_encoder measured 2026-09-12: MRR 0.713 → 0.808 on regulatory_v2 with rerank_top_n=12 (docs/evaluation.md)
+    reranker: RerankerName = "cross_encoder"
 
     llm_provider: LLMProviderName = "none"
     llm_base_url: str = "http://localhost:3001/v1"
@@ -71,7 +72,7 @@ class Settings(BaseSettings):
     retrieval_final_k: int = 10
     retrieval_dense_weight: float = 0.75  # RRF leg weights; tuned on evals/datasets (see docs/evaluation.md)
     retrieval_sparse_weight: float = 1.0
-    retrieval_rerank_top_n: int | None = None  # cap for expensive rerankers (cross_encoder); None = all
+    retrieval_rerank_top_n: int | None = 12  # cap for expensive rerankers (cross_encoder); None = all
 
     # Ingestion resource limits (CLAUDE.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024

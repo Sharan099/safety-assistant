@@ -26,6 +26,7 @@ os.environ.update(
     DATABASE_URL=TEST_DB_URL,
     EMBEDDING_PROVIDER="hashing",
     LLM_PROVIDER="mock",
+    RERANKER="heuristic",  # the cross-encoder is measured in evals; tests stay fast and download-free
     AUTH_MODE="none",
     SESSION_SECRET="test-session-secret-not-for-production-0123456789",
     DEV_LOGIN_ENABLED="true",

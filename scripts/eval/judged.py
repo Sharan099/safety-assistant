@@ -232,6 +232,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ragas", action="store_true")
     ap.add_argument("--deepeval", action="store_true")
     ap.add_argument("--deepeval-limit", type=int, default=40)
+    ap.add_argument("--ragas-limit", type=int, default=None, help="judge an even sample of N answerable records")
     ap.add_argument("--judge-model", default=None, help="gateway model for judging (default: LLM_MODEL)")
     ap.add_argument("--out", default="evals/results")
     ap.add_argument("--no-cache", action="store_true")
@@ -261,6 +262,9 @@ def main(argv: list[str] | None = None) -> int:
     extra: dict[str, Any] = {"llm": f"{service.llm.name}:{service.llm.model}", "judge_model": judge_model}
 
     judgeable = [r for r in records if _judgeable(r)]
+    if args.ragas_limit and len(judgeable) > args.ragas_limit:
+        step = len(judgeable) / args.ragas_limit
+        judgeable = [judgeable[int(i * step)] for i in range(args.ragas_limit)]
     if args.ragas:
         scores = _ragas_scores(judgeable, judge_model)
         extra["ragas"] = _slice_table(

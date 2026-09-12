@@ -13,6 +13,7 @@ from fastapi import Depends, HTTPException, status
 
 from safety_assistant.api.dependencies.auth import Principal, get_principal
 from safety_assistant.config import Settings, get_settings
+from safety_assistant.observability import metrics
 
 
 @dataclass
@@ -55,5 +56,6 @@ def rate_limited(
     principal: Principal = Depends(get_principal), settings: Settings = Depends(get_settings)
 ) -> Principal:
     if settings.rate_limit_per_minute > 0 and not _limiter(settings).allow(principal.subject):
+        metrics.RATE_LIMITED.inc()
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "rate limit exceeded", headers={"Retry-After": "1"})
     return principal

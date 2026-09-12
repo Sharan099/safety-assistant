@@ -22,6 +22,7 @@ import pymupdf
 
 from safety_assistant.ingestion.parse.contract import (
     ExtractionReport,
+    FigureSink,
     ParsedDocument,
     ParsedFigure,
     ParsedPage,
@@ -65,7 +66,14 @@ class PyMuPDFParser:
         }
         return hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:16]
 
-    def parse(self, pdf_bytes: bytes, *, source_sha256: str, max_pages: int | None = None) -> ParsedDocument:
+    def parse(
+        self,
+        pdf_bytes: bytes,
+        *,
+        source_sha256: str,
+        max_pages: int | None = None,
+        figure_sink: FigureSink | None = None,
+    ) -> ParsedDocument:
         engine_version: str = pymupdf.pymupdf_version  # type: ignore[attr-defined]
         try:
             doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")  # type: ignore[no-untyped-call]
@@ -112,7 +120,7 @@ class PyMuPDFParser:
                     low_quality.append(pn)
 
                 page_tables = self._tables(page, pn) if self.extract_tables else []
-                page_figures = self._figures(doc, page, pn) if self.extract_figures else []
+                page_figures = self._figures(doc, page, pn, figure_sink) if self.extract_figures else []
                 tables.extend(page_tables)
                 figures.extend(page_figures)
                 pages.append(
@@ -184,7 +192,7 @@ class PyMuPDFParser:
         return out
 
     @staticmethod
-    def _figures(doc: pymupdf.Document, page: pymupdf.Page, pn: int) -> list[ParsedFigure]:
+    def _figures(doc: pymupdf.Document, page: pymupdf.Page, pn: int, sink: FigureSink | None) -> list[ParsedFigure]:
         out: list[ParsedFigure] = []
         for idx, img in enumerate(page.get_images(full=True)):  # type: ignore[no-untyped-call]
             xref = img[0]
@@ -192,11 +200,20 @@ class PyMuPDFParser:
                 base = doc.extract_image(xref)  # type: ignore[no-untyped-call]
             except Exception:  # noqa: BLE001
                 continue
+            data: bytes = base["image"]
+            ext: str = base["ext"]
             rects = page.get_image_rects(xref)
             bbox = (rects[0].x0, rects[0].y0, rects[0].x1, rects[0].y1) if rects else None
             out.append(
                 ParsedFigure(
-                    page_number=pn, figure_index=idx, bbox=bbox, image_bytes=base["image"], image_ext=base["ext"]
+                    page_number=pn,
+                    figure_index=idx,
+                    bbox=bbox,
+                    image_ext=ext,
+                    image_sha256=hashlib.sha256(data).hexdigest(),
+                    storage_uri=sink(data, ext) if sink else None,
+                    size_bytes=len(data),
                 )
             )
+            del data  # never accumulate image bytes across pages
         return out

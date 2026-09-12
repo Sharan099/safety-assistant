@@ -12,12 +12,14 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Response
+from fastapi.responses import PlainTextResponse
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from safety_assistant.config import get_settings
 from safety_assistant.domain.regulations import VersionStatus
+from safety_assistant.observability import metrics
 from safety_assistant.persistence import get_engine
 from safety_assistant.persistence.models import RegulationVersion
 from safety_assistant.providers.embeddings import get_embedding_provider
@@ -77,3 +79,10 @@ async def dependencies() -> dict[str, Any]:
             out[name] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"[:200]}
     out["llm"].setdefault("note", "LLM outage degrades to evidence-only mode; not a readiness dependency")
     return out
+
+
+@router.get("/metrics", include_in_schema=False)
+def prometheus_metrics() -> PlainTextResponse:
+    """Prometheus scrape endpoint. Expose on the internal listener only (see infra/)."""
+    body, content_type = metrics.render()
+    return PlainTextResponse(content=body, media_type=content_type)

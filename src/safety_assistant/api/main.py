@@ -15,10 +15,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from safety_assistant.api.middleware import RequestIdMiddleware
 from safety_assistant.api.routes import admin, health, query, versions
 from safety_assistant.config import get_settings
+from safety_assistant.observability import configure_tracing
 from safety_assistant.observability.logging import configure_logging
 
 settings = get_settings()
 configure_logging(settings.log_level)
+configure_tracing(app_env=settings.app_env)
 log = logging.getLogger(__name__)
 
 
@@ -47,6 +49,12 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
 )
+try:  # optional: auto-instrument HTTP spans when the OTel FastAPI instrumentor is installed
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+    FastAPIInstrumentor.instrument_app(app, excluded_urls="health/live,health/ready,metrics")
+except Exception:  # noqa: BLE001 — observability must never block startup
+    log.warning("FastAPI OpenTelemetry instrumentation unavailable")
 app.include_router(health.router)
 app.include_router(query.router)
 app.include_router(versions.router)

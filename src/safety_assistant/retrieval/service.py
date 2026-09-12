@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from safety_assistant.config import Settings, get_settings
 from safety_assistant.domain.temporal import QueryScope, parse_query_scope
+from safety_assistant.observability import metrics, span
 from safety_assistant.persistence.models import Chunk, Section
 from safety_assistant.providers.embeddings import EmbeddingProvider, get_embedding_provider
 from safety_assistant.providers.rerankers import RerankCandidate, Reranker, get_reranker
@@ -128,6 +129,25 @@ class RetrievalService:
         scope: ScopeFilter | None = None,
         k: int | None = None,
         today: datetime.date | None = None,
+    ) -> RetrievalResult:
+        with span("retrieval.search", k=k or self.config.final_k):
+            result = self._search(session, query, scope=scope, k=k, today=today)
+        for stage in ("dense", "sparse", "exact", "rerank", "evidence"):
+            if stage in result.latency_ms:
+                metrics.STAGE_LATENCY.labels(stage=stage).observe(result.latency_ms[stage] / 1000)
+        metrics.RETRIEVAL_CANDIDATES.observe(len(result.candidates))
+        if not result.bundle.evidence:
+            metrics.RETRIEVAL_NO_HIT.inc()
+        return result
+
+    def _search(
+        self,
+        session: Session,
+        query: str,
+        *,
+        scope: ScopeFilter | None,
+        k: int | None,
+        today: datetime.date | None,
     ) -> RetrievalResult:
         cfg = self.config
         k = k or cfg.final_k

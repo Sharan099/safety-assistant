@@ -54,6 +54,7 @@ from safety_assistant.ingestion.normalize import (
 from safety_assistant.ingestion.parse import DocumentParser, ParsedDocument, PyMuPDFParser
 from safety_assistant.ingestion.sources.registry import SourceEntry, SourceRegistry, get_registry
 from safety_assistant.ingestion.validation import ValidationError, validate_pdf_bytes
+from safety_assistant.observability import metrics
 from safety_assistant.persistence.models import (
     Chunk,
     ChunkEmbedding,
@@ -384,7 +385,9 @@ def _artifact(ctx: _Ctx, e: SourceEntry, data: bytes, sha: str) -> SourceArtifac
 
 def _parse(ctx: _Ctx, version: RegulationVersion, data: bytes, sha: str, max_pages: int | None) -> ParsedDocument:
     started = _now()
-    parsed = ctx.parser.parse(data, source_sha256=sha, max_pages=max_pages)
+    parsed = ctx.parser.parse(
+        data, source_sha256=sha, max_pages=max_pages, figure_sink=lambda b, ext: ctx.blobs.put(b, suffix=f".{ext}")
+    )
     report = parsed.report
     assert report is not None
     version.parser_name = ctx.parser.name
@@ -538,15 +541,16 @@ def _chunk(
             )
         )
     for f in parsed.figures:
-        uri = ctx.blobs.put(f.image_bytes, suffix=f".{f.image_ext}")
+        if f.storage_uri is None:
+            continue  # parser ran without a sink (tests); nothing durable to point at
         s.add(
             Figure(
                 version_id=version.id,
                 section_id=page_to_section(f.page_number),
                 page_number=f.page_number,
                 figure_index=f.figure_index,
-                storage_uri=uri,
-                image_sha256=sha256_bytes(f.image_bytes),
+                storage_uri=f.storage_uri,
+                image_sha256=f.image_sha256,
                 bounding_box=({"x0": f.bbox[0], "y0": f.bbox[1], "x1": f.bbox[2], "y1": f.bbox[3]} if f.bbox else None),
                 figure_type="embedded_image",
             )
@@ -696,6 +700,18 @@ def _mark(ctx: _Ctx, version: RegulationVersion, target: VersionStatus, message:
 
 def _finish(ctx: _Ctx, version: RegulationVersion | None) -> IngestOutcome:
     ctx.run.finished_at = _now()
+    metrics.INGESTION_RUNS.labels(status=ctx.run.status).inc()
+    for stage in ("parse_seconds", "embed_seconds"):
+        if stage in ctx.stats:
+            metrics.INGESTION_STAGE.labels(stage=stage.removesuffix("_seconds")).observe(float(ctx.stats[stage]))
+    metrics.EMBED_REUSED.inc(int(ctx.stats.get("embed_reused", 0)))
+    metrics.EMBED_COMPUTED.inc(int(ctx.stats.get("embed_new", 0)))
+    if version is not None and "freshness_lag_days_from_publication" in ctx.stats:
+        reg = ctx.session.get(Regulation, version.regulation_id)
+        if reg is not None:
+            metrics.FRESHNESS_LAG_DAYS.labels(regulation=reg.regulation_key).set(
+                float(ctx.stats["freshness_lag_days_from_publication"])
+            )
     ctx.run.stats = ctx.stats or None
     ctx.run.attempt = int((version.metadata_ or {}).get("attempts", 1)) if version else 1
     ctx.session.commit()

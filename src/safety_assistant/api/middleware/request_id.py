@@ -10,6 +10,8 @@ from collections.abc import Awaitable, Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from safety_assistant.observability import metrics
+
 log = logging.getLogger("safety_assistant.access")
 REQUEST_ID_HEADER = "X-Request-ID"
 
@@ -25,6 +27,9 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
             log.exception("request failed", extra={"request_id": rid, "path": request.url.path})
             raise
         response.headers[REQUEST_ID_HEADER] = rid
+        route = getattr(request.scope.get("route"), "path", request.url.path)
+        metrics.REQUESTS.labels(route=route, method=request.method, status=str(response.status_code)).inc()
+        metrics.REQUEST_LATENCY.labels(route=route).observe(time.perf_counter() - t0)
         log.info(
             "request",
             extra={

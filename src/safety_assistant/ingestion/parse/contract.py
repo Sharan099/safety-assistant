@@ -3,6 +3,7 @@ PyMuPDF today, Docling/OCR tomorrow, behind the same Protocol."""
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Protocol
 
@@ -31,11 +32,19 @@ class ParsedTable:
 
 @dataclass
 class ParsedFigure:
+    """Image bytes are streamed to a sink during parsing (a 4,000-page manual holds
+    thousands of images); the parser keeps only the content hash + storage URI."""
+
     page_number: int
     figure_index: int
     bbox: tuple[float, float, float, float] | None
-    image_bytes: bytes
     image_ext: str
+    image_sha256: str
+    storage_uri: str | None = None  # set when a FigureSink was provided
+    size_bytes: int = 0
+
+
+FigureSink = Callable[[bytes, str], str]  # (image bytes, extension) -> storage uri
 
 
 @dataclass
@@ -78,4 +87,11 @@ class DocumentParser(Protocol):
 
     def config_hash(self) -> str: ...
 
-    def parse(self, pdf_bytes: bytes, *, source_sha256: str, max_pages: int | None = None) -> ParsedDocument: ...
+    def parse(
+        self,
+        pdf_bytes: bytes,
+        *,
+        source_sha256: str,
+        max_pages: int | None = None,
+        figure_sink: FigureSink | None = None,
+    ) -> ParsedDocument: ...

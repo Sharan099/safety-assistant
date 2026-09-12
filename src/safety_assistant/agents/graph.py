@@ -31,6 +31,7 @@ from safety_assistant.generation.citations import validate_draft
 from safety_assistant.generation.grounding import evaluate_gate
 from safety_assistant.generation.prompts.grounded_v1 import PROMPT_VERSION, SYSTEM, build_user_message
 from safety_assistant.generation.schemas import GroundedDraft
+from safety_assistant.observability import metrics, span
 from safety_assistant.providers.llm import LLMError, LLMMessage, LLMProvider
 from safety_assistant.retrieval import RetrievalService, ScopeFilter
 from safety_assistant.retrieval.context import Evidence
@@ -217,13 +218,16 @@ class RegulatoryAgent:
             user = user.replace("<question>", f"{state['extra_context']}\n\n<question>", 1)
         t0 = time.perf_counter()
         try:
-            resp = self.llm.generate(
-                [LLMMessage(role="system", content=SYSTEM), LLMMessage(role="user", content=user)],
-                schema=GroundedDraft,
-                temperature=0.0,
-                max_tokens=1200,
-            )
+            with span("llm.generate", provider=self.llm.name, model=self.llm.model):
+                resp = self.llm.generate(
+                    [LLMMessage(role="system", content=SYSTEM), LLMMessage(role="user", content=user)],
+                    schema=GroundedDraft,
+                    temperature=0.0,
+                    max_tokens=1200,
+                )
         except LLMError as exc:
+            metrics.LLM_CALLS.labels(provider=self.llm.name, outcome=type(exc).__name__).inc()
+            metrics.STAGE_LATENCY.labels(stage="llm").observe(time.perf_counter() - t0)
             log.warning("llm failure trace=%s err=%s", state.get("trace_id"), exc)
             return {
                 **state,
@@ -233,6 +237,11 @@ class RegulatoryAgent:
                 "timings": {**state["timings"], "llm": _ms(t0)},
             }
         draft: GroundedDraft = resp.parsed  # type: ignore[assignment]
+        metrics.LLM_CALLS.labels(provider=resp.provider, outcome="ok").inc()
+        metrics.STAGE_LATENCY.labels(stage="llm").observe(time.perf_counter() - t0)
+        for kind in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            if resp.usage and kind in resp.usage:
+                metrics.LLM_TOKENS.labels(provider=resp.provider, kind=kind).inc(resp.usage[kind])
         versions = {**state.get("versions", {}), "llm_model": resp.model, "llm_provider": resp.provider}
         return {
             **state,
@@ -253,6 +262,7 @@ class RegulatoryAgent:
         kept, report = validate_draft(draft, state["evidence"])
         warnings = list(state["warnings"])
         if report.dropped_claims:
+            metrics.CITATION_FAILURES.inc(report.dropped_claims)
             warnings.append(f"{report.dropped_claims} claim(s) removed: failed citation/numeric validation")
         if not kept:
             return {
@@ -368,7 +378,8 @@ class RegulatoryAgent:
             "message": None,
         }
         try:
-            final: AgentState = self.graph.invoke(initial, config={"recursion_limit": 25})
+            with span("agent.run", trace_id=initial["trace_id"]):
+                final: AgentState = self.graph.invoke(initial, config={"recursion_limit": 25})
         except BudgetExceeded as exc:
             log.warning("agent budget exceeded trace=%s: %s", initial["trace_id"], exc)
             final = {
@@ -379,4 +390,10 @@ class RegulatoryAgent:
                 "warnings": [str(exc)],
             }
         final["timings"] = {**final.get("timings", {}), "total": _ms(initial["started"])}
+        metrics.ANSWERS.labels(
+            mode=final.get("mode", "?"),
+            abstain_reason=final.get("abstain_reason") or "",
+            route=final.get("route") or "",
+        ).inc()
+        metrics.STAGE_LATENCY.labels(stage="answer_total").observe(final["timings"]["total"] / 1000)
         return final

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-09-12T05:44:26+00:00",
+  "git_sha": "f82ce5a5dded647246436c6c1db576b19c2428f8",
+  "endpoint": "/api/v1/search",
+  "users": 5,
+  "seconds": 60.0,
+  "requests_ok": 117,
+  "errors": {
+    "429": 10604
+  },
+  "rps": 1.95,
+  "latency_ms": {
+    "p50": 706.0,
+    "p95": 1235.0,
+    "p99": 3112.2,
+    "mean": 778.4,
+    "max": 3141.7
+  },
+  "error_rate": 0.9891
+}

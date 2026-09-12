@@ -47,6 +47,7 @@ def main(argv: list[str] | None = None) -> int:
     headers = {"Authorization": f"Bearer {args.token}"} if args.token else {}
     latencies: list[float] = []
     errors: dict[str, int] = {}
+    throttled = [0]
     lock = threading.Lock()
     deadline = time.perf_counter() + args.seconds
 
@@ -60,6 +61,11 @@ def main(argv: list[str] | None = None) -> int:
                     r = client.post(args.endpoint, json={"query": q, "k": 8})
                     ok = r.status_code == 200
                     key = str(r.status_code)
+                    if r.status_code == 429:  # throttled: back off, count separately
+                        time.sleep(float(r.headers.get("retry-after", "1")))
+                        with lock:
+                            throttled[0] += 1
+                        continue
                 except httpx.HTTPError as exc:
                     ok, key = False, type(exc).__name__
                 dt = time.perf_counter() - t0
@@ -86,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
         "seconds": round(elapsed, 1),
         "requests_ok": n,
         "errors": errors,
+        "throttled_429": throttled[0],
         "rps": round(n / elapsed, 2) if elapsed else 0,
         "latency_ms": {
             "p50": round(_pct(latencies, 0.50) * 1000, 1),

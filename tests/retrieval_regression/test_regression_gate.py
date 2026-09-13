@@ -100,3 +100,19 @@ def test_full_pipeline_mrr_floor(corpus) -> None:  # type: ignore[no-untyped-def
     report = run_evaluation(session, ds, legs=["full"], embedder=svc.embedder)
     mrr = report.legs[0].aggregate["mrr"]
     assert mrr is not None and mrr >= MIN_MRR_FULL, f"full-pipeline MRR {mrr:.3f} below measured floor {MIN_MRR_FULL}"
+
+
+# regulatory_v2 (262 cases incl. 200 AUTO_GROUNDED): heuristic reranker measured 0.713 (2026-09-12);
+# the cross-encoder default measured 0.808 — the floor guards the configuration the test profile runs.
+MIN_MRR_FULL_V2 = 0.68
+
+
+def test_full_pipeline_mrr_floor_regulatory_v2(corpus) -> None:  # type: ignore[no-untyped-def]
+    from safety_assistant.evaluation import load_dataset, run_evaluation
+
+    session, svc = corpus
+    ds = load_dataset(ROOT / "evals" / "datasets" / "regulatory_v2.yaml")
+    report = run_evaluation(session, ds, legs=["full"], embedder=svc.embedder)
+    agg = report.legs[0].aggregate
+    assert agg["mrr"] is not None and agg["mrr"] >= MIN_MRR_FULL_V2, f"v2 MRR {agg['mrr']:.3f} < {MIN_MRR_FULL_V2}"
+    assert agg["recall@10"] >= 0.90, f"v2 R@10 {agg['recall@10']:.3f} < 0.90"

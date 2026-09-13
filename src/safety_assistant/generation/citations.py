@@ -52,7 +52,13 @@ def claimed_numbers(text: str) -> set[str]:
 
 
 def _evidence_text(e: Evidence) -> str:
+    """Text a claim's numbers may come from: the chunk, its parent/related excerpts, and the evidence
+    attributes the prompt exposes (clause path, citation label, version label, dates, pages) —
+    models legitimately repeat "§7.4.1.4.2", "Rev.7" or "2021" when attributing a requirement."""
     parts = [e.content, e.parent_context or ""] + [r.excerpt for r in e.related]
+    parts += [e.citation_label, e.section_path, e.version_label, e.regulation_key]
+    parts += [str(d) for d in (e.valid_from, e.valid_to, e.published_at) if d]
+    parts += [str(pg) for pg in (e.page_start, e.page_end) if pg]
     return "\n".join(parts)
 
 

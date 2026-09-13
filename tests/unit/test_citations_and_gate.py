@@ -65,6 +65,21 @@ def test_validation_accepts_supported_and_rejects_invented_numbers_and_ids() -> 
     assert report.unknown_evidence_ids == ["E9"] and report.dropped_claims == 2 and report.ok is False
 
 
+def test_validation_accepts_numbers_from_evidence_attributes_but_not_invented_values() -> None:
+    ev = _ev("E1", "The strap shall be kept for three hours in a heating cabinet at 60 + 5 °C.")
+    e = ev.model_copy(update={"section_path": "7.4.1.4.1", "version_label": "Rev.7 (06 series)"})
+    draft = GroundedDraft(
+        answer="x",
+        claims=[
+            Claim(text="Per §7.4.1.4.1 of Rev.7, the strap is kept at 60 + 5 °C.", evidence_ids=["E1"]),
+            Claim(text="Per §7.4.1.4.1 of Rev.7, the strap is kept at 80 °C.", evidence_ids=["E1"]),
+        ],
+    )
+    kept, report = validate_draft(draft, [e])
+    assert [c.status for c in report.claims] == ["SUPPORTED", "NUMERIC_MISMATCH"]
+    assert len(kept) == 1
+
+
 def test_rewrite_expands_known_acronyms() -> None:
     assert rewrite_query("HPC limit in R94") == "HPC (head performance criterion) limit in R94"
     assert rewrite_query("frontal collision") is None

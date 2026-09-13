@@ -70,3 +70,12 @@ shadcn/ui generated in its Base UI flavour (`render` prop composition, no Radix)
 
 ## D-019 — E2E test topology (decided, Phase E)
 Playwright drives the Next dev server against a live API with `DEV_LOGIN_ENABLED=true` and a separately started `safety-assistant worker`; `tests/e2e/global-setup.ts` seeds three users idempotently through the CLI. The LLM may be real or `none`: flows accept GENERATED or EVIDENCE_ONLY where an answer is expected.
+
+## D-020 — Cross-encoder reranker as the product default (decided, Phase F)
+`RERANKER=cross_encoder`, `RETRIEVAL_RERANK_TOP_N=12`: measured v1 MRR 0.644 → 0.756, v2 0.713 → 0.808 for ~1.2 s per query on CPU (uncapped: 9 s). Answer latency is dominated by the LLM, so the trade is right for `/ask`; `/search`-latency-sensitive deployments switch to `heuristic`. The test profile pins `heuristic` (fast, download-free); the regression floor guards that configuration.
+
+## D-021 — Generated evaluation cases are labelled, capped and never override human-written ones (decided, Phase F)
+`AUTO_GROUNDED` cases must have verbatim-verified facts and carry the generating model; they are capped at 200 and stratified. Tuning decisions require no regression on the human-written v1 set (the sparse-heavy weighting that improved v2 by +0.027 and regressed v1 by −0.010 was rejected on that rule).
+
+## D-022 — Judged metrics reported with their sample sizes and judge (decided, Phase F)
+RAGAS and DeepEval run through the same free gateway as the product; every report records n, judge model and pipeline fingerprint. RAGAS faithfulness is documented as a lower bound relative to the repository's own validator; a hung DeepEval run is reported as the completed sample (26/40), never padded.

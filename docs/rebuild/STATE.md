@@ -52,9 +52,9 @@ Backend `src/safety_assistant/` — 7,507 LOC, FastAPI + SQLAlchemy 2 + Alembic 
 | C backend product foundation (identity, workspace, conversations, preferences) | **done 2026-09-12** | migrations `0002_identity`, `0003_conversations`; `identity/service.py`, `conversations/service.py`; routes `me.py` (`/me`, `/me/preferences`, `/auth/dev-login`, `/auth/logout`), `conversations.py`; `Principal` carries user/org/workspace ids; cookie sessions + CSRF header; conversation context → `<conversation_context>` (prompt `grounded_v2`); CLI `users add`; tests: unit 60, security 34, integration 24 (incl. migration head→0001→head) — **135 passed**; lint/format/mypy clean |
 | D document upload + async ingestion | **done 2026-09-12** | migration `0004_document_scope_and_jobs` (scope/org/workspace/owner/archived_at on `regulations`, `ingestion_jobs`); `retrieval/authz.py` predicate in `scoped_statement` + BM25 `VersionMeta` mirror + SQLite-backed equivalence test (50 cases); `documents/service.py` (upload, dedupe, jobs, archive, promote), `workers/ingestion.py` (SKIP LOCKED claim, backoff, public error codes), `ingest_version`/`discover_source` share the stage pipeline with `ingest_source`; routes `/documents*`, `/ingestion-jobs*`, `/admin/ingest` → 202 enqueue; `/ask` + conversation messages take `source_scope`; CLI `worker`; provider fix: gateway usage dicts. Tests **150 passed** (upload e2e ×9 incl. isolation/quarantine/retry/promote/archive). Retrieval eval full leg: R@5 0.759 · R@10 0.913 · MRR 0.627 · nDCG@10 0.668 (gate ≥0.60, 23/23 stable) |
 | E frontend rebuild | **done 2026-09-12** | Next.js 16 App Router: `/login`, `/app/{home,chat,chat/[id],documents,documents/upload,documents/[id],ingestion,settings,admin}`; shadcn/ui (Base UI) primitives + Engineering Cobalt tokens (`app/globals.css`); same-origin `/api` rewrite → first-party HttpOnly session; TanStack Query hooks (`features/queries.ts`); three-pane shell with evidence column ≥1280px / sheet below; cited-first evidence numbering; upload wizard with real stage timeline + public error + retry; Playwright **5/5** required flows (real API, worker, LLM) `frontend/tests/e2e/flows.spec.ts`; `tsc`, `eslint`, `next build` clean; desktop + tablet screenshots verified |
-| F tests / security / eval | in progress | `regulatory_v2` (262 cases); `scripts/eval/{generate_cases,build_dataset,judged,grid}.py`; RRF `dense_weight=0.75` adopted (v1 MRR 0.627→0.644, v2 0.709→0.713); RAGAS + DeepEval judges wired through the gateway; full judged run pending |
-| G cleanup | pending | |
-| H final verification + report | pending | |
+| F tests / security / eval | **done 2026-09-13** | `regulatory_v2` (262 cases); RRF dense 0.75 + cross-encoder top-12 adopted → v1 MRR **0.756**, v2 **0.808** (all-leg reports in `evals/results/`); judged run: refusal 0.943, citation hit 0.919, fact coverage 0.823, grounding 0.965, injection 6/6, RAGAS (n=100) faithfulness 0.742 / relevancy 0.774 / ctx precision 0.866 / ctx recall 0.960, DeepEval (n=26) 1.00 / 0.907 / 0.880; validator fix for attribute numbers; v2 regression floor; unit tests for metrics. Backend **156 passed**; lint/format/mypy clean |
+| G cleanup | **done 2026-09-13** | spec package → `docs/product/`, process docs + v1 ledger → `docs/rebuild/`, references rewritten, `README_PACKAGE.md` + tracked test artefact removed, old frontend components deleted (ledger "Deletions executed") |
+| H final verification + report | **done 2026-09-13** | lint/format/mypy, 156 backend tests, retrieval regression (v1+v2), frontend tsc/eslint/build, Playwright 5/5 on the final backend, Docker image build + smoke (see final report) |
 
 ## Owner confirmations
 
@@ -63,3 +63,20 @@ Backend `src/safety_assistant/` — 7,507 LOC, FastAPI + SQLAlchemy 2 + Alembic 
 
 ## LLM (measured 2026-09-12)
 Local gateway `freellmapi` (:3001) → free tiers (Groq/OVH/NVIDIA/Gemini…). `LLM_MODEL=auto` routes with fallback; individual models rate-limit (429) or return reasoning in `content` when `max_tokens` is small. One real `/ask` (R94 ThCC) → GENERATED "shall not exceed 42 mm", validated, 41 s wall (routing retries). Plan for Phase F: sequential judged evaluation with on-disk caching, `max_tokens ≥ 1024`, bounded case count per run.
+
+## Final gates (2026-09-13, HEAD after this commit)
+
+| Gate | Result |
+|---|---|
+| `ruff check` / `ruff format --check` (src, tests, scripts, migrations) | pass (158 files) |
+| `mypy --strict` (src, scripts/eval, scripts/maintenance) | pass, 121 files |
+| `pytest` | **156 passed** (unit 67, parser golden 9, security 34, integration 33, e2e 5, evaluation 3, retrieval regression 4 incl. migration head→0001→head, upload→worker→READY, cross-user/workspace isolation) |
+| Retrieval regression gate | pass: v1 MRR 0.644 ≥ 0.60, 23/23 stable; v2 MRR 0.713 ≥ 0.68, R@10 0.950 ≥ 0.90 (test profile = heuristic reranker) |
+| Retrieval evaluation, production config | v1 full MRR 0.756 / R@5 0.844 / nDCG@10 0.768; v2 full MRR 0.808 / R@5 0.911 / nDCG@10 0.829 (`evals/results/retrieval_regulatory_v{1,2}_latest.json`) |
+| Judged end-to-end (real LLM, 262 cases) | refusal 0.943, citation hit 0.919, fact coverage 0.823, grounding 0.965, injection 6/6; RAGAS n=100 0.742/0.774/0.866/0.960; DeepEval n=26 1.00/0.907/0.880 (`evals/results/generation_regulatory_v2_latest.json`) |
+| Frontend `tsc --noEmit`, `eslint`, `next build` | pass (9 routes) |
+| Playwright (real API + worker + LLM) | **5/5** required flows |
+| Docker image | `infra/docker/Dockerfile` builds (369 MB, models baked); production mode refuses `DEV_LOGIN_ENABLED`/short `SESSION_SECRET`; against the host DB with a non-default role: `/health/ready` green (migration 0004), unauthenticated `/search` → 401, `dev-login` → 404, authenticated `/ask` → EVIDENCE_ONLY with cross-encoder reranker; `worker` entrypoint runs |
+| Migration test | head → 0001 → head on a DB with corpus rows (integration test) and on the dev corpus (21,910 chunks intact) |
+| Security scans | Trivy/SBOM/pip-audit/gitleaks/semgrep defined in CI; not executed locally |
+| Terraform | unapplied; worker task not yet defined |

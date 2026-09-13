@@ -74,3 +74,61 @@ def test_fact_present_tolerates_paraphrase_for_non_numeric_facts_only() -> None:
     assert fact_present(fact, "An anti-rotation device consists of a top-tether strap or a support-leg.")
     assert not fact_present(fact, "The device is a rigid bracket.")
     assert not fact_present("shall not exceed 42 mm", "the thorax deflection shall not exceed the stated limit")
+
+
+def test_failure_taxonomy_assigns_one_category_from_signals() -> None:
+    from safety_assistant.evaluation.generation_eval import classify_failure
+
+    answerable = GoldCase(
+        case_id="a",
+        query="q",
+        query_type="paraphrase",
+        expected_regulation_key="UN-R94",
+        expected_section_paths=["5.2"],
+        key_facts=["limit 1,3"],
+    )
+
+    def scored(**kw: object) -> CaseRecord:
+        r = _rec(**kw)
+        r.metrics = score(answerable, r)
+        return r
+
+    assert classify_failure(answerable, scored(mode="ABSTAINED")) == "unnecessary_refusal"
+    assert classify_failure(answerable, scored(grounding_ok=False, answer="x 1,3")) == "unsupported_numerical_claim"
+    wrong = scored(
+        answer="limit 1,3",
+        citations=[{"evidence_id": "E1", "label": "l", "regulation_key": "UN-R95", "section_path": "9"}],
+        contexts=["limit 1,3"],
+    )
+    assert classify_failure(answerable, wrong) == "wrong_clause_attribution"
+    assert classify_failure(answerable, scored(mode="GENERATED", answer="limit 1,3")) == "missing_citation"
+    good = scored(
+        answer="limit 1,3",
+        citations=[{"evidence_id": "E1", "label": "l", "regulation_key": "UN-R94", "section_path": "5.2"}],
+        contexts=["limit 1,3"],
+    )
+    assert classify_failure(answerable, good) is None
+    unans = GoldCase(case_id="u", query="q", query_type="unanswerable", answerability="unanswerable_not_in_corpus")
+    assert (
+        classify_failure(unans, _rec(mode="GENERATED", answerability="unanswerable_not_in_corpus"))
+        == "should_have_refused"
+    )
+
+
+def test_dataset_provenance_is_derived_and_filterable(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    import pathlib
+
+    import yaml
+
+    from safety_assistant.evaluation.dataset import load_dataset
+
+    cases = [
+        {"case_id": "h1", "query": "human one", "query_type": "paraphrase", "review_status": "REVIEWED"},
+        {"case_id": "g1", "query": "generated one", "query_type": "definition", "review_status": "AUTO_GROUNDED"},
+    ]
+    p = pathlib.Path(tmp_path) / "d.yaml"
+    p.write_text(yaml.safe_dump({"dataset_version": "t", "cases": cases}), encoding="utf-8")
+    ds = load_dataset(p)
+    assert [(c.source, c.human_reviewed) for c in ds.cases] == [("human", True), ("llm_generated", False)]
+    assert [c.case_id for c in load_dataset(p, source="human").cases] == ["h1"]
+    assert [c.case_id for c in load_dataset(p, query_types=["definition"]).cases] == ["g1"]

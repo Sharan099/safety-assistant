@@ -84,3 +84,4 @@ class AnswerResponse(BaseModel):
     validation: ValidationReport | None
     versions: dict[str, object]
     latency_ms: dict[str, float]
+    tokens: dict[str, int] | None = None  # provider usage counters when the LLM reports them

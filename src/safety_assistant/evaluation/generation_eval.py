@@ -90,7 +90,12 @@ class CaseRecord:
     grounding_ok: bool | None
     latency_ms: float
     model: str | None
+    tokens: dict[str, int] | None = None
+    abstain_reason: str | None = None
+    expected_regulation: str | None = None
+    expected_section_paths: list[str] = field(default_factory=list)
     metrics: dict[str, float | None] = field(default_factory=dict)
+    failure: str | None = None
 
 
 def score(case: GoldCase, rec: CaseRecord) -> dict[str, float | None]:
@@ -184,6 +189,10 @@ def _record_from_answer(case: GoldCase, resp: AnswerResponse, latency_ms: float)
         grounding_ok=resp.validation.ok if resp.validation else None,
         latency_ms=round(latency_ms, 1),
         model=str(resp.versions.get("model") or "") or None,
+        tokens=resp.tokens,
+        abstain_reason=str(resp.abstain_reason) if resp.abstain_reason else None,
+        expected_regulation=case.expected_regulation_key,
+        expected_section_paths=list(case.expected_section_paths),
     )
 
 
@@ -202,7 +211,87 @@ def run_case(
             cache.parent.mkdir(parents=True, exist_ok=True)
             cache.write_text(json.dumps(dataclasses.asdict(rec)), encoding="utf-8")
     rec.metrics = score(case, rec)
+    rec.failure = classify_failure(case, rec)
     return rec
+
+
+# Failure taxonomy — one primary category per failed case, derived from deterministic signals so the
+# analysis is repeatable without a judge. Order matters: the first matching rule wins.
+FAILURE_CATEGORIES = (
+    "unnecessary_refusal",
+    "should_have_refused",
+    "unsupported_numerical_claim",
+    "citation_not_supporting_claim",
+    "wrong_clause_attribution",
+    "missing_citation",
+    "incomplete_condition",
+    "version_ambiguity",
+    "poor_synthesis",
+    "irrelevant_answer",
+)
+
+
+def classify_failure(case: GoldCase, rec: CaseRecord) -> str | None:
+    m = rec.metrics
+    unanswerable = case.answerability.startswith("unanswerable") or case.answerability == "ambiguous"
+    if unanswerable:
+        return None if rec.mode == "ABSTAINED" else "should_have_refused"
+    if case.answerability != "answerable":
+        return None
+    if rec.mode == "ABSTAINED":
+        return "unnecessary_refusal"
+    if rec.grounding_ok is False:
+        return "unsupported_numerical_claim"
+    if m.get("citation_precision") is not None and m["citation_hit"] == 0.0:
+        # retrieval had it but the answer cited elsewhere → attribution; retrieval missed it → synthesis
+        return "wrong_clause_attribution" if (m.get("evidence_coverage") or 0) > 0 else "irrelevant_answer"
+    if rec.mode == "GENERATED" and not rec.citations:
+        return "missing_citation"
+    if (
+        case.as_of_date
+        and rec.citations
+        and any(c.get("regulation_key") == case.expected_regulation_key for c in rec.citations)
+        and m.get("fact_coverage") == 0.0
+    ):
+        return "version_ambiguity"
+    cp = m.get("citation_precision")
+    if cp is not None and cp < 0.5 and m.get("citation_hit") == 1.0:
+        return "citation_not_supporting_claim"
+    fc = m.get("fact_coverage")
+    if fc is not None and fc < 0.5:
+        return "incomplete_condition" if (m.get("evidence_coverage") or 0) >= 0.5 else "poor_synthesis"
+    return None
+
+
+def failure_records(records: list[CaseRecord]) -> list[dict[str, Any]]:
+    """Machine-readable failure list: everything needed to reproduce and triage one bad answer."""
+    out = []
+    for r in records:
+        if not r.failure:
+            continue
+        out.append(
+            {
+                "case_id": r.case_id,
+                "category": r.failure,
+                "query": r.query,
+                "query_type": r.query_type,
+                "expected_regulation": r.expected_regulation,
+                "expected_section_paths": r.expected_section_paths,
+                "key_facts": r.key_facts,
+                "mode": r.mode,
+                "abstain_reason": r.abstain_reason,
+                "answer": r.answer,
+                "citations": r.citations,
+                "retrieved": r.context_labels,
+                "grounding_ok": r.grounding_ok,
+                "warnings": r.warnings,
+                "model": r.model,
+                "latency_ms": r.latency_ms,
+                "tokens": r.tokens,
+                "metrics": r.metrics,
+            }
+        )
+    return out
 
 
 METRIC_KEYS = (
@@ -249,5 +338,11 @@ def report(
             a: aggregate([r for r in records if r.answerability == a])
             for a in sorted({r.answerability for r in records})
         },
+        "failures_by_category": {
+            c: sum(1 for r in records if r.failure == c)
+            for c in FAILURE_CATEGORIES
+            if any(r.failure == c for r in records)
+        },
+        "failures": failure_records(records),
         "cases": [dataclasses.asdict(r) for r in records],
     }

@@ -115,6 +115,7 @@ class AnswerService:
             validation=s.get("validation"),
             versions={**(retrieval.versions if retrieval else {}), **s.get("versions", {})},
             latency_ms=s.get("timings", {}),
+            tokens=s.get("tokens"),
         )
 
     @staticmethod

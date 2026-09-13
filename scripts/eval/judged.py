@@ -225,7 +225,8 @@ def _slice_table(
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dataset", default="evals/datasets/regulatory_v2.yaml")
-    ap.add_argument("--slices", nargs="*", default=None)
+    ap.add_argument("--slices", nargs="*", default=None, help="restrict to these query_type values")
+    ap.add_argument("--source", choices=["human", "llm_generated", "llm_generated_reviewed"], default=None)
     ap.add_argument(
         "--limit", type=int, default=None, help="max cases (stable order) — answerable ones are sampled evenly"
     )
@@ -238,8 +239,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-cache", action="store_true")
     args = ap.parse_args(argv)
 
-    dataset = load_dataset(pathlib.Path(args.dataset))
-    cases = [c for c in dataset.cases if not args.slices or c.query_type in args.slices]
+    dataset = load_dataset(pathlib.Path(args.dataset), source=args.source, query_types=args.slices or None)
+    cases = list(dataset.cases)
     if args.limit and len(cases) > args.limit:
         step = len(cases) / args.limit
         cases = [cases[int(i * step)] for i in range(args.limit)]

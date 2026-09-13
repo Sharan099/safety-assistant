@@ -99,7 +99,7 @@ def _eval_retrieval(args: argparse.Namespace) -> int:
     from safety_assistant.evaluation import format_summary, load_dataset, run_evaluation, write_report
     from safety_assistant.persistence import get_engine
 
-    dataset = load_dataset(pathlib.Path(args.dataset))
+    dataset = load_dataset(pathlib.Path(args.dataset), source=args.source, query_types=args.types or None)
     with Session(get_engine()) as session:
         report = run_evaluation(session, dataset, legs=args.legs)
     path = write_report(report, pathlib.Path(args.out))
@@ -136,8 +136,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("revision", nargs="?", default="head")
     p.set_defaults(fn=_migrate)
     p = sub.add_parser("eval-retrieval")
-    p.add_argument("--dataset", default="evals/datasets/regulatory_v1.yaml")
+    p.add_argument("--dataset", default="evals/datasets/regulatory_v2.yaml")
     p.add_argument("--legs", nargs="*", default=None)
+    p.add_argument("--source", choices=["human", "llm_generated", "llm_generated_reviewed"], default=None)
+    p.add_argument("--types", nargs="*", default=None, help="restrict to these query_type values")
     p.add_argument("--out", default="evals/results")
     p.set_defaults(fn=_eval_retrieval)
     p = sub.add_parser("ready")

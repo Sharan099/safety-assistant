@@ -316,8 +316,8 @@ def aggregate(records: list[CaseRecord]) -> dict[str, Any]:
     with_tokens = [r for r in records if r.tokens]
     out["tokens_n"] = len(with_tokens)
     for k in ("prompt_tokens", "completion_tokens", "total_tokens"):
-        vals = [r.tokens[k] for r in with_tokens if r.tokens and k in r.tokens]
-        out[f"{k}_mean"] = (sum(vals) / len(vals)) if vals else None
+        counts = [int(r.tokens[k]) for r in with_tokens if r.tokens and k in r.tokens]
+        out[f"{k}_mean"] = (sum(counts) / len(counts)) if counts else None
     lat = sorted(r.latency_ms for r in records)
     out["latency_p50_ms"] = lat[len(lat) // 2] if lat else None
     return out

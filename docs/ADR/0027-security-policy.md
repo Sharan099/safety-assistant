@@ -11,4 +11,4 @@ Status: accepted · Date: 2026-09-12
 - Audit: privileged ingestion records the actor; every query writes a trace; secrets come from the environment/secret manager.
 
 ## Evidence
-`tests/security/` (30 tests); `docs/security-threat-model.md`.
+`tests/security/`; README "Security model".

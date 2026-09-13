@@ -38,7 +38,7 @@ def test_reviewed_answerable_cases_have_truth_and_refusal_cases_have_none() -> N
 def test_latest_result_records_provenance() -> None:
     latest = ROOT / "evals" / "results" / "retrieval_regulatory_v1_latest.json"
     if not latest.exists():
-        return  # results are produced by scripts/eval/retrieval.py against a live corpus
+        return  # results are produced by `safety-assistant eval-retrieval` against a live corpus
     r = json.loads(latest.read_text(encoding="utf-8"))
     assert r["git_sha"] and r["timestamp"] and r["dataset_version"] == "regulatory_v1"
     assert r["corpus"]["chunks"] > 0 and r["versions"].get("embedding_model")

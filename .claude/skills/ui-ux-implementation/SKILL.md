@@ -5,7 +5,7 @@ description: Implement or review Safety Assistant frontend screens and component
 
 # UI/UX Implementation
 
-Read `docs/product/03_UI_UX_DESIGN_SPEC.md` and `docs/product/04_APP_FLOWS.md` when needed.
+Read README "Product workflow" and the existing components under `frontend/components/` when needed.
 
 Before a screen:
 1. identify route and primary job;

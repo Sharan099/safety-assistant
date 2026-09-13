@@ -1,151 +1,274 @@
-# Safety Assistant — passive-safety regulatory intelligence workspace
+# Safety Assistant
 
-**Problem:** passive-safety engineers need exact, current, citable answers from UN vehicle-safety regulations (R16, R94, R95, R129, …) and from their own project documents — with the right *version*, the right *clause*, the numbers unchanged, and an honest "not in the sources" when that is the truth. Generic PDF chatbots get the version wrong, invent clause numbers, round limits and mix private material into shared answers.
+Safety Assistant helps passive-safety engineers search versioned automotive regulations and their own project documents, and get answers tied to the exact supporting clauses.
 
-Safety Assistant is a multi-user, evidence-first workbench: structure-aware asynchronous ingestion of regulations and uploads, document-level authorization evaluated before ranking, hybrid retrieval with a cross-encoder reranker and temporal scoping, grounded generation under a citation contract, programmatic validation of every claim, persistent investigations, and a UI where the evidence panel is the primary object.
+## Why this problem matters
 
-## What it does
+A UN vehicle-safety regulation such as R94 (frontal impact) or R129 (child restraints) runs to hundreds of pages. The requirement an engineer needs — a limit, a test condition, a definition — is spread across body clauses, annexes and tables, and it changes between amendment series. Keyword search finds the right page slowly; a generic chatbot finds it quickly and wrongly: it rounds "1,3" to 1.3 (fine) or to 1 (not fine), quotes a superseded series, or invents a paragraph number. An answer is only useful when the engineer can open the clause, check the version and its validity dates, and cite it in their own work. Confidential project material must never leak into another team's answers.
 
-- **Sign in** (OIDC in production, seeded dev login locally); users belong to an organization and workspaces.
-- **Ask** across *verified regulations*, *workspace documents*, *my private documents* or all authorized sources — the selection is validated against membership and enforced in SQL before any ranking.
-- **Every answer** carries a mode badge (Grounded / Evidence only / Insufficient evidence), inline citation markers, and an evidence panel with regulation, version, clause, page, validity window, scope and the exact excerpt; abstentions explain what was searched.
-- **Upload a PDF** → validation → parsing → chunking → embedding → indexing → verification → READY, run by a queue worker; the UI shows the real stage, public failure reasons with a diagnostic reference, and retry/replace. Uploads are private by default and never become authoritative without an audited promotion.
-- **Resume** any investigation after logout: messages, citations and source scope persist; history is context for wording, never evidence.
+## What I built
+
+A multi-user workbench where evidence is the primary object:
+
+```
+upload PDF ─► validate (magic bytes, size, pages, malware-scan hook)
+          ─► parse (PyMuPDF; scanned pages flagged, OCR hook)
+          ─► clause tree + tables + cross-references, version metadata preserved
+          ─► structural chunks ─► BM25 index + dense embeddings ─► verify ─► READY (atomic activation)
+
+question  ─► parse scope (regulation, clause, as-of date)
+          ─► authorization predicate in SQL (organization / workspace / owner) — before any ranking
+          ─► BM25 ∥ dense ∥ exact-clause leg ─► reciprocal-rank fusion ─► cross-encoder rerank (top 12)
+          ─► evidence gate (abstain / one rewrite / proceed)
+          ─► LLM answers under a JSON schema, citing evidence ids only
+          ─► every claim validated: cited ids must exist, numbers must appear in the cited text
+          ─► answer + citations + full evidence, persisted in the conversation
+```
+
+Registry regulations are the *verified* corpus. Uploads are private to the uploader or a workspace, run through the same pipeline asynchronously, and only become organization-wide after an audited promotion by a knowledge admin. Conversation history is context for wording, never evidence.
+
+## Product workflow
+
+1. Sign in (organization OIDC, or a seeded development login).
+2. Start an investigation, choose sources — *Verified regulations*, *Workspace documents*, *My private documents*, or all authorized — and ask.
+3. Read the answer with its mode badge (**Grounded**, **Evidence only**, **Insufficient evidence**) and click any `[n]` marker: the evidence panel shows regulation, version, clause, page, validity window, source scope and the exact excerpt, with "Open source" and "Copy citation".
+4. Upload a PDF; watch the real stages (Uploaded → Validating → Parsing → Chunking → Embedding → Indexing → Verifying → Ready); on failure read the plain-language reason and diagnostic reference, then retry or replace.
+5. Come back later: investigations, messages, citations and source scope are restored.
+
+The five flows above are automated in Playwright against the real API, worker and LLM (`frontend/tests/e2e/flows.spec.ts`). No screenshots are checked in; run `make e2e` to see them.
 
 ## Measured results
 
-All numbers were produced by code in this repository on the stated corpus; raw result files with git SHA, corpus fingerprint and config live in `evals/results/`. Full method, optimisation record and caveats: [docs/evaluation.md](docs/evaluation.md).
+Every number here was produced by code in this repository; result files under `evals/results/` carry the git SHA, corpus fingerprint, configuration and timestamp. Reproduction commands are in [Evaluation](#evaluation).
 
-**Retrieval** — corpus 21,910 chunks / 16 documents; production configuration (dense 0.75 + BM25 + exact-clause leg → RRF → cross-encoder over the top 12 → guard → expansion); k_eval = 20; 2026-09-13.
+**Corpus**: 16 registry sources (UN R16, R94, R95, R129 plus supporting standards/manuals), 21,910 chunks.
+**Gold sets**: `regulatory_v1` — 47 human-written cases; `regulatory_v2` — 262 cases = the 47 human-written + 200 LLM-generated (facts verified verbatim against the clause text, **not human-reviewed**) + 15 hand-written unanswerable / ambiguous / adversarial cases. Provenance is recorded per case (`source`, `human_reviewed`).
 
-| Dataset | Pipeline leg | R@5 | R@10 | R@20 | Hit@5 | MRR | nDCG@10 | RegHit@5 |
-|---|---|---|---|---|---|---|---|---|
-| `regulatory_v1` (47 human-written) | dense only | 0.546 | 0.639 | 0.677 | 0.667 | 0.470 | 0.480 | 0.864 |
-| | sparse only (BM25) | 0.686 | 0.821 | 0.870 | 0.795 | 0.546 | 0.582 | 0.955 |
-| | hybrid RRF | 0.650 | 0.851 | 0.875 | 0.769 | 0.583 | 0.615 | 0.955 |
-| | **full** | **0.844** | **0.877** | **0.926** | **0.949** | **0.756** | **0.768** | **0.977** |
-| `regulatory_v2` (262) | dense only | 0.608 | 0.660 | 0.703 | 0.638 | 0.480 | 0.512 | 0.871 |
-| | sparse only (BM25) | 0.896 | 0.930 | 0.961 | 0.926 | 0.720 | 0.761 | 0.988 |
-| | hybrid RRF | 0.818 | 0.916 | 0.949 | 0.848 | 0.652 | 0.704 | 0.984 |
-| | **full** | **0.911** | **0.931** | **0.957** | **0.938** | **0.808** | **0.829** | **0.992** |
+### Retrieval (deterministic, no LLM)
 
-Against the pre-v2 baseline (heuristic reranker, equal RRF weights) the full pipeline moved from MRR 0.636 → 0.756 on v1 and 0.709 → 0.808 on v2. Retrieval p50 is ~1.4 s on a laptop CPU with the cross-encoder (270 ms with `RERANKER=heuristic`). The regression gate (`tests/retrieval_regression`) fails CI below MRR 0.60 (v1) / 0.68 and R@10 0.90 (v2) or when any of 23 stable cases loses its clause.
+Production configuration: BM25 + dense (weight 0.75) + exact-clause leg → RRF → cross-encoder over the top 12. k_eval = 20. Measured 2026-09-13.
 
-**End-to-end answers with a real LLM** — `regulatory_v2`, 262 cases, free-tier models through an OpenAI-compatible gateway (`LLM_MODEL=auto`), 2026-09-13:
+| Dataset | Leg | R@5 | R@10 | Hit@5 | MRR | nDCG@10 | RegHit@5 |
+|---|---|---|---|---|---|---|---|
+| v1 (47 human) | BM25 only | 0.686 | 0.821 | 0.795 | 0.546 | 0.582 | 0.955 |
+| | dense only | 0.546 | 0.639 | 0.667 | 0.470 | 0.480 | 0.864 |
+| | hybrid RRF | 0.650 | 0.851 | 0.769 | 0.583 | 0.615 | 0.955 |
+| | **full** | **0.844** | **0.877** | **0.949** | **0.756** | **0.768** | **0.977** |
+| v2 (262) | BM25 only | 0.896 | 0.930 | 0.926 | 0.720 | 0.761 | 0.988 |
+| | dense only | 0.608 | 0.660 | 0.638 | 0.480 | 0.512 | 0.871 |
+| | hybrid RRF | 0.818 | 0.916 | 0.848 | 0.652 | 0.704 | 0.984 |
+| | **full** | **0.911** | **0.931** | **0.938** | **0.808** | **0.829** | **0.992** |
+
+Before this work the full pipeline measured MRR 0.636 (v1) / 0.709 (v2) with a heuristic reranker; the gain comes from the cross-encoder (measured +0.10 to +0.12 MRR) and a small RRF re-weighting. BM25 alone beats dense alone by a wide margin on this corpus — see [Why the architecture looks this way](#why-the-architecture-looks-this-way).
+
+Latency on a laptop CPU (i5-8250U), single request: retrieval p50 ≈ 1.4 s with the cross-encoder, ≈ 0.27 s with `RERANKER=heuristic`. The adaptive policy (`RETRIEVAL_RERANK_POLICY=adaptive`, reranker skipped when the exact-clause leg hit or BM25 and dense agree on the top result) measured v1 MRR 0.767 / v2 0.797 at a 66–72 % reranker invocation rate and p50 −30 to −43 %; it is shipped as an option, not the default, because v2 lost 0.011 MRR.
+
+### End-to-end answers (real LLM)
+
+`regulatory_v2`, 262 cases, free-tier models through an OpenAI-compatible gateway (`LLM_MODEL=auto`, routed model recorded per answer). Judged 2026-09-13, before the validator fix described below.
 
 | Metric | Value |
 |---|---|
-| refusal accuracy (unanswerable → abstain, answerable → answer) | 0.943 — 11/11 not-in-corpus/out-of-scope abstained; false refusals 5.7 % |
-| citation hit / precision (expected regulation + clause) | 0.919 / 0.714 |
-| key-fact coverage in the answer / in the retrieved evidence | 0.823 / 0.977 |
-| grounding validator accepted the draft | 0.965 |
-| adversarial injection resisted (6 cases) | 6/6 |
-| RAGAS (n = 100): faithfulness · answer relevancy · context precision · context recall | 0.742 · 0.774 · 0.866 · 0.960 |
-| DeepEval (n = 26): faithfulness · answer relevancy · contextual precision | 1.000 · 0.907 · 0.880 |
+| Refusal accuracy (unanswerable → abstain, answerable → answer) | 0.943 — all 11 not-in-corpus / out-of-scope questions abstained; 14 answerable questions refused (5.7 %) |
+| Citation hit / precision (expected regulation + clause) | 0.919 / 0.714 |
+| Key-fact coverage in the answer / in the retrieved evidence | 0.823 / 0.977 |
+| Grounding validator accepted the draft | 0.965 |
+| Adversarial injection resisted (6 hand-written cases) | 6/6 |
+| RAGAS 0.4 (n = 100, evenly sampled): faithfulness · answer relevancy · context precision · context recall | 0.742 · 0.774 · 0.866 · 0.960 |
+| DeepEval 4.2 (n = 26): faithfulness · answer relevancy · contextual precision | 1.000 · 0.907 · 0.880 |
 
-**Ingestion** — 16 registry sources, 11,700 sections (275 typed definitions), 847 cross-references, 9,022 tables, 4,120 figures; re-ingesting an unchanged source is a no-op; uploads run through the same pipeline via the queue worker (upload → READY for a 3-page note in ~10 s locally).
+Failure analysis of that run (deterministic taxonomy, `failures_by_category` in the report): 73 of 262 answers were classified as failures — 31 `citation_not_supporting_claim`, 14 `unnecessary_refusal`, the rest attribution/coverage. The largest fixable cause of refusals was the numeric validator rejecting clause paths and revision labels that models quote from the evidence attributes; that is fixed (`generation/citations.py`, unit-tested), and the re-run under the fixed validator is recorded in `evals/results/generation_regulatory_v2_latest.json`.
 
-**Product flows** — Playwright, real API + worker + LLM: login → ask → evidence · upload → READY → ask the document · logout → login → restore · user A private upload → user B denied · failed upload → actionable error: 5/5.
+RAGAS faithfulness is a lower bound: it penalises attribution sentences ("according to UN R94 Rev.4 …") that the contexts do not literally contain; the repository's own validator and DeepEval judge the requirement claims. DeepEval covered 26 of a planned 40 records because a gateway call hung; the sample is what completed, not a selection.
+
+### Ingestion, load, product flows
+
+16 sources → 11,700 sections (275 typed definitions), 847 cross-references, 9,022 tables, 4,120 figures; re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 5/5 flows.
 
 ## Architecture
 
+```mermaid
+flowchart LR
+    U[Engineer] --> W[Next.js workbench]
+    W -->|same-origin /api, HttpOnly session| A[FastAPI]
+    A --> AUTH[identity: OIDC / dev login<br/>roles → scopes]
+    A --> P[authorization predicate<br/>org · workspace · owner]
+    P --> R[retrieval service]
+    R --> S[BM25]
+    R --> D[pgvector HNSW]
+    R --> X[exact-clause leg]
+    S --> F[RRF]
+    D --> F
+    X --> F
+    F --> RR[cross-encoder<br/>top 12]
+    RR --> G[evidence gate → LLM under schema]
+    G --> V[citation + numeric validator]
+    V --> C[(conversations, citations, traces)]
+    A --> DB[(PostgreSQL 16 + pgvector)]
+    A --> Q[(ingestion_jobs)]
+    Q --> WK[worker: validate → scan → parse → chunk → embed → index → verify → activate]
+    WK --> OBJ[(object storage, content-addressed)]
+    WK --> DB
 ```
-                  registry (allowlist, SHA-256, version dates)
-                                  │
-   ingest:  DISCOVERED → DOWNLOADED → VALIDATED → PARSED → NORMALIZED → CHUNKED → INDEXED → VERIFIED → ACTIVE
-            fetch (SSRF-safe)  magic/size/hash  PyMuPDF   clause tree   structural   fastembed  consistency  atomic
-            blob store (s3://) page limits      tables    annex scope   citation lbl HNSW       checks       supersede
-                                  │
-   PostgreSQL 16 + pgvector: regulations · regulation_versions · source_artifacts · sections · tables · figures
-                             cross_references · chunks · chunk_embeddings · ingestion_runs/events · query_traces …
-                                  │
-   ask:     parse scope (regulation, clause, as-of date) → authz data classes → SQL scope (status + validity)
-            → dense top-30 ∥ BM25 top-30 ∥ exact-clause leg → RRF → rerank → guard/diversify
-            → parent + cross-ref expansion → evidence gate (abstain / one rewrite / proceed)
-            → LLM under schema (evidence ids) → citation + numeric validation → QueryTrace
-                                  │
-   FastAPI (identity, workspaces, conversations, documents, jobs; RBAC scopes, rate limit, request ids, OTel, Prometheus)
-                                  │                                   ▲
-   worker: ingestion_jobs (SKIP LOCKED) → same stage pipeline         │  Next.js workbench: /app/{home,chat,documents,upload,ingestion,settings,admin}
-```
 
-Authorization is one predicate (`retrieval/authz.py`) — organization membership for verified sources, workspace membership for workspace documents, ownership for private documents — evaluated in SQL before ranking and mirrored in the BM25 pre-filter; a unit test proves both evaluators agree. Full picture: [docs/architecture.md](docs/architecture.md), [ADR-0029](docs/ADR/0029-v2-product-domain-schema-and-authorization.md).
+One Python package (`src/safety_assistant/`), one database, one worker process, one Next.js app.
 
-The bounded agent (`agents/graph.py`, LangGraph) adds two routes on top of the standard path: **comparison** (one scoped retrieval per named regulation) and **change analysis** (section-level diff between the two latest versions as data for the model). Budgets — retrieval attempts, LLM calls, tool calls, wall-clock — are enforced in code.
+| Area | Where |
+|---|---|
+| Identity, sessions, OIDC | `identity/`, `api/dependencies/auth.py`, `api/routes/{me,oidc_login}.py` |
+| Authorization predicate | `retrieval/authz.py` (SQL + in-memory mirror, equivalence-tested) |
+| Documents, uploads, jobs | `documents/service.py`, `api/routes/documents.py`, `workers/ingestion.py` |
+| Ingestion pipeline | `ingestion/{validation,parse,normalize,chunk,index,workflows}` |
+| Retrieval | `retrieval/{base,dense,sparse,fusion,rerank,context,service}.py` |
+| Generation contract | `generation/{schemas,grounding,citations,prompts,service}.py`, `agents/graph.py` (bounded) |
+| Conversations | `conversations/service.py`, `api/routes/conversations.py` |
+| Evaluation | `evaluation/`, `scripts/eval/`, `evals/` |
+| Frontend | `frontend/app/{login,app/*}`, `frontend/components/{shell,chat,evidence,documents,common,ui}` |
+| Infrastructure | `infra/docker`, `infra/terraform`, `infra/monitoring`, `.github/workflows` |
 
-## Why these decisions
+Data model in one line: `organizations → memberships → users`, `workspaces → workspace_memberships`; `regulations` (the logical document: scope, organization, workspace, owner, archived) → `regulation_versions` (lifecycle, validity window, parser/chunker/index versions) → `sections` / `chunks` / `chunk_embeddings`; `source_artifacts` (SHA-256, storage key); `ingestion_jobs` / `ingestion_runs` / `ingestion_events`; `conversations` → `messages` → `message_citations`; `query_traces`; `audit_events`. Migrations are forward-only Alembic (`0001`–`0004`), round-tripped head → 0001 → head in the test suite.
 
-| Decision | Why | ADR |
-|---|---|---|
-| PostgreSQL + pgvector as the only store | one system of record for metadata, audit and vectors; HNSW meets the measured latency; no second database to keep consistent | [0019](docs/ADR/0019-canonical-store-and-schema-cutover.md) |
-| Structural chunks (clause tree), not fixed windows | citations must name exact clauses; merged tiny siblings keep numbers inline; tables carry headers | [0020](docs/ADR/0020-structural-chunking.md) |
-| Dense + BM25 with reciprocal-rank fusion | measured: RRF beats either leg alone (MRR 0.576 vs 0.523/0.546); ranks fuse, raw scores are never summed | [0021](docs/ADR/0021-hybrid-retrieval-and-rrf.md) |
-| Cross-encoder reranker over the top-12 fused candidates | measured on 262+47 cases: MRR +0.10 to +0.12 over the heuristic for ~1.2 s on CPU; heuristic remains a config switch | [0022](docs/ADR/0022-reranking.md), [docs/evaluation.md](docs/evaluation.md) |
-| Versions with validity windows + lifecycle states | "latest" means latest *in force*, never latest downloaded; historical queries filter before ranking | [0023](docs/ADR/0023-temporal-regulation-model.md) |
-| Citation contract with programmatic validation | the model may not invent ids, pages or numbers; violations are dropped, not trusted | [0024](docs/ADR/0024-citation-contract.md) |
-| Bounded LangGraph, no swarm | routing/decomposition is deterministic; the LLM only synthesises under schema | [0025](docs/ADR/0025-bounded-agent.md) |
-| Typed provider interfaces, fakes only in `test` | production refuses hashing embeddings, mock LLM, anonymous auth at startup | [0026](docs/ADR/0026-provider-abstraction-and-fakes.md) |
-| Explicit data-class policy per LLM provider | confidential evidence never reaches a provider that is not cleared; policy is config, not a model-name heuristic | [0027](docs/ADR/0027-security-policy.md) |
-| ECS Fargate + RDS + S3, no Kubernetes | one stateless service and two managed stores do not justify a cluster | [0028](docs/ADR/0028-deployment-architecture.md) |
-| Identity/workspace tables + one document-level authorization predicate; PostgreSQL-backed job queue; conversations as continuity, never evidence | no new services; predicate before ranking; uploads can never leak or silently become authoritative | [0029](docs/ADR/0029-v2-product-domain-schema-and-authorization.md) |
+## Why the architecture looks this way
 
-## Ingestion, versioning, freshness
+**Authorization before ranking.** The predicate — organization membership for verified sources, workspace membership for workspace documents, ownership for private documents, intersected with the user's *selected* scopes — is a SQL `WHERE` on the candidate set and a mirror in the BM25 pre-filter. Filtering after ranking would leak through rank positions, scores and "no results" behaviour, and would make top-k depend on documents the user cannot see. A unit test drives both evaluators with 50 (document, principal) cases and asserts they agree. Principals without a user identity (API keys, evaluation scripts) see verified sources only.
 
-- **Registry** `knowledge/00_registry/sources.yaml` is the allowlist: regulation identity, kind, jurisdiction, authority level, data class, official URI, SHA-256/size, and the consolidated text's own version label, series, revision, publication and entry-into-force dates (human-reviewed; the cover-page parser cross-checks them and logs disagreements).
-- **Idempotency keys**: parse = `source_sha256 + parser_version + parser_config_hash`; chunk = `parsed_hash + chunker_version + chunker_config_hash`; embed = `chunk_sha256 + model_version + dimensions`; index = `chunk_id + index_schema_version`. Unchanged content is never re-embedded — chunk content is version-independent so an amendment reuses every untouched clause's vector.
-- **Lifecycle** is a state machine (`domain/regulations/lifecycle.py`); only `ACTIVE` versions are retrievable for current queries, `ACTIVE|SUPERSEDED` for as-of queries. Activation supersedes the previous version in the same transaction and closes its validity window. Bad files are quarantined with an attempt budget; every transition is an `ingestion_events` row.
-- **Freshness**: `sa_freshness_lag_days{regulation}` (publication → activation) and `ingestion_runs.stats`.
+**BM25 is strong here and stays.** Regulatory text is full of exact tokens — clause identifiers (`5.2.1.8`), named criteria (`ThCC`, `HPC`), units and limits (`42 mm`, `1,3`), fixed legal phrasing (`shall not exceed`). On the human-written set BM25 alone scores MRR 0.546 against dense 0.470; on the 262-case set 0.720 against 0.480. The tokenizer keeps decimal clause numbers and applies light stemming. Dense retrieval still matters for paraphrase, definitions and tables (fusion beats BM25 on those slices), which is why both legs are kept and fused with reciprocal-rank fusion (ranks, never raw score sums; dense weight 0.75 after measuring that sparse-heavy weights helped only the LLM-generated cases and regressed the human-written ones).
 
-## Retrieval pipeline
+**Exact-clause leg.** When a query names a clause or annex, a dedicated leg matches section paths (including paths merged into a chunk) with weight 2 in fusion. It removes the "the model quoted the wrong sub-paragraph" class of error for identifier queries.
 
-Details in [docs/retrieval-design.md](docs/retrieval-design.md). Highlights: SQL scope (status, validity, regulation, data class) before any ranking; exact identifiers (`5.2.1.8`, `Annex 3`) route to a dedicated leg with weight 2 in RRF; BM25 is a process-cached index with in-memory scope filtering; the heuristic reranker rewards literal overlap, authority and normative clauses for requirement-seeking questions; the diversification cap is scope-aware; parent sections and resolved cross-references are attached to each evidence item within a token budget.
+**Reranking, measured.** The cross-encoder (ms-marco MiniLM-L-6, run by fastembed on CPU) over all fused candidates cost ~9 s/query; over the top 12 it keeps the gain (v2 MRR 0.808 vs 0.814 uncapped) at ~1.2 s. Answer latency is dominated by the LLM, so it is the default; `RERANKER=heuristic` remains for interactive search, and the adaptive policy is available with its measured trade-off.
+
+**Versions with validity windows.** "Latest" means latest *in force*, never latest downloaded. Each version carries `valid_from`/`valid_to`, a lifecycle state and lineage keys; activation supersedes the previous version in the same transaction (serialised per regulation with a row lock) and closes its window. Current questions see `ACTIVE` versions; as-of questions see `ACTIVE | SUPERSEDED` filtered by date. Real historical UNECE consolidations are not in the corpus yet — temporal behaviour is proven on a labelled synthetic two-version regulation.
+
+**Citation contract with programmatic validation.** The model returns JSON: an answer plus claims, each with evidence ids. Ids must exist in the retrieved set; every number in a requirement claim must appear in the cited chunk, its parent/related text, or the evidence attributes shown in the prompt (clause path, version label, dates, pages). Claims that fail are dropped; if nothing survives the answer is withheld. Invented citations therefore cannot reach the user.
+
+**Bounded agent.** The LangGraph graph decides routing (standard / comparison / change analysis), one rewrite on weak evidence, and validation — all deterministic code with explicit budgets (3 retrievals, 1 LLM call, 8 tool calls, 45 s). The LLM only synthesises from evidence under schema. There is no free-form tool use.
+
+**Postgres-backed job queue, no broker.** `ingestion_jobs` rows are claimed with `FOR UPDATE SKIP LOCKED`, retried with backoff (3 attempts), reclaimed when a worker dies (stale lock), and a partial unique index keeps one live job per version. This is one table in a database that already exists; a broker is the upgrade behind the same `enqueue()` / `run_once()` seam if job throughput ever demands it.
+
+**No Kubernetes.** One stateless API service, one worker service and two managed stores (PostgreSQL, object storage) run on ECS Fargate with a load balancer. A cluster would add operations without solving a problem this system has.
+
+## Security model
+
+| Concern | Implemented |
+|---|---|
+| Authentication | Browser: OIDC authorization code + PKCE (discovery, JWKS with rotation refresh, issuer/audience/signature/expiry/nonce validation, sealed state cookie, open-redirect guard) → application session cookie (HttpOnly, SameSite=Lax, Secure in production, HS256 with `typ=session`, 12 h). Machines: API keys or OIDC bearer tokens through the same verifier. Dev login exists only when `DEV_LOGIN_ENABLED=true`; production refuses it at startup. |
+| Authorization | Organization roles (engineer, knowledge_admin, auditor, org_admin) map to scopes on every route. Authentication never implies membership: a signed-in user without a membership row is denied. Resource ownership is checked server-side; foreign ids return 404, not 403. |
+| Isolation | Document-level predicate before retrieval/ranking and on every listing, detail, job and evidence lookup; conversations are owner-scoped; tests cover other-user, other-workspace, other-organization, guessed-UUID and insufficient-role access. |
+| Uploads | Bounded stream read, PDF magic bytes, size and page caps, password-protected PDFs refused, safe server-generated filenames and content-addressed storage keys (no client paths), full validation in the worker, malware-scan boundary (clamd INSTREAM; fail-closed when unreachable; `none` in development), scanned documents without OCR are quarantined rather than indexed empty. Quarantine is terminal. |
+| Injection | Questions, evidence and conversation history are data inside tagged blocks; injection signals are recorded as warnings; citations are validated against the current request's evidence only. |
+| Web | CORS explicit allowlist (production refuses wildcard with credentials), CSRF header required on cookie-authenticated mutations, request body limits (2,000-char queries, bounded uploads), per-principal rate limiting, interactive API docs disabled in production, no stack traces or provider errors to clients (request id only), CSP / nosniff / frame-deny headers on the web app. |
+| Secrets & logs | Secrets from environment / Secrets Manager only; no credentials in git (scanned tracked content and history); production refuses the development database password and weak session secrets; logs redact connection-string passwords, bearer tokens and key=value secrets; traces store principal ids, never tokens. |
+| Provider policy | `LLM_DATA_CLASSES` decides which data classes a provider may see; confidential evidence with an uncleared provider degrades to evidence-only. |
+
+Not implemented / deployment-specific: malware scanning and OCR are adapters that need a service configured; RP-initiated OIDC logout; a WAF; a shared rate limiter across replicas (see [Limitations](#current-limitations)).
 
 ## Evaluation
 
-Two gold sets: `regulatory_v1` (47 human-written cases, 16 slices) and `regulatory_v2` (262: v1 + 200 cases generated from section text with verbatim-verified key facts + hand-written unanswerable/ambiguous/adversarial cases). Retrieval legs are measured independently (`make eval`), configurations on a grid (`scripts/eval/grid.py`), and the end-to-end pipeline with deterministic answer metrics plus RAGAS and DeepEval judges through the same LLM gateway (`make eval-judged`). Method, results and the optimisation record: [docs/evaluation.md](docs/evaluation.md).
+Retrieval and generation are measured separately; retrieval gates are deterministic and run in CI, generation runs against a real LLM outside CI.
 
-## Security and governance
+**Datasets** — `evals/datasets/regulatory_v1.yaml` (human) and `regulatory_v2.yaml` (v1 + generated + hand-written). Each case records `source` (`human` | `llm_generated` | `llm_generated_reviewed`), `human_reviewed`, `review_status`, `query_type`, expected regulation/clauses, `key_facts`, `answerability`, notes. Generated cases come from `scripts/eval/generate_cases.py` (a clause → up to two questions; a case survives only if every key fact is a verbatim span of the clause) and are assembled by `scripts/eval/build_dataset.py` (stratified, half of them scoped "In UN R16, …").
 
-Organization roles (engineer, knowledge_admin, auditor, org_admin) map to scopes on every route; browser sessions are HttpOnly cookies with a CSRF header requirement, API keys/OIDC for machines; the document-level authorization predicate and data classes narrow the retrieval universe *before* ranking (cross-user, cross-workspace and cross-organization isolation tested at listing, detail, job, evidence and retrieval level); uploads are bounded and validated, quarantined files never index, promotion to the verified corpus is privileged and audited; SSRF-safe fetcher (https, allowlist, public-IP DNS check per hop, size cap, conditional GET); file validation (magic bytes, size, page count, hash against the registry); prompt-injection signals recorded and never executed; explicit LLM data-class policy; per-principal rate limit; audit actor on privileged ingestion; secrets from the environment/secret manager only. Threat model: [docs/security-threat-model.md](docs/security-threat-model.md).
+**Retrieval** — `uv run safety-assistant eval-retrieval --dataset <yaml> [--legs …] [--source human] [--types …]` writes a report per leg; `scripts/eval/grid.py` runs configuration grids (weights, `rerank_top_n`, `rerank_policy`) and prints MRR/recall/latency/reranker rate.
 
-## Reliability and observability
+**Generation** — `scripts/eval/judged.py` runs the real pipeline per case, scores deterministic metrics (refusal accuracy, citation hit/precision, fact coverage, evidence coverage, grounding, injection resistance), classifies every failed answer into one category (`unnecessary_refusal`, `should_have_refused`, `unsupported_numerical_claim`, `citation_not_supporting_claim`, `wrong_clause_attribution`, `missing_citation`, `incomplete_condition`, `version_ambiguity`, `poor_synthesis`, `irrelevant_answer`) with the query, expected evidence, retrieved labels, answer, citations, validator result, model, latency and tokens preserved, estimates cost per query from token usage and dated reference prices (`evals/pricing.yaml`), and optionally adds RAGAS and DeepEval judges through the same gateway (`uv sync --extra eval`).
 
-Liveness/readiness with dependency health (an LLM outage degrades to evidence-only, it never flips readiness); reranker failure degrades to fused order; structured JSON logs with request ids; OpenTelemetry spans for retrieval, agent, LLM and ingestion; Prometheus metrics (`/metrics`) for request/stage latency, answer modes, citation-validation failures, retrieval no-hit, LLM calls/tokens, ingestion runs, freshness lag; alert rules and a dashboard in `infra/monitoring/`. Runbook: [docs/operations-runbook.md](docs/operations-runbook.md).
+**Regression gate** (`tests/retrieval_regression`, real corpus, test profile): 23 stable human-written cases keep regulation in the top 5 and clause in the top 10; v1 MRR ≥ 0.60; v2 MRR ≥ 0.68 and R@10 ≥ 0.90.
+
+```bash
+make eval                                                  # all legs, regulatory_v2
+uv run safety-assistant eval-retrieval --source human      # trusted subset only
+uv run safety-assistant eval-retrieval --types numeric_threshold definition
+uv run python scripts/eval/grid.py --param rerank_policy always adaptive
+make eval-judged                                           # needs LLM_* configured
+```
+
+## Failure behaviour
+
+| Situation | What happens |
+|---|---|
+| LLM unavailable, times out, or returns malformed output | Retrieval still runs; the answer is `EVIDENCE_ONLY` with the evidence bundle; `sa_answers_total{mode}` increments; readiness stays green (tested in `tests/integration/test_fault_injection.py`). |
+| Evidence below the gate threshold | `ABSTAINED` with the searched scope; never a guessed regulation. |
+| Model cites an unknown id or a number not in the evidence | The claim is dropped; if none survive, `ABSTAINED` with `validation_failed`. |
+| Reranker or embedding failure | Fused order is used / 503 with a request id; nothing is silently served from a degraded index. |
+| Document cannot be parsed, is scanned without OCR, is password-protected, or fails the scanner | `QUARANTINED` with a public reason and a diagnostic reference; never retrievable; a new upload is required. |
+| Transient ingestion error | Retried three times with backoff; then `FAILED` with retry available; the worker that crashes mid-job leaves a stale lock that the next worker reclaims. |
+| User asks outside their access | Foreign documents and conversations are 404; requesting a workspace you are not in is 403; nothing is silently narrowed. |
+| Identity provider down | Sign-in returns 503; existing sessions keep working until they expire. |
 
 ## Local setup
 
+Prerequisites: Python 3.12+, [uv](https://docs.astral.sh/uv/), Node 22, Docker.
+
 ```bash
-uv sync --extra s3                          # Python 3.12+, uv
-docker compose up -d postgres               # pgvector on localhost:5433
-cp .env.example .env
-uv run safety-assistant migrate             # creates schema in DATABASE_URL (create the database first if needed)
-# put the registered PDFs under knowledge/ (see sources.yaml), then:
-uv run python scripts/maintenance/verify_registry.py
-uv run safety-assistant ingest              # ~25 min for all 16 sources on a laptop; regulations alone ~2 min
+git clone <repo> && cd safety-assistant
+cp .env.example .env                     # development values only; set LLM_* for generated answers
+uv sync --extra s3
+docker compose up -d postgres            # pgvector on localhost:5433
+uv run safety-assistant migrate
+# put the registered PDFs under knowledge/ (see knowledge/00_registry/sources.yaml) and ingest them,
+uv run safety-assistant ingest           # ~25 min for all 16 sources on a laptop
+# or, without the licensed corpus, seed the synthetic test regulation:
+uv run python scripts/maintenance/seed_synthetic_corpus.py
+
 uv run safety-assistant users add --email you@example.com --name "You" --role engineer --workspace default
-uv run uvicorn safety_assistant.api.main:app --port 8010        # make api
-uv run safety-assistant worker                                  # make worker — processes uploads
-cd frontend && npm install && npm run dev                       # http://localhost:3010 → sign in with the seeded email
+make api                                 # http://localhost:8010
+make worker                              # processes uploads (second terminal)
+cd frontend && npm ci && npm run dev     # http://localhost:3010 → sign in with the seeded email
 ```
 
-`.env.example` enables dev login (`DEV_LOGIN_ENABLED=true`) and sets a development `SESSION_SECRET`; configure `LLM_*` for generated answers (without an LLM the system answers in evidence-only mode). Without the licensed corpus, `uv run python scripts/maintenance/seed_synthetic_corpus.py` ingests the synthetic two-version regulation used by the tests (CI does this for the Playwright job).
+Without `LLM_*` the system runs in evidence-only mode. Stop with `docker compose down`; the database volume persists (`docker compose down -v` removes it).
 
-Quality gates: `make lint types test` (156 tests; PostgreSQL required for integration/e2e), `make eval`, `make eval-judged` (needs an LLM), `make frontend`, `make e2e` (API + worker running), `make load`.
+## Development commands
+
+```bash
+make lint types test        # ruff, mypy --strict, pytest (unit, parser golden, security, integration, e2e, evaluation, regression)
+make eval                   # retrieval evaluation, all legs
+make eval-judged            # end-to-end with the configured LLM + RAGAS/DeepEval (uv sync --extra eval)
+make frontend               # npm ci, typecheck, lint, next build
+make e2e                    # Playwright flows (API + worker running)
+make load                   # closed-loop load test against a running API
+make docker                 # build the hardened image
+```
+
+Test layout: `tests/unit` (parsers, chunking, lifecycle, fusion, citation validation, authz equivalence, metrics, scanner/OCR adapters, log redaction), `tests/parser_golden` (real page-text fixtures), `tests/security` (adversarial prompts, SSRF, data isolation, user isolation, OIDC flow), `tests/integration` (API with a synthetic corpus and fakes: ask, conversations, uploads → worker → retrieval, migrations round-trip, fault injection), `tests/e2e` (lifecycle, temporal, idempotent rerun, quarantine), `tests/retrieval_regression` (real corpus), `frontend/tests/e2e` (Playwright). CI never depends on a live LLM.
 
 ## Deployment
 
-- Image: `infra/docker/Dockerfile` (multi-stage uv build, non-root, read-only root fs, embedding model baked in, healthcheck). Full local stack with MinIO: `docker compose -f infra/docker/compose.yaml up --build`.
-- CI: `.github/workflows/ci.yml` (ruff, mypy, all test tiers incl. migration round-trip, frontend type-check/lint/build + Playwright flows against a seeded synthetic corpus, container build, Trivy, SBOM), `security.yml` (pip-audit, bandit, gitleaks, semgrep), `eval.yml` (nightly retrieval evaluation; real corpus restored from a bucket when configured), `release.yml` (ghcr image with provenance + SBOM on tags).
-- Infrastructure: `infra/terraform/` — ALB (TLS 1.3) → ECS Fargate service with circuit-breaker rollback → RDS PostgreSQL 16 (TLS forced, encrypted, 14-day backups/PITR, multi-AZ in production) + versioned, encrypted S3 artifacts + Secrets Manager + CloudWatch alarms. Container: `APP_ENV=production`, `AUTH_MODE=oidc`, `SESSION_SECRET` ≥ 32 chars, `DEV_LOGIN_ENABLED=false` (enforced at startup). Run the worker as a second service (`entrypoint.sh worker`) — `infra/docker/compose.yaml` shows the topology; the Terraform module does not yet define the worker task.
+**Status: deployment-ready, not deployed.** The container image builds and passes a production-mode smoke test locally; Terraform is validated (`fmt`, `validate`) but has never been applied — no cloud account was available.
 
-## Known limitations
+- **Image** `infra/docker/Dockerfile`: multi-stage uv build, non-root (uid 10001), read-only root filesystem, embedding and cross-encoder models baked in, healthcheck; entrypoints `api`, `worker`, `migrate`. `infra/docker/compose.yaml` runs api + worker + PostgreSQL + MinIO for a full local stack.
+- **Terraform** `infra/terraform/`: ALB (TLS 1.3) → ECS Fargate API service (circuit-breaker rollback) and worker service → RDS PostgreSQL 16 (TLS forced, encrypted, 14-day PITR, private subnets) + versioned encrypted S3 + Secrets Manager (`DATABASE_URL`, `SESSION_SECRET`, `OIDC_CLIENT_SECRET` set out-of-band) + CloudWatch alarms. Variables contain no secrets.
+- **Procedure**: build and push the image (`release.yml` on tags, with SBOM) → `terraform apply` with a `tfvars` file (`envs/staging.tfvars.example`) → migrations run as a one-shot task (`entrypoint.sh migrate`) before the service update → warm a request to build the BM25 index → verify `/health/ready`. Rollback = redeploy the previous task definition; migrations are additive with downgrade scripts.
+- **Production settings enforced at startup**: `APP_ENV=production` refuses fake providers, `AUTH_MODE=none`, dev login, weak `SESSION_SECRET`, the development database password and wildcard CORS.
+- **Observability**: JSON logs with request ids (secrets redacted), OpenTelemetry spans (retrieval, agent, LLM, ingestion), Prometheus `/metrics` (request/stage latency, answer modes, citation failures, retrieval no-hit, LLM calls/tokens, ingestion runs, freshness lag); alert rules and a dashboard in `infra/monitoring/`.
 
-- **LLM quality depends on free-tier routing.** Answers and judges ran through a gateway that routes to different free models per request; the routed model is recorded per answer but results are not attributable to one model, and p50 latency (9 s) is dominated by routing/rate-limit retries. Point `LLM_*` at one dependable model before production use; `LLM_DATA_CLASSES` keeps confidential evidence away from providers that are not cleared.
-- **RAGAS faithfulness (0.74) is a lower bound**: attribution sentences count against it; the numeric/citation validator (0.965) and DeepEval (1.00, n = 26) judge the requirement claims. DeepEval covered 26 of a planned 40 records because a gateway call hung; the sample is what completed, not a selection.
-- **200 of the 262 v2 cases are LLM-generated** (facts verified verbatim, not human-reviewed). Sparse-heavy tuning that helped them regressed the human-written set, which is why v1 remains the tie-breaker.
-- **Cross-encoder latency** (~1.2 s per query on CPU) applies to `/search` too; use `RERANKER=heuristic` where interactive search latency matters more than MRR.
-- **One version per regulation in the corpus**; temporal behaviour is proven on a synthetic two-version regulation.
-- **Parser**: PyMuPDF only; scanned pages are flagged, not OCR'd; no malware scanner on uploads (the boundary is `documents.service.create_upload`).
-- **Per-process rate limiter and BM25 index**; the queue is a PostgreSQL table polled by workers (`ponytail:` a broker behind the same `enqueue()`/`run_once()` seam is the upgrade path).
-- **OIDC** is verified against JWKS in tests, not a live IdP; the browser OIDC redirect is not implemented (dev login and API keys are). Dark mode is not implemented.
-- **Terraform is unapplied** (no cloud account) and does not yet define the worker task; Trivy/SBOM/pip-audit/gitleaks/semgrep run in CI, not locally. Load figures are from the pre-cross-encoder configuration.
+### Operations notes
+
+- Queue health: `SELECT status, count(*) FROM ingestion_jobs GROUP BY 1`. `QUEUED` with a past `run_after` and no worker = nothing is consuming; `RUNNING` with `locked_at` older than two hours is reclaimed automatically.
+- A failed upload: `ingestion_jobs.error_internal_ref` → `ingestion_runs.error` (internal) and `ingestion_events` (stage trail); users only see the public message and the reference.
+- Wrong content served: set the version `QUARANTINED`; retrieval excludes it immediately (restart workers to drop the BM25 cache). Every answer carries a `trace_id`; `GET /api/v1/admin/traces/{id}` (audit scope) shows candidates, evidence, validation and versions.
+- Backups: RDS PITR; artifacts are versioned, content-addressed and never overwritten; the corpus is reproducible from the registry hashes (`scripts/maintenance/verify_registry.py`).
+
+## Current limitations
+
+- **Evaluation data**: 200 of the 262 v2 cases are LLM-generated and not human-reviewed; the 47 human-written cases decide ties. Judged metrics come from free-tier models routed per request (recorded, not attributable to one model); DeepEval covered 26 records. No external passive-safety engineer has validated answers yet.
+- **Temporal behaviour** is proven on a synthetic two-version regulation; real historical consolidations are not ingested.
+- **OCR and malware scanning** are optional adapters; without them scanned documents are quarantined and uploads are not scanned.
+- **Per-process rate limiter and BM25 index**: two API replicas mean two budgets and two indexes (each consistent, both rebuilt on corpus change). A shared limiter (Redis or the load balancer) and a shared/refreshable lexical index are the migration points before scaling wide; the queue already tolerates many workers.
+- **Cross-encoder latency** (~1.2 s on CPU) applies to `/search` too.
+- **OIDC** is tested against an in-process fake provider, not a live Entra ID / Keycloak; RP-initiated logout is not implemented.
+- **Infrastructure** is validated but unapplied; container and dependency scans (Trivy, SBOM, pip-audit, gitleaks, semgrep) run in CI — `pip-audit` and `npm audit` were run locally and are clean.
+- **Load figures** predate the cross-encoder default.
+
+## Roadmap
+
+1. Human review of a stratified sample of the generated cases; a second reviewer for the human set.
+2. Answer validation by passive-safety engineers on their own questions; feed misses into the gold set.
+3. Ingest real earlier consolidations of R94/R95/R129 and re-measure temporal and change-analysis behaviour.
+4. Measure the adaptive reranking policy on the reviewed set and adopt it for `/search` if it holds.
+5. Stand up staging with a real identity provider; exercise a deploy, a migration and a rollback.
+
+## Decision records
+
+Architectural decisions with their evidence live in `docs/ADR/` (`0019`–`0029`; earlier numbers document the pre-rebuild system). `CHANGELOG.md` records releases; `SECURITY.md` describes how to report a vulnerability.

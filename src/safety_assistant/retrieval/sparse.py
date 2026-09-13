@@ -2,7 +2,7 @@
 
 The index is built once per process per corpus generation (count + newest
 chunk timestamp of retrievable versions) and cached; scoring is O(corpus)
-numpy work — measured, not assumed (see docs/retrieval-design.md).
+numpy work — measured, not assumed (see README "Measured results").
 
 Scope is applied *after* scoring but *before* the top-k cut: BM25 scores
 every chunk, then only chunks inside the scoped universe are ranked. That

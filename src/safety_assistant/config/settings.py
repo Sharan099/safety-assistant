@@ -47,7 +47,7 @@ class Settings(BaseSettings):
 
     embedding_provider: EmbeddingProviderName = "fastembed"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    # cross_encoder measured 2026-09-12: MRR 0.713 → 0.808 on regulatory_v2 with rerank_top_n=12 (docs/evaluation.md)
+    # cross_encoder measured 2026-09-12: MRR 0.713 → 0.808 on regulatory_v2 with rerank_top_n=12 (README "Measured results")
     reranker: RerankerName = "cross_encoder"
 
     llm_provider: LLMProviderName = "none"
@@ -70,10 +70,10 @@ class Settings(BaseSettings):
     retrieval_dense_top_k: int = 30
     retrieval_sparse_top_k: int = 30
     retrieval_final_k: int = 10
-    retrieval_dense_weight: float = 0.75  # RRF leg weights; tuned on evals/datasets (see docs/evaluation.md)
+    retrieval_dense_weight: float = 0.75  # RRF leg weights; tuned on evals/datasets (see README "Measured results")
     retrieval_sparse_weight: float = 1.0
     retrieval_rerank_top_n: int | None = 12  # cap for expensive rerankers (cross_encoder); None = all
-    retrieval_rerank_policy: Literal["always", "adaptive"] = "always"  # see docs/evaluation.md "adaptive reranking"
+    retrieval_rerank_policy: Literal["always", "adaptive"] = "always"  # measured option, see README "Measured results"
 
     # Ingestion resource limits (CLAUDE.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024

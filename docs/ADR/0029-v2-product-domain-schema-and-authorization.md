@@ -4,7 +4,7 @@ Status: accepted (D-003, D-012 confirmed by owner 2026-09-12; Phase C implemente
 
 ## Context
 
-The v1 rebuild delivers a verified regulatory corpus (`regulations` → `regulation_versions` → `sections`/`chunks`), hybrid retrieval with SQL scope before ranking, grounded generation and role-based auth. It has **no persisted users, no document ownership, no user uploads, no async jobs, no conversations** (`docs/rebuild/STATE.md`). `docs/product/02_TRD.md` requires all of them. This ADR is the schema/authorization/API plan for Phases C–D; it changes no code.
+The v1 rebuild delivers a verified regulatory corpus (`regulations` → `regulation_versions` → `sections`/`chunks`), hybrid retrieval with SQL scope before ranking, grounded generation and role-based auth. It has **no persisted users, no document ownership, no user uploads, no async jobs, no conversations** (baseline audit, 2026-09-12). The product requirements (now folded into README) require all of them. This ADR is the schema/authorization/API plan for Phases C–D; it changes no code.
 
 ## Decision 1 — Reuse the corpus tables as the document model (no rename)
 
@@ -139,7 +139,21 @@ Browser auth: HS256 JWT (pyjwt already a dependency) in an `HttpOnly; SameSite=L
 
 ## Consequences
 
-- Cross-user isolation is enforced by one SQL predicate used by every list/detail/retrieval query; the isolation test matrix in `docs/product/06_SECURITY_PRIVACY_AND_MEMORY.md` becomes `tests/security/test_isolation.py` (two users, two workspaces, two orgs).
+- Cross-user isolation is enforced by one SQL predicate used by every list/detail/retrieval query; the isolation test matrix becomes `tests/security/test_user_isolation.py` and `tests/integration/test_documents_upload.py` (two users, two workspaces, two orgs).
 - Retrieval regression must be re-run after `0003` (new joins/columns in the scope statement; expected metric delta: none).
 - New services: none. New backend dependency: `python-multipart` (FastAPI's only multipart parser; not in `uv.lock` today). Frontend adds shadcn/ui primitives and zod (TRD-approved).
 - Rollback: each migration downgrades; `0003` downgrade loses upload scope metadata.
+
+## Decision log (rebuild, 2026-09-12/13)
+
+Kept here so the reasoning survives after the planning documents were removed.
+
+- **Queue transport**: PostgreSQL `ingestion_jobs` + `FOR UPDATE SKIP LOCKED` worker instead of Celery/Redis — no new service; a broker is the upgrade behind the same `enqueue()` / `run_once()` seam. The queue uses the database clock (`clock_timestamp()`) throughout; stale `RUNNING` locks (> 2 h) are re-queued.
+- **Document model**: the `regulations` table is the logical document (no rename); uploads get `authority_level=REFERENCE`, `data_class=CONFIDENTIAL`, `DOC-<hex>` keys; identical bytes re-uploaded by the same owner return the existing ids; another owner's identical bytes are a separate private document over the same content-addressed artifact. Archive = `archived_at`, excluded from every retrieval set.
+- **Lifecycle vocabulary**: the internal `VersionStatus` machine is unchanged; the API/UI show `UPLOADED … READY`; `READY ≡ ACTIVE`.
+- **Roles**: membership roles use the product names (engineer, knowledge_admin, auditor, org_admin) mapped onto the existing scope set; legacy API-key role names remain valid.
+- **Browser session**: HS256 cookie (`typ=session`) + `X-Requested-With` on mutations; API keys own no user data; OIDC subjects map to users, membership is explicit (`OIDC_DEFAULT_ROLE` or an admin).
+- **Conversation context** is rendered as `<conversation_context>` data (prompt `grounded_v2`); the bounded LangGraph agent was kept, not extended.
+- **Reranker**: cross-encoder over the top 12 by default (v1 MRR 0.644 → 0.756, v2 0.713 → 0.808); heuristic for tests; adaptive skip policy shipped as a measured option (v1 +0.011 / v2 −0.011 MRR, p50 −30 to −43 %).
+- **Evaluation data**: LLM-generated cases must have verbatim-verified facts, carry their generating model, are capped at 200 and never override the human-written set (a sparse-heavy fusion weight that improved v2 by +0.027 and regressed v1 by −0.010 was rejected on that rule). Judged metrics are always reported with n and judge model.
+- **Frontend**: shadcn/ui in its Base UI flavour; same-origin API via Next rewrites so the session cookie is first-party; light mode only.

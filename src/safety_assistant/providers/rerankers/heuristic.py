@@ -2,7 +2,7 @@
 
 Score = fused RRF score + a small bonus for literal query-term overlap
 (rewards exact identifiers like "HIC15", "5.2.1.8") + a small authority-tier
-bonus. Measured (docs/rebuild-ledger.md §2): lifts MRR 0.667 → 0.900 over
+bonus. Measured on the pre-rebuild 8-case set: lifts MRR 0.667 → 0.900 over
 RRF alone on the baseline golden set. The cross-encoder is better still on
 nDCG but ~3.5 s/query on CPU (docs/ADR/0015) — opt-in via RERANKER=cross_encoder.
 """

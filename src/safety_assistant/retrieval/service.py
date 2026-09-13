@@ -50,14 +50,14 @@ class RetrievalConfig:
     use_exact: bool = True
     use_reranker: bool = True
     # RRF leg weights (ranks only; a weight scales one leg's 1/(k+rank) contribution).
-    dense_weight: float = 0.75  # tuned 2026-09-12 on regulatory_v1+v2 (docs/evaluation.md)
+    dense_weight: float = 0.75  # tuned 2026-09-12 on regulatory_v1+v2 (README "Measured results")
     sparse_weight: float = 1.0
     # Rerank only the top-N fused candidates (None = all). Bounds cross-encoder latency; the heuristic
     # reranker is cheap enough to score everything.
     rerank_top_n: int | None = 12
     # "always" runs the reranker on every query. "adaptive" skips it when the legs already agree:
     # the query names a clause identifier and the exact leg found it, or dense and sparse put the same
-    # chunk first. No tuned thresholds — measured in docs/evaluation.md before this became an option.
+    # chunk first. No tuned thresholds — measured before this became an option (README "Measured results").
     rerank_policy: Literal["always", "adaptive"] = "always"
     expand_parents: bool = True
     expand_cross_refs: bool = True

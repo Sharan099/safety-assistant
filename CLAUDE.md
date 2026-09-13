@@ -6,15 +6,7 @@ Safety Assistant is a passive-safety regulatory intelligence workspace.
 
 Primary user: passive-safety engineer.
 
-Canonical specifications:
-- `docs/product/00_MASTER_REBUILD_PLAN.md`
-- `docs/product/01_PRD.md`
-- `docs/product/02_TRD.md`
-- `docs/product/03_UI_UX_DESIGN_SPEC.md`
-- `docs/product/04_APP_FLOWS.md`
-- `docs/product/06_SECURITY_PRIVACY_AND_MEMORY.md`
-- `docs/product/07_TESTING_EVALUATION_RELEASE.md`
-- `docs/product/08_CLEANUP_AND_MIGRATION_PLAN.md`
+Canonical documentation: `README.md` (product, architecture, security model, evaluation, operations) and `docs/ADR/` (decision records).
 
 When code and docs disagree, investigate. Do not silently assume either is correct.
 
@@ -49,7 +41,7 @@ When code and docs disagree, investigate. Do not silently assume either is corre
 
 Before deleting files:
 1. verify/tag baseline;
-2. write `docs/rebuild/FILE_LEDGER.md`;
+2. list every path with its replacement in the commit message;
 3. classify KEEP/MIGRATE/REWRITE/DELETE;
 4. delete only ledger-approved paths after replacement/tests exist.
 
@@ -57,7 +49,7 @@ Git history is the archive. Do not keep a large `old/` tree.
 
 ## Frontend
 
-Design is governed by `docs/product/03_UI_UX_DESIGN_SPEC.md` and `docs/product/04_APP_FLOWS.md`.
+Design principles are in README "Why the architecture looks this way" and the existing components under `frontend/components/`.
 
 Build an evidence-first engineering workbench, not a generic ChatGPT clone.
 
@@ -104,10 +96,7 @@ Do not perform unrelated refactors.
 
 ## Rebuild state
 
-Maintain concise:
-- `docs/rebuild/STATE.md`
-- `docs/rebuild/FILE_LEDGER.md`
-- `docs/rebuild/DECISIONS.md`
+Record decisions as ADRs under `docs/ADR/` and releases in `CHANGELOG.md`.
 
 ## Security
 

@@ -5,7 +5,7 @@ description: Use for document upload, validation, parsing, chunking, embedding, 
 
 # RAG Ingestion
 
-Read `docs/product/02_TRD.md` when needed.
+Read README "Architecture" and ADR-0029 when needed.
 
 Required properties:
 - idempotent;

@@ -5,7 +5,7 @@ description: Enforce Safety Assistant v2 product requirements and scope when pla
 
 # Product Spec Guardian
 
-Read `docs/product/01_PRD.md` and `docs/product/04_APP_FLOWS.md` only when needed.
+Read README "What I built" / "Product workflow" only when needed.
 
 For a proposed change:
 1. identify the user job;

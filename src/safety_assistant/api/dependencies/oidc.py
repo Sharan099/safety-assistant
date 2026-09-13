@@ -1,13 +1,8 @@
-"""OIDC bearer-token verification (auth_mode=oidc).
-
-Verifies RS256/ES256 JWTs against the issuer's JWKS (fetched once, cached),
-checks audience/issuer/expiry, and maps a `role`/`roles` claim to a Principal.
-Requires the optional `PyJWT[crypto]` dependency (installed in the `auth` extra).
-"""
+"""OIDC bearer-token verification (auth_mode=oidc): access tokens presented by machines and by SPAs
+that hold their own tokens. Discovery, JWKS caching and validation live in identity/oidc.py; this
+module only maps validated claims to a role-based Principal."""
 
 from __future__ import annotations
-
-from functools import lru_cache
 
 from fastapi import HTTPException, status
 
@@ -17,33 +12,20 @@ from safety_assistant.config import Settings
 _ROLE_CLAIMS = ("role", "roles", "groups")
 
 
-@lru_cache(maxsize=4)
-def _jwk_client(issuer: str):  # type: ignore[no-untyped-def]
-    import jwt
-
-    return jwt.PyJWKClient(issuer.rstrip("/") + "/.well-known/jwks.json", cache_keys=True)
-
-
 def principal_from_jwt(token: str | None, settings: Settings) -> Principal:
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "missing bearer token")
-    if not settings.oidc_issuer or not settings.oidc_audience:
+    audience = settings.oidc_audience or settings.oidc_client_id
+    if not settings.oidc_issuer or not audience:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "OIDC not configured")
-    try:
-        import jwt
+    from safety_assistant.api.routes.oidc_login import http_client
+    from safety_assistant.identity.oidc import OidcError, verify_token
 
-        key = _jwk_client(settings.oidc_issuer).get_signing_key_from_jwt(token).key
-        claims = jwt.decode(
-            token,
-            key,
-            algorithms=["RS256", "ES256"],
-            audience=settings.oidc_audience,
-            issuer=settings.oidc_issuer,
-            options={"require": ["exp", "iat", "sub"]},
-        )
-    except ImportError as exc:  # pragma: no cover
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "PyJWT not installed") from exc
-    except Exception as exc:  # noqa: BLE001 — any verification failure is a 401, details stay server-side
+    try:
+        claims = verify_token(token, issuer=settings.oidc_issuer, audience=audience, http=http_client())
+    except OidcError as exc:  # any verification failure is a 401; the reason stays server-side
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid token") from exc
+    except Exception as exc:  # noqa: BLE001 — provider unreachable etc.
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid token") from exc
     role = "RegulationViewer"
     for claim in _ROLE_CLAIMS:

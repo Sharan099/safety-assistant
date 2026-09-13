@@ -59,6 +59,7 @@ class CaseResult:
     metrics: dict[str, float | None]
     latency_ms: float
     top_citations: list[str]
+    reranked: bool = True  # False when an adaptive policy skipped the reranker for this query
 
 
 @dataclass
@@ -165,6 +166,7 @@ def evaluate_leg(
                 metrics=metrics,
                 latency_ms=round(latency, 1),
                 top_citations=[e.citation_label for e in result.bundle.evidence[:3]],
+                reranked=not str(result.versions.get("reranker", "")).startswith("skipped"),
             )  # fmt: skip
         )
     return LegReport(
@@ -179,11 +181,14 @@ def evaluate_leg(
 
 
 def _aggregate(cases: list[CaseResult]) -> dict[str, float | None]:
+    if not cases:
+        return {}
     names = [f"{m}@{k}" for k in KS for m in ("recall", "precision", "hit", "ndcg")] + ["mrr"]
     agg: dict[str, float | None] = {n: mean([c.metrics[n] for c in cases]) for n in names}
     agg["regulation_hit@5"] = mean([c.regulation_hit_at_5 for c in cases])
     agg["n"] = float(len(cases))
     agg["n_with_section_truth"] = float(sum(1 for c in cases if c.n_relevant_chunks))
+    agg["rerank_rate"] = sum(1 for c in cases if c.reranked) / len(cases)
     lat = sorted(c.latency_ms for c in cases)
     if lat:
         agg["latency_p50_ms"] = lat[len(lat) // 2]

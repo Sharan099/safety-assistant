@@ -53,6 +53,7 @@ export const api = {
   me: () => request<Me>("/api/v1/me"),
   devLogin: (email: string) => request<{ user_id: string; email: string }>("/api/v1/auth/dev-login", json({ email })),
   logout: () => request<{ ok: boolean }>("/api/v1/auth/logout", { method: "POST" }),
+  authMethods: () => request<{ dev_login: boolean; oidc: boolean }>("/api/v1/auth/oidc/methods"),
   patchPreferences: (p: Partial<Preferences>) => request<Me>("/api/v1/me/preferences", patch(p)),
   // corpus / system
   ready: () => request<Readiness>("/health/ready"),

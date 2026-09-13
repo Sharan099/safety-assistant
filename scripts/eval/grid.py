@@ -34,16 +34,19 @@ def main(argv: list[str] | None = None) -> int:
         combos = [{**c, name: v} for c in combos for v in values]
     with Session(get_engine()) as session:
         bm25 = get_index(session)
-        print(f"{'config':<48}{'MRR':>8}{'R@5':>8}{'R@10':>8}{'nDCG10':>8}{'p50ms':>8}")
+        print(f"{'config':<48}{'MRR':>8}{'R@5':>8}{'R@10':>8}{'nDCG10':>8}{'p50ms':>8}{'p95ms':>8}{'rerank%':>9}")
         for combo in combos:
             overrides: dict[str, Any] = {**fixed, **combo}
             cfg = dataclasses.replace(RetrievalConfig(), **overrides)
             rep = evaluate_leg(session, dataset, "grid", service=RetrievalService(config=cfg, bm25_index=bm25))
             a = rep.aggregate
             label = " ".join(f"{k}={v}" for k, v in {**fixed, **combo}.items()) or "default"
-            lat = sorted(c.latency_ms for c in rep.cases)[len(rep.cases) // 2]
+            lats = sorted(c.latency_ms for c in rep.cases)
+            p50, p95 = lats[len(lats) // 2], lats[int(len(lats) * 0.95) - 1]
+            rr = 100 * sum(1 for c in rep.cases if c.reranked) / len(rep.cases)
             print(
-                f"{label:<48}{a['mrr']:>8.3f}{a['recall@5']:>8.3f}{a['recall@10']:>8.3f}{a['ndcg@10']:>8.3f}{lat:>8.0f}"
+                f"{label:<48}{a['mrr']:>8.3f}{a['recall@5']:>8.3f}{a['recall@10']:>8.3f}{a['ndcg@10']:>8.3f}"
+                f"{p50:>8.0f}{p95:>8.0f}{rr:>8.0f}%"
             )
     return 0
 

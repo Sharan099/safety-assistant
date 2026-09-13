@@ -73,6 +73,7 @@ class Settings(BaseSettings):
     retrieval_dense_weight: float = 0.75  # RRF leg weights; tuned on evals/datasets (see docs/evaluation.md)
     retrieval_sparse_weight: float = 1.0
     retrieval_rerank_top_n: int | None = 12  # cap for expensive rerankers (cross_encoder); None = all
+    retrieval_rerank_policy: Literal["always", "adaptive"] = "always"  # see docs/evaluation.md "adaptive reranking"
 
     # Ingestion resource limits (CLAUDE.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024
@@ -92,8 +93,16 @@ class Settings(BaseSettings):
     # refuses to start without an issuer or an API-key set.
     auth_mode: Literal["none", "api_key", "oidc"] = "none"
     api_keys: dict[str, str] = {}  # key -> role, dev/test convenience
+    # OIDC (auth_mode=oidc for bearer tokens; the browser flow needs the client settings below).
     oidc_issuer: str = ""
-    oidc_audience: str = ""
+    oidc_audience: str = ""  # expected `aud` of bearer access tokens (API-to-API); defaults to the client id
+    oidc_client_id: str = ""
+    oidc_client_secret: str = ""  # empty for public clients (PKCE only)
+    oidc_redirect_uri: str = ""  # e.g. https://app.example.com/api/v1/auth/oidc/callback
+    oidc_scopes: str = "openid profile email"
+    # Role granted in the default organization on first sign-in ("" = no membership until an admin adds one).
+    oidc_default_role: str = ""
+    frontend_url: str = "http://localhost:3010"  # post-login redirect base (same origin as the API in production)
     # Browser sessions (ADR-0029 §6): HS256 JWT in an HttpOnly cookie signed with this secret.
     session_secret: str = ""
     session_ttl_hours: int = 12

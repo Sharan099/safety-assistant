@@ -29,7 +29,7 @@ class PreferencesPatch(BaseModel):
     ui_theme: Literal["light", "dark", "system"] | None = None
 
 
-def _set_cookie(response: Response, token: str, settings: Settings) -> None:
+def set_session_cookie(response: Response, token: str, settings: Settings) -> None:
     response.set_cookie(
         SESSION_COOKIE,
         token,
@@ -67,7 +67,7 @@ def dev_login(
         request_id=getattr(request.state, "request_id", None),
     )
     session.commit()
-    _set_cookie(response, issue_session(user.id, settings), settings)
+    set_session_cookie(response, issue_session(user.id, settings), settings)
     return {"user_id": str(user.id), "email": user.email}
 
 

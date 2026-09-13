@@ -14,7 +14,7 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -55,6 +55,10 @@ class RetrievalConfig:
     # Rerank only the top-N fused candidates (None = all). Bounds cross-encoder latency; the heuristic
     # reranker is cheap enough to score everything.
     rerank_top_n: int | None = 12
+    # "always" runs the reranker on every query. "adaptive" skips it when the legs already agree:
+    # the query names a clause identifier and the exact leg found it, or dense and sparse put the same
+    # chunk first. No tuned thresholds — measured in docs/evaluation.md before this became an option.
+    rerank_policy: Literal["always", "adaptive"] = "always"
     expand_parents: bool = True
     expand_cross_refs: bool = True
     min_shared_terms: int = DEFAULT_MIN_SHARED_TERMS
@@ -69,6 +73,7 @@ class RetrievalConfig:
             dense_weight=s.retrieval_dense_weight,
             sparse_weight=s.retrieval_sparse_weight,
             rerank_top_n=s.retrieval_rerank_top_n,
+            rerank_policy=s.retrieval_rerank_policy,
         )
 
 
@@ -219,7 +224,14 @@ class RetrievalService:
         rerank_scores: dict[uuid.UUID, float] = {}
         rr_meta: dict[str, Any] = {}
         degraded: list[str] = []
-        if fused_order:
+        skip_rerank = self.config.rerank_policy == "adaptive" and (
+            (qs.has_exact_identifier and bool(exact_ids))
+            or (bool(dense_ids) and bool(sparse_ids) and dense_ids[0] == sparse_ids[0])
+        )
+        if skip_rerank:
+            rr_meta = {"reranker": "skipped:legs_agree"}
+            timings["rerank"] = 0.0
+        if fused_order and not skip_rerank:
             t0 = time.perf_counter()
             top_n = self.config.rerank_top_n
             head, tail = (fused_order[:top_n], fused_order[top_n:]) if top_n else (fused_order, [])

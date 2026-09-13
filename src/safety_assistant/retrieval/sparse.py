@@ -12,6 +12,9 @@ the leg, which a pre-cut top-k over the whole corpus would do.
 The tokenizer keeps ``*`` and ``_`` and joins decimal clause numbers so
 identifiers like ``5.2.1.8``, ``*MAT_024`` and ``HIC15`` survive as single
 terms — exact identifiers must route strongly toward lexical retrieval.
+
+One index per representation: "content" tokenizes the chunk text, "sac_v1" the
+summary-augmented ``retrieval_text`` (falling back to content where it is NULL).
 """
 
 from __future__ import annotations
@@ -70,6 +73,7 @@ class VersionMeta:
 @dataclass
 class Bm25Index:
     generation: tuple[int, str]
+    representation: str
     chunk_ids: list[uuid.UUID]
     version_ids: list[uuid.UUID]
     versions: dict[uuid.UUID, VersionMeta]
@@ -99,7 +103,7 @@ class Bm25Index:
 
 
 _lock = threading.Lock()
-_cache: Bm25Index | None = None
+_cache: dict[str, Bm25Index] = {}
 
 
 def _generation(session: Session) -> tuple[int, str]:
@@ -112,14 +116,22 @@ def _generation(session: Session) -> tuple[int, str]:
     return int(count), str(newest)
 
 
-def build_index(session: Session) -> Bm25Index:
+def build_index(session: Session, representation: str = "content") -> Bm25Index:
     gen = _generation(session)
+    text = func.coalesce(Chunk.retrieval_text, Chunk.content) if representation == "sac_v1" else Chunk.content
     stmt = (
-        select(Chunk.id, Chunk.content)
+        select(Chunk.id, text)
         .join(RegulationVersion, RegulationVersion.id == Chunk.version_id)
         .where(RegulationVersion.status.in_([s.value for s in RETRIEVABLE_HISTORICAL]))
     )
-    rows = session.execute(stmt.add_columns(Chunk.version_id)).all()
+    rows: list[tuple[uuid.UUID, str, uuid.UUID]] = [
+        (cid, txt, vid) for cid, txt, vid in session.execute(stmt.add_columns(Chunk.version_id)).all()
+    ]
+    if representation == "sac_v2":
+        from safety_assistant.contextualization.context_builder import compact_prefixes
+
+        prefixes = compact_prefixes(session)
+        rows = [(cid, f"{prefixes.get(vid, '')}\n{txt}", vid) for cid, txt, vid in rows]
     versions = {
         v.id: VersionMeta(
             v.status,
@@ -136,9 +148,12 @@ def build_index(session: Session) -> Bm25Index:
         ).all()
     }
     if not rows:
-        return Bm25Index(generation=gen, chunk_ids=[], version_ids=[], versions=versions, bm25=None)
+        return Bm25Index(
+            generation=gen, representation=representation, chunk_ids=[], version_ids=[], versions=versions, bm25=None
+        )
     return Bm25Index(
         generation=gen,
+        representation=representation,
         chunk_ids=[r[0] for r in rows],
         version_ids=[r[2] for r in rows],
         versions=versions,
@@ -146,20 +161,19 @@ def build_index(session: Session) -> Bm25Index:
     )
 
 
-def get_index(session: Session) -> Bm25Index:
-    """Process-wide cache, rebuilt when the retrievable corpus changes."""
-    global _cache
+def get_index(session: Session, representation: str = "content") -> Bm25Index:
+    """Process-wide cache per representation, rebuilt when the retrievable corpus changes."""
     gen = _generation(session)
     with _lock:
-        if _cache is None or _cache.generation != gen:
-            _cache = build_index(session)
-        return _cache
+        idx = _cache.get(representation)
+        if idx is None or idx.generation != gen:
+            idx = _cache[representation] = build_index(session, representation)
+        return idx
 
 
 def invalidate_cache() -> None:
-    global _cache
     with _lock:
-        _cache = None
+        _cache.clear()
 
 
 def sparse_search(
@@ -170,8 +184,9 @@ def sparse_search(
     top_k: int,
     index: Bm25Index | None = None,
     today: datetime.date | None = None,
+    representation: str = "content",
 ) -> list[tuple[uuid.UUID, float]]:
     """Ranked (chunk_id, bm25_score), scoped, zero-score chunks excluded."""
-    idx = index or get_index(session)
+    idx = index or get_index(session, representation)
     scored = idx.scores(query, scope, today)
     return sorted(scored.items(), key=lambda x: x[1], reverse=True)[:top_k]

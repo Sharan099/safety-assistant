@@ -10,7 +10,9 @@ import yaml
 from pydantic import BaseModel, Field, model_validator
 
 Answerability = Literal["answerable", "partial", "unanswerable_out_of_scope", "unanswerable_not_in_corpus", "ambiguous"]
-Source = Literal["human", "llm_generated", "llm_generated_reviewed"]
+# synthetic: written by tooling/engineers from corpus inspection, not by the product owner and not
+# by an LLM; human_reviewed stays False until the owner marks it.
+Source = Literal["human", "llm_generated", "llm_generated_reviewed", "synthetic"]
 
 
 class GoldCase(BaseModel):
@@ -23,6 +25,8 @@ class GoldCase(BaseModel):
     expected_regulation_key: str | None = None
     expected_regulation_keys: list[str] = Field(default_factory=list)
     expected_version_label: str | None = None
+    # Documents a chunk-only retriever confuses with the expected one (DRM benchmark); reporting only.
+    hard_negative_regulation_keys: list[str] = Field(default_factory=list)
     expected_section_paths: list[str] = Field(default_factory=list)
     expected_section_prefixes: list[str] = Field(default_factory=list)
     key_facts: list[str] = Field(default_factory=list)

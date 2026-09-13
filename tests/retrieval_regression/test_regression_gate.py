@@ -45,12 +45,15 @@ def corpus():  # type: ignore[no-untyped-def]
 
     from safety_assistant.config.settings import Settings
     from safety_assistant.providers.embeddings import build_embedding_provider
-    from safety_assistant.retrieval import RetrievalService
+    from safety_assistant.retrieval import RetrievalConfig, RetrievalService
 
     embedder = build_embedding_provider(Settings(app_env="development", embedding_provider="fastembed"))
     engine = create_engine(CORPUS_URL)
+    # The stable-case and floor tests guard the baseline representation regardless of the operator's
+    # RETRIEVAL_REPRESENTATION; the SAC comparison test below evaluates both explicitly.
+    cfg = RetrievalConfig(representation="content")
     with Session(engine) as session:
-        yield session, RetrievalService(embedder=embedder)
+        yield session, RetrievalService(embedder=embedder, config=cfg)
 
 
 def test_stable_cases_keep_regulation_and_section_in_range(corpus) -> None:  # type: ignore[no-untyped-def]
@@ -116,3 +119,35 @@ def test_full_pipeline_mrr_floor_regulatory_v2(corpus) -> None:  # type: ignore[
     agg = report.legs[0].aggregate
     assert agg["mrr"] is not None and agg["mrr"] >= MIN_MRR_FULL_V2, f"v2 MRR {agg['mrr']:.3f} < {MIN_MRR_FULL_V2}"
     assert agg["recall@10"] >= 0.90, f"v2 R@10 {agg['recall@10']:.3f} < 0.90"
+
+
+# Document-level gate (ADR-0030). Measured 2026-09-13, full pipeline, cross-encoder: baseline DRM@1
+# 0.389 on document_mismatch_v1 and 0.081 on regulatory_v2; sac_v2 0.333 / 0.069. Runs only when the
+# compact SAC index covers the corpus, and asserts SAC never mismatches more than the baseline.
+MAX_DRM1_DOCUMENT_MISMATCH = 0.39
+MAX_DRM1_V2 = 0.09
+
+
+def test_summary_augmented_index_does_not_increase_document_mismatch(corpus) -> None:  # type: ignore[no-untyped-def]
+    import dataclasses
+
+    from safety_assistant.contextualization import SAC_COMPACT_REPRESENTATION
+    from safety_assistant.contextualization.reindex import sac_coverage
+    from safety_assistant.evaluation import load_dataset, run_evaluation
+    from safety_assistant.retrieval import RetrievalConfig
+
+    session, svc = corpus
+    cov = sac_coverage(session, svc.embedder, SAC_COMPACT_REPRESENTATION)
+    if not cov["chunks"] or cov["sac_embedded"] < cov["chunks"]:
+        pytest.skip(f"sac_v2 index incomplete: {cov}")
+    ds = load_dataset(ROOT / "evals" / "datasets" / "document_mismatch_v1.yaml")
+    results = {}
+    for rep in ("content", SAC_COMPACT_REPRESENTATION):
+        cfg = dataclasses.replace(RetrievalConfig(), representation=rep)
+        report = run_evaluation(session, ds, legs=["full"], base_config=cfg, embedder=svc.embedder)
+        results[rep] = report.legs[0].aggregate
+    base, sac = results["content"]["drm@1"], results[SAC_COMPACT_REPRESENTATION]["drm@1"]
+    assert base is not None and sac is not None
+    assert sac <= base, f"sac_v2 DRM@1 {sac:.3f} worse than baseline {base:.3f}"
+    assert sac <= MAX_DRM1_DOCUMENT_MISMATCH, f"sac_v2 DRM@1 {sac:.3f} above measured ceiling"
+    assert results[SAC_COMPACT_REPRESENTATION]["doc_mrr"] >= results["content"]["doc_mrr"]

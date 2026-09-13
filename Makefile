@@ -1,5 +1,5 @@
 # Developer entry points. Everything runs through uv.
-.PHONY: setup db migrate ingest api worker users test lint types eval eval-judged frontend e2e load docker up down
+.PHONY: setup db migrate ingest api worker users test lint types eval reindex eval-sac eval-judged frontend e2e load docker up down
 
 setup:            ## install dependencies (incl. s3 extra)
 	uv sync --extra s3
@@ -23,6 +23,10 @@ types:
 	uv run mypy src scripts/eval scripts/maintenance
 eval:             ## per-leg retrieval evaluation -> evals/results/
 	uv run safety-assistant eval-retrieval --dataset evals/datasets/regulatory_v2.yaml
+reindex:          ## build the summary-augmented (sac_v1) index for the existing corpus; resumable
+	uv run safety-assistant reindex
+eval-sac:         ## baseline vs SAC A/B on the document-mismatch benchmark and regulatory_v2
+	uv run python scripts/eval/sac_ab.py --datasets evals/datasets/document_mismatch_v1.yaml evals/datasets/regulatory_v2.yaml
 eval-judged:      ## end-to-end answers + deterministic metrics + RAGAS/DeepEval judges (needs `uv sync --extra eval` and an LLM)
 	uv run python scripts/eval/judged.py --dataset evals/datasets/regulatory_v2.yaml --ragas --deepeval
 frontend:         ## type-check, lint and build the Next.js app

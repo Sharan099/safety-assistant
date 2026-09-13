@@ -21,14 +21,20 @@ def dense_search(
     *,
     top_k: int,
     today: datetime.date | None = None,
+    representation: str = "content",
 ) -> list[tuple[uuid.UUID, float]]:
-    """Ranked (chunk_id, cosine_distance) — lower distance is better."""
+    """Ranked (chunk_id, cosine_distance) — lower distance is better. `representation` picks
+    the index version: "content" (baseline) or "sac_v1" (summary-augmented, migration 0005)."""
     distance = ChunkEmbedding.embedding.cosine_distance(query_vector)
     stmt = (
         scoped_statement(scope, today=today)
         .with_only_columns(Chunk.id, distance.label("distance"))
         .join(ChunkEmbedding, ChunkEmbedding.chunk_id == Chunk.id)
-        .where(ChunkEmbedding.model_name == provider.model_name, ChunkEmbedding.model_version == provider.model_version)
+        .where(
+            ChunkEmbedding.model_name == provider.model_name,
+            ChunkEmbedding.model_version == provider.model_version,
+            ChunkEmbedding.representation == representation,
+        )
         .order_by(distance.asc())
         .limit(top_k)
     )

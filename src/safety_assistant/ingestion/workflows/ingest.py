@@ -30,6 +30,13 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from safety_assistant.config import Settings, get_settings
+from safety_assistant.contextualization import (
+    SAC_COMPACT_REPRESENTATION,
+    SAC_REPRESENTATION,
+    compact_prefixes,
+    contextualize_version,
+    ensure_summary,
+)
 from safety_assistant.domain.regulations import VersionStatus, transition
 from safety_assistant.identity.service import default_organization
 from safety_assistant.ingestion.chunk import (
@@ -71,6 +78,7 @@ from safety_assistant.persistence.models import (
     Table,
 )
 from safety_assistant.providers.embeddings import EmbeddingProvider, get_embedding_provider
+from safety_assistant.providers.llm import LLMProvider, summary_llm_provider
 
 MAX_ATTEMPTS = 3
 
@@ -99,6 +107,7 @@ class _Ctx:
     embedder: EmbeddingProvider
     repo_root: pathlib.Path
     scanner: MalwareScanner = dataclasses.field(default_factory=NoScanner)
+    llm: LLMProvider | None = None  # document summaries (SAC) only; never part of parsing or evidence
     stats: dict[str, Any] = dataclasses.field(default_factory=dict)
     reuse_pool: dict[str, list[float]] = dataclasses.field(default_factory=dict)
 
@@ -165,6 +174,7 @@ def ingest_source(
     activate: bool = True,
     max_pages: int | None = None,
     actor: str | None = None,
+    llm: LLMProvider | None = None,
 ) -> IngestOutcome:
     settings = settings or get_settings()
     registry = registry or get_registry()
@@ -178,6 +188,7 @@ def ingest_source(
         embedder=embedder or get_embedding_provider(),
         repo_root=repo_root or pathlib.Path.cwd(),
         scanner=_default_scanner(settings),
+        llm=llm if llm is not None else (summary_llm_provider(settings) if settings.sac_enabled else None),
     )
     if actor:
         ctx.stats["actor"] = actor  # audit: who triggered a privileged ingestion
@@ -260,6 +271,7 @@ def ingest_version(
     activate: bool = True,
     actor: str | None = None,
     force: bool = False,
+    llm: LLMProvider | None = None,
 ) -> IngestOutcome:
     """Run the same pipeline for a version whose bytes are already in the blob store
     (user uploads, ADR-0029 §5). No registry, no download: the artifact row is the source of truth."""
@@ -285,6 +297,7 @@ def ingest_version(
         embedder=embedder or get_embedding_provider(),
         repo_root=pathlib.Path.cwd(),
         scanner=_default_scanner(settings),
+        llm=llm if llm is not None else (summary_llm_provider(settings) if settings.sac_enabled else None),
     )
     if actor:
         ctx.stats["actor"] = actor
@@ -354,6 +367,8 @@ def _pipeline(
     parsed = _parse(ctx, version, data, validated.sha256, max_pages)
     normalized = _normalize(ctx, version, entry, parsed)
     _chunk(ctx, version, entry, parsed, normalized)
+    if ctx.settings.sac_enabled:
+        _contextualize(ctx, version, regulation)
     _index(ctx, version)
     _verify(ctx, version)
     if activate:
@@ -761,9 +776,36 @@ def _page_index(nd: NormalizedDocument, ids: dict[str, uuid.UUID]) -> Any:
     return lookup
 
 
+def _contextualize(ctx: _Ctx, version: RegulationVersion, regulation: Regulation) -> None:
+    """SAC: one cached document summary per version, then `retrieval_text` on every chunk.
+    A failed summary degrades to identity block + content — it never fails the version."""
+    summary = ensure_summary(
+        ctx.session, version, regulation, ctx.llm, allowed_data_classes=ctx.settings.llm_data_classes
+    )
+    stats = contextualize_version(ctx.session, version, regulation, summary)
+    ctx.stats.update(sac_summary=stats.summary_status, sac_chunks=stats.chunks, sac_reused=stats.reused)
+    ctx.event(version.status, f"retrieval text built for {stats.chunks} chunks (summary {stats.summary_status})")
+
+
+def _sac_target(settings: Settings) -> str:
+    """Which SAC representation ingestion builds: the one the query side is set to, else the
+    recommended compact one (so an index is ready when the setting is switched)."""
+    rep = settings.retrieval_representation
+    return rep if rep in (SAC_REPRESENTATION, SAC_COMPACT_REPRESENTATION) else SAC_COMPACT_REPRESENTATION
+
+
 def _index(ctx: _Ctx, version: RegulationVersion) -> None:
     started = _now()
     stats: EmbedStats = embed_version_chunks(ctx.session, version, ctx.embedder, reuse_pool=ctx.reuse_pool)
+    if ctx.settings.sac_enabled:
+        rep = _sac_target(ctx.settings)
+        prefix = (
+            compact_prefixes(ctx.session, [version.id]).get(version.id) if rep == SAC_COMPACT_REPRESENTATION else None
+        )
+        sac: EmbedStats = embed_version_chunks(
+            ctx.session, version, ctx.embedder, representation=rep, reuse_pool=ctx.reuse_pool, prefix=prefix
+        )
+        ctx.stats.update(sac_representation=rep, sac_embed_reused=sac.reused, sac_embed_new=sac.embedded)
     version.index_schema_version = INDEX_SCHEMA_VERSION
     ctx.stats.update(
         embed_total=stats.total,
@@ -793,6 +835,21 @@ def _verify(ctx: _Ctx, version: RegulationVersion) -> None:
                 Chunk.version_id == version.id,
                 ChunkEmbedding.model_name == ctx.embedder.model_name,
                 ChunkEmbedding.model_version == ctx.embedder.model_version,
+                ChunkEmbedding.representation == "content",
+            )
+        )
+        or 0
+    )
+    sac_embedded = (
+        s.scalar(
+            select(func.count())
+            .select_from(ChunkEmbedding)
+            .join(Chunk, Chunk.id == ChunkEmbedding.chunk_id)
+            .where(
+                Chunk.version_id == version.id,
+                ChunkEmbedding.model_name == ctx.embedder.model_name,
+                ChunkEmbedding.model_version == ctx.embedder.model_version,
+                ChunkEmbedding.representation == _sac_target(ctx.settings),
             )
         )
         or 0
@@ -808,6 +865,8 @@ def _verify(ctx: _Ctx, version: RegulationVersion) -> None:
         problems.append("no chunks")
     if embedded != chunks:
         problems.append(f"embeddings {embedded} != chunks {chunks}")
+    if ctx.settings.sac_enabled and sac_embedded != chunks:
+        problems.append(f"sac embeddings {sac_embedded} != chunks {chunks}")
     if unlabeled:
         problems.append(f"{unlabeled} chunks without citation label")
     if problems:

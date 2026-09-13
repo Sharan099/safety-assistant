@@ -95,12 +95,18 @@ def test_failure_taxonomy_assigns_one_category_from_signals() -> None:
 
     assert classify_failure(answerable, scored(mode="ABSTAINED")) == "unnecessary_refusal"
     assert classify_failure(answerable, scored(grounding_ok=False, answer="x 1,3")) == "unsupported_numerical_claim"
-    wrong = scored(
+    wrong_doc = scored(
         answer="limit 1,3",
         citations=[{"evidence_id": "E1", "label": "l", "regulation_key": "UN-R95", "section_path": "9"}],
         contexts=["limit 1,3"],
     )
-    assert classify_failure(answerable, wrong) == "wrong_clause_attribution"
+    assert classify_failure(answerable, wrong_doc) == "document_level_retrieval_mismatch"  # right text, wrong source
+    wrong_clause = scored(
+        answer="limit 1,3",
+        citations=[{"evidence_id": "E1", "label": "l", "regulation_key": "UN-R94", "section_path": "9"}],
+        contexts=["limit 1,3"],
+    )
+    assert classify_failure(answerable, wrong_clause) == "wrong_clause_attribution"
     assert classify_failure(answerable, scored(mode="GENERATED", answer="limit 1,3")) == "missing_citation"
     good = scored(
         answer="limit 1,3",

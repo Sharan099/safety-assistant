@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — 2026-09-13 (summary-augmented chunking)
+
+Document identity in the retrieval representation, never in the evidence (ADR-0030).
+
+- `document_summaries`: one generated retrieval summary per document version, cached by (artifact sha256, prompt version, model), validated (reasoning dumps, truncation and markdown are rejected and recorded as FAILED, retryable), provider data-class policy applied; `chunks.retrieval_text` = identity block + summary + unchanged content; `chunk_embeddings.representation` (`content` | `sac_v1`) with one partial HNSW index each. Migration `0005` (additive; downgrade restores the single index).
+- `safety-assistant reindex` builds the sac_v1 index for an existing corpus: per-version commit, resumable, idempotent, failure reporting, coverage check. `SAC_ENABLED` builds it at ingest; `RETRIEVAL_REPRESENTATION` / `RETRIEVAL_SAC_SPARSE_WEIGHT` select what the query side uses. Chunk content, citations, the exact-clause leg and the temporal filter are untouched; `Evidence` has no field for the summary.
+- Evaluation: document-level metrics (recall@1/3/5, MRR), the document-level retrieval mismatch rate (`drm@1`, `drm@5`, definition in `evaluation/retrieval_eval.py`), version hit, `document_level_retrieval_mismatch` in the generation failure taxonomy, `source: synthetic` provenance, `hard_negative_regulation_keys`; benchmark `evals/datasets/document_mismatch_v1.yaml` (36 twin-clause cases); `scripts/eval/sac_ab.py` (A/B on identical queries and labels) and `scripts/eval/drm_cases.py` (per-case flips); retrieval traces carry document/version/section and a document distribution.
+- Measured results and the adopted configuration: README "Measured results".
+
 ## 0.3.0 — 2026-09-13 (v2: product workspace)
 
 Rebuild into the passive-safety regulatory intelligence workspace (ADR-0029).

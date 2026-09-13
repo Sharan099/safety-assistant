@@ -220,6 +220,7 @@ def run_case(
 FAILURE_CATEGORIES = (
     "unnecessary_refusal",
     "should_have_refused",
+    "document_level_retrieval_mismatch",
     "unsupported_numerical_claim",
     "citation_not_supporting_claim",
     "wrong_clause_attribution",
@@ -240,6 +241,12 @@ def classify_failure(case: GoldCase, rec: CaseRecord) -> str | None:
         return None
     if rec.mode == "ABSTAINED":
         return "unnecessary_refusal"
+    expected_regs = case.regulation_keys
+    cited_regs = {c.get("regulation_key") for c in rec.citations if c.get("regulation_key")}
+    if expected_regs and cited_regs and not (cited_regs & expected_regs):
+        # The answer is built on passages from another document (R95 for an R94 question):
+        # a wrong source, not a wrong clause of the right source.
+        return "document_level_retrieval_mismatch"
     if rec.grounding_ok is False:
         return "unsupported_numerical_claim"
     if m.get("citation_precision") is not None and m["citation_hit"] == 0.0:

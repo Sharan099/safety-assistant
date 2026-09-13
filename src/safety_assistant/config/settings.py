@@ -74,6 +74,22 @@ class Settings(BaseSettings):
     retrieval_sparse_weight: float = 1.0
     retrieval_rerank_top_n: int | None = 12  # cap for expensive rerankers (cross_encoder); None = all
     retrieval_rerank_policy: Literal["always", "adaptive"] = "always"  # measured option, see README "Measured results"
+    # Summary-augmented chunking (contextualization/, ADR-0030). `sac_enabled` makes ingestion build the
+    # SAC representation (one document summary via the LLM provider + identity text per chunk) alongside
+    # the baseline; `retrieval_representation` selects which index the query side searches:
+    #   content  baseline chunks
+    #   sac_v2   compact identity line + first summary sentence + chunk — measured best on document-level
+    #            metrics on every set (README "Measured results"); the representation ingestion builds
+    #   sac_v1   full identity block + summary + chunk — best on the twin-clause benchmark, regresses passage
+    #            precision on the broad set; experimental, built with `reindex --representation sac_v1`
+    # A fresh corpus needs `safety-assistant reindex` (or SAC_ENABLED at ingest) before switching.
+    sac_enabled: bool = False
+    retrieval_representation: Literal["content", "sac_v1", "sac_v2"] = "content"
+    retrieval_sac_sparse_weight: float = 0.0  # extra BM25 leg over sac_v1 text in RRF; 0 = off
+    retrieval_rerank_with_context: bool = False  # cross-encoder sees "document line + chunk" (measured option)
+    # Model for document summaries (same provider/base URL/key as `llm_model`; empty = llm_model).
+    # Summaries want a plain instruct model: reasoning-style outputs are rejected by the validator.
+    summary_model: str = ""
 
     # Ingestion resource limits (CLAUDE.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024

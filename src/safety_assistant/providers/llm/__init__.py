@@ -8,7 +8,7 @@ from safety_assistant.providers.llm.base import (
     LLMSchemaError,
     LLMUnavailable,
 )
-from safety_assistant.providers.llm.factory import build_llm_provider, get_llm_provider
+from safety_assistant.providers.llm.factory import build_llm_provider, get_llm_provider, summary_llm_provider
 
 __all__ = [
     "LLMBadRequest",
@@ -21,4 +21,5 @@ __all__ = [
     "LLMUnavailable",
     "build_llm_provider",
     "get_llm_provider",
+    "summary_llm_provider",
 ]

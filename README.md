@@ -14,7 +14,8 @@ A multi-user workbench where evidence is the primary object:
 upload PDF ─► validate (magic bytes, size, pages, malware-scan hook)
           ─► parse (PyMuPDF; scanned pages flagged, OCR hook)
           ─► clause tree + tables + cross-references, version metadata preserved
-          ─► structural chunks ─► BM25 index + dense embeddings ─► verify ─► READY (atomic activation)
+          ─► structural chunks ─► one document summary per version (cached) ─► retrieval text per chunk
+          ─► BM25 index + dense embeddings (baseline and summary-augmented) ─► verify ─► READY (atomic activation)
 
 question  ─► parse scope (regulation, clause, as-of date)
           ─► authorization predicate in SQL (organization / workspace / owner) — before any ranking
@@ -59,6 +60,39 @@ Production configuration: BM25 + dense (weight 0.75) + exact-clause leg → RRF 
 | | hybrid RRF | 0.818 | 0.916 | 0.848 | 0.652 | 0.704 | 0.984 |
 | | **full** | **0.911** | **0.931** | **0.938** | **0.808** | **0.829** | **0.992** |
 
+### Document identity: summary-augmented chunking
+
+Many automotive regulations contain similar wording. UN R94 §5.2.3 and UN R95 §5.3.1 both say "no door shall open"; R94 §5.2.7 and R95 §5.3.6 both limit fuel leakage to 30 g/min; R16 §2.32 and R129 §2.11 both define the ISOFIX anchorage system. A paragraph can be semantically right and belong to the wrong regulation. To reduce this failure mode, each chunk is indexed together with document-level context — a deterministic identity line (regulation, title, version) and one generated summary per document version — while the answer and the citations always come from the original regulatory text (`chunks.content`; the evidence model has no field for the summary). ADR-0030 records the design.
+
+Two representations were built beside the baseline and compared on identical queries and labels (`scripts/eval/sac_ab.py`; full pipeline, cross-encoder, k_eval = 20, measured 2026-09-13):
+
+- `sac_v2` (compact): `UN R94 — Protection of the occupants in the event of a frontal collision (Rev.4 (04 series)). <first summary sentence>` + chunk. Fits the 128-token input window that fastembed applies to MiniLM, so the dense vector still contains the chunk.
+- `sac_v1` (full): identity block + whole summary + chunk. The prefix alone is ~330 tokens, so under that window the dense vector is effectively a *document* vector.
+
+*Document-level retrieval mismatch (DRM)*: for an answerable case with a known regulation, `drm@1` = 1 when the top result comes from another document (definition and `drm@5` in `evaluation/retrieval_eval.py`). `document_mismatch_v1` is a 36-case benchmark of twin clauses (frontal vs side impact, adult belts vs child restraints, main body vs annex; `source: synthetic`, written from the ingested sections, not human-reviewed).
+
+| Dataset | Config | Doc R@1 | Doc R@5 | Doc MRR | DRM@1 | Passage R@5 | R@10 | Passage MRR | p50 ms |
+|---|---|---|---|---|---|---|---|---|---|
+| document_mismatch_v1 (36) | baseline | 0.611 | 0.917 | 0.758 | 0.389 | 0.677 | 0.721 | 0.586 | 2330 |
+| | **sac_v2** | 0.667 | 0.944 | 0.798 | 0.333 | 0.711 | 0.822 | 0.631 | 1374 |
+| | sac_v1 | **0.694** | 0.944 | **0.826** | **0.306** | **0.816** | **0.887** | **0.677** | 2205 |
+| regulatory_v2 (262, 247 eligible) | baseline | 0.915 | 0.988 | 0.947 | 0.081 | **0.911** | **0.935** | **0.808** | 1338 |
+| | **sac_v2** | **0.927** | **0.992** | **0.955** | **0.069** | 0.899 | 0.919 | 0.800 | 1368 |
+| | sac_v1 | 0.919 | 0.984 | 0.947 | 0.077 | 0.872 | 0.907 | 0.790 | 1749 |
+| regulatory_v1 (47 human, 43 eligible) | baseline | 0.886 | 0.977 | 0.922 | 0.093 | 0.844 | **0.877** | **0.756** | 1523 |
+| | **sac_v2** | **0.932** | 0.977 | **0.951** | **0.047** | 0.844 | 0.864 | 0.754 | 1394 |
+| | sac_v1 | 0.886 | 0.955 | 0.924 | 0.093 | 0.781 | 0.802 | 0.703 | 2080 |
+
+Reading: `sac_v2` improves every document-level metric on every set (the human-written set's mismatch rate halves, 4 → 2 of 43) at a passage cost on the broad set of −0.008 MRR and −0.016 R@10 (four of 262 cases), with unchanged latency. `sac_v1` is the strongest on the twin-clause benchmark but trades passage precision on the broad set, because its BM25 text repeats ~330 document tokens in every chunk. Leg ablations (`evals/results/sac_*_ablation_latest.json`): with `sac_v1` only on the dense leg the broad set improves uniformly (MRR 0.814, R@10 0.936, DRM 0.073) but the twin-clause benchmark does not move — the BM25 leg is what carries the hard cases. A first round with summaries from the free "auto" route produced reasoning dumps for 10 of 16 documents; the validator now rejects those (recorded as FAILED, retryable), and the reported numbers use `gpt-oss-120b` summaries.
+
+With `RERANKER=heuristic` (the fast `/search` profile) the picture is the same: v1 MRR 0.647 → 0.624 and R@10 0.903 → 0.890 with the mismatch rate unchanged, twin-clause set MRR 0.592 → 0.668, R@10 0.723 → 0.837 and DRM@1 0.444 → 0.222. One stable human case (`r16-003`, "ISOFIX definition", where R129 defines the same term) drops its clause out of the top 10 on that profile; the regression gate therefore pins the baseline representation for its stable-case checks and compares both representations in a separate test.
+
+A third lever was measured because most remaining twin-clause misses are re-imposed by the cross-encoder, which sees chunk text only: `RETRIEVAL_RERANK_WITH_CONTEXT=true` gives it the document line with the chunk. On `sac_v2` it takes the twin-clause set to Doc R@1 0.806 / DRM@1 0.194 / passage MRR 0.760 (and even the baseline index to 0.778 / 0.222), but costs passage MRR on the human-written set (0.754 → 0.718) and the broad set (0.800 → 0.786). It is shipped as an option, not enabled (`evals/results/sac_rerank_context_ablation_latest.json`).
+
+Decision: `sac_v2` is the recommended configuration (`RETRIEVAL_REPRESENTATION=sac_v2`, opt-in because a fresh corpus must build the index first); `sac_v1` stays available as an experimental option; the baseline index is untouched and remains the default in code.
+
+Cost of the representation: 16 summaries = 28k prompt + 7.8k completion tokens once per corpus (free tier here; ≈ $0.01 at the reference prices in `evals/pricing.yaml`); `reindex --representation sac_v2` embedded 21,911 chunks in 769 s on the laptop CPU (951 s for `sac_v1` including summary generation); each extra representation adds 21,911 vector rows and a 42 MB HNSW index (`chunk_embeddings` is 246 MB with all three).
+
 Before this work the full pipeline measured MRR 0.636 (v1) / 0.709 (v2) with a heuristic reranker; the gain comes from the cross-encoder (measured +0.10 to +0.12 MRR) and a small RRF re-weighting. BM25 alone beats dense alone by a wide margin on this corpus — see [Why the architecture looks this way](#why-the-architecture-looks-this-way).
 
 Latency on a laptop CPU (i5-8250U), single request: retrieval p50 ≈ 1.4 s with the cross-encoder, ≈ 0.27 s with `RERANKER=heuristic`. The adaptive policy (`RETRIEVAL_RERANK_POLICY=adaptive`, reranker skipped when the exact-clause leg hit or BM25 and dense agree on the top result) measured v1 MRR 0.767 / v2 0.797 at a 66–72 % reranker invocation rate and p50 −30 to −43 %; it is shipped as an option, not the default, because v2 lost 0.011 MRR.
@@ -77,7 +111,7 @@ Latency on a laptop CPU (i5-8250U), single request: retrieval p50 ≈ 1.4 s with
 | RAGAS 0.4 (n = 100, evenly sampled): faithfulness · answer relevancy · context precision · context recall | 0.742 · 0.774 · 0.866 · 0.960 |
 | DeepEval 4.2 (n = 26): faithfulness · answer relevancy · contextual precision | 1.000 · 0.907 · 0.880 |
 
-Failure analysis of that run (deterministic taxonomy, `failures_by_category` in the report): 73 of 262 answers were classified as failures — 31 `citation_not_supporting_claim`, 14 `unnecessary_refusal`, the rest attribution/coverage. The largest fixable cause of refusals was the numeric validator rejecting clause paths and revision labels that models quote from the evidence attributes; that is fixed (`generation/citations.py`, unit-tested), and the re-run under the fixed validator is recorded in `evals/results/generation_regulatory_v2_latest.json`.
+Failure analysis of that run (deterministic taxonomy, `failures_by_category` in the report): 73 of 262 answers were classified as failures — 31 `citation_not_supporting_claim`, 14 `unnecessary_refusal`, the rest attribution/coverage. The largest fixable cause of refusals was the numeric validator rejecting clause paths and revision labels that models quote from the evidence attributes; that is fixed (`generation/citations.py`, unit-tested). A re-run under the fixed validator answered all 262 cases but its RAGAS/DeepEval judging was stopped for free-tier rate limits; the table above therefore stays the pre-fix measurement and `evals/results/generation_regulatory_v2_latest.json` is that run.
 
 RAGAS faithfulness is a lower bound: it penalises attribution sentences ("according to UN R94 Rev.4 …") that the contexts do not literally contain; the repository's own validator and DeepEval judge the requirement claims. DeepEval covered 26 of a planned 40 records because a gateway call hung; the sample is what completed, not a selection.
 
@@ -94,8 +128,8 @@ flowchart LR
     A --> AUTH[identity: OIDC / dev login<br/>roles → scopes]
     A --> P[authorization predicate<br/>org · workspace · owner]
     P --> R[retrieval service]
-    R --> S[BM25]
-    R --> D[pgvector HNSW]
+    R --> S[BM25<br/>content or SAC text]
+    R --> D[pgvector HNSW<br/>one index per representation]
     R --> X[exact-clause leg]
     S --> F[RRF]
     D --> F
@@ -106,7 +140,7 @@ flowchart LR
     V --> C[(conversations, citations, traces)]
     A --> DB[(PostgreSQL 16 + pgvector)]
     A --> Q[(ingestion_jobs)]
-    Q --> WK[worker: validate → scan → parse → chunk → embed → index → verify → activate]
+    Q --> WK[worker: validate → scan → parse → chunk → summarise → embed → index → verify → activate]
     WK --> OBJ[(object storage, content-addressed)]
     WK --> DB
 ```
@@ -120,19 +154,22 @@ One Python package (`src/safety_assistant/`), one database, one worker process, 
 | Documents, uploads, jobs | `documents/service.py`, `api/routes/documents.py`, `workers/ingestion.py` |
 | Ingestion pipeline | `ingestion/{validation,parse,normalize,chunk,index,workflows}` |
 | Retrieval | `retrieval/{base,dense,sparse,fusion,rerank,context,service}.py` |
+| Document summaries, retrieval text, reindex | `contextualization/{prompts,document_summary,context_builder,reindex}.py` |
 | Generation contract | `generation/{schemas,grounding,citations,prompts,service}.py`, `agents/graph.py` (bounded) |
 | Conversations | `conversations/service.py`, `api/routes/conversations.py` |
 | Evaluation | `evaluation/`, `scripts/eval/`, `evals/` |
 | Frontend | `frontend/app/{login,app/*}`, `frontend/components/{shell,chat,evidence,documents,common,ui}` |
 | Infrastructure | `infra/docker`, `infra/terraform`, `infra/monitoring`, `.github/workflows` |
 
-Data model in one line: `organizations → memberships → users`, `workspaces → workspace_memberships`; `regulations` (the logical document: scope, organization, workspace, owner, archived) → `regulation_versions` (lifecycle, validity window, parser/chunker/index versions) → `sections` / `chunks` / `chunk_embeddings`; `source_artifacts` (SHA-256, storage key); `ingestion_jobs` / `ingestion_runs` / `ingestion_events`; `conversations` → `messages` → `message_citations`; `query_traces`; `audit_events`. Migrations are forward-only Alembic (`0001`–`0004`), round-tripped head → 0001 → head in the test suite.
+Data model in one line: `organizations → memberships → users`, `workspaces → workspace_memberships`; `regulations` (the logical document: scope, organization, workspace, owner, archived) → `regulation_versions` (lifecycle, validity window, parser/chunker/index versions) → `sections` / `chunks` (`content` = evidence, `retrieval_text` = index-only) / `chunk_embeddings` (one row per representation) / `document_summaries`; `source_artifacts` (SHA-256, storage key); `ingestion_jobs` / `ingestion_runs` / `ingestion_events`; `conversations` → `messages` → `message_citations`; `query_traces`; `audit_events`. Migrations are forward-only Alembic (`0001`–`0005`), round-tripped head → 0001 → head in the test suite.
 
 ## Why the architecture looks this way
 
 **Authorization before ranking.** The predicate — organization membership for verified sources, workspace membership for workspace documents, ownership for private documents, intersected with the user's *selected* scopes — is a SQL `WHERE` on the candidate set and a mirror in the BM25 pre-filter. Filtering after ranking would leak through rank positions, scores and "no results" behaviour, and would make top-k depend on documents the user cannot see. A unit test drives both evaluators with 50 (document, principal) cases and asserts they agree. Principals without a user identity (API keys, evaluation scripts) see verified sources only.
 
 **BM25 is strong here and stays.** Regulatory text is full of exact tokens — clause identifiers (`5.2.1.8`), named criteria (`ThCC`, `HPC`), units and limits (`42 mm`, `1,3`), fixed legal phrasing (`shall not exceed`). On the human-written set BM25 alone scores MRR 0.546 against dense 0.470; on the 262-case set 0.720 against 0.480. The tokenizer keeps decimal clause numbers and applies light stemming. Dense retrieval still matters for paraphrase, definitions and tables (fusion beats BM25 on those slices), which is why both legs are kept and fused with reciprocal-rank fusion (ranks, never raw score sums; dense weight 0.75 after measuring that sparse-heavy weights helped only the LLM-generated cases and regressed the human-written ones).
+
+**Document identity is retrieval metadata, not evidence.** The summary-augmented representation exists so that "doors open during the frontal test" resolves to R94 rather than R95; it is generated once per document version, cached by content hash + prompt version + model, validated before it is indexed, and never shown to the answer model. The design keeps the exact-clause leg, the temporal filter and the citation validator exactly where they were: legal applicability stays deterministic, similarity only ranks. The measured trade-off and the leg ablations are in [Measured results](#measured-results).
 
 **Exact-clause leg.** When a query names a clause or annex, a dedicated leg matches section paths (including paths merged into a chunk) with weight 2 in fusion. It removes the "the model quoted the wrong sub-paragraph" class of error for identifier queries.
 
@@ -167,19 +204,21 @@ Not implemented / deployment-specific: malware scanning and OCR are adapters tha
 
 Retrieval and generation are measured separately; retrieval gates are deterministic and run in CI, generation runs against a real LLM outside CI.
 
-**Datasets** — `evals/datasets/regulatory_v1.yaml` (human) and `regulatory_v2.yaml` (v1 + generated + hand-written). Each case records `source` (`human` | `llm_generated` | `llm_generated_reviewed`), `human_reviewed`, `review_status`, `query_type`, expected regulation/clauses, `key_facts`, `answerability`, notes. Generated cases come from `scripts/eval/generate_cases.py` (a clause → up to two questions; a case survives only if every key fact is a verbatim span of the clause) and are assembled by `scripts/eval/build_dataset.py` (stratified, half of them scoped "In UN R16, …").
+**Datasets** — `evals/datasets/regulatory_v1.yaml` (human), `regulatory_v2.yaml` (v1 + generated + hand-written) and `document_mismatch_v1.yaml` (36 twin-clause cases with `hard_negative_regulation_keys`). Each case records `source` (`human` | `llm_generated` | `llm_generated_reviewed` | `synthetic`), `human_reviewed`, `review_status`, `query_type`, expected regulation/clauses, `key_facts`, `answerability`, notes. Generated cases come from `scripts/eval/generate_cases.py` (a clause → up to two questions; a case survives only if every key fact is a verbatim span of the clause) and are assembled by `scripts/eval/build_dataset.py` (stratified, half of them scoped "In UN R16, …").
 
-**Retrieval** — `uv run safety-assistant eval-retrieval --dataset <yaml> [--legs …] [--source human] [--types …]` writes a report per leg; `scripts/eval/grid.py` runs configuration grids (weights, `rerank_top_n`, `rerank_policy`) and prints MRR/recall/latency/reranker rate.
+**Retrieval** — `uv run safety-assistant eval-retrieval --dataset <yaml> [--legs …] [--source human] [--types …] [--representation content|sac_v2|sac_v1]` writes a report per leg with passage metrics, document metrics (recall@1/3/5, MRR) and the mismatch rate (`drm@1`, `drm@5`); `scripts/eval/sac_ab.py` runs the baseline-vs-SAC comparison on identical queries and lists the cases that flipped; `scripts/eval/drm_cases.py` prints the per-case document diff between two reports; `scripts/eval/grid.py` runs configuration grids (weights, `rerank_top_n`, `rerank_policy`). Every retrieval trace records, per candidate, the document, version, section, page, leg ranks and scores, plus a document distribution of the top candidates.
 
-**Generation** — `scripts/eval/judged.py` runs the real pipeline per case, scores deterministic metrics (refusal accuracy, citation hit/precision, fact coverage, evidence coverage, grounding, injection resistance), classifies every failed answer into one category (`unnecessary_refusal`, `should_have_refused`, `unsupported_numerical_claim`, `citation_not_supporting_claim`, `wrong_clause_attribution`, `missing_citation`, `incomplete_condition`, `version_ambiguity`, `poor_synthesis`, `irrelevant_answer`) with the query, expected evidence, retrieved labels, answer, citations, validator result, model, latency and tokens preserved, estimates cost per query from token usage and dated reference prices (`evals/pricing.yaml`), and optionally adds RAGAS and DeepEval judges through the same gateway (`uv sync --extra eval`).
+**Generation** — `scripts/eval/judged.py` runs the real pipeline per case, scores deterministic metrics (refusal accuracy, citation hit/precision, fact coverage, evidence coverage, grounding, injection resistance), classifies every failed answer into one category (`unnecessary_refusal`, `should_have_refused`, `document_level_retrieval_mismatch`, `unsupported_numerical_claim`, `citation_not_supporting_claim`, `wrong_clause_attribution`, `missing_citation`, `incomplete_condition`, `version_ambiguity`, `poor_synthesis`, `irrelevant_answer`) with the query, expected evidence, retrieved labels, answer, citations, validator result, model, latency and tokens preserved, estimates cost per query from token usage and dated reference prices (`evals/pricing.yaml`), and optionally adds RAGAS and DeepEval judges through the same gateway (`uv sync --extra eval`).
 
-**Regression gate** (`tests/retrieval_regression`, real corpus, test profile): 23 stable human-written cases keep regulation in the top 5 and clause in the top 10; v1 MRR ≥ 0.60; v2 MRR ≥ 0.68 and R@10 ≥ 0.90.
+**Regression gate** (`tests/retrieval_regression`, real corpus, test profile): 23 stable human-written cases keep regulation in the top 5 and clause in the top 10; v1 MRR ≥ 0.60; v2 MRR ≥ 0.68 and R@10 ≥ 0.90; when the `sac_v2` index covers the corpus, its DRM@1 on `document_mismatch_v1` must not exceed the baseline's and stays under the measured 0.39.
 
 ```bash
 make eval                                                  # all legs, regulatory_v2
 uv run safety-assistant eval-retrieval --source human      # trusted subset only
 uv run safety-assistant eval-retrieval --types numeric_threshold definition
 uv run python scripts/eval/grid.py --param rerank_policy always adaptive
+make reindex                                               # build the sac_v2 index (resumable; needs LLM_* for summaries)
+make eval-sac                                              # baseline vs SAC on document_mismatch_v1 + regulatory_v2
 make eval-judged                                           # needs LLM_* configured
 ```
 
@@ -224,6 +263,7 @@ Without `LLM_*` the system runs in evidence-only mode. Stop with `docker compose
 ```bash
 make lint types test        # ruff, mypy --strict, pytest (unit, parser golden, security, integration, e2e, evaluation, regression)
 make eval                   # retrieval evaluation, all legs
+make reindex eval-sac       # summary-augmented index + A/B against the baseline
 make eval-judged            # end-to-end with the configured LLM + RAGAS/DeepEval (uv sync --extra eval)
 make frontend               # npm ci, typecheck, lint, next build
 make e2e                    # Playwright flows (API + worker running)
@@ -257,6 +297,7 @@ Test layout: `tests/unit` (parsers, chunking, lifecycle, fusion, citation valida
 - **OCR and malware scanning** are optional adapters; without them scanned documents are quarantined and uploads are not scanned.
 - **Per-process rate limiter and BM25 index**: two API replicas mean two budgets and two indexes (each consistent, both rebuilt on corpus change). A shared limiter (Redis or the load balancer) and a shared/refreshable lexical index are the migration points before scaling wide; the queue already tolerates many workers.
 - **Cross-encoder latency** (~1.2 s on CPU) applies to `/search` too.
+- **Summary-augmented retrieval** costs four broad-set passage cases (R@10 0.935 → 0.919) for its document-level gains, and 13 of the 36 twin-clause cases still resolve to the wrong document at rank 1 — mostly because the cross-encoder sees chunk text only and puts the identical twin back on top. fastembed truncates MiniLM input at 128 tokens, which also bounds the baseline dense leg to the first ~128 tokens of a chunk. Summaries come from a free-tier instruct model; the validator rejects reasoning dumps and truncation but not subtle factual drift, which is why the summary is never evidence.
 - **OIDC** is tested against an in-process fake provider, not a live Entra ID / Keycloak; RP-initiated logout is not implemented.
 - **Infrastructure** is validated but unapplied; container and dependency scans (Trivy, SBOM, pip-audit, gitleaks, semgrep) run in CI — `pip-audit` and `npm audit` were run locally and are clean.
 - **Load figures** predate the cross-encoder default.
@@ -267,8 +308,9 @@ Test layout: `tests/unit` (parsers, chunking, lifecycle, fusion, citation valida
 2. Answer validation by passive-safety engineers on their own questions; feed misses into the gold set.
 3. Ingest real earlier consolidations of R94/R95/R129 and re-measure temporal and change-analysis behaviour.
 4. Measure the adaptive reranking policy on the reviewed set and adopt it for `/search` if it holds.
-5. Stand up staging with a real identity provider; exercise a deploy, a migration and a rollback.
+5. Reranker with document context is measured (strong on twin clauses, −0.036 passage MRR on the human set): find a cheaper split, e.g. context only when fused candidates span several documents; try a document-level BM25 prior instead of repeating document tokens per chunk; move to an embedder with a longer input window and re-measure `sac_v1`.
+6. Stand up staging with a real identity provider; exercise a deploy, a migration and a rollback.
 
 ## Decision records
 
-Architectural decisions with their evidence live in `docs/ADR/` (`0019`–`0029`; earlier numbers document the pre-rebuild system). `CHANGELOG.md` records releases; `SECURITY.md` describes how to report a vulnerability.
+Architectural decisions with their evidence live in `docs/ADR/` (`0019`–`0030`; earlier numbers document the pre-rebuild system). `CHANGELOG.md` records releases; `SECURITY.md` describes how to report a vulnerability.

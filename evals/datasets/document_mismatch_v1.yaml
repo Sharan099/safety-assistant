@@ -1,0 +1,379 @@
+# Document-level retrieval mismatch (DRM) benchmark.
+#
+# Every case targets a clause that has a lexically/semantically near-identical twin in another
+# document of the corpus (frontal UN R94 vs side UN R95; seat-belt UN R16 vs child-restraint
+# UN R129; main body vs annex). The query names the document *context* (crash mode, restraint
+# type, vehicle category) but not the regulation number, so the retriever has to resolve the
+# source from document-level meaning. `hard_negative_regulation_keys` records the twin that a
+# chunk-only retriever tends to pick.
+#
+# Provenance: source=synthetic — written from inspection of the ingested corpus (section paths and
+# the quoted requirements were read from the `sections` table on 2026-09-13), not by an LLM and not
+# by the product owner. human_reviewed stays false until the owner checks them.
+dataset_version: document_mismatch_v1
+cases:
+  # ---------------------------------------------------------------- UN R94 (frontal) vs UN R95 (side)
+  - case_id: drm-001
+    query: In the frontal impact test, are the doors allowed to open during the test?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["5.2.3"]
+    key_facts: ["no door shall open"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-002
+    query: In the lateral (side) collision test, are the doors allowed to open during the test?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["5.3.1"]
+    key_facts: ["No door shall open during the test"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-003
+    query: Which side doors must be unlocked after a side impact?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["5.3.2"]
+    key_facts: ["non-struck side", "unlocked"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-004
+    query: After a frontal collision test, must the side doors be unlocked?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["5.2.4"]
+    key_facts: ["side doors shall be unlocked"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-005
+    query: What is the head performance criterion limit for the frontal offset deformable barrier test?
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95, NHTSA-THOR-05F-QUAL]
+    expected_section_paths: ["5.2.1.1"]
+    key_facts: ["1,000", "80 g", "3 ms"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-006
+    query: What is the head performance criterion limit in the side impact test with the mobile deformable barrier?
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["5.2.1.1"]
+    key_facts: ["1,000"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-007
+    query: What chest deflection limit applies to the dummy in the frontal impact test?
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["5.2.1.4"]
+    key_facts: ["42 mm"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-008
+    query: What rib deflection limit applies to the side impact dummy?
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["5.2.1.2"]
+    key_facts: ["42 mm"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-009
+    query: Maximum fuel leakage rate after the frontal impact test
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["5.2.7"]
+    key_facts: ["30 g/min"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-010
+    query: Maximum fuel leakage rate after the side collision test
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["5.3.6"]
+    key_facts: ["30 g/min"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-011
+    query: What must be possible without tools after the side impact, regarding the dummy and the doors?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_prefixes: ["5.3.3"]
+    key_facts: ["without the use of tools"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-012
+    query: What must be possible without tools after the frontal impact, regarding the dummy and the doors?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_prefixes: ["5.2.5"]
+    key_facts: ["without the use of tools"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-013
+    query: Electrical safety requirements for the high-voltage power train after the side impact test
+    query_type: paraphrase
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_prefixes: ["5.3.7"]
+    key_facts: ["high voltage"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-014
+    query: Electrical safety requirements for the high-voltage power train after the frontal impact test
+    query_type: paraphrase
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_prefixes: ["5.2.8"]
+    key_facts: ["high voltage"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-015
+    query: Which vehicle categories and mass limits does the frontal collision regulation apply to?
+    query_type: paraphrase
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["1"]
+    key_facts: ["3,500 kg", "N1", "2,500 kg"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-016
+    query: Which vehicle categories does the lateral collision regulation apply to?
+    query_type: paraphrase
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["1"]
+    key_facts: ["M1", "3,500 kg", "N1"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-017
+    query: Impact speed of the vehicle against the offset deformable barrier in the frontal test
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["annex-3/4"]
+    key_facts: ["56"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-018
+    query: Speed of the mobile deformable barrier at the moment of impact in the side test
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["annex-4/3"]
+    key_facts: ["50"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-019
+    query: When is the head performance criterion considered satisfied without calculation in the frontal test annex?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["annex-4/1.1"]
+    key_facts: ["no contact between the head and any vehicle component"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-020
+    query: Pubic symphysis peak force limit in the side impact
+    query_type: numeric_threshold
+    difficulty: medium
+    expected_regulation_key: UN-R95
+    hard_negative_regulation_keys: [UN-R94]
+    expected_section_paths: ["5.2.1.3"]
+    key_facts: ["6 kN"]
+    notes: control — the criterion exists only in the side-impact regulation
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-021
+    query: Permitted residual steering wheel displacement after the frontal impact
+    query_type: numeric_threshold
+    difficulty: medium
+    expected_regulation_key: UN-R94
+    hard_negative_regulation_keys: [UN-R95]
+    expected_section_paths: ["5.2.2"]
+    key_facts: ["80 mm", "100 mm"]
+    notes: control — the requirement exists only in the frontal regulation
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- UN R16 (seat belts) vs UN R129 (child restraints)
+  - case_id: drm-022
+    query: Definition of ISOFIX anchorages system in the safety-belt and restraint-system regulation
+    query_type: definition
+    difficulty: hard
+    expected_regulation_key: UN-R16
+    hard_negative_regulation_keys: [UN-R129]
+    expected_section_paths: ["2.32"]
+    key_facts: ["two ISOFIX low anchorages"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-023
+    query: Definition of ISOFIX anchorage system in the enhanced child restraint system regulation
+    query_type: definition
+    difficulty: hard
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["2.11"]
+    key_facts: ["2 ISOFIX low anchorages"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-024
+    query: Definition of ISOFIX top tether anchorage for enhanced child restraint systems
+    query_type: definition
+    difficulty: hard
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["2.13.1"]
+    key_facts: ["Regulation No. 14", "Regulation No. 145"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-025
+    query: Definition of ISOFIX top tether anchorage in the vehicle safety-belt regulation
+    query_type: definition
+    difficulty: hard
+    expected_regulation_key: UN-R16
+    hard_negative_regulation_keys: [UN-R129]
+    expected_section_paths: ["2.35"]
+    key_facts: ["Regulation No. 14"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-026
+    query: How much may the strap of an automatically locking retractor move between locking positions in an adult safety-belt assembly?
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R16
+    hard_negative_regulation_keys: [UN-R129]
+    expected_section_paths: ["6.2.5.2.1"]
+    key_facts: ["30 mm"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-027
+    query: How much may the strap of an automatically locking retractor unwind between locking positions in an enhanced child restraint system?
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["6.7.3.1.1"]
+    key_facts: ["30 mm"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-028
+    query: Minimum retracting force of a lap belt retractor strap for adult safety belts
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R16
+    hard_negative_regulation_keys: [UN-R129]
+    expected_section_paths: ["6.2.5.2.2", "6.2.5.3.4"]
+    key_facts: ["0.7 daN"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-029
+    query: Minimum retracting force of a lap strap retractor in a child restraint system
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["6.7.3.1.2", "6.7.3.2.5"]
+    key_facts: ["7 N"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-030
+    query: Must the child restraint buckle remain closed when not under tension?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["6.7.1.2"]
+    key_facts: ["shall remain closed whatever its position"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-031
+    query: Must the safety-belt buckle remain closed when not under tension whatever the position of the vehicle?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R16
+    hard_negative_regulation_keys: [UN-R129]
+    expected_section_paths: ["6.2.2.2"]
+    key_facts: ["shall remain closed whatever the position of the vehicle"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-032
+    query: Which colour must the buckle release area of a child restraint be?
+    query_type: paraphrase
+    difficulty: medium
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["6.7.1.3"]
+    key_facts: ["red"]
+    notes: control — requirement only in the child-restraint regulation
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-033
+    query: Allowed difference between the breaking loads of the two strap samples for child restraint webbing
+    query_type: numeric_threshold
+    difficulty: hard
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["6.7.4.2.2"]
+    key_facts: ["10 per cent"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-034
+    query: Strength of the strap after room conditioning for adult safety-belt webbing
+    query_type: paraphrase
+    difficulty: hard
+    expected_regulation_key: UN-R16
+    hard_negative_regulation_keys: [UN-R129]
+    expected_section_paths: ["6.3.2"]
+    key_facts: ["breaking load"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-035
+    query: When is the type 1 abrasion conditioning procedure performed for enhanced child restraint straps?
+    query_type: exception_condition
+    difficulty: hard
+    expected_regulation_key: UN-R129
+    hard_negative_regulation_keys: [UN-R16]
+    expected_section_paths: ["6.7.4.3.4"]
+    key_facts: ["microslip test"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: drm-036
+    query: Which parts of an adult belt assembly are subjected to abrasion conditioning?
+    query_type: table_annex
+    difficulty: hard
+    expected_regulation_key: UN-R16
+    hard_negative_regulation_keys: [UN-R129]
+    expected_section_prefixes: ["6.4.2"]
+    key_facts: ["abrasion"]
+    source: synthetic
+    review_status: DRAFT

@@ -93,7 +93,7 @@ def test_full_lifecycle_v1(clean_db, db_session, env) -> None:  # type: ignore[n
     n_emb = db_session.scalar(
         select(func.count(ChunkEmbedding.id))
         .join(Chunk, Chunk.id == ChunkEmbedding.chunk_id)
-        .where(Chunk.version_id == version.id)
+        .where(Chunk.version_id == version.id, ChunkEmbedding.representation == "content")
     )
     assert n_chunks == n_emb > 0
     labels = set(db_session.scalars(select(Chunk.citation_label).where(Chunk.version_id == version.id)))

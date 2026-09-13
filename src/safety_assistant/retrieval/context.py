@@ -34,6 +34,7 @@ class RelatedSection(BaseModel):
 class LegRanks(BaseModel):
     dense: int | None = None
     sparse: int | None = None
+    sparse_sac: int | None = None  # BM25 over the summary-augmented text (extra leg, when enabled)
     exact: int | None = None
     fused_score: float
     rerank_score: float | None = None

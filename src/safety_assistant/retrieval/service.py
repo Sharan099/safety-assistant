@@ -59,6 +59,18 @@ class RetrievalConfig:
     # the query names a clause identifier and the exact leg found it, or dense and sparse put the same
     # chunk first. No tuned thresholds — measured before this became an option (README "Measured results").
     rerank_policy: Literal["always", "adaptive"] = "always"
+    # Index version searched by the dense and sparse legs: "content" (baseline) or "sac_v1"
+    # (summary-augmented chunking). Evidence is always the chunk content, whichever index found it.
+    representation: str = "content"
+    # Per-leg override for ablations (None = `representation`): e.g. SAC dense with baseline BM25.
+    sparse_representation: str | None = None
+    # Extra RRF leg: BM25 over the sac_v1 text *in addition to* the sparse leg above, at this weight
+    # (0 = off). Adds the document-identity signal without replacing passage-precise BM25.
+    sac_sparse_weight: float = 0.0
+    sac_sparse_representation: str = "sac_v1"
+    # Cross-encoder input: the chunk alone, or the compact document line + chunk so the reranker can
+    # tell twin clauses of different documents apart. Evidence is unaffected either way.
+    rerank_with_context: bool = False
     expand_parents: bool = True
     expand_cross_refs: bool = True
     min_shared_terms: int = DEFAULT_MIN_SHARED_TERMS
@@ -74,6 +86,9 @@ class RetrievalConfig:
             sparse_weight=s.retrieval_sparse_weight,
             rerank_top_n=s.retrieval_rerank_top_n,
             rerank_policy=s.retrieval_rerank_policy,
+            representation=s.retrieval_representation,
+            sac_sparse_weight=s.retrieval_sac_sparse_weight,
+            rerank_with_context=s.retrieval_rerank_with_context,
         )
 
 
@@ -88,11 +103,21 @@ class RetrievalResult:
     versions: dict[str, Any] = field(default_factory=dict)
     guard_rejected: int = 0
 
+    def document_distribution(self, top: int = 10) -> dict[str, int]:
+        """How many of the top fused candidates each document contributed — the quickest way
+        to see one PDF dominating a result list."""
+        out: dict[str, int] = {}
+        for c in self.candidates[:top]:
+            key = c.get("regulation_key") or "?"
+            out[key] = out.get(key, 0) + 1
+        return out
+
     def as_trace(self) -> dict[str, Any]:
         return {
             "scope": dataclasses.asdict(self.scope),
             "query_scope": dataclasses.asdict(self.query_scope),
             "candidates": self.candidates,
+            "document_distribution": self.document_distribution(),
             "latency_ms": self.latency_ms,
             "versions": self.versions,
             "guard_rejected": self.guard_rejected,
@@ -107,11 +132,13 @@ class RetrievalService:
         reranker: Reranker | None = None,
         config: RetrievalConfig | None = None,
         bm25_index: Bm25Index | None = None,
+        bm25_sac_index: Bm25Index | None = None,
     ) -> None:
         self._embedder = embedder
         self._reranker = reranker
         self.config = config or RetrievalConfig.from_settings(get_settings())
-        self._bm25_index = bm25_index  # eval harnesses pass a prebuilt index
+        self._bm25_index = bm25_index  # eval harnesses pass prebuilt indexes
+        self._bm25_sac_index = bm25_sac_index
 
     @property
     def embedder(self) -> EmbeddingProvider:
@@ -177,6 +204,7 @@ class RetrievalService:
 
         dense_ids: list[uuid.UUID] = []
         sparse_ids: list[uuid.UUID] = []
+        sac_sparse_ids: list[uuid.UUID] = []
         exact_ids: list[uuid.UUID] = []
 
         if cfg.use_dense:
@@ -185,7 +213,16 @@ class RetrievalService:
             timings["embed_query"] = _ms(t0)
             t0 = time.perf_counter()
             dense_ids = [
-                cid for cid, _ in dense_search(session, qvec, scope, self.embedder, top_k=cfg.dense_top_k, today=today)
+                cid
+                for cid, _ in dense_search(
+                    session,
+                    qvec,
+                    scope,
+                    self.embedder,
+                    top_k=cfg.dense_top_k,
+                    today=today,
+                    representation=cfg.representation,
+                )
             ]
             timings["dense"] = _ms(t0)
         if cfg.use_sparse:
@@ -193,10 +230,31 @@ class RetrievalService:
             sparse_ids = [
                 cid
                 for cid, _ in sparse_search(
-                    session, query, scope, top_k=cfg.sparse_top_k, index=self._bm25_index, today=today
+                    session,
+                    query,
+                    scope,
+                    top_k=cfg.sparse_top_k,
+                    index=self._bm25_index,
+                    today=today,
+                    representation=cfg.sparse_representation or cfg.representation,
                 )
             ]
             timings["sparse"] = _ms(t0)
+        if cfg.use_sparse and cfg.sac_sparse_weight > 0:
+            t0 = time.perf_counter()
+            sac_sparse_ids = [
+                cid
+                for cid, _ in sparse_search(
+                    session,
+                    query,
+                    scope,
+                    top_k=cfg.sparse_top_k,
+                    index=self._bm25_sac_index,
+                    today=today,
+                    representation=cfg.sac_sparse_representation,
+                )
+            ]
+            timings["sparse_sac"] = _ms(t0)
         if cfg.use_exact and qs.has_exact_identifier:
             t0 = time.perf_counter()
             exact_ids = self._exact_leg(session, qs, scope, today=today)
@@ -206,6 +264,7 @@ class RetrievalService:
         for ids, w in (
             (dense_ids, self.config.dense_weight),
             (sparse_ids, self.config.sparse_weight),
+            (sac_sparse_ids, self.config.sac_sparse_weight),
             (exact_ids, EXACT_LEG_WEIGHT),
         ):
             if ids:
@@ -218,6 +277,7 @@ class RetrievalService:
 
         dense_rank = {c: i for i, c in enumerate(dense_ids, 1)}
         sparse_rank = {c: i for i, c in enumerate(sparse_ids, 1)}
+        sac_sparse_rank = {c: i for i, c in enumerate(sac_sparse_ids, 1)}
         exact_rank = {c: i for i, c in enumerate(exact_ids, 1)}
 
         # rerank the fused head (filters come after ranking so tight guards don't starve results)
@@ -235,6 +295,11 @@ class RetrievalService:
             t0 = time.perf_counter()
             top_n = self.config.rerank_top_n
             head, tail = (fused_order[:top_n], fused_order[top_n:]) if top_n else (fused_order, [])
+            prefixes: dict[uuid.UUID, str] = {}
+            if self.config.rerank_with_context and head:
+                from safety_assistant.contextualization import compact_prefixes
+
+                prefixes = compact_prefixes(session, list({rows[c].version.id for c in head}))
             try:
                 obs = apply_reranker(
                     self.reranker,
@@ -242,7 +307,7 @@ class RetrievalService:
                     [
                         RerankCandidate(
                             id=c,
-                            content=rows[c].chunk.content,
+                            content=_rerank_text(prefixes.get(rows[c].version.id), rows[c].chunk.content),
                             authority_level=rows[c].regulation.authority_level,
                             fused_score=fused[c],
                             normative=rows[c].section.normative,
@@ -276,11 +341,21 @@ class RetrievalService:
             ranks = LegRanks(
                 dense=dense_rank.get(c),
                 sparse=sparse_rank.get(c),
+                sparse_sac=sac_sparse_rank.get(c),
                 exact=exact_rank.get(c),
                 fused_score=fused[c],
                 rerank_score=rerank_scores.get(c),
             )
-            entry = {"chunk_id": str(c), "citation": row.chunk.citation_label, **ranks.model_dump(), "selected": False}
+            entry = {
+                "chunk_id": str(c),
+                "citation": row.chunk.citation_label,
+                "regulation_key": row.regulation.regulation_key,
+                "version_label": row.version.version_label,
+                "section_path": row.section.path,
+                "page": row.chunk.page_start,
+                **ranks.model_dump(),
+                "selected": False,
+            }
             trace.append(entry)
             if len(selected) >= k:
                 continue
@@ -356,6 +431,10 @@ class RetrievalService:
 
 def _ms(t0: float) -> float:
     return round((time.perf_counter() - t0) * 1000, 2)
+
+
+def _rerank_text(prefix: str | None, content: str) -> str:
+    return f"{prefix}\n{content}" if prefix else content
 
 
 def search_ids(session: Session, service: RetrievalService, query: str, **kw: Any) -> list[uuid.UUID]:

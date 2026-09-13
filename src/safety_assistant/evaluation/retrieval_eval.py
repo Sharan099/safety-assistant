@@ -4,6 +4,25 @@ Ground truth is expressed as section paths; the relevant chunk-id set is
 resolved from the live corpus at run time so it survives re-chunking.
 Every result records dataset version, git SHA, corpus fingerprint,
 parser/chunker/embedding/reranker identities and the retrieval config.
+
+Two levels are measured for every case:
+
+- passage level: recall/precision/hit/nDCG@k and MRR over relevant chunk ids;
+- document level: recall@1/3/5 and MRR over the *documents* (regulation keys) of the
+  ranked evidence, against the case's expected regulation(s).
+
+Document-level retrieval mismatch (DRM). A case is *eligible* when it is answerable
+(or partial) and names at least one expected regulation. For an eligible case:
+
+    drm@k = 1  if a chunk from a document outside the expected set is ranked at a
+               position <= k that is above the first correct-document chunk
+               (including the case where no correct-document chunk appears in the top k);
+            0  otherwise.
+
+``drm@1`` is therefore "the top result is from the wrong document"; ``drm@5`` is
+"a wrong document outranks the right one somewhere in the top 5". The DRM rate is the
+mean over eligible cases. Unanswerable cases and cases without a regulation truth are
+never counted (they have no correct document to mismatch against).
 """
 
 from __future__ import annotations
@@ -37,6 +56,7 @@ from safety_assistant.retrieval import RetrievalConfig, RetrievalService, ScopeF
 from safety_assistant.retrieval.sparse import get_index
 
 KS = (5, 10, 20)
+DOC_KS = (1, 3, 5)
 
 LEGS: dict[str, dict[str, Any]] = {
     "dense": dict(use_sparse=False, use_exact=False, use_reranker=False, expand_parents=False, expand_cross_refs=False),
@@ -60,6 +80,8 @@ class CaseResult:
     latency_ms: float
     top_citations: list[str]
     reranked: bool = True  # False when an adaptive policy skipped the reranker for this query
+    ranked_documents: list[str] = field(default_factory=list)  # regulation key per ranked evidence
+    drm_eligible: bool = False
 
 
 @dataclass
@@ -132,6 +154,24 @@ def relevant_chunk_ids(session: Session, case: GoldCase) -> set[uuid.UUID]:
     return out
 
 
+def document_metrics(ranked_documents: list[str], expected: set[str], *, eligible: bool) -> dict[str, float | None]:
+    """Document recall@k / MRR and the DRM flags defined in the module docstring."""
+    out: dict[str, float | None] = {}
+    if not expected:
+        return {**{f"doc_recall@{k}": None for k in DOC_KS}, "doc_mrr": None, "drm@1": None, "drm@5": None}
+    first = next((i for i, d in enumerate(ranked_documents, 1) if d in expected), None)
+    for k in DOC_KS:
+        out[f"doc_recall@{k}"] = 1.0 if first is not None and first <= k else 0.0
+    out["doc_mrr"] = 1.0 / first if first else 0.0
+    if not eligible:
+        out["drm@1"] = out["drm@5"] = None
+        return out
+    out["drm@1"] = 1.0 if ranked_documents and ranked_documents[0] not in expected else 0.0
+    above = ranked_documents[: min(5, (first or 6) - 1)]
+    out["drm@5"] = 1.0 if first is None or any(d not in expected for d in above) else 0.0
+    return out
+
+
 def evaluate_leg(
     session: Session, dataset: GoldDataset, leg: str, *, service: RetrievalService, k_eval: int = 20
 ) -> LegReport:
@@ -143,6 +183,7 @@ def evaluate_leg(
         result = service.search(session, case.query, scope=scope, k=k_eval)
         latency = (time.perf_counter() - t0) * 1000
         ranked = [e.chunk_id for e in result.bundle.evidence]
+        ranked_docs = [e.regulation_key for e in result.bundle.evidence]
         reg_hit = None
         if case.regulation_keys:
             top_regs = {e.regulation_key for e in result.bundle.evidence[:5]}
@@ -154,6 +195,11 @@ def evaluate_leg(
             metrics[f"hit@{k}"] = hit_at_k(ranked, relevant, k)
             metrics[f"ndcg@{k}"] = ndcg_at_k(ranked, relevant, k)
         metrics["mrr"] = reciprocal_rank(ranked, relevant)
+        eligible = bool(case.regulation_keys) and case.answerability in ("answerable", "partial")
+        metrics.update(document_metrics(ranked_docs, case.regulation_keys, eligible=eligible))
+        if case.expected_version_label:
+            top = result.bundle.evidence[:1]
+            metrics["version_hit@1"] = 1.0 if top and top[0].version_label == case.expected_version_label else 0.0
         cases.append(
             CaseResult(
                 case_id=case.case_id,
@@ -167,6 +213,8 @@ def evaluate_leg(
                 latency_ms=round(latency, 1),
                 top_citations=[e.citation_label for e in result.bundle.evidence[:3]],
                 reranked=not str(result.versions.get("reranker", "")).startswith("skipped"),
+                ranked_documents=ranked_docs[:10],
+                drm_eligible=eligible,
             )  # fmt: skip
         )
     return LegReport(
@@ -184,10 +232,13 @@ def _aggregate(cases: list[CaseResult]) -> dict[str, float | None]:
     if not cases:
         return {}
     names = [f"{m}@{k}" for k in KS for m in ("recall", "precision", "hit", "ndcg")] + ["mrr"]
-    agg: dict[str, float | None] = {n: mean([c.metrics[n] for c in cases]) for n in names}
+    names += [f"doc_recall@{k}" for k in DOC_KS] + ["doc_mrr", "drm@1", "drm@5"]
+    agg: dict[str, float | None] = {n: mean([c.metrics.get(n) for c in cases]) for n in names}
+    agg["version_hit@1"] = mean([c.metrics.get("version_hit@1") for c in cases])
     agg["regulation_hit@5"] = mean([c.regulation_hit_at_5 for c in cases])
     agg["n"] = float(len(cases))
     agg["n_with_section_truth"] = float(sum(1 for c in cases if c.n_relevant_chunks))
+    agg["n_drm_eligible"] = float(sum(1 for c in cases if c.drm_eligible))
     agg["rerank_rate"] = sum(1 for c in cases if c.reranked) / len(cases)
     lat = sorted(c.latency_ms for c in cases)
     if lat:
@@ -205,7 +256,8 @@ def run_evaluation(
     embedder: EmbeddingProvider | None = None,
 ) -> EvalReport:
     base = base_config or RetrievalConfig()
-    bm25 = get_index(session)
+    bm25 = get_index(session, base.sparse_representation or base.representation)
+    bm25_sac = get_index(session, base.sac_sparse_representation) if base.sac_sparse_weight > 0 else None
     report = EvalReport(
         dataset_version=dataset.dataset_version,
         n_cases=len(dataset.cases),
@@ -217,9 +269,11 @@ def run_evaluation(
     )
     for leg in legs or list(LEGS):
         cfg = dataclasses.replace(base, **LEGS[leg])
-        service = RetrievalService(config=cfg, bm25_index=bm25, embedder=embedder)
+        service = RetrievalService(config=cfg, bm25_index=bm25, bm25_sac_index=bm25_sac, embedder=embedder)
         report.legs.append(evaluate_leg(session, dataset, leg, service=service))
         report.versions.setdefault("embedding_model", service.embedder.model_name if cfg.use_dense else None)
+        report.versions.setdefault("representation", base.representation)
+        report.versions.setdefault("sparse_representation", base.sparse_representation or base.representation)
         if cfg.use_reranker and service.reranker:
             report.versions.setdefault("reranker", f"{service.reranker.model_name}:{service.reranker.model_version}")
     return report
@@ -236,17 +290,29 @@ def write_report(report: EvalReport, out_dir: pathlib.Path, name: str = "retriev
 
 
 def format_summary(report: EvalReport) -> str:
-    cols = ("recall@5", "recall@10", "recall@20", "precision@5", "hit@5", "mrr", "ndcg@10", "regulation_hit@5")
-    heads = ("R@5", "R@10", "R@20", "P@5", "Hit@5", "MRR", "nDCG@10", "RegHit@5")
+    cols = (
+        "recall@5",
+        "recall@10",
+        "recall@20",
+        "mrr",
+        "ndcg@10",
+        "doc_recall@1",
+        "doc_recall@5",
+        "doc_mrr",
+        "drm@1",
+        "drm@5",
+    )
+    heads = ("R@5", "R@10", "R@20", "MRR", "nDCG@10", "DocR@1", "DocR@5", "DocMRR", "DRM@1", "DRM@5")
     lines = [
         f"dataset {report.dataset_version}: {report.n_cases} cases "
         f"({report.n_cases_with_section_truth} with section-level truth)",
-        f"git {report.git_sha}  corpus chunks {report.corpus['chunks']}  {report.timestamp}",
+        f"git {report.git_sha}  corpus chunks {report.corpus['chunks']}  representation "
+        f"{report.versions.get('representation')}  {report.timestamp}",
         "",
-        f"{'leg':20s} " + " ".join(f"{h:>8s}" for h in heads) + f" {'p50ms':>7s} {'p95ms':>7s}",
+        f"{'leg':18s} " + " ".join(f"{h:>7s}" for h in heads) + f" {'p50ms':>6s} {'p95ms':>6s}",
     ]
     for leg in report.legs:
         a = leg.aggregate
-        cells = " ".join("     n/a" if a[c] is None else f"{a[c]:8.3f}" for c in cols)
-        lines.append(f"{leg.leg:20s} {cells} {a.get('latency_p50_ms') or 0:7.0f} {a.get('latency_p95_ms') or 0:7.0f}")
+        cells = " ".join("    n/a" if a.get(c) is None else f"{a[c]:7.3f}" for c in cols)
+        lines.append(f"{leg.leg:18s} {cells} {a.get('latency_p50_ms') or 0:6.0f} {a.get('latency_p95_ms') or 0:6.0f}")
     return "\n".join(lines)

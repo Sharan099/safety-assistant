@@ -244,14 +244,40 @@ class Chunk(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     # Exactly what a citation renders: "UN R94 Rev.4 §5.2.1.8 (p. 13)".
     citation_label: Mapped[str] = mapped_column(Text)
     chunk_sha256: Mapped[str] = mapped_column(Text)
+    # Summary-augmented retrieval representation (contextualization/): document identity block +
+    # document summary + `content`. Indexed by the "sac" representation only; NEVER served as
+    # evidence — `content` is the only text an answer may quote. NULL until contextualized.
+    retrieval_text: Mapped[str | None] = mapped_column(Text)
     metadata_: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSONB)
+
+
+class DocumentSummary(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
+    """One generated retrieval summary per document version, cached by
+    (artifact sha256, prompt version, model). Retrieval metadata, never evidence."""
+
+    __tablename__ = "document_summaries"
+    __table_args__ = (UniqueConstraint("version_id", "cache_key", name="uq_document_summary_cache_key"),)
+
+    version_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("regulation_versions.id", ondelete="CASCADE"), index=True
+    )
+    cache_key: Mapped[str] = mapped_column(Text)
+    content_sha256: Mapped[str] = mapped_column(Text)  # the source artifact the summary describes
+    prompt_version: Mapped[str] = mapped_column(Text)
+    model_name: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(Text)  # READY | FAILED
+    summary: Mapped[str | None] = mapped_column(Text)
+    error: Mapped[str | None] = mapped_column(Text)
+    usage: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
 
 class ChunkEmbedding(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     __tablename__ = "chunk_embeddings"
     __table_args__ = (
-        UniqueConstraint("chunk_id", "model_name", "model_version", name="uq_embedding_per_chunk_model"),
-        # HNSW cosine index is created in the migration (needs raw DDL options).
+        UniqueConstraint(
+            "chunk_id", "model_name", "model_version", "representation", name="uq_embedding_per_chunk_model"
+        ),
+        # Partial HNSW cosine indexes per representation are created in the migration (raw DDL options).
     )
 
     chunk_id: Mapped[uuid.UUID] = mapped_column(
@@ -259,6 +285,9 @@ class ChunkEmbedding(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     )
     model_name: Mapped[str] = mapped_column(Text)
     model_version: Mapped[str] = mapped_column(Text)
+    # Which text was embedded: "content" (baseline) or "sac_v1" (chunks.retrieval_text). Separate
+    # index versions coexist so the SAC index is built and evaluated without touching the baseline.
+    representation: Mapped[str] = mapped_column(Text, default="content", server_default="content")
     dimensions: Mapped[int] = mapped_column(Integer)
     # Fixed dimension so an HNSW index can exist (docs/ADR/0019).
     embedding: Mapped[Any] = mapped_column(Vector(EMBEDDING_DIMENSIONS))

@@ -7,14 +7,14 @@ Safety Assistant is a passive-safety regulatory intelligence workspace.
 Primary user: passive-safety engineer.
 
 Canonical specifications:
-- `00_MASTER_REBUILD_PLAN.md`
-- `01_PRD.md`
-- `02_TRD.md`
-- `03_UI_UX_DESIGN_SPEC.md`
-- `04_APP_FLOWS.md`
-- `06_SECURITY_PRIVACY_AND_MEMORY.md`
-- `07_TESTING_EVALUATION_RELEASE.md`
-- `08_CLEANUP_AND_MIGRATION_PLAN.md`
+- `docs/product/00_MASTER_REBUILD_PLAN.md`
+- `docs/product/01_PRD.md`
+- `docs/product/02_TRD.md`
+- `docs/product/03_UI_UX_DESIGN_SPEC.md`
+- `docs/product/04_APP_FLOWS.md`
+- `docs/product/06_SECURITY_PRIVACY_AND_MEMORY.md`
+- `docs/product/07_TESTING_EVALUATION_RELEASE.md`
+- `docs/product/08_CLEANUP_AND_MIGRATION_PLAN.md`
 
 When code and docs disagree, investigate. Do not silently assume either is correct.
 
@@ -57,7 +57,7 @@ Git history is the archive. Do not keep a large `old/` tree.
 
 ## Frontend
 
-Design is governed by `03_UI_UX_DESIGN_SPEC.md` and `04_APP_FLOWS.md`.
+Design is governed by `docs/product/03_UI_UX_DESIGN_SPEC.md` and `docs/product/04_APP_FLOWS.md`.
 
 Build an evidence-first engineering workbench, not a generic ChatGPT clone.
 

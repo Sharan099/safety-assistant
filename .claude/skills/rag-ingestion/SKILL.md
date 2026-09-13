@@ -5,7 +5,7 @@ description: Use for document upload, validation, parsing, chunking, embedding, 
 
 # RAG Ingestion
 
-Read `02_TRD.md` when needed.
+Read `docs/product/02_TRD.md` when needed.
 
 Required properties:
 - idempotent;

@@ -41,7 +41,7 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 
 | Path | Action | Reason | Replacement |
 |---|---|---|---|
-| `app/page.tsx`, `app/layout.tsx`, `app/globals.css` | REWRITTEN (Phase E) | single-page proof of concept; v2 IA is `/login`, `/app/*` | App Router route tree per `03_UI_UX_DESIGN_SPEC.md` |
+| `app/page.tsx`, `app/layout.tsx`, `app/globals.css` | REWRITTEN (Phase E) | single-page proof of concept; v2 IA is `/login`, `/app/*` | App Router route tree per `docs/product/03_UI_UX_DESIGN_SPEC.md` |
 | `components/{ChatPanel,AnswerCard,CitationPanel,AuthPanel,SystemStatus}.tsx` | DELETED (Phase E, replacement present) | logic reusable, structure not | `components/{ui,shell,chat,evidence,documents,common}/` |
 | `lib/apiClient.ts` → `lib/api.ts`, `lib/types.ts`, `lib/errors.ts` | MIGRATED (Phase E) | typed client + request tracing kept; cookie session + CSRF header | documents/conversations/me endpoints added |
 | `hooks/{useAuth,useChat,useHealth}.ts` | DELETED (Phase E) | token-in-hook auth model replaced by session/user model | `features/queries.ts` |
@@ -86,7 +86,7 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 |---|---|---|
 | `CLAUDE.md` (rewritten), `AGENTS.md`, `.claude/skills/*` | KEEP | v2 contract |
 | `00_…11_*.md`, `README_PACKAGE.md` (root spec package) | MIGRATE → `docs/product/` at Phase G | canonical specs; keep at root until rebuild done so paths in CLAUDE.md stay valid, then move and update CLAUDE.md. `05_`, `10_`, `11_` are process docs → `docs/rebuild/` or DELETE after use |
-| `docs/rebuild-ledger.md` | MIGRATE → `docs/rebuild/v1-ledger.md` | historical record of the first rebuild; measured numbers referenced by README |
+| `docs/rebuild/v1-ledger.md` | MIGRATE → `docs/rebuild/v1-ledger.md` | historical record of the first rebuild; measured numbers referenced by README |
 | `docs/{architecture,data-lineage,retrieval-design,evaluation,security-threat-model,operations-runbook,incident-response}.md` | MIGRATE | update for identity/workspace/upload/conversations; do not duplicate spec content |
 | `docs/ADR/0001–0028` | KEEP | new ADRs continue at 0029 |
 | `README.md`, `SECURITY.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `LICENSE`, `Makefile`, `pyproject.toml`, `uv.lock`, `.env.example`, `.gitignore` | MIGRATE | update commands/config as features land |
@@ -95,4 +95,7 @@ No path may be deleted unless it is listed DELETE here with its replacement pres
 
 | Path | Commit | Replacement / proof |
 |---|---|---|
-| `frontend/lib/apiClient.ts`, `frontend/hooks/{useAuth,useChat,useHealth}.ts`, `frontend/components/{AnswerCard,AuthPanel,ChatPanel,CitationPanel,SystemStatus}.tsx`, `frontend/tests/ask.spec.ts` | Phase E commit | `lib/api.ts`, `features/queries.ts`, `components/{shell,chat,evidence,documents,common}`, `tests/e2e/flows.spec.ts` (5/5 passing) |
+| `frontend/lib/apiClient.ts`, `frontend/hooks/{useAuth,useChat,useHealth}.ts`, `frontend/components/{AnswerCard,AuthPanel,ChatPanel,CitationPanel,SystemStatus}.tsx`, `frontend/tests/ask.spec.ts` | 7126278 | `lib/api.ts`, `features/queries.ts`, `components/{shell,chat,evidence,documents,common}`, `tests/e2e/flows.spec.ts` (5/5 passing) |
+| `README_PACKAGE.md` (reading order for the spec package) | Phase G | superseded by `CLAUDE.md` canonical list + `docs/product/` |
+| `frontend/test-results/.last-run.json` (tracked artefact) | Phase G | gitignored directory |
+| moved: root `00–08_*.md` → `docs/product/`, `09–11_*.md` → `docs/rebuild/`, `docs/rebuild-ledger.md` → `docs/rebuild/v1-ledger.md` | Phase G | references rewritten in CLAUDE.md, skills, ADR-0029, rebuild docs |

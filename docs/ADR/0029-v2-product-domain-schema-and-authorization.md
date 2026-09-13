@@ -4,7 +4,7 @@ Status: accepted (D-003, D-012 confirmed by owner 2026-09-12; Phase C implemente
 
 ## Context
 
-The v1 rebuild delivers a verified regulatory corpus (`regulations` → `regulation_versions` → `sections`/`chunks`), hybrid retrieval with SQL scope before ranking, grounded generation and role-based auth. It has **no persisted users, no document ownership, no user uploads, no async jobs, no conversations** (`docs/rebuild/STATE.md`). `02_TRD.md` requires all of them. This ADR is the schema/authorization/API plan for Phases C–D; it changes no code.
+The v1 rebuild delivers a verified regulatory corpus (`regulations` → `regulation_versions` → `sections`/`chunks`), hybrid retrieval with SQL scope before ranking, grounded generation and role-based auth. It has **no persisted users, no document ownership, no user uploads, no async jobs, no conversations** (`docs/rebuild/STATE.md`). `docs/product/02_TRD.md` requires all of them. This ADR is the schema/authorization/API plan for Phases C–D; it changes no code.
 
 ## Decision 1 — Reuse the corpus tables as the document model (no rename)
 
@@ -139,7 +139,7 @@ Browser auth: HS256 JWT (pyjwt already a dependency) in an `HttpOnly; SameSite=L
 
 ## Consequences
 
-- Cross-user isolation is enforced by one SQL predicate used by every list/detail/retrieval query; the isolation test matrix in `06_SECURITY_PRIVACY_AND_MEMORY.md` becomes `tests/security/test_isolation.py` (two users, two workspaces, two orgs).
+- Cross-user isolation is enforced by one SQL predicate used by every list/detail/retrieval query; the isolation test matrix in `docs/product/06_SECURITY_PRIVACY_AND_MEMORY.md` becomes `tests/security/test_isolation.py` (two users, two workspaces, two orgs).
 - Retrieval regression must be re-run after `0003` (new joins/columns in the scope statement; expected metric delta: none).
 - New services: none. New backend dependency: `python-multipart` (FastAPI's only multipart parser; not in `uv.lock` today). Frontend adds shadcn/ui primitives and zod (TRD-approved).
 - Rollback: each migration downgrades; `0003` downgrade loses upload scope metadata.

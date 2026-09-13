@@ -24,7 +24,7 @@ Rule: registry-ingested sources → `AUTHORITATIVE_ORG` (org = the single seeded
 It is tested, deterministic in routing, and inside budget. Conversation context (prior turns) is passed as *wording context only* to generation, never as evidence — implemented in `generation/`, not in the graph. If wiring conversation context requires touching graph state in more than one place, replace the graph with plain functions (ADR required).
 
 ## D-006 — Frontend design defaults pending worksheet (proposed)
-`11_DESIGN_DECISION_WORKSHEET.md` is unfilled. Defaults taken from `03_UI_UX_DESIGN_SPEC.md`:
+`docs/rebuild/11_DESIGN_DECISION_WORKSHEET.md` is unfilled. Defaults taken from `docs/product/03_UI_UX_DESIGN_SPEC.md`:
 engineering workstation · three-pane desktop with collapsible evidence panel, drawer ≤1279px · Engineering Cobalt palette · nav Chat/Documents/Uploads/Settings/Admin(role) · upload default scope **private user** · mobile = basic chat/evidence/status · shadcn/ui + Tailwind 4, Inter.
 No Figma stage is available in this environment; low-fi approval happens via the route/component inventory in Phase B before hi-fi code.
 
@@ -46,7 +46,7 @@ Every existing route already lives under `/api/v1`; new product routes join the 
 ## D-012 — Browser session (decided by owner 2026-09-12; ADR-0029 §6)
 HS256 JWT (pyjwt) in `HttpOnly; SameSite=Lax; Secure` cookie, 12 h; mutating cookie-auth requests require `X-Requested-With`. `dev-login` refused when `APP_ENV=production`. OIDC remains the production path (login redirect → cookie).
 
-## D-013 — Frontend route/component inventory (Phase B low-fi gate; defaults from `03_UI_UX_DESIGN_SPEC.md`)
+## D-013 — Frontend route/component inventory (Phase B low-fi gate; defaults from `docs/product/03_UI_UX_DESIGN_SPEC.md`)
 Routes: `/login`, `/app/home`, `/app/chat`, `/app/chat/[id]`, `/app/documents`, `/app/documents/upload`, `/app/documents/[id]`, `/app/ingestion`, `/app/settings`, `/app/admin/{corpus,ingestion,audit}` (role-gated).
 Shell: `AppShell` (top bar: WorkspaceSwitcher · SourceScopeSelector · SystemStatus · user menu; left nav 240px; evidence panel 400px collapsible, sheet <1280px).
 Feature components: chat = `ConversationList`, `ConversationHeader`, `MessageList`, `AssistantMessage` (answer-mode badge Grounded / Evidence only / Insufficient evidence), `CitationMarker`, `Composer`; evidence = `EvidencePanel`, `EvidenceCard`; documents = `DocumentTable`, `DocumentStatus`, `UploadDropzone`, `UploadMetadataForm`, `IngestionTimeline`; common = `EmptyState`, `ErrorState`, `PermissionDenied`, `LoadingSkeleton`.

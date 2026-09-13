@@ -47,7 +47,7 @@ class Settings(BaseSettings):
 
     embedding_provider: EmbeddingProviderName = "fastembed"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    # cross_encoder measured 2026-09-12: MRR 0.713 → 0.808 on regulatory_v2 with rerank_top_n=12 (README "Measured results")
+    # cross_encoder measured 2026-09-12: MRR 0.713 → 0.808 on regulatory_v2 with rerank_top_n=12 (README)
     reranker: RerankerName = "cross_encoder"
 
     llm_provider: LLMProviderName = "none"

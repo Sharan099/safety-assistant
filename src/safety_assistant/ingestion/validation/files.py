@@ -40,7 +40,11 @@ def validate_pdf_bytes(
         raise ValidationError(f"sha256 mismatch: registry={expected_sha256} actual={digest}")
     try:
         with pymupdf.open(stream=data, filetype="pdf") as doc:  # type: ignore[no-untyped-call]
+            if doc.needs_pass:
+                raise ValidationError("PDF is password-protected")
             page_count = len(doc)
+    except ValidationError:
+        raise
     except Exception as exc:  # noqa: BLE001
         raise ValidationError(f"PDF cannot be opened: {exc}") from exc
     if page_count == 0:

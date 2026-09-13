@@ -110,6 +110,8 @@ class Settings(BaseSettings):
             problems.append("DEV_LOGIN_ENABLED bypasses the identity provider")
         if len(self.session_secret) < 32:
             problems.append("SESSION_SECRET must be at least 32 characters")
+        if any(o.strip() in ("*", "null") for o in self.cors_origins):
+            problems.append("CORS_ORIGINS must be an explicit allowlist (credentials are allowed)")
         if problems:
             raise ValueError("refusing to start in production: " + "; ".join(problems))
         return self

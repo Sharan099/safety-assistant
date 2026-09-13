@@ -203,7 +203,7 @@ def regulations(
     stmt = (
         select(Regulation, RegulationVersion)
         .join(RegulationVersion, RegulationVersion.regulation_id == Regulation.id)
-        .where(Regulation.data_class.in_(principal.data_classes))
+        .where(Regulation.data_class.in_(principal.data_classes), sql_for_principal(principal))
         .order_by(Regulation.regulation_key, RegulationVersion.valid_from)
     )
     if kind:

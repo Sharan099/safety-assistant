@@ -5,9 +5,25 @@ from __future__ import annotations
 import datetime
 import json
 import logging
+import re
 import sys
 
 _STD = set(logging.LogRecord("", 0, "", 0, "", (), None).__dict__) | {"message", "asctime"}
+
+
+# Secrets that can appear inside exception text or messages: connection-string passwords and bearer
+# tokens. Redacted at the formatter so every handler and every logger benefits.
+_REDACT = (
+    (re.compile(r"(://[^/:@\s]+:)[^@\s]+@"), r"\1***@"),
+    (re.compile(r"(?i)(bearer\s+)[A-Za-z0-9._\-]{8,}"), r"\1***"),
+    (re.compile(r"(?i)((?:api[_-]?key|secret|password|token)['\"]?\s*[:=]\s*['\"]?)[^'\"\s,}]{6,}"), r"\1***"),
+)
+
+
+def redact(text: str) -> str:
+    for pattern, repl in _REDACT:
+        text = pattern.sub(repl, text)
+    return text
 
 
 class JsonFormatter(logging.Formatter):
@@ -16,11 +32,11 @@ class JsonFormatter(logging.Formatter):
             "ts": datetime.datetime.fromtimestamp(record.created, datetime.UTC).isoformat(timespec="milliseconds"),
             "level": record.levelname,
             "logger": record.name,
-            "msg": record.getMessage(),
+            "msg": redact(record.getMessage()),
         }
         payload.update({k: v for k, v in record.__dict__.items() if k not in _STD and not k.startswith("_")})
         if record.exc_info:
-            payload["exc"] = self.formatException(record.exc_info)[-2000:]
+            payload["exc"] = redact(self.formatException(record.exc_info)[-2000:])
         return json.dumps(payload, default=str)
 
 

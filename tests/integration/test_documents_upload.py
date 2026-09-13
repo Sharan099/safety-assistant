@@ -285,3 +285,14 @@ def test_api_key_and_anonymous_principals_cannot_upload(client, env) -> None:  #
     )
     assert r.status_code == 403
     assert client.get(f"/api/v1/documents/{uuid.uuid4()}").status_code == 403
+
+
+def test_regulations_listing_never_shows_other_users_private_documents(client, env, db_session, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    _login(client, "alice@example.test")
+    _upload(client, _project_pdf(tmp_path), title="Alice secret project note")
+    _drain(db_session, env)
+    assert any("Alice secret" in r["title"] for r in client.get("/api/v1/regulations").json())
+    _login(client, "bob@example.test")  # engineer: confidential-cleared, but not the owner
+    assert not any("Alice secret" in r["title"] for r in client.get("/api/v1/regulations").json())
+    client.cookies.clear()  # anonymous viewer: authoritative sources only
+    assert all(not r["regulation_key"].startswith("DOC-") for r in client.get("/api/v1/regulations").json())

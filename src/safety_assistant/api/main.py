@@ -35,11 +35,16 @@ async def _lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
+_production = settings.app_env == "production"
 app = FastAPI(
     title="Safety Assistant — regulatory knowledge API",
-    version="0.2.0",
+    version="0.3.0",
     description="Versioned, auditable retrieval and grounded answers over automotive passive-safety regulations.",
     lifespan=_lifespan,
+    # interactive API docs are a development aid; the schema is not served in production
+    docs_url=None if _production else "/docs",
+    redoc_url=None,
+    openapi_url=None if _production else "/openapi.json",
 )
 app.add_middleware(RequestIdMiddleware)
 app.add_middleware(

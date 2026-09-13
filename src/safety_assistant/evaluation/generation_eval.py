@@ -313,9 +313,54 @@ def aggregate(records: list[CaseRecord]) -> dict[str, Any]:
         out[f"{k}_n"] = sum(v is not None for v in vals)
     modes = [r.mode for r in records]
     out["modes"] = {m: modes.count(m) for m in sorted(set(modes))}
+    with_tokens = [r for r in records if r.tokens]
+    out["tokens_n"] = len(with_tokens)
+    for k in ("prompt_tokens", "completion_tokens", "total_tokens"):
+        vals = [r.tokens[k] for r in with_tokens if r.tokens and k in r.tokens]
+        out[f"{k}_mean"] = (sum(vals) / len(vals)) if vals else None
     lat = sorted(r.latency_ms for r in records)
     out["latency_p50_ms"] = lat[len(lat) // 2] if lat else None
     return out
+
+
+def cost_estimate(records: list[CaseRecord], pricing: dict[str, Any]) -> dict[str, Any]:
+    """Estimated spend from token usage × reference prices (evals/pricing.yaml). Per model, so a
+    quality/latency/cost comparison across model choices is one table, not a guess."""
+    prices = pricing.get("per_million_tokens", {})
+    per_model: dict[str, dict[str, float]] = {}
+    unpriced: set[str] = set()
+    for r in records:
+        if not r.tokens or not r.model:
+            continue
+        price = prices.get(r.model)
+        if price is None:
+            unpriced.add(r.model)
+            continue
+        cost = (
+            r.tokens.get("prompt_tokens", 0) * price["input"] + r.tokens.get("completion_tokens", 0) * price["output"]
+        ) / 1e6
+        m = per_model.setdefault(r.model, {"queries": 0.0, "usd": 0.0, "latency_ms_sum": 0.0})
+        m["queries"] += 1
+        m["usd"] += cost
+        m["latency_ms_sum"] += r.latency_ms
+    table = {
+        model: {
+            "queries": int(v["queries"]),
+            "usd_per_query": v["usd"] / v["queries"],
+            "usd_per_1k_queries": 1000 * v["usd"] / v["queries"],
+            "latency_p_mean_ms": v["latency_ms_sum"] / v["queries"],
+        }
+        for model, v in per_model.items()
+    }
+    priced = sum(v["queries"] for v in per_model.values())
+    return {
+        "pricing_as_of": pricing.get("as_of"),
+        "currency": pricing.get("currency", "USD"),
+        "priced_queries": int(priced),
+        "usd_per_query_blended": (sum(v["usd"] for v in per_model.values()) / priced) if priced else None,
+        "by_model": table,
+        "unpriced_models": sorted(unpriced),
+    }
 
 
 def report(

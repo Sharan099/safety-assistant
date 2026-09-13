@@ -1,6 +1,6 @@
 region          = "eu-central-1"
 environment     = "staging"
-image           = "ghcr.io/OWNER/safety-assistant:0.2.0"
+image           = "ghcr.io/OWNER/safety-assistant:0.3.0"
 vpc_id          = "vpc-xxxxxxxx"
 private_subnets = ["subnet-aaaa", "subnet-bbbb"]
 public_subnets  = ["subnet-cccc", "subnet-dddd"]
@@ -9,3 +9,7 @@ oidc_issuer     = "https://login.example.com/realms/safety"
 oidc_audience   = "safety-assistant"
 alert_email     = "oncall@example.com"
 desired_count   = 1
+oidc_client_id    = "safety-assistant-web"
+oidc_redirect_uri = "https://safety.example.com/api/v1/auth/oidc/callback"
+frontend_url      = "https://safety.example.com"
+worker_count      = 1

@@ -37,6 +37,17 @@ variable "api_memory" {
   type    = number
   default = 3072 # fastembed model + in-memory BM25 index of ~20k chunks
 }
+variable "worker_count" {
+  type    = number
+  default = 1 # ingestion workers; scale by count, claims use SKIP LOCKED
+}
+variable "worker_memory" {
+  type    = number
+  default = 3072 # parsing a 4,000-page manual peaks around 1.5 GB
+}
+variable "oidc_client_id" { type = string }
+variable "oidc_redirect_uri" { type = string }
+variable "frontend_url" { type = string }
 variable "desired_count" {
   type    = number
   default = 2
@@ -70,6 +81,17 @@ resource "random_password" "db" {
   special = false
 }
 resource "aws_secretsmanager_secret" "db" { name = "${local.name}/database-url" }
+resource "random_password" "session" {
+  length  = 48
+  special = false
+}
+resource "aws_secretsmanager_secret" "session" { name = "${local.name}/session-secret" }
+resource "aws_secretsmanager_secret_version" "session" {
+  secret_id     = aws_secretsmanager_secret.session.id
+  secret_string = random_password.session.result
+}
+# Value is set out-of-band (never in state or variables): aws secretsmanager put-secret-value ...
+resource "aws_secretsmanager_secret" "oidc_client" { name = "${local.name}/oidc-client-secret" }
 resource "aws_secretsmanager_secret_version" "db" {
   secret_id     = aws_secretsmanager_secret.db.id
   secret_string = "postgresql+psycopg://safety:${random_password.db.result}@${aws_db_instance.pg.address}:5432/safety_assistant?sslmode=require"
@@ -150,8 +172,8 @@ resource "aws_iam_role_policy" "task" {
     Version = "2012-10-17",
     Statement = [
       { Effect = "Allow", Action = ["s3:GetObject", "s3:PutObject", "s3:HeadObject", "s3:ListBucket"], Resource = [aws_s3_bucket.artifacts.arn, "${aws_s3_bucket.artifacts.arn}/*"] },
-      { Effect = "Allow", Action = ["secretsmanager:GetSecretValue"], Resource = [aws_secretsmanager_secret.db.arn] },
-      { Effect = "Allow", Action = ["logs:CreateLogStream", "logs:PutLogEvents"], Resource = ["${aws_cloudwatch_log_group.api.arn}:*"] },
+      { Effect = "Allow", Action = ["secretsmanager:GetSecretValue"], Resource = [aws_secretsmanager_secret.db.arn, aws_secretsmanager_secret.session.arn, aws_secretsmanager_secret.oidc_client.arn] },
+      { Effect = "Allow", Action = ["logs:CreateLogStream", "logs:PutLogEvents"], Resource = ["${aws_cloudwatch_log_group.api.arn}:*", "${aws_cloudwatch_log_group.worker.arn}:*"] },
     ]
   })
 }
@@ -175,12 +197,21 @@ resource "aws_ecs_task_definition" "api" {
       { name = "AUTH_MODE", value = "oidc" },
       { name = "OIDC_ISSUER", value = var.oidc_issuer },
       { name = "OIDC_AUDIENCE", value = var.oidc_audience },
+      { name = "OIDC_CLIENT_ID", value = var.oidc_client_id },
+      { name = "OIDC_REDIRECT_URI", value = var.oidc_redirect_uri },
+      { name = "FRONTEND_URL", value = var.frontend_url },
+      { name = "DEV_LOGIN_ENABLED", value = "false" },
+      { name = "RERANKER", value = "cross_encoder" },
       { name = "ARTIFACT_STORE_URI", value = "s3://${aws_s3_bucket.artifacts.bucket}" },
       { name = "EMBEDDING_PROVIDER", value = "fastembed" },
       { name = "LLM_PROVIDER", value = "none" }, # evidence-only until a cleared provider is configured
       { name = "WEB_CONCURRENCY", value = "2" },
     ]
-    secrets = [{ name = "DATABASE_URL", valueFrom = aws_secretsmanager_secret.db.arn }]
+    secrets = [
+      { name = "DATABASE_URL", valueFrom = aws_secretsmanager_secret.db.arn },
+      { name = "SESSION_SECRET", valueFrom = aws_secretsmanager_secret.session.arn },
+      { name = "OIDC_CLIENT_SECRET", valueFrom = aws_secretsmanager_secret.oidc_client.arn },
+    ]
     healthCheck = {
       command     = ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8010/health/ready', timeout=5).status==200 else 1)\""]
       interval    = 30
@@ -214,6 +245,63 @@ resource "aws_ecs_service" "api" {
     target_group_arn = aws_lb_target_group.api.arn
     container_name   = "api"
     container_port   = 8010
+  }
+}
+
+# ---------------------------------------------------------------- worker (ingestion queue)
+resource "aws_cloudwatch_log_group" "worker" {
+  name              = "/${local.name}/worker"
+  retention_in_days = 30
+}
+resource "aws_ecs_task_definition" "worker" {
+  family                   = "${local.name}-worker"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = var.api_cpu
+  memory                   = var.worker_memory
+  execution_role_arn       = aws_iam_role.task.arn
+  task_role_arn            = aws_iam_role.task.arn
+  container_definitions = jsonencode([{
+    name                   = "worker"
+    image                  = var.image
+    command                = ["worker"]
+    essential              = true
+    user                   = "10001:10001"
+    readonlyRootFilesystem = true
+    environment = [
+      { name = "APP_ENV", value = "production" },
+      { name = "AUTH_MODE", value = "oidc" },
+      { name = "OIDC_ISSUER", value = var.oidc_issuer },
+      { name = "OIDC_AUDIENCE", value = var.oidc_audience },
+      { name = "ARTIFACT_STORE_URI", value = "s3://${aws_s3_bucket.artifacts.bucket}" },
+      { name = "EMBEDDING_PROVIDER", value = "fastembed" },
+      { name = "LLM_PROVIDER", value = "none" },
+      { name = "DEV_LOGIN_ENABLED", value = "false" },
+      { name = "MALWARE_SCANNER", value = "none" }, # point at a clamd service or managed scanner before accepting external uploads
+    ]
+    secrets = [
+      { name = "DATABASE_URL", valueFrom = aws_secretsmanager_secret.db.arn },
+      { name = "SESSION_SECRET", valueFrom = aws_secretsmanager_secret.session.arn },
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options   = { awslogs-group = aws_cloudwatch_log_group.worker.name, awslogs-region = var.region, awslogs-stream-prefix = "worker" }
+    }
+  }])
+}
+resource "aws_ecs_service" "worker" {
+  name            = "${local.name}-worker"
+  cluster         = aws_ecs_cluster.this.id
+  task_definition = aws_ecs_task_definition.worker.arn
+  desired_count   = var.worker_count
+  launch_type     = "FARGATE"
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+  network_configuration {
+    subnets         = var.private_subnets
+    security_groups = [aws_security_group.api.id] # same egress rules: database + object storage only
   }
 }
 

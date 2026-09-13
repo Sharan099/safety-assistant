@@ -38,7 +38,13 @@ from sqlalchemy.orm import Session
 
 from safety_assistant.config import get_settings
 from safety_assistant.evaluation.dataset import load_dataset
-from safety_assistant.evaluation.generation_eval import CaseRecord, pipeline_fingerprint, report, run_case
+from safety_assistant.evaluation.generation_eval import (
+    CaseRecord,
+    cost_estimate,
+    pipeline_fingerprint,
+    report,
+    run_case,
+)
 from safety_assistant.evaluation.metrics import mean
 from safety_assistant.generation.service import AnswerService
 from safety_assistant.persistence import get_engine
@@ -280,6 +286,11 @@ def main(argv: list[str] | None = None) -> int:
         for r in records:
             r.metrics.update({f"deepeval_{k}": v for k, v in scores.get(r.case_id, {}).items()})
 
+    pricing_path = pathlib.Path("evals/pricing.yaml")
+    if pricing_path.exists():
+        import yaml
+
+        extra["cost"] = cost_estimate(records, yaml.safe_load(pricing_path.read_text(encoding="utf-8")))
     rep = report(records, dataset=dataset, fingerprint=fp, extra=extra)
     out_dir = pathlib.Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -318,6 +329,18 @@ def _print_summary(rep: dict[str, Any]) -> None:
     print(row("all", a))
     for s, agg in rep["by_slice"].items():
         print(row(s, agg))
+    if rep.get("cost"):
+        c = rep["cost"]
+        blended = c["usd_per_query_blended"] or 0
+        print(
+            f"\ncost (reference prices as of {c['pricing_as_of']}): priced {c['priced_queries']} queries, "
+            f"blended ${blended:.5f}/query; unpriced models: {c['unpriced_models']}"
+        )
+        for m, v in c["by_model"].items():
+            print(
+                f"  {m:<36} n={v['queries']:<4} ${v['usd_per_query']:.5f}/query  "
+                f"${v['usd_per_1k_queries']:.2f}/1k  mean {v['latency_p_mean_ms']:.0f} ms"
+            )
     for kind in ("ragas", "deepeval"):
         if kind in rep:
             print(f"\n{kind}:")

@@ -1,0 +1,13 @@
+# Reference prices used ONLY by the evaluation report to estimate cost per query. Not business logic.
+# Prices are USD per 1M tokens as listed by the providers on the date below; update the date when you change them.
+# Free-tier gateway routing in development has no billed cost; the estimate shows what the same traffic would cost
+# on the listed models. Unknown models are reported as "unpriced".
+as_of: "2026-09-13"
+currency: USD
+per_million_tokens:
+  openai/gpt-oss-120b: { input: 0.15, output: 0.60 }
+  openai/gpt-oss-safeguard-20b: { input: 0.075, output: 0.30 }
+  gemini-3-flash-preview: { input: 0.50, output: 3.00 }
+  gemini-3.1-flash-lite: { input: 0.10, output: 0.40 }
+  minimax-m2.7: { input: 0.30, output: 1.20 }
+  llama-3.3-70b: { input: 0.59, output: 0.79 }

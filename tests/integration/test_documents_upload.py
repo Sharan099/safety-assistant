@@ -296,3 +296,53 @@ def test_regulations_listing_never_shows_other_users_private_documents(client, e
     assert not any("Alice secret" in r["title"] for r in client.get("/api/v1/regulations").json())
     client.cookies.clear()  # anonymous viewer: authoritative sources only
     assert all(not r["regulation_key"].startswith("DOC-") for r in client.get("/api/v1/regulations").json())
+
+
+def test_job_of_a_crashed_worker_is_reclaimed_and_completes(client, env, db_session, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """A worker that died mid-job leaves a RUNNING row with a stale lock; the next claim re-queues it."""
+    from sqlalchemy import text as sql
+
+    _login(client, "alice@example.test")
+    up = _upload(client, _project_pdf(tmp_path))
+    job = worker.claim(db_session, "worker-that-dies")  # takes the job, then "crashes" before finishing
+    assert job is not None and job.status == "RUNNING"
+    db_session.execute(
+        sql("UPDATE ingestion_jobs SET locked_at = locked_at - interval '3 hours' WHERE id = :id"), {"id": job.id}
+    )
+    db_session.commit()
+    assert _drain(db_session, env) == ["SUCCEEDED"]
+    detail = client.get(f"/api/v1/documents/{up['document_id']}").json()
+    assert detail["status"] == "READY" and detail["latest_job"]["attempt"] == 2
+
+
+def test_one_active_version_per_regulation_after_reprocessing(client, env, db_session, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from sqlalchemy import select
+
+    from safety_assistant.persistence.models import Regulation, RegulationVersion
+
+    _login(client, "alice@example.test")
+    up = _upload(client, _project_pdf(tmp_path))
+    _drain(db_session, env)
+    # re-queue the same version (manual retry path) and process again
+    from safety_assistant.documents.service import enqueue
+
+    enqueue(db_session, uuid.UUID(up["document_version_id"]), requested_by=None)
+    db_session.commit()
+    _drain(db_session, env)
+    reg = db_session.scalar(select(Regulation).where(Regulation.id == uuid.UUID(up["document_id"])))
+    active = db_session.scalars(
+        select(RegulationVersion).where(RegulationVersion.regulation_id == reg.id, RegulationVersion.status == "ACTIVE")
+    ).all()
+    assert len(active) == 1
+
+
+def test_scanned_pdf_without_ocr_is_quarantined_with_a_clear_public_reason(client, env, db_session) -> None:  # type: ignore[no-untyped-def]
+    doc = pymupdf.open()
+    for _ in range(2):
+        page = doc.new_page(width=300, height=200)
+        page.draw_rect(pymupdf.Rect(10, 10, 290, 190), color=(0, 0, 0), width=2)  # ink, but no text layer
+    _login(client, "alice@example.test")
+    up = _upload(client, doc.tobytes(), title="Scanned note")
+    assert _drain(db_session, env) == ["QUARANTINED"]
+    job = client.get(f"/api/v1/ingestion-jobs/{up['ingestion_job_id']}").json()
+    assert job["error_code"] == "UNREADABLE" and "scanned" in job["error_public_message"].lower()

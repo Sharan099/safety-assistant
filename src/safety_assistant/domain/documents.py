@@ -65,7 +65,7 @@ def display_status(version_status: str, *, job_status: str | None = None, archiv
 PUBLIC_ERRORS: dict[str, str] = {
     "INVALID_PDF": "The file is not a valid PDF or failed integrity checks.",
     "TOO_LARGE": "The file exceeds the allowed size or page limit.",
-    "UNREADABLE": "The PDF could not be read reliably (scanned or damaged pages).",
+    "UNREADABLE": "The PDF could not be read reliably (scanned pages without a text layer, or damaged pages).",
     "PROCESSING_ERROR": "Processing failed. Retry later or contact an administrator with the diagnostic reference.",
     "ATTEMPTS_EXHAUSTED": "Processing failed repeatedly. An administrator must review this document.",
 }
@@ -77,7 +77,7 @@ def classify_error(run_status: str, detail: str | None) -> str:
     if run_status == "QUARANTINED":
         if "exceed" in d or "too large" in d or "page" in d and "limit" in d:
             return "TOO_LARGE"
-        if "qa fail" in d or "failed page" in d:
+        if "qa fail" in d or "failed page" in d or "text layer" in d or "scanned" in d:
             return "UNREADABLE"
         return "INVALID_PDF"
     return "PROCESSING_ERROR"

@@ -31,14 +31,32 @@ from safety_assistant.retrieval.sparse import invalidate_cache
 log = logging.getLogger(__name__)
 
 BACKOFF_MINUTES = (1, 5, 15)  # attempt 1 → +1 min, 2 → +5 min, 3 → +15 min
+# A RUNNING job whose lock is older than this belongs to a worker that died mid-job; it is re-queued
+# (attempt already counted) so a crash never strands a document in a processing state.
+STALE_LOCK_MINUTES = 120
 
 
 def _now() -> dt.datetime:
     return dt.datetime.now(dt.UTC)
 
 
+def reclaim_stale(session: Session, *, stale_minutes: int = STALE_LOCK_MINUTES) -> int:
+    """Re-queue RUNNING jobs whose worker stopped reporting (crash, OOM kill, node loss)."""
+    result = session.execute(
+        text(
+            "UPDATE ingestion_jobs SET status = 'QUEUED', run_after = clock_timestamp(), locked_at = NULL, "
+            "locked_by = NULL, error_code = 'WORKER_LOST' "
+            "WHERE status = 'RUNNING' AND locked_at < clock_timestamp() - make_interval(mins => :m)"
+        ),
+        {"m": stale_minutes},
+    )
+    session.commit()
+    return int(getattr(result, "rowcount", 0) or 0)
+
+
 def claim(session: Session, worker_id: str) -> IngestionJob | None:
     """Atomically take one due job; concurrent workers skip each other's rows."""
+    reclaim_stale(session)
     # clock_timestamp(), not now(): now() is frozen at transaction start and a long-lived session
     # would never see jobs enqueued after it began.
     row = session.execute(

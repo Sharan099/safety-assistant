@@ -28,6 +28,7 @@ from safety_assistant.ingestion.parse.contract import (
     ParsedPage,
     ParsedTable,
 )
+from safety_assistant.ingestion.parse.ocr import OcrAdapter, OcrUnavailable
 
 MIN_CHARS_FOR_RELIABLE_TEXT = 40
 LOW_QUALITY_THRESHOLD = 0.3
@@ -51,9 +52,12 @@ class PyMuPDFParser:
     name = "pymupdf"
     version = "2.0.0"  # bump when extraction semantics change → re-parse is triggered by config hash
 
-    def __init__(self, *, extract_tables: bool = True, extract_figures: bool = True) -> None:
+    def __init__(
+        self, *, extract_tables: bool = True, extract_figures: bool = True, ocr: OcrAdapter | None = None
+    ) -> None:
         self.extract_tables = extract_tables
         self.extract_figures = extract_figures
+        self.ocr = ocr  # None = pages without a text layer stay flagged (NEEDS_REVIEW)
 
     def config_hash(self) -> str:
         cfg = {
@@ -62,6 +66,7 @@ class PyMuPDFParser:
             "pymupdf": pymupdf.pymupdf_version,  # type: ignore[attr-defined]
             "tables": self.extract_tables,
             "figures": self.extract_figures,
+            "ocr": self.ocr.name if self.ocr else "none",
             "min_chars": MIN_CHARS_FOR_RELIABLE_TEXT,
         }
         return hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:16]
@@ -116,6 +121,14 @@ class PyMuPDFParser:
                     continue
                 quality = text_quality(text)
                 needs_ocr = len(text.strip()) < MIN_CHARS_FOR_RELIABLE_TEXT
+                if needs_ocr and self.ocr is not None:
+                    try:
+                        png = page.get_pixmap(dpi=200).tobytes("png")  # type: ignore[no-untyped-call]
+                        text = self.ocr.ocr_png(png).replace("\x00", "")
+                        quality = text_quality(text)
+                        needs_ocr = len(text.strip()) < MIN_CHARS_FOR_RELIABLE_TEXT
+                    except OcrUnavailable:
+                        pass  # stays flagged; the report says NEEDS_REVIEW
                 if 0 < quality < LOW_QUALITY_THRESHOLD:
                     low_quality.append(pn)
 
@@ -141,6 +154,8 @@ class PyMuPDFParser:
             route_summary[p.route] += 1
         if failed:
             status = "FAIL" if len(failed) == page_count else "NEEDS_REVIEW"
+        elif pages and without_text == len(pages):
+            status = "NEEDS_REVIEW"  # scanned document and no OCR: nothing indexable came out
         elif without_text or low_quality:
             status = "PASS_WITH_WARNINGS"
         else:

@@ -55,6 +55,7 @@ from safety_assistant.ingestion.normalize import (
 from safety_assistant.ingestion.parse import DocumentParser, ParsedDocument, PyMuPDFParser
 from safety_assistant.ingestion.sources.registry import SourceEntry, SourceRegistry, VersionInfo, get_registry
 from safety_assistant.ingestion.validation import ValidationError, validate_pdf_bytes
+from safety_assistant.ingestion.validation.scan import MalwareScanner, NoScanner, scanner_from_settings
 from safety_assistant.observability import metrics
 from safety_assistant.persistence.models import (
     Chunk,
@@ -97,6 +98,7 @@ class _Ctx:
     blobs: BlobStore
     embedder: EmbeddingProvider
     repo_root: pathlib.Path
+    scanner: MalwareScanner = dataclasses.field(default_factory=NoScanner)
     stats: dict[str, Any] = dataclasses.field(default_factory=dict)
     reuse_pool: dict[str, list[float]] = dataclasses.field(default_factory=dict)
 
@@ -124,6 +126,17 @@ class _Ctx:
 
 def _now() -> dt.datetime:
     return dt.datetime.now(dt.UTC)
+
+
+def _default_parser(settings: Settings) -> DocumentParser:
+    from safety_assistant.ingestion.parse.ocr import ocr_from_settings
+
+    ocr = ocr_from_settings(settings.ocr_provider, lang=settings.ocr_language)
+    return PyMuPDFParser(ocr=None if ocr.name == "none" else ocr)
+
+
+def _default_scanner(settings: Settings) -> MalwareScanner:
+    return scanner_from_settings(settings.malware_scanner, host=settings.clamav_host, port=settings.clamav_port)
 
 
 def _git_sha() -> str | None:
@@ -160,10 +173,11 @@ def ingest_source(
         session=session,
         run=IngestionRun(source_key=source_key, status="RUNNING", started_at=_now(), git_sha=_git_sha()),
         settings=settings,
-        parser=parser or PyMuPDFParser(),
+        parser=parser or _default_parser(settings),
         blobs=blob_store or blob_store_from_uri(settings.artifact_store_uri),
         embedder=embedder or get_embedding_provider(),
         repo_root=repo_root or pathlib.Path.cwd(),
+        scanner=_default_scanner(settings),
     )
     if actor:
         ctx.stats["actor"] = actor  # audit: who triggered a privileged ingestion
@@ -266,10 +280,11 @@ def ingest_version(
             git_sha=_git_sha(),
         ),
         settings=settings,
-        parser=parser or PyMuPDFParser(),
+        parser=parser or _default_parser(settings),
         blobs=blob_store or blob_store_from_uri(settings.artifact_store_uri),
         embedder=embedder or get_embedding_provider(),
         repo_root=pathlib.Path.cwd(),
+        scanner=_default_scanner(settings),
     )
     if actor:
         ctx.stats["actor"] = actor
@@ -492,7 +507,16 @@ def _validate(ctx: _Ctx, version: RegulationVersion, e: SourceEntry, data: bytes
         )
     except ValidationError as exc:
         raise QuarantineError(f"validation failed: {exc}") from exc
-    ctx.advance(version, VersionStatus.VALIDATED, "sha256/size/magic/page-count checks passed", pages=v.page_count)
+    verdict = ctx.scanner.scan(data)  # ScannerUnavailable propagates → FAILED + retry, never a silent pass
+    if not verdict.clean:
+        raise QuarantineError(f"malware detected: {verdict.detail or 'unspecified'}")
+    ctx.advance(
+        version,
+        VersionStatus.VALIDATED,
+        "sha256/size/magic/page-count checks passed",
+        pages=v.page_count,
+        scanner=ctx.scanner.name,
+    )
     return v
 
 
@@ -534,6 +558,8 @@ def _parse(ctx: _Ctx, version: RegulationVersion, data: bytes, sha: str, max_pag
     ctx.stats["pages"] = report.processed_page_count
     if report.status == "FAIL":
         raise QuarantineError(f"extraction QA FAIL: {len(report.failed_pages)} failed page(s)")
+    if report.processed_page_count and report.route_summary.get("SCANNED_IMAGE_ONLY") == report.processed_page_count:
+        raise QuarantineError("no text layer on any page (scanned document) and OCR is not configured")
     ctx.advance(
         version,
         VersionStatus.PARSED,
@@ -792,6 +818,9 @@ def _verify(ctx: _Ctx, version: RegulationVersion) -> None:
 def _activate(ctx: _Ctx, version: RegulationVersion, regulation: Regulation) -> None:
     s = ctx.session
     now = _now()
+    # Serialise activations per regulation: two workers activating different versions of the same
+    # regulation at once could otherwise both read "no other ACTIVE" and leave two ACTIVE rows.
+    s.execute(select(Regulation.id).where(Regulation.id == regulation.id).with_for_update())
     others = s.scalars(
         select(RegulationVersion).where(
             RegulationVersion.regulation_id == regulation.id,

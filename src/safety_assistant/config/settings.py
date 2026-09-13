@@ -77,6 +77,13 @@ class Settings(BaseSettings):
     # Ingestion resource limits (CLAUDE.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024
     ingest_max_pages: int = 5000
+    # Untrusted-upload boundaries: malware scanning (clamd) and OCR for scanned pages are optional
+    # adapters; `none` keeps the stage explicit rather than silently absent.
+    malware_scanner: Literal["none", "clamav"] = "none"
+    clamav_host: str = "localhost"
+    clamav_port: int = 3310
+    ocr_provider: Literal["none", "tesseract"] = "none"
+    ocr_language: str = "eng"
 
     log_level: str = "INFO"
     cors_origins: list[str] = ["http://localhost:3010", "http://127.0.0.1:3010"]

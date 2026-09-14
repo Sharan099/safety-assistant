@@ -51,6 +51,8 @@ class AgentState(TypedDict, total=False):
     evidence: list[Evidence]
     extra_context: str | None  # e.g. change-analysis diff, rendered as data for the model
     conversation_context: str | None  # earlier turns, wording context only — never evidence
+    # the engineer's stated project (vehicle category, mass, market): data for the model, never evidence
+    project_context: str | None
     decision: GateDecision | None
     draft: GroundedDraft | None
     validation: ValidationReport | None

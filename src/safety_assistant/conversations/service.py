@@ -158,6 +158,7 @@ def record_exchange(
         role="assistant",
         content=answer.answer or "",
         answer_mode=answer.mode,
+        abstain_reason=answer.abstain_reason,
         model=str(answer.versions.get("model") or "") or None,
         provider=str(answer.versions.get("provider") or "") or None,
         trace_id=answer.trace_id,

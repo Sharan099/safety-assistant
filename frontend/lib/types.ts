@@ -117,6 +117,7 @@ export interface Preferences {
   answer_density: "concise" | "standard" | "detailed";
   preferred_language: string;
   ui_theme: "light" | "dark" | "system";
+  project_context: string | null;
 }
 
 export interface Me {
@@ -158,6 +159,7 @@ export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  abstain_reason?: string | null;
   answer_mode: AnswerMode | null;
   trace_id: string | null;
   warnings: string[];

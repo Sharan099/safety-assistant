@@ -83,3 +83,23 @@ def test_validation_accepts_numbers_from_evidence_attributes_but_not_invented_va
 def test_rewrite_expands_known_acronyms() -> None:
     assert rewrite_query("HPC limit in R94") == "HPC (head performance criterion) limit in R94"
     assert rewrite_query("frontal collision") is None
+
+
+def test_calculation_claims_may_derive_numbers_but_must_start_from_evidence() -> None:
+    ev = [_ev("E1", "Vehicle speed at the moment of impact shall be 56 -0/+1 km/h.")]
+    derived = Claim(text="56 km/h is 15.6 m/s (56 / 3.6).", evidence_ids=["E1"], kind="CALCULATION")
+    invented = Claim(text="At 64 km/h the energy is 17.8 m/s squared.", evidence_ids=["E1"], kind="CALCULATION")
+    as_requirement = Claim(text="56 km/h is 15.6 m/s.", evidence_ids=["E1"], kind="REQUIREMENT")
+    kept, report = validate_draft(GroundedDraft(answer="", claims=[derived, invented, as_requirement]), ev)
+    assert [c.kind for c in kept] == [
+        "CALCULATION"
+    ]  # derived result allowed, invented inputs and REQUIREMENT conversions are not
+    assert [r.status for r in report.claims] == ["SUPPORTED", "NUMERIC_MISMATCH", "NUMERIC_MISMATCH"]
+
+
+def test_small_talk_gets_a_capabilities_reply_without_retrieval() -> None:
+    from safety_assistant.generation.grounding import CAPABILITIES, small_talk
+
+    assert small_talk("Hi!") == CAPABILITIES
+    assert small_talk("what can you do?") == CAPABILITIES
+    assert small_talk("What is the ThCC limit?") is None

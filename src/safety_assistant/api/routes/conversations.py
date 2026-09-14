@@ -19,7 +19,7 @@ from safety_assistant.api.routes.query import MAX_QUERY_CHARS
 from safety_assistant.conversations import service as convs
 from safety_assistant.conversations.service import ScopeNotAuthorized, SourceScope
 from safety_assistant.persistence import get_session
-from safety_assistant.persistence.models import Conversation, Message, MessageCitation
+from safety_assistant.persistence.models import Conversation, Message, MessageCitation, UserPreference
 
 router = APIRouter(prefix="/api/v1/conversations", tags=["conversations"])
 
@@ -80,6 +80,7 @@ def _message_view(m: Message, citations: list[MessageCitation]) -> dict[str, Any
         "role": m.role,
         "content": m.content,
         "answer_mode": m.answer_mode,
+        "abstain_reason": m.abstain_reason,
         "trace_id": m.trace_id,
         "warnings": m.warnings or [],
         "created_at": m.created_at,
@@ -174,6 +175,7 @@ async def post_message(
     except ScopeNotAuthorized as exc:  # membership changed since the conversation was created
         raise HTTPException(status.HTTP_403_FORBIDDEN, str(exc)) from exc
     context = convs.context_for(session, conv)
+    project = _project_context(session, principal)
     answer = await run_in_threadpool(
         query._answers().answer,  # via module: tests swap the service
         session,
@@ -183,6 +185,7 @@ async def post_message(
         scopes=sorted(principal.scopes),
         k=req.k,
         conversation_context=context,
+        project_context=project,
     )
     user_msg, assistant = convs.record_exchange(session, conv, req.content, answer)
     session.commit()
@@ -194,3 +197,12 @@ async def post_message(
         "assistant_message": _message_view(assistant, cites.get(assistant.id, [])),
         "answer": answer,
     }
+
+
+def _project_context(session: Session, principal: Principal) -> str | None:
+    """The user's stated project, if any (Settings → Project). Data for the model, never evidence."""
+    if principal.user_id is None:
+        return None
+    pref = session.get(UserPreference, principal.user_id)
+    text = (pref.project_context or "").strip() if pref else ""
+    return text or None

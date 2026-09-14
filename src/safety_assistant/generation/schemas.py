@@ -14,6 +14,7 @@ AbstainReason = Literal[
     "no_version_valid_on_date",
     "weak_evidence",
     "ambiguous_query",
+    "small_talk",
     "generation_unavailable",
     "validation_failed",
 ]
@@ -22,8 +23,10 @@ AbstainReason = Literal[
 class Claim(BaseModel):
     text: str
     evidence_ids: list[str] = Field(min_length=1)
-    # REQUIREMENT = quoted/paraphrased regulation text; INTERPRETATION = the model's reading of it.
-    kind: Literal["REQUIREMENT", "INTERPRETATION"] = "REQUIREMENT"
+    # REQUIREMENT = quoted/paraphrased regulation text; INTERPRETATION = the model's reading of it;
+    # CALCULATION = a value derived from evidence numbers with the working shown (unit conversion,
+    # margin against a limit). Its inputs must be in the cited evidence; the result is flagged as derived.
+    kind: Literal["REQUIREMENT", "INTERPRETATION", "CALCULATION"] = "REQUIREMENT"
 
 
 class GroundedDraft(BaseModel):

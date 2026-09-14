@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { ErrorState, LoadingState } from "@/components/common/States";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMe, usePatchPreferences } from "@/features/queries";
 import { errorMessage } from "@/lib/errors";
@@ -78,6 +79,24 @@ export default function SettingsPage() {
               <SelectItem value="dark">Dark (coming later)</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor="project">Current project</Label>
+          <Textarea
+            id="project"
+            data-testid="pref-project"
+            defaultValue={p.project_context ?? ""}
+            maxLength={800}
+            rows={3}
+            placeholder="e.g. M1 passenger car, 1,850 kg, EU + UK markets, SOP 2027, Euro NCAP 5-star target"
+            onBlur={(e) => {
+              const v = e.target.value.trim();
+              if (v !== (p.project_context ?? "")) save({ project_context: v || null });
+            }}
+          />
+          <p className="text-xs text-text-secondary">
+            Lets you ask “does my vehicle need …” in short form. Shown to the model as context, never as evidence.
+          </p>
         </div>
         <p className="text-xs text-text-secondary sm:col-span-2">
           Preferences shape wording and defaults only. Regulatory facts always come from the current authorized corpus.

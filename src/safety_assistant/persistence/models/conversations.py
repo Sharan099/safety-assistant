@@ -47,6 +47,7 @@ class Message(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     content: Mapped[str] = mapped_column(Text)
     # GENERATED | EVIDENCE_ONLY | ABSTAINED (assistant only)
     answer_mode: Mapped[str | None] = mapped_column(Text)
+    abstain_reason: Mapped[str | None] = mapped_column(Text)  # generation.schemas.AbstainReason when ABSTAINED
     model: Mapped[str | None] = mapped_column(Text)
     provider: Mapped[str | None] = mapped_column(Text)
     # query_traces.trace_id — no FK: traces may be pruned independently of history.

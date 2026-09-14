@@ -91,6 +91,9 @@ class UserPreference(Base):
     preferred_language: Mapped[str] = mapped_column(Text, default="en")
     # light | dark | system
     ui_theme: Mapped[str] = mapped_column(Text, default="light")
+    # The engineer's current project in their own words (vehicle category, mass, markets, programme).
+    # Shown to the model as <project_context> data so "my vehicle" resolves; never evidence.
+    project_context: Mapped[str | None] = mapped_column(Text)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
 
 

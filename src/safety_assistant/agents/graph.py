@@ -216,6 +216,9 @@ class RegulatoryAgent:
         user = build_user_message(state["query"], state["evidence"], scope_note)
         if state.get("extra_context"):
             user = user.replace("<question>", f"{state['extra_context']}\n\n<question>", 1)
+        if state.get("project_context"):
+            pc = f"<project_context>\n{state['project_context']}\n</project_context>"
+            user = user.replace("<question>", f"{pc}\n\n<question>", 1)
         if state.get("conversation_context"):
             ctx = f"<conversation_context>\n{state['conversation_context']}\n</conversation_context>"
             user = user.replace("<question>", f"{ctx}\n\n<question>", 1)
@@ -264,6 +267,8 @@ class RegulatoryAgent:
             return {**state, "mode": "ABSTAINED", "abstain_reason": "weak_evidence", "message": draft.answer}
         kept, report = validate_draft(draft, state["evidence"])
         warnings = list(state["warnings"])
+        if any(c.kind == "CALCULATION" for c in kept):
+            warnings.append("contains a value derived from the cited evidence (calculation shown): verify before use")
         if report.dropped_claims:
             metrics.CITATION_FAILURES.inc(report.dropped_claims)
             warnings.append(f"{report.dropped_claims} claim(s) removed: failed citation/numeric validation")
@@ -353,10 +358,12 @@ class RegulatoryAgent:
         today: Any = None,
         trace_id: str | None = None,
         conversation_context: str | None = None,
+        project_context: str | None = None,
     ) -> AgentState:
         initial: AgentState = {
             "query": query,
             "conversation_context": conversation_context,
+            "project_context": project_context,
             "base_scope": scope or ScopeFilter(),
             "k": k,
             "today": today,

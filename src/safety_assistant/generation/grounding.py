@@ -81,6 +81,24 @@ def _versions_valid_on(session: Session, regulation_keys: tuple[str, ...], day: 
     return sum(1 for _, vf, vt in rows if (vf is None or vf <= day) and (vt is None or vt > day))
 
 
+_GREETING_RE = re.compile(
+    r"^\s*(hi|hello|hey|thanks?|thank you|good (morning|afternoon|evening)|ok|okay|bye|who are you|what can you do)"
+    r"[\s!.?]*$",
+    re.IGNORECASE,
+)
+CAPABILITIES = (
+    "I answer from the ingested passive-safety sources — UN regulations (R94, R95, R137, R129, R16, …), "
+    "49 CFR 571 (FMVSS), the Euro NCAP protocols, the LS-DYNA manuals and the reference handbooks — with "
+    "clause-level citations. Ask for a limit, a test condition, a definition, a comparison between documents, "
+    "or how a requirement applies to your vehicle."
+)
+
+
+def small_talk(query: str) -> str | None:
+    """A helpful deterministic reply for greetings and 'what can you do' — no retrieval, no LLM."""
+    return CAPABILITIES if _GREETING_RE.match(query) else None
+
+
 def evaluate_gate(
     session: Session,
     query: str,
@@ -90,12 +108,16 @@ def evaluate_gate(
     as_of: datetime.date | None,
     retries_left: int,
 ) -> GateDecision:
+    if msg := small_talk(query):
+        return GateDecision(False, "small_talk", msg)
     terms = significant_tokens(query)
     if not qs.regulation_keys and not qs.has_exact_identifier and len(terms) <= WEAK_QUERY_TERMS:
         return GateDecision(
             False,
             "ambiguous_query",
-            "The question does not name a regulation, criterion or topic. Specify the limit or clause you mean.",
+            "The question does not name a regulation, criterion or topic, so no source can be selected. "
+            'Name the limit, clause or test you mean — for example "ThCC limit in the frontal test" or '
+            '"UN R129 support-leg requirements".',
         )
 
     if as_of is not None and qs.regulation_keys:
@@ -131,7 +153,12 @@ def evaluate_gate(
     if not evidence:
         if retries_left > 0 and (rw := rewrite_query(query)):
             return GateDecision(True, rewrite=rw, warnings=["corrective retry: acronym expansion"])
-        return GateDecision(False, "no_evidence", "No relevant evidence was found in the active corpus.")
+        return GateDecision(
+            False,
+            "no_evidence",
+            "None of the ingested sources contains evidence for this question, so it is outside what I can "
+            "answer reliably. " + CAPABILITIES,
+        )
 
     warnings: list[str] = []
     strong = [

@@ -27,6 +27,7 @@ class PreferencesPatch(BaseModel):
     answer_density: Literal["concise", "standard", "detailed"] | None = None
     preferred_language: str | None = Field(default=None, min_length=2, max_length=8)
     ui_theme: Literal["light", "dark", "system"] | None = None
+    project_context: str | None = Field(default=None, max_length=800)
 
 
 def set_session_cookie(response: Response, token: str, settings: Settings) -> None:
@@ -99,6 +100,7 @@ def _me_payload(session: Session, principal: Principal) -> dict[str, Any]:
             "answer_density": p.answer_density,
             "preferred_language": p.preferred_language,
             "ui_theme": p.ui_theme,
+            "project_context": p.project_context,
         },
     }
 

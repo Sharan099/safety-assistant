@@ -64,6 +64,7 @@ class AnswerService:
         today: datetime.date | None = None,
         k: int | None = None,
         conversation_context: str | None = None,
+        project_context: str | None = None,
     ) -> AnswerResponse:
         trace_id = uuid.uuid4().hex
         agent = RegulatoryAgent(
@@ -74,7 +75,13 @@ class AnswerService:
             llm_data_classes=tuple(get_settings().llm_data_classes),
         )
         state = agent.run(
-            query, scope=scope, k=k, today=today, trace_id=trace_id, conversation_context=conversation_context
+            query,
+            scope=scope,
+            k=k,
+            today=today,
+            trace_id=trace_id,
+            conversation_context=conversation_context,
+            project_context=project_context,
         )
         resp = self._to_response(trace_id, query, state)
         self._persist(session, resp, state, principal, scopes)

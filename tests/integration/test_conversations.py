@@ -145,3 +145,38 @@ def test_workspace_scope_outside_membership_is_refused(client, users) -> None:  
     assert client.post("/api/v1/conversations", json={"workspace_id": ws}, headers=CSRF).status_code == 403
     login(client, "a@example.test")
     assert client.post("/api/v1/conversations", json=body, headers=CSRF).status_code == 201
+
+
+def test_project_context_is_stored_and_reaches_the_answer_as_data(client, users, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    """The Settings 'Current project' text is passed to the answer service as project_context (never as evidence)."""
+    from safety_assistant.api.routes import query as q
+
+    login(client, "a@example.test")
+    text = "M1 passenger car, 1,850 kg, EU market"
+    r = client.patch("/api/v1/me/preferences", json={"project_context": text}, headers=CSRF)
+    assert r.status_code == 200 and r.json()["preferences"]["project_context"] == text
+    assert client.patch("/api/v1/me/preferences", json={"project_context": "x" * 801}, headers=CSRF).status_code == 422
+    seen: dict[str, object] = {}
+    service = q._answers()  # the fixture builds one per call; pin one and spy on it
+    real = service.answer
+
+    def spy(session, content, **kw):  # type: ignore[no-untyped-def]
+        seen.update(kw)
+        return real(session, content, **kw)
+
+    service.answer = spy  # type: ignore[method-assign]
+    monkeypatch.setattr(q, "_answers", lambda: service)
+    conv = client.post("/api/v1/conversations", json={}, headers=CSRF).json()
+    client.post(
+        f"/api/v1/conversations/{conv['id']}/messages", json={"content": "thorax limit for my vehicle"}, headers=CSRF
+    )
+    assert seen.get("project_context") == text
+
+
+def test_greeting_gets_a_capabilities_reply(client, users) -> None:  # type: ignore[no-untyped-def]
+    login(client, "a@example.test")
+    conv = client.post("/api/v1/conversations", json={}, headers=CSRF).json()
+    r = client.post(f"/api/v1/conversations/{conv['id']}/messages", json={"content": "hello"}, headers=CSRF)
+    assert r.status_code == 201
+    a = r.json()["answer"]
+    assert a["mode"] == "ABSTAINED" and a["abstain_reason"] == "small_talk" and "UN regulations" in a["answer"]

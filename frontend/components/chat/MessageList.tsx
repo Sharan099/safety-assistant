@@ -75,7 +75,11 @@ export function AssistantMessage({ message, live }: { message: Message; live?: E
       aria-label="Assistant answer"
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <AnswerModeBadge mode={mode} />
+        {message.abstain_reason === "small_talk" ? (
+          <span className="text-xs font-medium text-text-secondary" data-testid="answer-mode" data-mode="ASSISTANT">Assistant</span>
+        ) : (
+          <AnswerModeBadge mode={mode} />
+        )}
         {message.citations.length > 0 && (
           <Button size="sm" variant="ghost" onClick={() => show(items, items[0]?.id)} data-testid="view-evidence">
             View evidence ({message.citations.length})

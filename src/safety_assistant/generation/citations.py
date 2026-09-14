@@ -5,6 +5,9 @@
 - numbers (with decimal comma or point) that appear in a REQUIREMENT claim must
   appear in at least one cited evidence text (or its parent/related context) —
   the numeric-fidelity check that catches silent rounding or invention;
+- a CALCULATION claim may state derived numbers (a unit conversion, a margin against a
+  limit) but at least one of its numbers must come from the cited evidence; the answer
+  carries a warning that derived values must be checked;
 - citation views are built from the evidence records, never from model text.
 """
 
@@ -76,16 +79,19 @@ def validate_draft(draft: GroundedDraft, evidence: list[Evidence]) -> tuple[list
             unknown.extend(bad)
             results.append(ClaimValidation(claim_index=i, status="UNSUPPORTED_EVIDENCE_ID", detail=", ".join(bad)))
             continue
-        if claim.kind == "REQUIREMENT":
+        if claim.kind in ("REQUIREMENT", "CALCULATION"):
             cited = "\n".join(_evidence_text(by_id[x]) for x in claim.evidence_ids)
             have = {canonical_number(m.group(1)) for m in _NUMBER_RE.finditer(cited)}
-            unmatched = sorted(n for n in claimed_numbers(claim.text) if n not in have)
-            if unmatched:
+            claimed = claimed_numbers(claim.text)
+            unmatched = sorted(n for n in claimed if n not in have)
+            # A calculation may introduce derived numbers, but must start from numbers the evidence states.
+            invalid = unmatched if claim.kind == "REQUIREMENT" else ([] if claimed & have else sorted(claimed))
+            if invalid:
                 results.append(
                     ClaimValidation(
                         claim_index=i,
                         status="NUMERIC_MISMATCH",
-                        detail=f"not in cited evidence: {', '.join(unmatched)}",
+                        detail=f"not in cited evidence: {', '.join(invalid)}",
                     )
                 )
                 continue

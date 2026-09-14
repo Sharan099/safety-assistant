@@ -5,8 +5,33 @@ import { useEffect, useRef } from "react";
 import { AnswerModeBadge } from "@/components/common/StatusBadge";
 import { type EvidenceItem, fromCitations, useEvidence } from "@/components/evidence/EvidenceContext";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Message } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+function pages(item: EvidenceItem): string {
+  if (!item.page_start) return "";
+  return item.page_end && item.page_end !== item.page_start ? `pp. ${item.page_start}–${item.page_end}` : `p. ${item.page_start}`;
+}
+
+/** Hover / focus preview of the cited lines: what the answer rests on, before opening the panel. */
+export function CitationPreview({ item, children }: { item: EvidenceItem; children: React.ReactElement }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger render={children} />
+      <TooltipContent side="top" className="max-w-md flex-col items-stretch p-0 text-left" data-testid="citation-preview">
+        <div className="border-b px-3 py-2 text-xs">
+          <span className="font-medium">{item.label}</span>
+          {pages(item) && <span className="text-text-secondary"> · {pages(item)}</span>}
+          <span className="text-text-secondary"> · {item.version_label}</span>
+        </div>
+        <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap px-3 py-2 font-sans text-xs leading-relaxed">
+          {item.excerpt ?? "Excerpt not stored for this citation — open the evidence panel."}
+        </pre>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 /** Renders "[E1]" / "[1]" markers in answer text as buttons that focus the evidence panel. */
 export function CitationMarkers({ text, items, onFocus }: { text: string; items: EvidenceItem[]; onFocus: (id: string) => void }) {
@@ -21,16 +46,17 @@ export function CitationMarkers({ text, items, onFocus }: { text: string; items:
         const item = m[0].startsWith("[E") ? items.find((it) => it.id === `E${n}`) : items.find((it) => it.order === n);
         if (!item) return <span key={i}>{part}</span>;
         return (
-          <button
-            key={i}
-            type="button"
-            data-testid="citation-marker"
-            className="mx-0.5 inline-flex rounded bg-evidence-soft px-1.5 py-0 font-mono text-xs font-medium text-evidence hover:ring-2 hover:ring-evidence/40 focus-visible:ring-2 focus-visible:ring-evidence"
-            aria-label={`Show evidence ${n}: ${item.label}`}
-            onClick={() => onFocus(item.id)}
-          >
-            [{item.order}]
-          </button>
+          <CitationPreview key={i} item={item}>
+            <button
+              type="button"
+              data-testid="citation-marker"
+              className="mx-0.5 inline-flex rounded bg-evidence-soft px-1.5 py-0 font-mono text-xs font-medium text-evidence hover:ring-2 hover:ring-evidence/40 focus-visible:ring-2 focus-visible:ring-evidence"
+              aria-label={`Show evidence ${n}: ${item.label}`}
+              onClick={() => onFocus(item.id)}
+            >
+              [{item.order}]
+            </button>
+          </CitationPreview>
         );
       })}
     </>
@@ -76,8 +102,9 @@ export function AssistantMessage({ message, live }: { message: Message; live?: E
       )}
       {message.citations.length > 0 && (
         <ol className="mt-3 flex flex-wrap gap-1.5" aria-label="Citations">
-          {message.citations.map((c) => (
-            <li key={c.order}>
+          {message.citations.map((c) => {
+            const item = items.find((it) => it.label === c.label) ?? items[c.order];
+            const chip = (
               <button
                 type="button"
                 data-testid="citation"
@@ -86,26 +113,43 @@ export function AssistantMessage({ message, live }: { message: Message; live?: E
                   !c.evidence_available && "opacity-60",
                 )}
                 onClick={() => {
-                  const id = items.find((it) => it.label === c.label)?.id ?? items[c.order]?.id ?? c.label;
+                  const id = item?.id ?? c.label;
                   show(items, id);
                   focus(id);
                 }}
               >
                 <span className="font-mono">[{c.order + 1}]</span> {c.label}
               </button>
-            </li>
-          ))}
+            );
+            return <li key={c.order}>{item ? <CitationPreview item={item}>{chip}</CitationPreview> : chip}</li>;
+          })}
         </ol>
       )}
     </article>
   );
 }
 
-export function MessageList({ messages, liveEvidence, pending }: { messages: Message[]; liveEvidence?: Record<string, EvidenceItem[]>; pending?: string | null }) {
+export interface FailedTurn {
+  content: string;
+  message: string;
+  retry: () => void;
+}
+
+export function MessageList({
+  messages,
+  liveEvidence,
+  pending,
+  failed,
+}: {
+  messages: Message[];
+  liveEvidence?: Record<string, EvidenceItem[]>;
+  pending?: string | null;
+  failed?: FailedTurn | null;
+}) {
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => {
     end.current?.scrollIntoView({ block: "end" });
-  }, [messages.length, pending]);
+  }, [messages.length, pending, failed]);
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-4" aria-live="polite">
       {messages.map((m) =>
@@ -122,6 +166,18 @@ export function MessageList({ messages, liveEvidence, pending }: { messages: Mes
           <div className="self-end rounded-xl bg-primary-soft px-4 py-2.5 text-sm">{pending}</div>
           <div className="rounded-xl border bg-card p-4 text-sm text-text-secondary" role="status" data-testid="thinking">
             Retrieving evidence and drafting a grounded answer…
+          </div>
+        </>
+      )}
+      {failed && !pending && (
+        <>
+          <div className="self-end rounded-xl bg-primary-soft px-4 py-2.5 text-sm">{failed.content}</div>
+          <div className="rounded-xl border border-destructive/40 bg-card p-4 text-sm" role="alert" data-testid="send-failed">
+            <p className="font-medium">The answer could not be produced.</p>
+            <p className="text-text-secondary">{failed.message} Your question was not saved; retry to send it again.</p>
+            <Button size="sm" variant="outline" className="mt-2" onClick={failed.retry} data-testid="send-retry">
+              Retry
+            </Button>
           </div>
         </>
       )}

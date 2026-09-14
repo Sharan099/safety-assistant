@@ -25,6 +25,10 @@ test("1. login → new chat → answer → open evidence", async ({ page }) => {
   await expect(answer).toHaveAttribute("data-mode", /GENERATED|EVIDENCE_ONLY|ABSTAINED/);
   const citation = page.getByTestId("citation").first();
   await expect(citation).toContainText(REG);
+  await citation.hover(); // the cited lines and page are previewed before the panel opens
+  const preview = page.getByTestId("citation-preview");
+  await expect(preview).toBeVisible();
+  await expect(preview).toContainText(/p\. \d+|pp\. \d+/);
   await citation.click();
   const card = page.getByTestId("evidence-panel").getByTestId("evidence-card").first();
   await expect(card).toBeVisible();

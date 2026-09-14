@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Composer } from "@/components/chat/Composer";
-import { MessageList } from "@/components/chat/MessageList";
+import { type FailedTurn, MessageList } from "@/components/chat/MessageList";
 import { SourceScopeSelector, scopeSummary } from "@/components/chat/SourceScopeSelector";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/States";
 import { type EvidenceItem, fromEvidence, useEvidence } from "@/components/evidence/EvidenceContext";
@@ -27,8 +27,11 @@ export default function ConversationPage() {
   const [live, setLive] = useState<Record<string, EvidenceItem[]>>({});
   const started = useRef(false);
   const pending = send.isPending ? (send.variables?.content ?? null) : null;
+  // A failed turn stays visible with a retry; the question is never silently dropped.
+  const [failed, setFailed] = useState<FailedTurn | null>(null);
 
   function ask(content: string, asOf: string | null) {
+    setFailed(null);
     send.mutate(
       { content, as_of: asOf },
       {
@@ -37,7 +40,7 @@ export default function ConversationPage() {
           setLive((prev) => ({ ...prev, [ex.assistant_message.id]: items }));
           show(items);
         },
-        onError: (e) => toast.error(errorMessage(e)),
+        onError: (e) => setFailed({ content, message: errorMessage(e), retry: () => ask(content, asOf) }),
       },
     );
   }
@@ -108,12 +111,12 @@ export default function ConversationPage() {
         </div>
       </header>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {c.messages.length === 0 && !pending ? (
+        {c.messages.length === 0 && !pending && !failed ? (
           <div className="p-6">
             <EmptyState title="No messages yet" hint="Ask the first question below." />
           </div>
         ) : (
-          <MessageList messages={c.messages} liveEvidence={live} pending={pending} />
+          <MessageList messages={c.messages} liveEvidence={live} pending={pending} failed={failed} />
         )}
       </div>
       {archived ? (

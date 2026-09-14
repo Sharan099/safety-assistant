@@ -5,6 +5,9 @@ import type { NextConfig } from "next";
 const API = process.env.API_INTERNAL_URL ?? "http://localhost:8010";
 
 const nextConfig: NextConfig = {
+  // An answer can legitimately take up to the agent budget (45 s) plus one LLM call (30 s); the
+  // default 30 s proxy timeout turned slow-gateway answers into 500s.
+  experimental: { proxyTimeout: 120_000 },
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${API}/api/:path*` },

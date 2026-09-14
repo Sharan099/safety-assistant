@@ -41,99 +41,65 @@ The flows above (six, including the Sources page) are automated in Playwright ag
 
 ## Measured results
 
-Every number here was produced by code in this repository; result files under `evals/results/` carry the git SHA, corpus fingerprint, configuration and timestamp. Reproduction commands are in [Evaluation](#evaluation).
+Every number here was produced by code in this repository; result files under `evals/results/` carry the git SHA, corpus fingerprint, configuration and timestamp. Reproduction commands are in [Evaluation](#evaluation). Results are reported per corpus: the current 42-source corpus first, the earlier 16-source corpus as history.
 
-**Corpus**: the tables below were measured on the earlier 16-source corpus (UN R16, R94, R95, R129 plus NHTSA reports and manuals; 21,910 chunks). The corpus was replaced on 2026-09-14 by the 42-source registry described above (27,222 chunks); the re-measurement on it is in [Retrieval on the 42-source corpus](#retrieval-on-the-42-source-corpus).
-**Gold sets**: `regulatory_v1` — 47 human-written cases; `regulatory_v2` — 262 cases = the 47 human-written + 200 LLM-generated (facts verified verbatim against the clause text, **not human-reviewed**) + 15 hand-written unanswerable / ambiguous / adversarial cases. Provenance is recorded per case (`source`, `human_reviewed`).
+**Gold sets**: `regulatory_v1` — 45 human-written cases; `regulatory_v2` — 260 cases = the 45 human-written + 200 LLM-generated (facts verified verbatim against the clause text, **not human-reviewed**) + 15 hand-written unanswerable / ambiguous / adversarial cases; `document_mismatch_v1` — 36 twin-clause cases (`source: synthetic`, written from the ingested sections, not human-reviewed). Provenance is recorded per case (`source`, `human_reviewed`). Two cases that targeted NHTSA reports removed from the corpus were dropped on 2026-09-14, and `r94-004` now accepts UN R137 as well because R137 §5.2.2.1 states the identical limits.
 
-### Retrieval (deterministic, no LLM)
+### Retrieval on the current corpus (42 sources, 27,222 chunks)
 
-Production configuration: BM25 + dense (weight 0.75) + exact-clause leg → RRF → cross-encoder over the top 12. k_eval = 20. Measured 2026-09-13.
-
-| Dataset | Leg | R@5 | R@10 | Hit@5 | MRR | nDCG@10 | RegHit@5 |
-|---|---|---|---|---|---|---|---|
-| v1 (47 human) | BM25 only | 0.686 | 0.821 | 0.795 | 0.546 | 0.582 | 0.955 |
-| | dense only | 0.546 | 0.639 | 0.667 | 0.470 | 0.480 | 0.864 |
-| | hybrid RRF | 0.650 | 0.851 | 0.769 | 0.583 | 0.615 | 0.955 |
-| | **full** | **0.844** | **0.877** | **0.949** | **0.756** | **0.768** | **0.977** |
-| v2 (262) | BM25 only | 0.896 | 0.930 | 0.926 | 0.720 | 0.761 | 0.988 |
-| | dense only | 0.608 | 0.660 | 0.638 | 0.480 | 0.512 | 0.871 |
-| | hybrid RRF | 0.818 | 0.916 | 0.848 | 0.652 | 0.704 | 0.984 |
-| | **full** | **0.911** | **0.931** | **0.938** | **0.808** | **0.829** | **0.992** |
-
-### Document identity: summary-augmented chunking
-
-Many automotive regulations contain similar wording. UN R94 §5.2.3 and UN R95 §5.3.1 both say "no door shall open"; R94 §5.2.7 and R95 §5.3.6 both limit fuel leakage to 30 g/min; R16 §2.32 and R129 §2.11 both define the ISOFIX anchorage system. A paragraph can be semantically right and belong to the wrong regulation. To reduce this failure mode, each chunk is indexed together with document-level context — a deterministic identity line (regulation, title, version) and one generated summary per document version — while the answer and the citations always come from the original regulatory text (`chunks.content`; the evidence model has no field for the summary). ADR-0030 records the design.
-
-Two representations were built beside the baseline and compared on identical queries and labels (`scripts/eval/sac_ab.py`; full pipeline, cross-encoder, k_eval = 20, measured 2026-09-13):
-
-- `sac_v2` (compact): `UN R94 — Protection of the occupants in the event of a frontal collision (Rev.4 (04 series)). <first summary sentence>` + chunk. Fits the 128-token input window that fastembed applies to MiniLM, so the dense vector still contains the chunk.
-- `sac_v1` (full): identity block + whole summary + chunk. The prefix alone is ~330 tokens, so under that window the dense vector is effectively a *document* vector.
-
-*Document-level retrieval mismatch (DRM)*: for an answerable case with a known regulation, `drm@1` = 1 when the top result comes from another document (definition and `drm@5` in `evaluation/retrieval_eval.py`). `document_mismatch_v1` is a 36-case benchmark of twin clauses (frontal vs side impact, adult belts vs child restraints, main body vs annex; `source: synthetic`, written from the ingested sections, not human-reviewed).
-
-| Dataset | Config | Doc R@1 | Doc R@5 | Doc MRR | DRM@1 | Passage R@5 | R@10 | Passage MRR | p50 ms |
-|---|---|---|---|---|---|---|---|---|---|
-| document_mismatch_v1 (36) | baseline | 0.611 | 0.917 | 0.758 | 0.389 | 0.677 | 0.721 | 0.586 | 2330 |
-| | **sac_v2** | 0.667 | 0.944 | 0.798 | 0.333 | 0.711 | 0.822 | 0.631 | 1374 |
-| | sac_v1 | **0.694** | 0.944 | **0.826** | **0.306** | **0.816** | **0.887** | **0.677** | 2205 |
-| regulatory_v2 (262, 247 eligible) | baseline | 0.915 | 0.988 | 0.947 | 0.081 | **0.911** | **0.935** | **0.808** | 1338 |
-| | **sac_v2** | **0.927** | **0.992** | **0.955** | **0.069** | 0.899 | 0.919 | 0.800 | 1368 |
-| | sac_v1 | 0.919 | 0.984 | 0.947 | 0.077 | 0.872 | 0.907 | 0.790 | 1749 |
-| regulatory_v1 (47 human, 43 eligible) | baseline | 0.886 | 0.977 | 0.922 | 0.093 | 0.844 | **0.877** | **0.756** | 1523 |
-| | **sac_v2** | **0.932** | 0.977 | **0.951** | **0.047** | 0.844 | 0.864 | 0.754 | 1394 |
-| | sac_v1 | 0.886 | 0.955 | 0.924 | 0.093 | 0.781 | 0.802 | 0.703 | 2080 |
-
-Reading: `sac_v2` improves every document-level metric on every set (the human-written set's mismatch rate halves, 4 → 2 of 43) at a passage cost on the broad set of −0.008 MRR and −0.016 R@10 (four of 262 cases), with unchanged latency. `sac_v1` is the strongest on the twin-clause benchmark but trades passage precision on the broad set, because its BM25 text repeats ~330 document tokens in every chunk. Leg ablations (`evals/results/sac_*_ablation_latest.json`): with `sac_v1` only on the dense leg the broad set improves uniformly (MRR 0.814, R@10 0.936, DRM 0.073) but the twin-clause benchmark does not move — the BM25 leg is what carries the hard cases. A first round with summaries from the free "auto" route produced reasoning dumps for 10 of 16 documents; the validator now rejects those (recorded as FAILED, retryable), and the reported numbers use `gpt-oss-120b` summaries.
-
-With `RERANKER=heuristic` (the fast `/search` profile) the picture is the same: v1 MRR 0.647 → 0.624 and R@10 0.903 → 0.890 with the mismatch rate unchanged, twin-clause set MRR 0.592 → 0.668, R@10 0.723 → 0.837 and DRM@1 0.444 → 0.222. One stable human case (`r16-003`, "ISOFIX definition", where R129 defines the same term) drops its clause out of the top 10 on that profile; the regression gate therefore pins the baseline representation for its stable-case checks and compares both representations in a separate test.
-
-A third lever was measured because most remaining twin-clause misses are re-imposed by the cross-encoder, which sees chunk text only: `RETRIEVAL_RERANK_WITH_CONTEXT=true` gives it the document line with the chunk. On `sac_v2` it takes the twin-clause set to Doc R@1 0.806 / DRM@1 0.194 / passage MRR 0.760 (and even the baseline index to 0.778 / 0.222), but costs passage MRR on the human-written set (0.754 → 0.718) and the broad set (0.800 → 0.786). It is shipped as an option, not enabled (`evals/results/sac_rerank_context_ablation_latest.json`).
-
-Decision: `sac_v2` is the recommended configuration (`RETRIEVAL_REPRESENTATION=sac_v2`, opt-in because a fresh corpus must build the index first); `sac_v1` stays available as an experimental option; the baseline index is untouched and remains the default in code.
-
-Cost of the representation: 16 summaries = 28k prompt + 7.8k completion tokens once per corpus (free tier here; ≈ $0.01 at the reference prices in `evals/pricing.yaml`); `reindex --representation sac_v2` embedded 21,911 chunks in 769 s on the laptop CPU (951 s for `sac_v1` including summary generation); each extra representation adds 21,911 vector rows and a 42 MB HNSW index (`chunk_embeddings` is 246 MB with all three).
-
-Before this work the full pipeline measured MRR 0.636 (v1) / 0.709 (v2) with a heuristic reranker; the gain comes from the cross-encoder (measured +0.10 to +0.12 MRR) and a small RRF re-weighting. BM25 alone beats dense alone by a wide margin on this corpus — see [Why the architecture looks this way](#why-the-architecture-looks-this-way).
-
-Latency on a laptop CPU (i5-8250U), single request: retrieval p50 ≈ 1.4 s with the cross-encoder, ≈ 0.27 s with `RERANKER=heuristic`. The adaptive policy (`RETRIEVAL_RERANK_POLICY=adaptive`, reranker skipped when the exact-clause leg hit or BM25 and dense agree on the top result) measured v1 MRR 0.767 / v2 0.797 at a 66–72 % reranker invocation rate and p50 −30 to −43 %; it is shipped as an option, not the default, because v2 lost 0.011 MRR.
-
-### End-to-end answers (real LLM)
-
-`regulatory_v2`, 262 cases, free-tier models through an OpenAI-compatible gateway (`LLM_MODEL=auto`, routed model recorded per answer). Judged 2026-09-13, before the validator fix described below.
-
-| Metric | Value |
-|---|---|
-| Refusal accuracy (unanswerable → abstain, answerable → answer) | 0.943 — all 11 not-in-corpus / out-of-scope questions abstained; 14 answerable questions refused (5.7 %) |
-| Citation hit / precision (expected regulation + clause) | 0.919 / 0.714 |
-| Key-fact coverage in the answer / in the retrieved evidence | 0.823 / 0.977 |
-| Grounding validator accepted the draft | 0.965 |
-| Adversarial injection resisted (6 hand-written cases) | 6/6 |
-| RAGAS 0.4 (n = 100, evenly sampled): faithfulness · answer relevancy · context precision · context recall | 0.742 · 0.774 · 0.866 · 0.960 |
-| DeepEval 4.2 (n = 26): faithfulness · answer relevancy · contextual precision | 1.000 · 0.907 · 0.880 |
-
-Failure analysis of that run (deterministic taxonomy, `failures_by_category` in the report): 73 of 262 answers were classified as failures — 31 `citation_not_supporting_claim`, 14 `unnecessary_refusal`, the rest attribution/coverage. The largest fixable cause of refusals was the numeric validator rejecting clause paths and revision labels that models quote from the evidence attributes; that is fixed (`generation/citations.py`, unit-tested). A re-run under the fixed validator answered all 262 cases but its RAGAS/DeepEval judging was stopped for free-tier rate limits; the table above therefore stays the pre-fix measurement and `evals/results/generation_regulatory_v2_latest.json` is that run.
-
-RAGAS faithfulness is a lower bound: it penalises attribution sentences ("according to UN R94 Rev.4 …") that the contexts do not literally contain; the repository's own validator and DeepEval judge the requirement claims. DeepEval covered 26 of a planned 40 records because a gateway call hung; the sample is what completed, not a selection.
-
-### Retrieval on the 42-source corpus
-
-Re-measured 2026-09-14 after the corpus change (full pipeline, cross-encoder, k_eval 20; `evals/results/sac_ab_20260914T095410.json`). The larger corpus is harder by construction — UN R137 and Euro NCAP frontal next to R94, R135 next to R95, R44 and R14 next to R129/R16, and two vendor handbooks that restate regulation limits — so every absolute number is lower than on the 16-source corpus; the two gold cases that targeted removed NHTSA reports were dropped (v1 45, v2 260 cases).
+Measured 2026-09-14, full pipeline (BM25 + dense + exact-clause leg → RRF → cross-encoder over the top 12), k_eval 20, laptop CPU; `evals/results/sac_ab_20260914T095410.json`. *Document* metrics score the regulation a result comes from; *DRM@1* (document-level retrieval mismatch) is the share of answerable cases whose top result comes from another document (definition in `evaluation/retrieval_eval.py`). `baseline` indexes the chunk text; `sac_v2` indexes the chunk with a one-line document identity and the first sentence of a generated document summary ([Document identity](#document-identity-summary-augmented-chunking)).
 
 | Dataset | Config | Doc R@1 | Doc R@5 | Doc MRR | DRM@1 | Passage R@5 | R@10 | Passage MRR | nDCG@10 | p50 ms |
 |---|---|---|---|---|---|---|---|---|---|---|
-| document_mismatch_v1 (36) | baseline | 0.389 | 0.861 | 0.582 | 0.611 | 0.597 | 0.684 | 0.469 | 0.495 | 2891 |
-| | **sac_v2** | **0.417** | **0.917** | **0.615** | **0.583** | **0.708** | **0.773** | **0.513** | **0.553** | 2408 |
-| regulatory_v2 (260) | baseline | 0.817 | 0.955 | 0.879 | 0.180 | **0.878** | **0.922** | **0.753** | **0.785** | 1553 |
-| | **sac_v2** | **0.821** | **0.959** | **0.881** | **0.176** | 0.855 | 0.890 | 0.742 | 0.768 | 1615 |
 | regulatory_v1 (45 human) | baseline | 0.738 | 0.952 | 0.820 | 0.244 | **0.818** | **0.859** | **0.683** | **0.713** | 1586 |
-| | **sac_v2** | **0.762** | 0.952 | **0.840** | **0.220** | 0.777 | 0.804 | 0.662 | 0.676 | 2093 |
+| | sac_v2 | **0.762** | 0.952 | **0.840** | **0.220** | 0.777 | 0.804 | 0.662 | 0.676 | 2093 |
+| regulatory_v2 (260) | baseline | 0.817 | 0.955 | 0.879 | 0.180 | **0.878** | **0.922** | **0.753** | **0.785** | 1553 |
+| | sac_v2 | **0.821** | **0.959** | **0.881** | **0.176** | 0.855 | 0.890 | 0.742 | 0.768 | 1615 |
+| document_mismatch_v1 (36) | baseline | 0.389 | 0.861 | 0.582 | 0.611 | 0.597 | 0.684 | 0.469 | 0.495 | 2891 |
+| | sac_v2 | **0.417** | **0.917** | **0.615** | **0.583** | **0.708** | **0.773** | **0.513** | **0.553** | 2408 |
 
-The shape is the same as before: `sac_v2` wins every document-level metric on every set and costs passage recall on the broad sets — now −0.032 R@10 on v2 and −0.056 on the human set (two to three cases of 45). The wrong documents at rank 1 on v2 are, in order, UN R137 (11), UN R44 (7), UN R16 (5): full-width frontal for offset frontal, the older child-restraint regulation for i-Size. The recommendation stands as an operator choice with that trade stated: document-correctness first → `sac_v2`; passage recall first → `content`. Both indexes are built; the regression gate asserts `sac_v2` never mismatches more than the baseline on the twin-clause set.
+This corpus is harder by construction than the earlier one: UN R137 and the Euro NCAP frontal protocol sit next to R94, R135 next to R95, R44 and R14 next to R129/R16, and two vendor handbooks restate regulation limits. The wrong documents at rank 1 on v2 are, in order, UN R137 (11 cases), UN R44 (7), UN R16 (5). `sac_v2` wins every document-level metric on every set and costs passage recall on the broad sets (−0.032 R@10 on v2, −0.056 on the human set, two to three cases of 45). Both indexes are built by ingestion; `RETRIEVAL_REPRESENTATION` is the operator's choice with that trade stated — document-correctness first → `sac_v2`, passage recall first → `content` (the code default). The regression gate (test profile, heuristic reranker) holds v1 MRR ≥ 0.55, v2 MRR ≥ 0.62 and R@10 ≥ 0.90 (measured 0.588 / 0.648 / 0.930, floors re-baselined for this corpus in ADR-0031) and asserts `sac_v2` never mismatches more than the baseline on the twin-clause set.
+
+### End-to-end answers on the current corpus (real LLM)
+
+JUDGED_CURRENT_PLACEHOLDER
+
+### Document identity: summary-augmented chunking
+
+Many automotive regulations contain similar wording. UN R94 §5.2.3 and UN R95 §5.3.1 both say "no door shall open"; R94 §5.2.7 and R95 §5.3.6 both limit fuel leakage to 30 g/min; R16 §2.32 and R129 §2.11 both define the ISOFIX anchorage system. A paragraph can be semantically right and belong to the wrong regulation. To reduce this failure mode, each chunk is indexed together with document-level context — a deterministic identity line (regulation, title, version) and one generated summary per document version — while the answer and the citations always come from the original regulatory text (`chunks.content`; the evidence model has no field for the summary). ADR-0030 records the design; ADR-0031 the corpus change.
+
+Two representations exist beside the baseline (`scripts/eval/sac_ab.py` compares them on identical queries and labels):
+
+- `sac_v2` (compact): `UN R94 — Protection of the occupants in the event of a frontal collision (Rev.4 (04 series)). <first summary sentence>` + chunk. Fits the 128-token input window that fastembed applies to MiniLM, so the dense vector still contains the chunk. Built by ingestion when `SAC_ENABLED=true`.
+- `sac_v1` (full): identity block + whole summary + chunk. The prefix alone is ~330 tokens, so under that window the dense vector is effectively a *document* vector. Experimental; built on request with `safety-assistant reindex --representation sac_v1`.
+
+Summaries are generated once per document version from a bounded excerpt, cached by (artifact SHA-256, prompt version, model), validated before indexing (truncated, reasoning-style and markdown outputs are rejected and recorded as FAILED, retryable) and never shown to the answer model. On the current corpus the summaries cost about 104k prompt + 20k completion tokens once (44 rows incl. the retries; free tier here; ≈ $0.04 at the reference prices in `evals/pricing.yaml`); a first round through the free "auto" route produced reasoning dumps for 10 of 16 documents, which is why the validator and `SUMMARY_MODEL` exist.
+
+### History: the 16-source corpus (2026-09-11 → 13)
+
+UN R16, R94, R95, R129 plus NHTSA reports and CAE manuals, 21,910 chunks; v1 47 and v2 262 cases. Retrieval, full pipeline, measured 2026-09-13:
+
+| Dataset | Leg | R@5 | R@10 | MRR | nDCG@10 | Doc R@1 | DRM@1 |
+|---|---|---|---|---|---|---|---|
+| v1 (47 human) | BM25 only | 0.686 | 0.821 | 0.546 | 0.582 | – | – |
+| | dense only | 0.546 | 0.639 | 0.470 | 0.480 | – | – |
+| | full, baseline | 0.844 | 0.877 | 0.756 | 0.768 | 0.886 | 0.093 |
+| | full, sac_v2 | 0.844 | 0.864 | 0.754 | 0.763 | 0.932 | 0.047 |
+| v2 (262) | BM25 only | 0.896 | 0.930 | 0.720 | 0.761 | – | – |
+| | dense only | 0.608 | 0.660 | 0.480 | 0.512 | – | – |
+| | full, baseline | 0.911 | 0.935 | 0.808 | 0.829 | 0.915 | 0.081 |
+| | full, sac_v2 | 0.899 | 0.919 | 0.800 | 0.819 | 0.927 | 0.069 |
+| document_mismatch_v1 (36) | full, baseline | 0.677 | 0.721 | 0.586 | 0.589 | 0.611 | 0.389 |
+| | full, sac_v2 | 0.711 | 0.822 | 0.631 | 0.649 | 0.667 | 0.333 |
+| | full, sac_v1 | 0.816 | 0.887 | 0.677 | 0.701 | 0.694 | 0.306 |
+
+Findings that shaped the design, all in `evals/results/`: the cross-encoder over the top 12 added +0.10 to +0.12 MRR over the heuristic reranker at ~1.2 s/query (uncapped: 0.814 MRR at ~9 s); RRF dense weight 0.75 after sparse-heavy weights helped only generated cases; adaptive reranking (skip when the legs agree) saved 30–43 % p50 for −0.011 v2 MRR and stays an option; with `sac_v1` only on the dense leg the broad set improved uniformly (v2 MRR 0.814) but the twin-clause set did not move — the BM25 leg carries the hard cases; letting the cross-encoder see the document line (`RETRIEVAL_RERANK_WITH_CONTEXT`) halves the twin-clause mismatch again (0.333 → 0.194) but costs 0.036 passage MRR on the human set and stays an option.
+
+End-to-end answers on that corpus (`regulatory_v2`, 262 cases, free-tier models through an OpenAI-compatible gateway, routed model recorded per answer; judged 2026-09-13 before the numeric-validator fix described under [Evaluation](#evaluation)): refusal accuracy 0.943 (all 11 not-in-corpus / out-of-scope questions abstained, 14 answerable refused); citation hit / precision 0.919 / 0.714; key-fact coverage in the answer / in the evidence 0.823 / 0.977; grounding validator accepted 0.965; 6/6 adversarial injections resisted; RAGAS 0.4 (n = 100) faithfulness · answer relevancy · context precision · context recall 0.742 · 0.774 · 0.866 · 0.960; DeepEval 4.2 (n = 26 of a planned 40, a gateway call hung) 1.000 · 0.907 · 0.880. 73 of 262 answers were classified as failures — 31 `citation_not_supporting_claim`, 14 `unnecessary_refusal`; the largest fixable cause of refusals was the numeric validator rejecting clause paths and revision labels quoted from evidence attributes, since fixed. RAGAS faithfulness is a lower bound: it penalises attribution sentences ("according to UN R94 Rev.4 …") that the contexts do not literally contain.
 
 ### Ingestion, load, product flows
 
-42 sources → 27,222 chunks (full ingestion 47 min on the laptop, including OCR of three scanned texts and 1,400 pages of 49 CFR 571; the earlier 16-source corpus: 11,700 sections, 847 cross-references, 9,022 tables, 4,120 figures); re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 5/5 flows on the earlier corpus; flow 6 (Sources page) added 2026-09-14.
+42 sources → 27,222 chunks; full ingestion 47 min on the laptop including OCR of three scanned texts and 1,400 pages of 49 CFR 571; re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (16-source corpus, pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 6/6 flows (PLAYWRIGHT_DATE_PLACEHOLDER).
 
 ## Architecture
 

@@ -105,3 +105,23 @@ def test_gateway_usage_with_nested_details_is_flattened_to_int_counters() -> Non
 def test_model_is_mandatory() -> None:
     with pytest.raises(ValueError):
         OpenAICompatibleProvider(base_url="http://x", api_key="", model="")
+
+
+def test_call_budget_bounds_retries_to_one_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A slow gateway costs at most `timeout` seconds in total, not attempts × timeout."""
+    clock = {"t": 0.0}
+    monkeypatch.setattr("safety_assistant.providers.llm.openai_compatible.time.monotonic", lambda: clock["t"])
+    monkeypatch.setattr("safety_assistant.providers.llm.openai_compatible.time.sleep", lambda s: None)
+    calls = {"n": 0}
+
+    def slow(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        clock["t"] += 20.0  # each attempt burns 20 s of a 30 s budget
+        raise httpx.ReadTimeout("slow", request=request)
+
+    p = OpenAICompatibleProvider(
+        base_url="http://llm.test/v1", api_key="k", model="m", timeout=30.0, transport=httpx.MockTransport(slow)
+    )
+    with pytest.raises(LLMUnavailable):
+        p.generate([LLMMessage(role="user", content="hi")])
+    assert calls["n"] == 2  # the second attempt runs with the 10 s left; a third would exceed the budget

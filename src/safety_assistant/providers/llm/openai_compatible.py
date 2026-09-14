@@ -51,13 +51,23 @@ class OpenAICompatibleProvider:
         self.model = model
         self._base_url = base_url.rstrip("/")
         self._headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+        self._timeout = timeout
         self._client = httpx.Client(timeout=timeout, transport=transport)
 
     def _post(self, payload: dict[str, object]) -> dict[str, object]:
+        """One call = one wall-clock budget (`timeout`), retries included: a slow gateway costs the
+        caller at most `timeout` seconds, never attempts × timeout, so the answer path degrades to
+        evidence-only instead of outliving the web proxy."""
         last: LLMError | None = None
+        started = time.monotonic()
         for attempt in range(_MAX_ATTEMPTS):
+            remaining = self._timeout - (time.monotonic() - started)
+            if remaining < 1.0:
+                raise last or LLMUnavailable("call budget exhausted")
             try:
-                resp = self._client.post(f"{self._base_url}/chat/completions", json=payload, headers=self._headers)
+                resp = self._client.post(
+                    f"{self._base_url}/chat/completions", json=payload, headers=self._headers, timeout=remaining
+                )
                 resp.raise_for_status()
                 return resp.json()  # type: ignore[no-any-return]
             except httpx.HTTPStatusError as exc:
@@ -66,7 +76,7 @@ class OpenAICompatibleProvider:
                 last = LLMUnavailable(f"request failed: {exc}")
             if not last.retryable or attempt == _MAX_ATTEMPTS - 1:
                 raise last
-            time.sleep(_BACKOFF_BASE_S * (2**attempt) + random.uniform(0, 0.2))  # noqa: S311 — jitter, not crypto
+            time.sleep(min(_BACKOFF_BASE_S * (2**attempt) + random.uniform(0, 0.2), 2.0))  # noqa: S311 — jitter
         raise LLMUnavailable("exhausted retries")  # pragma: no cover — loop always returns or raises
 
     def generate(

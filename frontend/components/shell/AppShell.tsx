@@ -1,5 +1,5 @@
 "use client";
-import { FileText, FolderOpen, Home, LogOut, Menu, MessageSquare, Settings, ShieldAlert, Upload } from "lucide-react";
+import { FileText, FolderOpen, Home, Library, LogOut, Menu, MessageSquare, Settings, ShieldAlert, Upload } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,6 +18,7 @@ import { SystemStatus } from "./SystemStatus";
 const NAV = [
   { href: "/app/home", label: "Home", Icon: Home },
   { href: "/app/chat", label: "Investigations", Icon: MessageSquare },
+  { href: "/app/sources", label: "Sources", Icon: Library },
   { href: "/app/documents", label: "Documents", Icon: FolderOpen },
   { href: "/app/documents/upload", label: "Upload", Icon: Upload },
   { href: "/app/ingestion", label: "Ingestion", Icon: FileText },

@@ -1,5 +1,5 @@
-"""A/B: baseline (`content`) vs summary-augmented (`sac_v1`) retrieval on identical queries and
-gold labels — deterministic, no LLM at query time. Everything else in the pipeline is held equal.
+"""A/B: baseline (`content`) vs summary-augmented retrieval (`sac_v2`; `--candidate sac_v1`) on identical
+queries and gold labels — deterministic, no LLM at query time. Everything else in the pipeline is held equal.
 
 uv run python scripts/eval/sac_ab.py --datasets evals/datasets/document_mismatch_v1.yaml \
     evals/datasets/regulatory_v2.yaml --legs full hybrid_rrf
@@ -46,20 +46,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--datasets", nargs="+", default=["evals/datasets/document_mismatch_v1.yaml"])
     ap.add_argument("--legs", nargs="+", default=["full", "hybrid_rrf"])
     ap.add_argument("--out", default="evals/results")
+    ap.add_argument("--candidate", choices=["sac_v1", "sac_v2"], default="sac_v2")
     args = ap.parse_args(argv)
     out_dir = pathlib.Path(args.out)
     base = RetrievalConfig.from_settings(get_settings())
     datasets: dict[str, object] = {}
-    comparison: dict[str, object] = {"legs": args.legs, "datasets": datasets}
+    comparison: dict[str, object] = {"legs": args.legs, "candidate": args.candidate, "datasets": datasets}
     with Session(get_engine()) as session:
         for ds_path in args.datasets:
             dataset = load_dataset(pathlib.Path(ds_path))
             reports: dict[str, EvalReport] = {}
-            for rep in ("content", "sac_v1"):
+            for rep in ("content", args.candidate):
                 cfg = RetrievalConfig(**{**base.__dict__, "representation": rep})
                 reports[rep] = run_evaluation(session, dataset, legs=args.legs, base_config=cfg)
                 write_report(reports[rep], out_dir, name=f"retrieval_{rep}")
-            datasets[dataset.dataset_version] = _compare(dataset.dataset_version, reports, args.legs)
+            datasets[dataset.dataset_version] = _compare(dataset.dataset_version, reports, args.legs, args.candidate)
     stamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%dT%H%M%S")
     path = out_dir / f"sac_ab_{stamp}.json"
     path.write_text(json.dumps(comparison, indent=2, default=str), encoding="utf-8")
@@ -67,11 +68,11 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def _compare(name: str, reports: dict[str, EvalReport], legs: list[str]) -> dict[str, object]:
+def _compare(name: str, reports: dict[str, EvalReport], legs: list[str], candidate: str) -> dict[str, object]:
     out: dict[str, object] = {}
     for leg in legs:
         a = next(lr for lr in reports["content"].legs if lr.leg == leg)
-        b = next(lr for lr in reports["sac_v1"].legs if lr.leg == leg)
+        b = next(lr for lr in reports[candidate].legs if lr.leg == leg)
         n, elig = a.aggregate.get("n") or 0, a.aggregate.get("n_drm_eligible") or 0
         print(f"\n{name} — leg {leg}  (n={int(n)}, DRM-eligible {int(elig)})")
         print(f"{'Metric':<22}{'Baseline':>10}{'SAC':>10}{'Delta':>10}")

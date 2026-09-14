@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 — 2026-09-14 (curated 42-source corpus, Sources page)
+
+- Corpus replaced by the delivered `Knowledge source` set, curated by `scripts/maintenance/build_registry.py`: 52 files → 42 sources (5 byte-identical duplicates, one older revision and one already-incorporated amendment sheet dropped; three scanned texts merged from their parts and OCR'd; amendment sheets newer than a consolidated text kept as separate sources). Files renamed by regulation, revision, series, year and subject under `knowledge/{unece,us_fmvss,euro_ncap,standards,cae_manuals,reference}`; registry fields (symbol, revision, series, dates) parsed from cover pages, null when absent. `scripts/maintenance/prune_corpus.py` removes documents that left the registry and, with `--superseded`, non-active versions.
+- Frontend: **Sources** page (`/app/sources`) — the verified corpus grouped (UNECE in regulation-number order with amendment sheets under their text, FMVSS, Euro NCAP, CAE manuals, references) with version in force and status; Playwright flow 6.
+- Evaluation: the two gold cases that targeted removed NHTSA reports (`doc-005`, `doc-006`) dropped from v1/v2 (45 / 260 cases); results re-measured on the new corpus (README "Measured results").
+
 ## 0.4.0 — 2026-09-13 (summary-augmented chunking)
 
 Document identity in the retrieval representation, never in the evidence (ADR-0030).

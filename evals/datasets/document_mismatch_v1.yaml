@@ -58,7 +58,7 @@ cases:
     query_type: numeric_threshold
     difficulty: hard
     expected_regulation_key: UN-R94
-    hard_negative_regulation_keys: [UN-R95, NHTSA-THOR-05F-QUAL]
+    hard_negative_regulation_keys: [UN-R95]
     expected_section_paths: ["5.2.1.1"]
     key_facts: ["1,000", "80 g", "3 ms"]
     source: synthetic

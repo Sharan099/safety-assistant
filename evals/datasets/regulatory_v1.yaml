@@ -52,7 +52,8 @@ cases:
   query_type: paraphrase
   difficulty: medium
   expected_regulation_key: UN-R94
-  expected_section_paths: ["5.2.2"]
+  expected_regulation_keys: [UN-R94, UN-R137]  # R137 §5.2.2.1 states the same limits (corpus 2026-09-14)
+  expected_section_paths: ["5.2.2", "5.2.2.1"]
   key_facts: ["shall not exceed 80 mm in the upwards vertical direction", "100 mm in the rearward horizontal direction"]
   acceptable_citations: ["UN R94 Rev.4 §5.2.2"]
   answerability: answerable
@@ -485,25 +486,4 @@ cases:
   acceptable_citations: []
   answerability: answerable
   notes: "supporting solver documentation; document-family level only"
-  review_status: REVIEWED
-- case_id: doc-005
-  query: "lightweight vehicle structural countermeasure body structure"
-  query_type: paraphrase
-  difficulty: medium
-  expected_regulation_key: NHTSA-812523
-  expected_regulation_keys: [NHTSA-812523, NHTSA-812237]
-  expected_section_paths: []
-  key_facts: []
-  acceptable_citations: []
-  answerability: answerable
-  review_status: REVIEWED
-- case_id: doc-006
-  query: "THOR-05F dummy qualification procedure"
-  query_type: paraphrase
-  difficulty: easy
-  expected_regulation_key: NHTSA-THOR-05F-QUAL
-  expected_section_paths: []
-  key_facts: []
-  acceptable_citations: []
-  answerability: answerable
   review_status: REVIEWED

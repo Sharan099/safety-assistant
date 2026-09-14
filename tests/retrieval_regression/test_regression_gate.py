@@ -25,7 +25,9 @@ STABLE_CASES = [  # case_id, min regulation rank (<=5), section must appear with
     ("r129-001", 10), ("r129-002", 10), ("r129-004", 10), ("r129-005", 10), ("r129-006", 10), ("r129-007", 10),
     ("adv-001", 10), ("adv-002", 10),
 ]  # fmt: skip
-MIN_MRR_FULL = 0.60  # measured 0.664 on 2026-09-11 (evals/results); fails on a real regression, not on noise
+# Floors are the measured value on the current corpus minus a margin (ADR-0031). 16-source corpus: measured
+# 0.664 → floor 0.60. 42-source corpus (2026-09-14, test profile = heuristic reranker): measured 0.588 → 0.55.
+MIN_MRR_FULL = 0.55
 
 
 @pytest.fixture(scope="module")
@@ -105,9 +107,9 @@ def test_full_pipeline_mrr_floor(corpus) -> None:  # type: ignore[no-untyped-def
     assert mrr is not None and mrr >= MIN_MRR_FULL, f"full-pipeline MRR {mrr:.3f} below measured floor {MIN_MRR_FULL}"
 
 
-# regulatory_v2 (262 cases incl. 200 AUTO_GROUNDED): heuristic reranker measured 0.713 (2026-09-12);
-# the cross-encoder default measured 0.808 — the floor guards the configuration the test profile runs.
-MIN_MRR_FULL_V2 = 0.68
+# regulatory_v2 (260 cases incl. 200 AUTO_GROUNDED), test profile (heuristic reranker): measured 0.713 on the
+# 16-source corpus (floor 0.68); 0.648 / R@10 0.930 on the 42-source corpus (ADR-0031) → floors 0.62 / 0.90.
+MIN_MRR_FULL_V2 = 0.62
 
 
 def test_full_pipeline_mrr_floor_regulatory_v2(corpus) -> None:  # type: ignore[no-untyped-def]
@@ -121,11 +123,10 @@ def test_full_pipeline_mrr_floor_regulatory_v2(corpus) -> None:  # type: ignore[
     assert agg["recall@10"] >= 0.90, f"v2 R@10 {agg['recall@10']:.3f} < 0.90"
 
 
-# Document-level gate (ADR-0030). Measured 2026-09-13, full pipeline, cross-encoder: baseline DRM@1
-# 0.389 on document_mismatch_v1 and 0.081 on regulatory_v2; sac_v2 0.333 / 0.069. Runs only when the
-# compact SAC index covers the corpus, and asserts SAC never mismatches more than the baseline.
-MAX_DRM1_DOCUMENT_MISMATCH = 0.39
-MAX_DRM1_V2 = 0.09
+# Document-level gate (ADR-0030): relative, because the absolute mismatch rate is a property of the
+# corpus (16-source corpus 2026-09-13: baseline 0.389 / sac_v2 0.333; 42-source corpus 2026-09-14: see
+# README). Runs only when the compact SAC index covers the corpus, and asserts SAC never mismatches more
+# than the baseline on the twin-clause set.
 
 
 def test_summary_augmented_index_does_not_increase_document_mismatch(corpus) -> None:  # type: ignore[no-untyped-def]
@@ -149,5 +150,4 @@ def test_summary_augmented_index_does_not_increase_document_mismatch(corpus) -> 
     base, sac = results["content"]["drm@1"], results[SAC_COMPACT_REPRESENTATION]["drm@1"]
     assert base is not None and sac is not None
     assert sac <= base, f"sac_v2 DRM@1 {sac:.3f} worse than baseline {base:.3f}"
-    assert sac <= MAX_DRM1_DOCUMENT_MISMATCH, f"sac_v2 DRM@1 {sac:.3f} above measured ceiling"
     assert results[SAC_COMPACT_REPRESENTATION]["doc_mrr"] >= results["content"]["doc_mrr"]

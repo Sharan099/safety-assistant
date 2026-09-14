@@ -29,6 +29,7 @@ os.environ.update(
     RERANKER="heuristic",  # the cross-encoder is measured in evals; tests stay fast and download-free
     SAC_ENABLED="false",  # SAC tests enable it explicitly; an operator's .env must not change the profile
     RETRIEVAL_REPRESENTATION="content",
+    OCR_PROVIDER="none",  # the OCR adapter is unit-tested; scanned fixtures quarantine deterministically
     AUTH_MODE="none",
     SESSION_SECRET="test-session-secret-not-for-production-0123456789",
     DEV_LOGIN_ENABLED="true",

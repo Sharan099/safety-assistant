@@ -26,23 +26,24 @@ question  ─► parse scope (regulation, clause, as-of date)
           ─► answer + citations + full evidence, persisted in the conversation
 ```
 
-Registry regulations are the *verified* corpus. Uploads are private to the uploader or a workspace, run through the same pipeline asynchronously, and only become organization-wide after an audited promotion by a knowledge admin. Conversation history is context for wording, never evidence.
+Registry documents are the *verified* corpus — 42 sources in `knowledge/00_registry/sources.yaml`, listed for engineers on the **Sources** page: 27 UNECE texts (21 consolidated regulations R11, R12, R14, R16, R17, R21, R25, R29, R32, R33, R34, R42, R44, R94, R95, R100, R127, R129, R135, R137, R153 and the six amendment sheets newer than their consolidated text), 49 CFR Part 571 (all FMVSS, as of 2026-05-07), the four Euro NCAP 2026 crash-protection protocols (frontal, side, rear, VRU), an ISO 26262 overview article, the LS-DYNA R17 manuals, User's Guide and Examples manual, a PAM-CRASH interface sheet and two GNS load-case handbooks. Every file is named by what it is (`UN_R94_Rev4_04series_2021_frontal_collision.pdf`); the manifest in `scripts/maintenance/build_registry.py` records which delivered files were duplicates, older revisions or already-incorporated amendment sheets and why they are not sources. Uploads are private to the uploader or a workspace, run through the same pipeline asynchronously, and only become organization-wide after an audited promotion by a knowledge admin. Conversation history is context for wording, never evidence.
 
 ## Product workflow
 
 1. Sign in (organization OIDC, or a seeded development login).
-2. Start an investigation, choose sources — *Verified regulations*, *Workspace documents*, *My private documents*, or all authorized — and ask.
-3. Read the answer with its mode badge (**Grounded**, **Evidence only**, **Insufficient evidence**) and click any `[n]` marker: the evidence panel shows regulation, version, clause, page, validity window, source scope and the exact excerpt, with "Open source" and "Copy citation".
-4. Upload a PDF; watch the real stages (Uploaded → Validating → Parsing → Chunking → Embedding → Indexing → Verifying → Ready); on failure read the plain-language reason and diagnostic reference, then retry or replace.
-5. Come back later: investigations, messages, citations and source scope are restored.
+2. Check **Sources**: the verified corpus grouped as UNECE regulations (in regulation-number order, amendment sheets under their text), FMVSS, Euro NCAP protocols, CAE manuals and reference handbooks, each with its version in force.
+3. Start an investigation, choose sources — *Verified regulations*, *Workspace documents*, *My private documents*, or all authorized — and ask.
+4. Read the answer with its mode badge (**Grounded**, **Evidence only**, **Insufficient evidence**) and click any `[n]` marker: the evidence panel shows regulation, version, clause, page, validity window, source scope and the exact excerpt, with "Open source" and "Copy citation".
+5. Upload a PDF; watch the real stages (Uploaded → Validating → Parsing → Chunking → Embedding → Indexing → Verifying → Ready); on failure read the plain-language reason and diagnostic reference, then retry or replace.
+6. Come back later: investigations, messages, citations and source scope are restored.
 
-The five flows above are automated in Playwright against the real API, worker and LLM (`frontend/tests/e2e/flows.spec.ts`). No screenshots are checked in; run `make e2e` to see them.
+The flows above (six, including the Sources page) are automated in Playwright against the real API, worker and LLM (`frontend/tests/e2e/flows.spec.ts`). No screenshots are checked in; run `make e2e` to see them.
 
 ## Measured results
 
 Every number here was produced by code in this repository; result files under `evals/results/` carry the git SHA, corpus fingerprint, configuration and timestamp. Reproduction commands are in [Evaluation](#evaluation).
 
-**Corpus**: 16 registry sources (UN R16, R94, R95, R129 plus supporting standards/manuals), 21,910 chunks.
+**Corpus**: the tables below were measured on the earlier 16-source corpus (UN R16, R94, R95, R129 plus NHTSA reports and manuals; 21,910 chunks). The corpus was replaced on 2026-09-14 by the 42-source registry described above (27,222 chunks); the re-measurement on it is in [Retrieval on the 42-source corpus](#retrieval-on-the-42-source-corpus).
 **Gold sets**: `regulatory_v1` — 47 human-written cases; `regulatory_v2` — 262 cases = the 47 human-written + 200 LLM-generated (facts verified verbatim against the clause text, **not human-reviewed**) + 15 hand-written unanswerable / ambiguous / adversarial cases. Provenance is recorded per case (`source`, `human_reviewed`).
 
 ### Retrieval (deterministic, no LLM)
@@ -115,9 +116,24 @@ Failure analysis of that run (deterministic taxonomy, `failures_by_category` in 
 
 RAGAS faithfulness is a lower bound: it penalises attribution sentences ("according to UN R94 Rev.4 …") that the contexts do not literally contain; the repository's own validator and DeepEval judge the requirement claims. DeepEval covered 26 of a planned 40 records because a gateway call hung; the sample is what completed, not a selection.
 
+### Retrieval on the 42-source corpus
+
+Re-measured 2026-09-14 after the corpus change (full pipeline, cross-encoder, k_eval 20; `evals/results/sac_ab_20260914T095410.json`). The larger corpus is harder by construction — UN R137 and Euro NCAP frontal next to R94, R135 next to R95, R44 and R14 next to R129/R16, and two vendor handbooks that restate regulation limits — so every absolute number is lower than on the 16-source corpus; the two gold cases that targeted removed NHTSA reports were dropped (v1 45, v2 260 cases).
+
+| Dataset | Config | Doc R@1 | Doc R@5 | Doc MRR | DRM@1 | Passage R@5 | R@10 | Passage MRR | nDCG@10 | p50 ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| document_mismatch_v1 (36) | baseline | 0.389 | 0.861 | 0.582 | 0.611 | 0.597 | 0.684 | 0.469 | 0.495 | 2891 |
+| | **sac_v2** | **0.417** | **0.917** | **0.615** | **0.583** | **0.708** | **0.773** | **0.513** | **0.553** | 2408 |
+| regulatory_v2 (260) | baseline | 0.817 | 0.955 | 0.879 | 0.180 | **0.878** | **0.922** | **0.753** | **0.785** | 1553 |
+| | **sac_v2** | **0.821** | **0.959** | **0.881** | **0.176** | 0.855 | 0.890 | 0.742 | 0.768 | 1615 |
+| regulatory_v1 (45 human) | baseline | 0.738 | 0.952 | 0.820 | 0.244 | **0.818** | **0.859** | **0.683** | **0.713** | 1586 |
+| | **sac_v2** | **0.762** | 0.952 | **0.840** | **0.220** | 0.777 | 0.804 | 0.662 | 0.676 | 2093 |
+
+The shape is the same as before: `sac_v2` wins every document-level metric on every set and costs passage recall on the broad sets — now −0.032 R@10 on v2 and −0.056 on the human set (two to three cases of 45). The wrong documents at rank 1 on v2 are, in order, UN R137 (11), UN R44 (7), UN R16 (5): full-width frontal for offset frontal, the older child-restraint regulation for i-Size. The recommendation stands as an operator choice with that trade stated: document-correctness first → `sac_v2`; passage recall first → `content`. Both indexes are built; the regression gate asserts `sac_v2` never mismatches more than the baseline on the twin-clause set.
+
 ### Ingestion, load, product flows
 
-16 sources → 11,700 sections (275 typed definitions), 847 cross-references, 9,022 tables, 4,120 figures; re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 5/5 flows.
+42 sources → 27,222 chunks (full ingestion 47 min on the laptop, including OCR of three scanned texts and 1,400 pages of 49 CFR 571; the earlier 16-source corpus: 11,700 sections, 847 cross-references, 9,022 tables, 4,120 figures); re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 5/5 flows on the earlier corpus; flow 6 (Sources page) added 2026-09-14.
 
 ## Architecture
 
@@ -210,7 +226,7 @@ Retrieval and generation are measured separately; retrieval gates are determinis
 
 **Generation** — `scripts/eval/judged.py` runs the real pipeline per case, scores deterministic metrics (refusal accuracy, citation hit/precision, fact coverage, evidence coverage, grounding, injection resistance), classifies every failed answer into one category (`unnecessary_refusal`, `should_have_refused`, `document_level_retrieval_mismatch`, `unsupported_numerical_claim`, `citation_not_supporting_claim`, `wrong_clause_attribution`, `missing_citation`, `incomplete_condition`, `version_ambiguity`, `poor_synthesis`, `irrelevant_answer`) with the query, expected evidence, retrieved labels, answer, citations, validator result, model, latency and tokens preserved, estimates cost per query from token usage and dated reference prices (`evals/pricing.yaml`), and optionally adds RAGAS and DeepEval judges through the same gateway (`uv sync --extra eval`).
 
-**Regression gate** (`tests/retrieval_regression`, real corpus, test profile): 23 stable human-written cases keep regulation in the top 5 and clause in the top 10; v1 MRR ≥ 0.60; v2 MRR ≥ 0.68 and R@10 ≥ 0.90; when the `sac_v2` index covers the corpus, its DRM@1 on `document_mismatch_v1` must not exceed the baseline's and stays under the measured 0.39.
+**Regression gate** (`tests/retrieval_regression`, real corpus, test profile): 23 stable human-written cases keep regulation in the top 5 and clause in the top 10; v1 MRR ≥ 0.55; v2 MRR ≥ 0.62 and R@10 ≥ 0.90 (floors re-baselined to the 42-source corpus, ADR-0031); when the `sac_v2` index covers the corpus, its DRM@1 and document MRR on `document_mismatch_v1` must not be worse than the baseline's.
 
 ```bash
 make eval                                                  # all legs, regulatory_v2
@@ -246,7 +262,7 @@ uv sync --extra s3
 docker compose up -d postgres            # pgvector on localhost:5433
 uv run safety-assistant migrate
 # put the registered PDFs under knowledge/ (see knowledge/00_registry/sources.yaml) and ingest them,
-uv run safety-assistant ingest           # ~25 min for all 16 sources on a laptop
+uv run safety-assistant ingest           # ~47 min for all 42 sources on a laptop (OCR_PROVIDER=tesseract for the three scanned texts)
 # or, without the licensed corpus, seed the synthetic test regulation:
 uv run python scripts/maintenance/seed_synthetic_corpus.py
 
@@ -297,6 +313,7 @@ Test layout: `tests/unit` (parsers, chunking, lifecycle, fusion, citation valida
 - **OCR and malware scanning** are optional adapters; without them scanned documents are quarantined and uploads are not scanned.
 - **Per-process rate limiter and BM25 index**: two API replicas mean two budgets and two indexes (each consistent, both rebuilt on corpus change). A shared limiter (Redis or the load balancer) and a shared/refreshable lexical index are the migration points before scaling wide; the queue already tolerates many workers.
 - **Cross-encoder latency** (~1.2 s on CPU) applies to `/search` too.
+- **Scanned regulations** (UN R21, R32 and R33 base texts) are OCR'd with Tesseract; the text is searchable but their clause tree is not recovered, so they cite by page and part rather than clause. The eCFR layout of 49 CFR Part 571 collapses into one large section as well, so FMVSS answers cite a part number and a wide page range rather than `§ 571.208 S5.1`; a CFR-aware normaliser is the fix. The consolidated texts of R25 (1990), R42 (1980) and the R32/R33 originals are old; their newer amendment sheets are separate sources and are not merged into the text.
 - **Summary-augmented retrieval** costs four broad-set passage cases (R@10 0.935 → 0.919) for its document-level gains, and 13 of the 36 twin-clause cases still resolve to the wrong document at rank 1 — mostly because the cross-encoder sees chunk text only and puts the identical twin back on top. fastembed truncates MiniLM input at 128 tokens, which also bounds the baseline dense leg to the first ~128 tokens of a chunk. Summaries come from a free-tier instruct model; the validator rejects reasoning dumps and truncation but not subtle factual drift, which is why the summary is never evidence.
 - **OIDC** is tested against an in-process fake provider, not a live Entra ID / Keycloak; RP-initiated logout is not implemented.
 - **Infrastructure** is validated but unapplied; container and dependency scans (Trivy, SBOM, pip-audit, gitleaks, semgrep) run in CI — `pip-audit` and `npm audit` were run locally and are clean.
@@ -313,4 +330,4 @@ Test layout: `tests/unit` (parsers, chunking, lifecycle, fusion, citation valida
 
 ## Decision records
 
-Architectural decisions with their evidence live in `docs/ADR/` (`0019`–`0030`; earlier numbers document the pre-rebuild system). `CHANGELOG.md` records releases; `SECURITY.md` describes how to report a vulnerability.
+Architectural decisions with their evidence live in `docs/ADR/` (`0019`–`0031`; earlier numbers document the pre-rebuild system). `CHANGELOG.md` records releases; `SECURITY.md` describes how to report a vulnerability.

@@ -409,6 +409,12 @@ def _upsert_regulation(session: Session, e: SourceEntry) -> Regulation:
         )
         session.add(reg)
         session.flush()
+    else:
+        # The registry is the source of truth for a registry document's descriptive fields: a
+        # retitled or reclassified entry updates the row instead of leaving stale labels behind.
+        reg.title, reg.kind, reg.authority = e.title, e.kind, e.authority
+        reg.jurisdiction, reg.authority_level, reg.data_class = e.jurisdiction, e.authority_level, e.data_class
+        reg.metadata_ = {**(reg.metadata_ or {}), "publisher": e.publisher, "license": e.license}
     return reg
 
 

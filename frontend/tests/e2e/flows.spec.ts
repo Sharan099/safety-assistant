@@ -121,3 +121,15 @@ test("5. failed upload → actionable error UI", async ({ page }) => {
   await expect(err).not.toContainText(/garbage|Traceback/);
   await expect(progress.getByTestId("upload-replace")).toBeVisible();
 });
+
+test("6. sources page lists the verified corpus grouped and in regulation order", async ({ page }) => {
+  await login(page, ALICE);
+  await page.getByRole("link", { name: "Sources" }).first().click();
+  await expect(page).toHaveURL(/\/app\/sources$/);
+  const rows = page.getByTestId("sources-unece").getByTestId("source-row");
+  await expect(rows.first()).toBeVisible();
+  const keys = await rows.evaluateAll((els) => els.map((e) => e.getAttribute("data-key") ?? ""));
+  const numbers = keys.map((k) => Number(/^UN-R(\d+)/.exec(k)?.[1] ?? 0));
+  expect(numbers).toEqual([...numbers].sort((a, b) => a - b)); // numeric, not lexical (R94 before R129)
+  await expect(rows.first()).toContainText(/UN R\d+/);
+});

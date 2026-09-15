@@ -24,7 +24,7 @@ def test_ask_generates_validated_grounded_answer(client, db_session) -> None:  #
     assert j["claims"] and j["claims"][0]["evidence_ids"] == ["E1"]
     assert "45 mm" in j["answer"]  # current version
     assert j["validation"]["ok"] is True
-    assert j["scope"]["regulation_keys"] == ["UN-R999"] and j["versions"]["prompt_version"] == "grounded_v3"
+    assert j["scope"]["regulation_keys"] == ["UN-R999"] and j["versions"]["prompt_version"] == "grounded_v4"
     cit = j["citations"][0]
     assert cit["version_label"].startswith("Rev.2") and cit["version_status"] == "ACTIVE"
     # the citation opens to the exact source

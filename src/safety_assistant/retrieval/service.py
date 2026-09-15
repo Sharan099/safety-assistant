@@ -31,11 +31,13 @@ from safety_assistant.retrieval.context import EvidenceBundle, LegRanks, build_e
 from safety_assistant.retrieval.dense import dense_search
 from safety_assistant.retrieval.filters import (
     DEFAULT_MIN_SHARED_TERMS,
+    DEFINITION_INTENT,
     ScopeFilter,
+    defined_phrase_pattern,
+    definition_terms,
     expand_synonyms,
     has_known_authority,
     is_relevant,
-    significant_tokens,
 )
 from safety_assistant.retrieval.fusion import reciprocal_rank_fusion
 from safety_assistant.retrieval.rerank import apply_reranker
@@ -270,7 +272,7 @@ class RetrievalService:
             exact_ids = self._exact_leg(session, qs, scope, today=today)
             timings["exact"] = _ms(t0)
         definition_ids: list[uuid.UUID] = []
-        if cfg.use_exact and _DEFINITION_INTENT.search(query):
+        if cfg.use_exact and DEFINITION_INTENT.search(query):
             t0 = time.perf_counter()
             definition_ids = self._definition_leg(session, query, scope, today=today)
             timings["definition"] = _ms(t0)
@@ -311,6 +313,12 @@ class RetrievalService:
             t0 = time.perf_counter()
             top_n = self.config.rerank_top_n
             head, tail = (fused_order[:top_n], fused_order[top_n:]) if top_n else (fused_order, [])
+            # Each leg's own winner is always reranked: a chunk BM25 puts first on the regulation's
+            # vocabulary ("headform", "HIC") but dense never returns would otherwise never be seen.
+            for winner in (dense_ids[:1], sparse_ids[:1], sac_sparse_ids[:1]):
+                if winner and winner[0] in tail:
+                    tail.remove(winner[0])
+                    head.append(winner[0])
             prefixes: dict[uuid.UUID, str] = {}
             if self.config.rerank_with_context and head:
                 from safety_assistant.contextualization import compact_prefixes
@@ -454,12 +462,11 @@ class RetrievalService:
     ) -> list[uuid.UUID]:
         """ "X definition" / "what is X": DEFINITION-kind chunks whose text contains every content term of
         the query other than the definition words themselves. Deterministic, scoped, at most 20."""
-        stop = {"definition", "definitions", "define", "defined", "defines", "meaning", "mean", "what", "does"}
-        terms = [t for t in significant_tokens(query) if t not in stop][:4]
+        terms = definition_terms(query)
         if not terms:
             return []
-        # '"ISOFIX" means …' (the term *is* the defined phrase) before '"ISOFIX anchorage system" means …'
-        exact_phrase = Chunk.content.op("~*")(f'"{re.escape(terms[0])}[^"]{{0,4}}"')
+        # '"High voltage" means …' (the terms *are* the defined phrase) before '"High voltage bus" means …'
+        exact_phrase = Chunk.content.op("~*")(defined_phrase_pattern(terms))
         stmt = (
             scoped_statement(scope, today=today)
             .with_only_columns(Chunk.id)

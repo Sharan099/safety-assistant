@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 from safety_assistant.domain.temporal import QueryScope
 from safety_assistant.persistence.models import Regulation, RegulationVersion
 from safety_assistant.retrieval.context import Evidence
-from safety_assistant.retrieval.filters import significant_tokens
+from safety_assistant.retrieval.filters import DEFINITION_INTENT, defines_term, significant_tokens
 
 MIN_STRONG_EVIDENCE = 1
 WEAK_QUERY_TERMS = 1
@@ -139,7 +139,11 @@ def evaluate_gate(
         return GateDecision(False, "small_talk", msg)
     terms = significant_tokens(query)
     weak = len(terms) <= WEAK_QUERY_TERMS or (len(terms) <= 5 and not has_domain_term(query))
-    if not qs.regulation_keys and not qs.has_exact_identifier and weak:
+    # "What is i-Size?" is short but not vague once the corpus holds '"i-Size" means …'.
+    defined = DEFINITION_INTENT.search(query) and any(
+        e.chunk_type == "DEFINITION" and defines_term(query, e.content) for e in evidence
+    )
+    if not qs.regulation_keys and not qs.has_exact_identifier and weak and not defined:
         return GateDecision(
             False,
             "ambiguous_query",

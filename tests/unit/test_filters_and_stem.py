@@ -48,3 +48,13 @@ def test_definition_intent_and_synonym_rewrite() -> None:
     assert _DEFINITION_INTENT.search("ECRS definition") and _DEFINITION_INTENT.search("What is a protective system?")
     assert not _DEFINITION_INTENT.search("ThCC limit frontal?")
     assert rewrite_query("belt webbing min width") == "belt WEBBING (strap) min width"
+
+
+def test_defines_term_matches_the_quoted_defined_phrase() -> None:
+    from safety_assistant.retrieval.filters import defines_term
+
+    assert defines_term("What is i-Size?", '2.3.1. "i-Size" means a category of Enhanced Child Restraint System')
+    assert defines_term("ISOFIX definition", '2.28. "ISOFIX" means a system for the connection')
+    # the term only appears inside a longer defined phrase → not this thing's definition
+    assert not defines_term("ISOFIX definition", '2.29. "ISOFIX anchorage system" means a system')
+    assert not defines_term("tibia index limit", '"Tibia index" means')  # no definition intent words

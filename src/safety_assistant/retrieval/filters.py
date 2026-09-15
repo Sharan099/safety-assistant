@@ -82,6 +82,46 @@ def light_stem(token: str) -> str:
     return token
 
 
+DEFINITION_INTENT = re.compile(r"\b(defin(e|ed|es|ition|itions)|meaning of|what (is|are)|what does .* mean)\b", re.I)
+_DEFINITION_STOP = {
+    *"definition definitions define defined defines meaning mean means what does term".split(),
+    *"according accordance under per regulation regulations un ece".split(),
+}
+
+
+_HYPHEN_WORD_RE = re.compile(r"[a-z0-9*]+(?:-[a-z0-9*]+)*")
+
+
+def definition_terms(query: str) -> list[str]:
+    """Content terms of a definition question ("what is X" → the words of X) in query order, at most
+    four. Hyphenated names stay whole ("i-size", "r-point") — the defined phrase is quoted verbatim."""
+    out: list[str] = []
+    for w in _HYPHEN_WORD_RE.findall(query.lower()):
+        t = light_stem(w)
+        if (
+            len(t) > 2
+            and w not in _STOPWORDS
+            and w not in _DEFINITION_STOP
+            and t not in out
+            and not re.fullmatch(r"r\d+", w)
+        ):
+            out.append(t)
+    return out[:4]
+
+
+def defined_phrase_pattern(terms: list[str]) -> str:
+    """Regex for the quoted defined phrase made of `terms` in order, each allowed a suffix — the
+    stemmed "lock" still matches '"Emergency locking retractor" means'. Case-insensitive at use."""
+    return '"' + r"\W+".join(re.escape(t) + r"\w*" for t in terms) + r'[^"]{0,4}"'
+
+
+def defines_term(query: str, content: str) -> bool:
+    """True when `content` is the regulation's own definition of the thing the question asks about:
+    a definition-intent query whose content terms form a quoted defined phrase ('"ISOFIX" means')."""
+    terms = definition_terms(query)
+    return bool(terms) and re.search(defined_phrase_pattern(terms), content, re.I) is not None
+
+
 # Engineering words → the regulation's own vocabulary, appended for lexical retrieval only.
 SYNONYMS = {
     "webbing": "strap",
@@ -90,6 +130,8 @@ SYNONYMS = {
     "bumper": "protective device",
     "childseat": "child restraint",
     "windscreen": "windshield",
+    "pedestrian head": "headform HIC",
+    "head impact": "headform HIC",
 }
 
 

@@ -103,3 +103,17 @@ def test_small_talk_gets_a_capabilities_reply_without_retrieval() -> None:
     assert small_talk("Hi!") == CAPABILITIES
     assert small_talk("what can you do?") == CAPABILITIES
     assert small_talk("What is the ThCC limit?") is None
+
+
+def test_padded_citations_are_pruned_to_the_supporting_evidence() -> None:
+    ev = [
+        _ev("E1", "5.2.1.4. The Thorax Compression Criterion (ThCC) shall not exceed 42 mm;"),
+        _ev("E2", "5.2.1.2. Rib Deflection Criterion (RDC) less than or equal to 42 mm;"),
+        _ev("E3", "2.1. Protective system means the interior fittings and devices intended to restrain the occupants."),
+    ]
+    numeric = Claim(text="The ThCC limit is 42 mm.", evidence_ids=["E1", "E2", "E3"])
+    kept, _ = validate_draft(GroundedDraft(answer="", claims=[numeric]), ev)
+    assert set(kept[0].evidence_ids) == {"E1", "E2"}  # both state 42 mm; the unrelated definition is dropped
+    prose = Claim(text="A protective system restrains the occupants.", evidence_ids=["E1", "E3"])
+    kept, _ = validate_draft(GroundedDraft(answer="", claims=[prose]), ev)
+    assert kept[0].evidence_ids == ["E3"]

@@ -229,7 +229,7 @@ class RegulatoryAgent:
                     [LLMMessage(role="system", content=SYSTEM), LLMMessage(role="user", content=user)],
                     schema=GroundedDraft,
                     temperature=0.0,
-                    max_tokens=1200,
+                    max_tokens=2000,  # reasoning routes count their thinking against this budget
                 )
         except LLMError as exc:
             metrics.LLM_CALLS.labels(provider=self.llm.name, outcome=type(exc).__name__).inc()

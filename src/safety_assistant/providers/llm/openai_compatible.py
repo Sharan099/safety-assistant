@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 import time
 
 import httpx
@@ -45,10 +46,12 @@ class OpenAICompatibleProvider:
         model: str,
         timeout: float = 30.0,
         transport: httpx.BaseTransport | None = None,
+        reasoning_effort: str | None = None,
     ) -> None:
         if not model:
             raise ValueError("LLM_MODEL must be set — no safe default model exists")
         self.model = model
+        self._reasoning_effort = reasoning_effort
         self._base_url = base_url.rstrip("/")
         self._headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
         self._timeout = timeout
@@ -95,17 +98,22 @@ class OpenAICompatibleProvider:
         }
         if schema is not None:
             payload["response_format"] = {"type": "json_object"}
+        if self._reasoning_effort:
+            payload["reasoning"] = {"effort": self._reasoning_effort}
         data = self._post(payload)
         try:
             choice = data["choices"][0]  # type: ignore[index]
-            content: str = choice["message"]["content"]
+            content = choice["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
             raise LLMUnavailable(f"unexpected response shape: {str(data)[:200]}") from exc
+        if not isinstance(content, str) or not content.strip():
+            # Reasoning routes sometimes spend the whole budget thinking and return an empty message.
+            raise LLMSchemaError(f"empty message content (finish_reason={choice.get('finish_reason')})")
 
         parsed = None
         if schema is not None:
             try:
-                parsed = schema.model_validate(json.loads(_strip_fences(content)))
+                parsed = schema.model_validate(extract_json(content))
             except (json.JSONDecodeError, ValidationError) as exc:
                 raise LLMSchemaError(f"output does not satisfy {schema.__name__}: {exc}") from exc
         return LLMResponse(
@@ -123,6 +131,24 @@ def _int_usage(raw: object) -> dict[str, int] | None:
     if not isinstance(raw, dict):
         return None
     return {k: v for k, v in raw.items() if isinstance(v, int) and not isinstance(v, bool)} or None
+
+
+_TRAILING_COMMA_RE = re.compile(r",\s*([}\]])")
+
+
+def extract_json(text: str) -> object:
+    """The JSON object in a model reply: code fences, prose before/after the object and trailing
+    commas are tolerated (small models under load produce all three); anything else is a schema error."""
+    t = _strip_fences(text)
+    try:
+        return json.loads(t)
+    except json.JSONDecodeError:
+        pass
+    start, end = t.find("{"), t.rfind("}")
+    if start < 0 or end <= start:
+        raise json.JSONDecodeError("no JSON object in reply", t, 0)
+    body = _TRAILING_COMMA_RE.sub(r"\1", t[start : end + 1])
+    return json.loads(body)
 
 
 def _strip_fences(text: str) -> str:

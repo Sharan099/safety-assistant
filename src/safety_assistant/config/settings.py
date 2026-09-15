@@ -54,6 +54,14 @@ class Settings(BaseSettings):
     llm_base_url: str = "http://localhost:3001/v1"
     llm_api_key: str = ""
     llm_model: str = ""
+    # One retry on another model of the same provider when the primary fails (429/5xx/timeout) or
+    # returns malformed output — resilience for small models behind shared gateways. Empty = off.
+    llm_fallback_model: str = ""
+    llm_fallback_base_url: str = ""  # empty = same gateway as llm_base_url
+    llm_fallback_api_key: str = ""  # empty = llm_api_key
+    # OpenAI-compatible `reasoning.effort` for routes that spend the token budget thinking (OpenRouter,
+    # gpt-oss); empty = not sent. "low" keeps answers inside max_tokens on reasoning models.
+    llm_reasoning_effort: str = ""
     llm_timeout_seconds: float = 30.0
     # Data classes the configured LLM provider is cleared to see (explicit policy,
     # never inferred from a model name). CONFIDENTIAL evidence with a PUBLIC-only

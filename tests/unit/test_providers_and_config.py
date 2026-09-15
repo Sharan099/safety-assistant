@@ -1,10 +1,19 @@
+import json
+
 import httpx
 import pytest
 from pydantic import BaseModel
 
 from safety_assistant.config.settings import Settings
 from safety_assistant.providers.embeddings import ProviderConfigurationError, build_embedding_provider
-from safety_assistant.providers.llm import LLMBadRequest, LLMMessage, LLMRateLimited, LLMSchemaError, LLMUnavailable
+from safety_assistant.providers.llm import (
+    LLMBadRequest,
+    LLMMessage,
+    LLMRateLimited,
+    LLMResponse,
+    LLMSchemaError,
+    LLMUnavailable,
+)
 from safety_assistant.providers.llm.openai_compatible import OpenAICompatibleProvider
 
 PROD: dict[str, str] = {
@@ -125,3 +134,34 @@ def test_call_budget_bounds_retries_to_one_timeout(monkeypatch: pytest.MonkeyPat
     with pytest.raises(LLMUnavailable):
         p.generate([LLMMessage(role="user", content="hi")])
     assert calls["n"] == 2  # the second attempt runs with the 10 s left; a third would exceed the budget
+
+
+def test_extract_json_tolerates_prose_fences_and_trailing_commas() -> None:
+    from safety_assistant.providers.llm.openai_compatible import extract_json
+
+    assert extract_json('```json\n{"answer": "42"}\n```') == {"answer": "42"}
+    assert extract_json('Here is the result:\n{"answer": "42", "claims": [],}\nThanks') == {
+        "answer": "42",
+        "claims": [],
+    }
+    with pytest.raises(json.JSONDecodeError):
+        extract_json("no object here")
+
+
+def test_fallback_model_answers_when_primary_fails() -> None:
+    from safety_assistant.providers.llm.factory import FallbackLLM
+
+    class Down:
+        name, model = "mock", "small"
+
+        def generate(self, messages, *, schema=None, temperature=0.0, max_tokens=1024):  # type: ignore[no-untyped-def]
+            raise LLMUnavailable("timeout")
+
+    class Up:
+        name, model = "mock", "big"
+
+        def generate(self, messages, *, schema=None, temperature=0.0, max_tokens=1024):  # type: ignore[no-untyped-def]
+            return LLMResponse(content="ok", model=self.model, provider=self.name)
+
+    r = FallbackLLM(Down(), Up()).generate([LLMMessage(role="user", content="hi")])
+    assert r.model == "big"  # the answering model is recorded, not the configured primary

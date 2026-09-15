@@ -8,6 +8,9 @@
 - a CALCULATION claim may state derived numbers (a unit conversion, a margin against a
   limit) but at least one of its numbers must come from the cited evidence; the answer
   carries a warning that derived values must be checked;
+- a claim's citations are pruned to the ids that support it (numbers present, or the best
+  content-word overlap), so a sibling regulation's twin clause is not cited for a claim it
+  does not state;
 - citation views are built from the evidence records, never from model text.
 """
 
@@ -23,6 +26,7 @@ from safety_assistant.generation.schemas import (
     ValidationReport,
 )
 from safety_assistant.retrieval.context import Evidence
+from safety_assistant.retrieval.filters import shared_term_count, significant_tokens
 
 _NUMBER_RE = re.compile(r"(?<![\w.])(\d{1,3}(?:[ ,]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)(?![\w])")
 _EVIDENCE_ID_RE = re.compile(r"^E\d+$")
@@ -96,7 +100,7 @@ def validate_draft(draft: GroundedDraft, evidence: list[Evidence]) -> tuple[list
                 )
                 continue
         results.append(ClaimValidation(claim_index=i, status="SUPPORTED"))
-        kept.append(claim)
+        kept.append(_prune_citations(claim, by_id))
     report = ValidationReport(
         ok=all(r.status == "SUPPORTED" for r in results) and not unknown,
         claims=results,
@@ -104,6 +108,28 @@ def validate_draft(draft: GroundedDraft, evidence: list[Evidence]) -> tuple[list
         dropped_claims=len(draft.claims) - len(kept),
     )
     return kept, report
+
+
+def _prune_citations(claim: Claim, by_id: dict[str, Evidence]) -> Claim:
+    """Keep only the cited ids that actually support the claim: for a numeric claim the ones whose text
+    contains its numbers, otherwise the ones sharing most of its content words. Models pad citations
+    with every evidence block that mentions the topic (a sibling regulation's twin clause); that padding
+    is what makes a citation wrong without making the claim wrong."""
+    if len(claim.evidence_ids) <= 1:
+        return claim
+    numbers = claimed_numbers(claim.text)
+    scored: list[tuple[float, str]] = []
+    for eid in claim.evidence_ids:
+        text = _evidence_text(by_id[eid])
+        if numbers:
+            have = {canonical_number(m.group(1)) for m in _NUMBER_RE.finditer(text)}
+            scored.append((len(numbers & have) / len(numbers), eid))
+        else:
+            terms = significant_tokens(claim.text)
+            scored.append((shared_term_count(claim.text, text) / len(terms) if terms else 1.0, eid))
+    best = max(sc for sc, _ in scored)
+    keep = [eid for sc, eid in scored if sc >= best and sc > 0] or list(claim.evidence_ids)
+    return claim.model_copy(update={"evidence_ids": keep})
 
 
 def _is_trivial(n: str) -> bool:

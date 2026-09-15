@@ -14,6 +14,9 @@ const OPTIONS: { value: SourceScopeName; label: string }[] = [
 ];
 
 export function scopeSummary(scope: SourceScope): string {
+  if (scope.document_ids.length > 0) {
+    return `${scope.document_ids.length === 1 ? "1 selected document" : `${scope.document_ids.length} selected documents`} + any regulation you name`;
+  }
   if (scope.scopes.length === 3) return "All authorized sources";
   return OPTIONS.filter((o) => scope.scopes.includes(o.value))
     .map((o) => o.label)

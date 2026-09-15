@@ -105,7 +105,7 @@ export default function AdminPage() {
               {uploads.data.items.filter((d) => d.document_key.startsWith("DOC-")).map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center gap-2 px-4 py-2 text-sm">
                   <a href={`/app/documents/${d.id}`} className="font-medium text-primary hover:underline">{d.title}</a>
-                  <ScopeBadge scope={d.scope} />
+                  <ScopeBadge scope={d.scope} kind={d.document_type} />
                   <span className="ml-auto"><DocumentStatus status={d.status} /></span>
                 </li>
               ))}

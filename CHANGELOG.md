@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 — 2026-09-15 (engineer walkthrough fixes, 461-question evaluation)
+
+Findings and their status: `docs/QA_REPORT_2026-09-15.md`.
+
+- Retrieval: a query scoped to one regulation is one document for the diversity cap (its amendment sheet no longer squeezes the answering clause out); each leg's top-1 always enters the rerank pool; "ask this document" searches the selected document *plus* the regulations the question names (authorization unchanged); definition questions with the regulation's own quoted definition in evidence pass the ambiguity gate; full defined-phrase matching in the definition leg; `pedestrian head` / `head impact` → `headform HIC`.
+- Answers: prompt `grounded_v4` (stay on the asked regulation/criterion; state the clause complete with its conditions); numbers the engineer states in the question are accepted as known inputs by the validator (limits must still be in the evidence); evidence the provider is not cleared for is withheld by name while the cleared part is answered; an instruction with no regulatory content is declined before retrieval; 429 responses wait `Retry-After` (or 3 s / 6 s) inside the call budget.
+- Ingestion: a missing OCR binary no longer fails text-layer uploads (scanned pages stay flagged); uploads are cited by title.
+- Frontend: evidence panel only on investigations; verified-source badges name the kind; evidence-only turns explain themselves and offer *Ask again*; pipeline warnings in plain language; citation hover and panel highlight and scroll to the supporting lines; latest answer's evidence shown when an investigation opens; upload form labels and file sizes; document-focus scope label.
+- Evaluation: gold `r94-003` / `r95-002` accept the twin clause of the sibling regulation; degenerate short-form variants dropped (131); the routed model is recorded per case; 461 questions measured (README "End-to-end answers").
+
 ## 0.6.0 — 2026-09-15 (engineer questions, small-model answers, production hardening)
 
 - Answer path: the LLM call's timeout is a wall-clock budget including retries (≤ 30 s, then evidence-only); Next.js proxy timeout 120 s; a failed turn stays in the thread with Retry; citation markers and chips preview the cited lines, page and version on hover/focus.

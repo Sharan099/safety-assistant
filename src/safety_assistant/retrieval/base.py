@@ -39,7 +39,16 @@ def scoped_statement(
     statuses = RETRIEVABLE_HISTORICAL if (scope.include_superseded or scope.as_of) else RETRIEVABLE_CURRENT
     stmt = stmt.where(RegulationVersion.status.in_([s.value for s in statuses]))
     stmt = stmt.where(Regulation.data_class.in_(list(scope.data_classes)))
-    stmt = stmt.where(scope.authz.sql() if scope.authz is not None else anonymous_sql())
+    stmt = stmt.where(scope.authz.sql(focus=False) if scope.authz is not None else anonymous_sql())
+    # "Ask this document" plus the regulations the question names: an engineer comparing a test
+    # report with UN R94 needs both; neither restriction widens authorization above.
+    focus = scope.authz.document_ids if scope.authz is not None else ()
+    if focus and scope.regulation_keys:
+        stmt = stmt.where(or_(Regulation.id.in_(focus), regulation_key_matches(scope.regulation_keys)))
+    elif focus:
+        stmt = stmt.where(Regulation.id.in_(focus))
+    elif scope.regulation_keys:
+        stmt = stmt.where(regulation_key_matches(scope.regulation_keys))
     if scope.version_ids:
         stmt = stmt.where(RegulationVersion.id.in_([uuid.UUID(v) for v in scope.version_ids]))
     else:
@@ -48,8 +57,6 @@ def scoped_statement(
         d = scope.effective_date(today)
         stmt = stmt.where(or_(RegulationVersion.valid_from.is_(None), RegulationVersion.valid_from <= d))
         stmt = stmt.where(or_(RegulationVersion.valid_to.is_(None), RegulationVersion.valid_to > d))
-    if scope.regulation_keys:
-        stmt = stmt.where(regulation_key_matches(scope.regulation_keys))
     if scope.kinds:
         stmt = stmt.where(Regulation.kind.in_(list(scope.kinds)))
     if scope.authority_levels:
@@ -66,6 +73,16 @@ def regulation_key_matches(keys: tuple[str, ...]):  # type: ignore[no-untyped-de
 
 def key_in_scope(regulation_key: str, keys: tuple[str, ...]) -> bool:
     return any(regulation_key == k or regulation_key.startswith(f"{k}-") for k in keys)
+
+
+def document_in_scope(scope: ScopeFilter, document_id: uuid.UUID, regulation_key: str) -> bool:
+    """In-memory twin of the focus/keys clause of `scoped_statement` (BM25 leg)."""
+    focus = scope.authz.document_ids if scope.authz is not None else ()
+    if focus and document_id in focus:
+        return True
+    if scope.regulation_keys:
+        return key_in_scope(regulation_key, scope.regulation_keys)
+    return not focus
 
 
 def scoped_chunk_ids(session: Session, scope: ScopeFilter, *, today: datetime.date | None = None) -> list[uuid.UUID]:

@@ -37,7 +37,7 @@ export function DocumentTable({ items, me }: { items: DocumentSummary[]; me: Me 
                 </div>
               </TableCell>
               <TableCell>
-                <ScopeBadge scope={d.scope} />
+                <ScopeBadge scope={d.scope} kind={d.document_type} />
               </TableCell>
               <TableCell className="text-sm">{d.version?.label ?? "—"}</TableCell>
               <TableCell>

@@ -32,7 +32,7 @@ from sqlalchemy.orm import Session
 from safety_assistant.domain.regulations import RETRIEVABLE_CURRENT, RETRIEVABLE_HISTORICAL
 from safety_assistant.persistence.models import Chunk, Regulation, RegulationVersion
 from safety_assistant.retrieval.authz import DocumentRef, anonymous_allows
-from safety_assistant.retrieval.base import key_in_scope
+from safety_assistant.retrieval.base import document_in_scope
 from safety_assistant.retrieval.filters import ScopeFilter, light_stem
 
 _TOKEN_RE = re.compile(r"\d+(?:\.\d+)+|[a-z0-9_*]+")
@@ -57,14 +57,14 @@ class VersionMeta:
         statuses = RETRIEVABLE_HISTORICAL if (scope.include_superseded or scope.as_of) else RETRIEVABLE_CURRENT
         if self.status not in {x.value for x in statuses} or self.data_class not in scope.data_classes:
             return False
-        if not (scope.authz.allows(self.doc) if scope.authz is not None else anonymous_allows(self.doc)):
+        if not (scope.authz.allows(self.doc, focus=False) if scope.authz is not None else anonymous_allows(self.doc)):
             return False
         d = scope.effective_date(today)
         if self.valid_from is not None and self.valid_from > d:
             return False
         if self.valid_to is not None and self.valid_to <= d:
             return False
-        if scope.regulation_keys and not key_in_scope(self.regulation_key, scope.regulation_keys):
+        if not document_in_scope(scope, self.doc.document_id, self.regulation_key):
             return False
         if scope.kinds and self.kind not in scope.kinds:
             return False

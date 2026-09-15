@@ -62,6 +62,7 @@ function NavLinks({ me, onNavigate }: { me: Me; onNavigate?: () => void }) {
 
 export function AppShell({ me, children }: { me: Me; children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const logout = useLogout();
   const [navOpen, setNavOpen] = useState(false);
   const workspace = me.workspaces.find((w) => w.id === me.preferences.default_workspace_id) ?? me.workspaces[0];
@@ -120,7 +121,7 @@ export function AppShell({ me, children }: { me: Me; children: React.ReactNode }
         <main className="min-w-0 flex-1 overflow-y-auto" id="main">
           {children}
         </main>
-        <EvidencePanel />
+        {pathname.startsWith("/app/chat") && <EvidencePanel />}
       </div>
     </div>
   );

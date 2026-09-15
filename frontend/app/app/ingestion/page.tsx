@@ -31,7 +31,7 @@ export default function IngestionPage() {
               {g.items.map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center gap-2 px-4 py-2.5 text-sm">
                   <Link href={`/app/documents/${d.id}`} className="font-medium text-primary hover:underline">{d.title}</Link>
-                  <ScopeBadge scope={d.scope} />
+                  <ScopeBadge scope={d.scope} kind={d.document_type} />
                   <span className="ml-auto"><DocumentStatus status={d.status} /></span>
                   {d.latest_job?.error_public_message && <span className="basis-full text-xs text-destructive">{d.latest_job.error_public_message}</span>}
                 </li>

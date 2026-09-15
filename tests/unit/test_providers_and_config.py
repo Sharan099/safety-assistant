@@ -165,3 +165,31 @@ def test_fallback_model_answers_when_primary_fails() -> None:
 
     r = FallbackLLM(Down(), Up()).generate([LLMMessage(role="user", content="hi")])
     assert r.model == "big"  # the answering model is recorded, not the configured primary
+
+
+def test_rate_limit_waits_for_retry_after_within_the_budget(monkeypatch: pytest.MonkeyPatch) -> None:
+    slept: list[float] = []
+    monkeypatch.setattr("safety_assistant.providers.llm.openai_compatible.time.sleep", lambda s: slept.append(s))
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        if calls["n"] < 3:
+            return httpx.Response(429, json={"error": "slow down"}, headers={"retry-after": "4"})
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"answer": "ok"}'}}], "model": "m"})
+
+    r = _provider(handler).generate([LLMMessage(role="user", content="hi")], schema=Out)
+    assert r.parsed.answer == "ok" and calls["n"] == 3
+    assert all(4.0 <= s < 4.3 for s in slept) and len(slept) == 2  # Retry-After honoured, jitter only
+    # a Retry-After the budget cannot afford is not waited for
+    p = OpenAICompatibleProvider(
+        base_url="http://llm.test/v1",
+        api_key="k",
+        model="m",
+        timeout=3.0,
+        transport=httpx.MockTransport(lambda r: httpx.Response(429, headers={"retry-after": "10"})),
+    )
+    slept.clear()
+    with pytest.raises(LLMRateLimited):
+        p.generate([LLMMessage(role="user", content="hi")])
+    assert slept == []

@@ -124,8 +124,12 @@ def test_numbers_stated_in_the_question_are_known_inputs() -> None:
     claim = Claim(text="Your 44 mm exceeds the 42 mm ThCC limit.", evidence_ids=["E1"])
     kept, _ = validate_draft(GroundedDraft(answer="", claims=[claim]), ev)
     assert kept == []  # 44 mm comes from nowhere
-    kept, _ = validate_draft(GroundedDraft(answer="", claims=[claim]), ev, question="Our result is 44 mm; does it pass?")
+    kept, _ = validate_draft(
+        GroundedDraft(answer="", claims=[claim]), ev, question="Our result is 44 mm; does it pass?"
+    )
     assert len(kept) == 1
     invented = Claim(text="Your 44 mm exceeds the 45 mm ThCC limit.", evidence_ids=["E1"])
-    kept, _ = validate_draft(GroundedDraft(answer="", claims=[invented]), ev, question="Our result is 44 mm; does it pass?")
+    kept, _ = validate_draft(
+        GroundedDraft(answer="", claims=[invented]), ev, question="Our result is 44 mm; does it pass?"
+    )
     assert kept == []  # the limit itself must still come from the evidence

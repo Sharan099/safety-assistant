@@ -80,6 +80,7 @@ class CitationContext:
 
     regulation_key: str
     version_label: str
+    title: str | None = None  # uploads have a generated key (DOC-…); the citation shows their title
 
     @property
     def prefix(self) -> str:
@@ -87,6 +88,8 @@ class CitationContext:
 
     @property
     def regulation_label(self) -> str:
+        if self.regulation_key.startswith("DOC-") and self.title:
+            return self.title if len(self.title) <= 60 else self.title[:57].rstrip() + "…"
         return self.regulation_key.replace("-", " ")
 
 

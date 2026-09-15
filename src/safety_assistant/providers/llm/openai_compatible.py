@@ -24,6 +24,15 @@ from safety_assistant.providers.llm.base import (
 
 _MAX_ATTEMPTS = 3
 _BACKOFF_BASE_S = 0.5
+_RATE_LIMIT_BACKOFF_S = 3.0
+
+
+def _retry_after(response: httpx.Response) -> float | None:
+    raw = response.headers.get("retry-after")
+    try:
+        return min(float(raw), 30.0) if raw else None
+    except ValueError:
+        return None
 
 
 def _classify(exc: httpx.HTTPStatusError) -> LLMError:
@@ -75,11 +84,22 @@ class OpenAICompatibleProvider:
                 return resp.json()  # type: ignore[no-any-return]
             except httpx.HTTPStatusError as exc:
                 last = _classify(exc)
+                retry_after = _retry_after(exc.response)
             except httpx.HTTPError as exc:
                 last = LLMUnavailable(f"request failed: {exc}")
+                retry_after = None
             if not last.retryable or attempt == _MAX_ATTEMPTS - 1:
                 raise last
-            time.sleep(min(_BACKOFF_BASE_S * (2**attempt) + random.uniform(0, 0.2), 2.0))  # noqa: S311 — jitter
+            # A rate limit is a per-minute window, not a blip: wait what the gateway asks for (or a
+            # few seconds), bounded by the call budget; other failures back off in fractions of a second.
+            if isinstance(last, LLMRateLimited):
+                delay = retry_after if retry_after is not None else _RATE_LIMIT_BACKOFF_S * (2**attempt)
+            else:
+                delay = min(_BACKOFF_BASE_S * (2**attempt), 2.0)
+            remaining = self._timeout - (time.monotonic() - started)
+            if delay >= remaining - 1.0:
+                raise last
+            time.sleep(delay + random.uniform(0, 0.2))  # noqa: S311 — jitter
         raise LLMUnavailable("exhausted retries")  # pragma: no cover — loop always returns or raises
 
     def generate(

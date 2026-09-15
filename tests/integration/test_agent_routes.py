@@ -70,3 +70,30 @@ def test_budget_exhaustion_abstains_safely(agent) -> None:  # type: ignore[no-un
     agent.budget = Budget(timeout_seconds=0.0)
     s = agent.run("thorax compression criterion limit R999", k=4)
     assert s["mode"] == "ABSTAINED" and "timeout" in (s["message"] or "")
+
+
+def test_uncleared_data_class_is_withheld_but_the_cleared_part_is_answered(agent, db_session) -> None:  # type: ignore[no-untyped-def]
+    from sqlalchemy import update
+
+    from safety_assistant.persistence.models import Regulation
+    from safety_assistant.retrieval import ScopeFilter
+    from safety_assistant.retrieval.sparse import invalidate_cache
+    from tests.integration.conftest import _EvidenceAwareMock
+
+    db_session.execute(
+        update(Regulation).where(Regulation.regulation_key == "UN-R998").values(data_class="CONFIDENTIAL")
+    )
+    db_session.commit()
+    invalidate_cache()
+    agent.llm = _EvidenceAwareMock()
+    scope = ScopeFilter(data_classes=("PUBLIC", "CONFIDENTIAL"))
+    s = agent.run("Compare the head performance criterion requirement in R999 and R998", k=6, scope=scope)
+    assert {e.regulation_key for e in s["evidence"]} == {"UN-R999", "UN-R998"}
+    assert s["mode"] == "GENERATED"  # the public regulation is answered
+    assert all(
+        e.regulation_key == "UN-R999"
+        for c in s["draft"].claims
+        for e in s["evidence"]
+        if e.evidence_id in c.evidence_ids
+    )
+    assert any(w.startswith("not sent to the answer model") for w in s["warnings"])

@@ -69,7 +69,9 @@ class Authz:
 
     # ------------------------------------------------------------------ evaluators
 
-    def sql(self) -> ColumnElement[bool]:
+    def sql(self, *, focus: bool = True) -> ColumnElement[bool]:
+        """`focus=False` leaves the document selection to the caller (the scope layer unions it with
+        the regulations a question names); authorization itself is never relaxed."""
         legs: list[ColumnElement[bool]] = []
         if "AUTHORITATIVE_ORG" in self.source_scopes and self.organization_ids:
             legs.append(
@@ -80,14 +82,14 @@ class Authz:
         if "PRIVATE_USER" in self.source_scopes and self.user_id is not None:
             legs.append(and_(Regulation.scope == "PRIVATE_USER", Regulation.owner_user_id == self.user_id))
         pred: ColumnElement[bool] = or_(*legs) if legs else false()
-        if self.document_ids:
+        if focus and self.document_ids:
             pred = and_(pred, Regulation.id.in_(self.document_ids))
         return and_(pred, Regulation.archived_at.is_(None))
 
-    def allows(self, doc: DocumentRef) -> bool:
+    def allows(self, doc: DocumentRef, *, focus: bool = True) -> bool:
         if doc.archived:
             return False
-        if self.document_ids and doc.document_id not in self.document_ids:
+        if focus and self.document_ids and doc.document_id not in self.document_ids:
             return False
         if doc.scope not in self.source_scopes:
             return False

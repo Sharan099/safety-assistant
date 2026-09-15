@@ -51,7 +51,7 @@ test("2. login → upload PDF → processing → READY → ask uploaded document
   await expect(progress.getByTestId("ingestion-timeline")).toHaveAttribute("data-status", "READY", { timeout: 150_000 });
   await progress.getByTestId("ask-document").click();
   await expect(page).toHaveURL(/\/app\/chat\?document=/);
-  await expect(page.getByText("Limited to 1 selected document")).toBeVisible();
+  await expect(page.getByText("Searching the selected document")).toBeVisible();
   await page.getByTestId("query").fill("What is the sled pulse peak limit for the front row?");
   await page.getByTestId("ask").click();
   const answer = page.getByTestId("answer");

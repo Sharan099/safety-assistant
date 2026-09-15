@@ -60,3 +60,13 @@ def test_table_chunks_carry_headers_and_skip_degenerate_tables() -> None:
 
 def test_token_estimate_monotonic() -> None:
     assert estimate_tokens("") == 1 and estimate_tokens("a b c") < estimate_tokens("a b c d e f")
+
+
+def test_uploaded_documents_are_cited_by_title_not_generated_key() -> None:
+    from safety_assistant.ingestion.chunk.structural import CitationContext
+
+    assert CitationContext("UN-R94", "Rev.4 (04 series)", "UN Regulation No. 94").prefix == "UN R94 Rev.4"
+    assert CitationContext("DOC-FFD57DADD19E", "v1", "ACME Z4 frontal ODB test report TR-2026-0417").prefix == (
+        "ACME Z4 frontal ODB test report TR-2026-0417 v1"
+    )
+    assert CitationContext("DOC-FFD57DADD19E", "v1").prefix == "DOC FFD57DADD19E v1"

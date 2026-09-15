@@ -100,7 +100,7 @@ export default function HomePage() {
             {recentDocs.map((d) => (
               <li key={d.id} className="flex flex-wrap items-center gap-2 py-2 text-sm">
                 <Link href={`/app/documents/${d.id}`} className="font-medium hover:text-primary">{d.title}</Link>
-                <ScopeBadge scope={d.scope} />
+                <ScopeBadge scope={d.scope} kind={d.document_type} />
                 <span className="text-xs text-muted-foreground">{d.version?.label}</span>
                 <span className="ml-auto"><DocumentStatus status={d.status} /></span>
               </li>

@@ -17,6 +17,18 @@ import { cn } from "@/lib/utils";
 
 const MAX_MB = 200;
 const TYPES = ["PROJECT_DOCUMENT", "REGULATION", "STANDARD", "TECHNICAL_REPORT", "MANUAL"] as const;
+const TYPE_LABEL: Record<(typeof TYPES)[number], string> = {
+  PROJECT_DOCUMENT: "Project document (test report, spec, CAE note)",
+  REGULATION: "Regulation text",
+  STANDARD: "Standard / test protocol",
+  TECHNICAL_REPORT: "Technical report / paper",
+  MANUAL: "Software or tool manual",
+};
+const SCOPE_LABEL = { PRIVATE_USER: "Private — only you", WORKSPACE: "Workspace — members of a workspace" } as const;
+
+function fileSize(bytes: number): string {
+  return bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
 
 const Meta = z.object({
   title: z.string().trim().min(1, "Title is required").max(300),
@@ -94,7 +106,7 @@ export function UploadForm({ me, onUploaded }: { me: Me; onUploaded: (r: UploadR
         >
           <FileUp className="size-6 text-muted-foreground" aria-hidden />
           {file ? (
-            <span className="font-medium">{file.name} · {(file.size / 1024 / 1024).toFixed(1)} MB</span>
+            <span className="font-medium">{file.name} · {fileSize(file.size)}</span>
           ) : (
             <span>Drag a PDF here or click to browse</span>
           )}
@@ -113,10 +125,10 @@ export function UploadForm({ me, onUploaded }: { me: Me; onUploaded: (r: UploadR
         <div className="space-y-1.5">
           <Label htmlFor="doctype">Document type</Label>
           <Select value={meta.document_type} onValueChange={(v) => setMeta({ ...meta, document_type: v as (typeof TYPES)[number] })}>
-            <SelectTrigger id="doctype" className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="doctype" className="w-full"><SelectValue>{TYPE_LABEL[meta.document_type]}</SelectValue></SelectTrigger>
             <SelectContent>
               {TYPES.map((t) => (
-                <SelectItem key={t} value={t}>{t.toLowerCase().replace("_", " ")}</SelectItem>
+                <SelectItem key={t} value={t}>{TYPE_LABEL[t]}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -124,10 +136,10 @@ export function UploadForm({ me, onUploaded }: { me: Me; onUploaded: (r: UploadR
         <div className="space-y-1.5">
           <Label htmlFor="scope">Scope</Label>
           <Select value={meta.scope} onValueChange={(v) => setMeta({ ...meta, scope: v as "PRIVATE_USER" | "WORKSPACE" })}>
-            <SelectTrigger id="scope" className="w-full" data-testid="upload-scope"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="scope" className="w-full" data-testid="upload-scope"><SelectValue>{SCOPE_LABEL[meta.scope]}</SelectValue></SelectTrigger>
             <SelectContent>
-              <SelectItem value="PRIVATE_USER">Private — only you</SelectItem>
-              <SelectItem value="WORKSPACE" disabled={me.workspaces.length === 0}>Workspace — members of a workspace</SelectItem>
+              <SelectItem value="PRIVATE_USER">{SCOPE_LABEL.PRIVATE_USER}</SelectItem>
+              <SelectItem value="WORKSPACE" disabled={me.workspaces.length === 0}>{SCOPE_LABEL.WORKSPACE}</SelectItem>
             </SelectContent>
           </Select>
         </div>

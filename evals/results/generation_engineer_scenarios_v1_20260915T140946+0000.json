@@ -2,9 +2,9 @@
   "kind": "generation_eval",
   "dataset_version": "engineer_scenarios_v1",
   "n_cases": 34,
-  "git_sha": "27f20cf5599eb7c7c1634058b491cd3fc1908ab4",
-  "pipeline_fingerprint": "62dd72f4572cb1d5",
-  "timestamp": "2026-09-15T15:25:18+00:00",
+  "git_sha": "f921ce07602a5282224e5cc7e03a11c99712dd17",
+  "pipeline_fingerprint": "f3e8bf8020a2e32e",
+  "timestamp": "2026-09-15T14:09:46+00:00",
   "llm": "openai_compatible:gpt-oss-20b",
   "judge_model": "gpt-oss-20b",
   "cost": {
@@ -13,36 +13,34 @@
     "priced_queries": 0,
     "usd_per_query_blended": null,
     "by_model": {},
-    "unpriced_models": [
-      "openai/gpt-oss-20b"
-    ]
+    "unpriced_models": []
   },
   "aggregate": {
     "n": 34,
-    "refusal_correct": 0.9411764705882353,
+    "refusal_correct": 0.8529411764705882,
     "refusal_correct_n": 34,
-    "citation_precision": 0.803448275862069,
+    "citation_precision": 0.7195402298850575,
     "citation_precision_n": 29,
     "citation_hit": 1.0,
     "citation_hit_n": 29,
-    "fact_coverage": 0.8653846153846154,
+    "fact_coverage": 0.7115384615384616,
     "fact_coverage_n": 26,
     "evidence_coverage": 0.9807692307692307,
     "evidence_coverage_n": 26,
-    "grounding_ok": 0.9259259259259259,
-    "grounding_ok_n": 27,
+    "grounding_ok": 0.8846153846153846,
+    "grounding_ok_n": 26,
     "injection_resisted": null,
     "injection_resisted_n": 0,
     "modes": {
-      "ABSTAINED": 7,
-      "EVIDENCE_ONLY": 1,
-      "GENERATED": 26
+      "ABSTAINED": 8,
+      "EVIDENCE_ONLY": 3,
+      "GENERATED": 23
     },
-    "tokens_n": 29,
-    "prompt_tokens_mean": 4156.172413793103,
-    "completion_tokens_mean": 185.82758620689654,
-    "total_tokens_mean": 4342.0,
-    "latency_p50_ms": 7036.2
+    "tokens_n": 27,
+    "prompt_tokens_mean": 3904.740740740741,
+    "completion_tokens_mean": 183.44444444444446,
+    "total_tokens_mean": 4088.185185185185,
+    "latency_p50_ms": 8510.8
   },
   "by_slice": {
     "amendment_awareness": {
@@ -65,36 +63,36 @@
         "GENERATED": 1
       },
       "tokens_n": 1,
-      "prompt_tokens_mean": 4507.0,
-      "completion_tokens_mean": 142.0,
-      "total_tokens_mean": 4649.0,
-      "latency_p50_ms": 5983.6
+      "prompt_tokens_mean": 4269.0,
+      "completion_tokens_mean": 152.0,
+      "total_tokens_mean": 4421.0,
+      "latency_p50_ms": 15364.2
     },
     "calculation": {
       "n": 4,
       "refusal_correct": 1.0,
       "refusal_correct_n": 4,
-      "citation_precision": 0.65,
+      "citation_precision": 0.45,
       "citation_precision_n": 4,
       "citation_hit": 1.0,
       "citation_hit_n": 4,
-      "fact_coverage": 0.75,
+      "fact_coverage": 0.5,
       "fact_coverage_n": 4,
       "evidence_coverage": 1.0,
       "evidence_coverage_n": 4,
       "grounding_ok": 1.0,
-      "grounding_ok_n": 3,
+      "grounding_ok_n": 2,
       "injection_resisted": null,
       "injection_resisted_n": 0,
       "modes": {
-        "EVIDENCE_ONLY": 1,
-        "GENERATED": 3
+        "EVIDENCE_ONLY": 2,
+        "GENERATED": 2
       },
-      "tokens_n": 3,
-      "prompt_tokens_mean": 3709.3333333333335,
-      "completion_tokens_mean": 165.0,
-      "total_tokens_mean": 3874.3333333333335,
-      "latency_p50_ms": 7165.9
+      "tokens_n": 2,
+      "prompt_tokens_mean": 3288.0,
+      "completion_tokens_mean": 119.5,
+      "total_tokens_mean": 3407.5,
+      "latency_p50_ms": 10071.9
     },
     "cross_document": {
       "n": 5,
@@ -117,20 +115,20 @@
         "GENERATED": 4
       },
       "tokens_n": 5,
-      "prompt_tokens_mean": 3518.6,
-      "completion_tokens_mean": 266.8,
-      "total_tokens_mean": 3785.4,
-      "latency_p50_ms": 10633.8
+      "prompt_tokens_mean": 3525.2,
+      "completion_tokens_mean": 285.4,
+      "total_tokens_mean": 3810.6,
+      "latency_p50_ms": 11413.2
     },
     "market_context": {
       "n": 3,
       "refusal_correct": 0.6666666666666666,
       "refusal_correct_n": 3,
-      "citation_precision": 0.8333333333333334,
+      "citation_precision": 0.7000000000000001,
       "citation_precision_n": 3,
       "citation_hit": 1.0,
       "citation_hit_n": 3,
-      "fact_coverage": 1.0,
+      "fact_coverage": 0.0,
       "fact_coverage_n": 1,
       "evidence_coverage": 1.0,
       "evidence_coverage_n": 1,
@@ -144,34 +142,35 @@
       },
       "tokens_n": 3,
       "prompt_tokens_mean": 6544.0,
-      "completion_tokens_mean": 196.0,
-      "total_tokens_mean": 6740.0,
-      "latency_p50_ms": 11005.2
+      "completion_tokens_mean": 138.33333333333334,
+      "total_tokens_mean": 6682.333333333333,
+      "latency_p50_ms": 13757.6
     },
     "scenario_application": {
       "n": 6,
-      "refusal_correct": 1.0,
+      "refusal_correct": 0.6666666666666666,
       "refusal_correct_n": 6,
-      "citation_precision": 0.9166666666666666,
+      "citation_precision": 0.7111111111111111,
       "citation_precision_n": 6,
       "citation_hit": 1.0,
       "citation_hit_n": 6,
-      "fact_coverage": 0.8333333333333334,
+      "fact_coverage": 0.5,
       "fact_coverage_n": 6,
       "evidence_coverage": 1.0,
       "evidence_coverage_n": 6,
-      "grounding_ok": 0.8333333333333334,
+      "grounding_ok": 0.6666666666666666,
       "grounding_ok_n": 6,
       "injection_resisted": null,
       "injection_resisted_n": 0,
       "modes": {
-        "GENERATED": 6
+        "ABSTAINED": 2,
+        "GENERATED": 4
       },
       "tokens_n": 6,
-      "prompt_tokens_mean": 3922.5,
-      "completion_tokens_mean": 204.5,
-      "total_tokens_mean": 4127.0,
-      "latency_p50_ms": 10332.7
+      "prompt_tokens_mean": 3591.8333333333335,
+      "completion_tokens_mean": 198.16666666666666,
+      "total_tokens_mean": 3790.0,
+      "latency_p50_ms": 10669.6
     },
     "short_form": {
       "n": 7,
@@ -193,10 +192,10 @@
         "GENERATED": 7
       },
       "tokens_n": 7,
-      "prompt_tokens_mean": 3099.4285714285716,
-      "completion_tokens_mean": 162.57142857142858,
-      "total_tokens_mean": 3262.0,
-      "latency_p50_ms": 6469.5
+      "prompt_tokens_mean": 2871.8571428571427,
+      "completion_tokens_mean": 158.28571428571428,
+      "total_tokens_mean": 3030.1428571428573,
+      "latency_p50_ms": 5299.2
     },
     "simulation": {
       "n": 3,
@@ -218,14 +217,14 @@
         "GENERATED": 3
       },
       "tokens_n": 3,
-      "prompt_tokens_mean": 5212.666666666667,
-      "completion_tokens_mean": 133.66666666666666,
-      "total_tokens_mean": 5346.333333333333,
-      "latency_p50_ms": 5538.2
+      "prompt_tokens_mean": 5223.666666666667,
+      "completion_tokens_mean": 141.0,
+      "total_tokens_mean": 5364.666666666667,
+      "latency_p50_ms": 12092.0
     },
     "unrelated": {
       "n": 5,
-      "refusal_correct": 1.0,
+      "refusal_correct": 0.8,
       "refusal_correct_n": 5,
       "citation_precision": null,
       "citation_precision_n": 0,
@@ -240,46 +239,47 @@
       "injection_resisted": null,
       "injection_resisted_n": 0,
       "modes": {
-        "ABSTAINED": 5
+        "ABSTAINED": 4,
+        "EVIDENCE_ONLY": 1
       },
-      "tokens_n": 1,
-      "prompt_tokens_mean": 6800.0,
-      "completion_tokens_mean": 64.0,
-      "total_tokens_mean": 6864.0,
-      "latency_p50_ms": 2559.1
+      "tokens_n": 0,
+      "prompt_tokens_mean": null,
+      "completion_tokens_mean": null,
+      "total_tokens_mean": null,
+      "latency_p50_ms": 3771.1
     }
   },
   "by_answerability": {
     "answerable": {
       "n": 29,
-      "refusal_correct": 0.9310344827586207,
+      "refusal_correct": 0.8620689655172413,
       "refusal_correct_n": 29,
-      "citation_precision": 0.803448275862069,
+      "citation_precision": 0.7195402298850575,
       "citation_precision_n": 29,
       "citation_hit": 1.0,
       "citation_hit_n": 29,
-      "fact_coverage": 0.8653846153846154,
+      "fact_coverage": 0.7115384615384616,
       "fact_coverage_n": 26,
       "evidence_coverage": 0.9807692307692307,
       "evidence_coverage_n": 26,
-      "grounding_ok": 0.9259259259259259,
-      "grounding_ok_n": 27,
+      "grounding_ok": 0.8846153846153846,
+      "grounding_ok_n": 26,
       "injection_resisted": null,
       "injection_resisted_n": 0,
       "modes": {
-        "ABSTAINED": 2,
-        "EVIDENCE_ONLY": 1,
-        "GENERATED": 26
+        "ABSTAINED": 4,
+        "EVIDENCE_ONLY": 2,
+        "GENERATED": 23
       },
-      "tokens_n": 28,
-      "prompt_tokens_mean": 4061.75,
-      "completion_tokens_mean": 190.17857142857142,
-      "total_tokens_mean": 4251.928571428572,
-      "latency_p50_ms": 7442.1
+      "tokens_n": 27,
+      "prompt_tokens_mean": 3904.740740740741,
+      "completion_tokens_mean": 183.44444444444446,
+      "total_tokens_mean": 4088.185185185185,
+      "latency_p50_ms": 10071.9
     },
     "unanswerable_not_in_corpus": {
       "n": 2,
-      "refusal_correct": 1.0,
+      "refusal_correct": 0.5,
       "refusal_correct_n": 2,
       "citation_precision": null,
       "citation_precision_n": 0,
@@ -294,13 +294,14 @@
       "injection_resisted": null,
       "injection_resisted_n": 0,
       "modes": {
-        "ABSTAINED": 2
+        "ABSTAINED": 1,
+        "EVIDENCE_ONLY": 1
       },
-      "tokens_n": 1,
-      "prompt_tokens_mean": 6800.0,
-      "completion_tokens_mean": 64.0,
-      "total_tokens_mean": 6864.0,
-      "latency_p50_ms": 6574.2
+      "tokens_n": 0,
+      "prompt_tokens_mean": null,
+      "completion_tokens_mean": null,
+      "total_tokens_mean": null,
+      "latency_p50_ms": 11686.8
     },
     "unanswerable_out_of_scope": {
       "n": 3,
@@ -325,19 +326,124 @@
       "prompt_tokens_mean": null,
       "completion_tokens_mean": null,
       "total_tokens_mean": null,
-      "latency_p50_ms": 2559.1
+      "latency_p50_ms": 3771.1
     }
   },
   "failures_by_category": {
-    "unnecessary_refusal": 2,
-    "unsupported_numerical_claim": 1,
-    "citation_not_supporting_claim": 2,
-    "incomplete_condition": 1
+    "unnecessary_refusal": 4,
+    "should_have_refused": 1,
+    "citation_not_supporting_claim": 3,
+    "incomplete_condition": 2
   },
   "failures": [
     {
+      "case_id": "sc-003",
+      "category": "unnecessary_refusal",
+      "query": "Our frontal test result shows a thorax compression of 44 mm on the driver dummy. Does that pass UN R94?",
+      "query_type": "scenario_application",
+      "expected_regulation": "UN-R94",
+      "expected_section_paths": [
+        "5.2.1.4"
+      ],
+      "key_facts": [
+        "42 mm"
+      ],
+      "mode": "ABSTAINED",
+      "abstain_reason": "validation_failed",
+      "answer": "The generated answer could not be verified against the evidence and was withheld.",
+      "citations": [
+        {
+          "evidence_id": "E1",
+          "label": "UN R94 Rev.4 \u00a75.2.1.3\u20135.2.1.8 (pp. 12\u201313)",
+          "regulation_key": "UN-R94",
+          "section_path": "5.2.1.3",
+          "merged_paths": [
+            "5.2.1.3",
+            "5.2.1.4",
+            "5.2.1.5",
+            "5.2.1.6",
+            "5.2.1.7",
+            "5.2.1.8"
+          ]
+        },
+        {
+          "evidence_id": "E2",
+          "label": "UN R94 Rev.4 Annex 5 \u00a72.5 (p. 33)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-5/2.5",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E3",
+          "label": "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-3/5.2.3",
+          "merged_paths": [
+            "annex-3/5.2.3",
+            "annex-3/5.2.4"
+          ]
+        },
+        {
+          "evidence_id": "E4",
+          "label": "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-4/3.1",
+          "merged_paths": [
+            "annex-4/3.1",
+            "annex-4/3.2"
+          ]
+        },
+        {
+          "evidence_id": "E5",
+          "label": "UN R94 Rev.4 Annex 5 \u00a72.4.3.1\u20132.4.3.2 (p. 33)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-5/2.4.3.1",
+          "merged_paths": [
+            "annex-5/2.4.3.1",
+            "annex-5/2.4.3.2"
+          ]
+        },
+        {
+          "evidence_id": "E6",
+          "label": "UN R94 AMEND 05 Rev.4 \u00a73.2.3 (p. 6)",
+          "regulation_key": "UN-R94-AMEND-05",
+          "section_path": "3.2.3",
+          "merged_paths": []
+        }
+      ],
+      "retrieved": [
+        "UN R94 Rev.4 \u00a75.2.1.3\u20135.2.1.8 (pp. 12\u201313)",
+        "UN R94 Rev.4 Annex 5 \u00a72.5 (p. 33)",
+        "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
+        "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
+        "UN R94 Rev.4 Annex 5 \u00a72.4.3.1\u20132.4.3.2 (p. 33)",
+        "UN R94 AMEND 05 Rev.4 \u00a73.2.3 (p. 6)"
+      ],
+      "grounding_ok": false,
+      "warnings": [
+        "1 claim(s) removed: failed citation/numeric validation"
+      ],
+      "model": null,
+      "latency_ms": 5536.8,
+      "tokens": {
+        "prompt_tokens": 2867,
+        "total_tokens": 2992,
+        "completion_tokens": 125
+      },
+      "metrics": {
+        "refusal_correct": 0.0,
+        "citation_precision": 0.16666666666666666,
+        "citation_hit": 1.0,
+        "fact_coverage": 0.0,
+        "evidence_coverage": 1.0,
+        "grounding_ok": 0.0,
+        "injection_resisted": null,
+        "latency_ms": 5536.8
+      }
+    },
+    {
       "case_id": "sc-005",
-      "category": "unsupported_numerical_claim",
+      "category": "incomplete_condition",
       "query": "After our side impact test the door on the struck side stayed locked but the non-struck side door was still locked too. Is that compliant with UN R95?",
       "query_type": "scenario_application",
       "expected_regulation": "UN-R95",
@@ -349,7 +455,7 @@
       ],
       "mode": "GENERATED",
       "abstain_reason": null,
-      "answer": "No, the test is not compliant. The non\u2011struck side door must be unlocked after impact.",
+      "answer": "No, it is not compliant. The non\u2011struck side door must be unlocked after the impact.",
       "citations": [
         {
           "evidence_id": "E2",
@@ -373,16 +479,14 @@
         "UN R95 Rev.3 \u00a75.1.1 (p. 10)",
         "UN R95 Rev.3 \u00a75.3.1.1 (p. 12)"
       ],
-      "grounding_ok": false,
-      "warnings": [
-        "1 claim(s) removed: failed citation/numeric validation"
-      ],
-      "model": "openai/gpt-oss-20b",
-      "latency_ms": 10332.7,
+      "grounding_ok": true,
+      "warnings": [],
+      "model": null,
+      "latency_ms": 10669.6,
       "tokens": {
         "prompt_tokens": 3556,
-        "total_tokens": 3750,
-        "completion_tokens": 194
+        "total_tokens": 3724,
+        "completion_tokens": 168
       },
       "metrics": {
         "refusal_correct": 1.0,
@@ -390,9 +494,160 @@
         "citation_hit": 1.0,
         "fact_coverage": 0.0,
         "evidence_coverage": 1.0,
+        "grounding_ok": 1.0,
+        "injection_resisted": null,
+        "latency_ms": 10669.6
+      }
+    },
+    {
+      "case_id": "sc-006",
+      "category": "unnecessary_refusal",
+      "query": "Our pedestrian test with the child headform recorded HIC 1,150 at one point of the bonnet. Is UN R127 failed?",
+      "query_type": "scenario_application",
+      "expected_regulation": "UN-R127",
+      "expected_section_paths": [
+        "5.2.1",
+        "5.2.2"
+      ],
+      "key_facts": [
+        "HIC recorded shall not exceed 1,000"
+      ],
+      "mode": "ABSTAINED",
+      "abstain_reason": "validation_failed",
+      "answer": "The generated answer could not be verified against the evidence and was withheld.",
+      "citations": [
+        {
+          "evidence_id": "E1",
+          "label": "UN R127 Rev.2 \u00a75.2.1\u20135.2.2 (p. 19)",
+          "regulation_key": "UN-R127",
+          "section_path": "5.2.1",
+          "merged_paths": [
+            "5.2.1",
+            "5.2.2"
+          ]
+        },
+        {
+          "evidence_id": "E2",
+          "label": "UN R127 Rev.2 Annex 5 \u00a73.4.1\u20133.4.2 (pp. 42\u201343)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/3.4.1",
+          "merged_paths": [
+            "annex-5/3.4.1",
+            "annex-5/3.4.2"
+          ]
+        },
+        {
+          "evidence_id": "E3",
+          "label": "UN R127 Rev.2 Annex 5 \u00a73.4.3\u20133.4.4 (p. 43)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/3.4.3",
+          "merged_paths": [
+            "annex-5/3.4.3",
+            "annex-5/3.4.4"
+          ]
+        },
+        {
+          "evidence_id": "E4",
+          "label": "UN R127 Rev.2 Annex 5 \u00a74.1\u20134.2 (p. 44)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/4.1",
+          "merged_paths": [
+            "annex-5/4.1",
+            "annex-5/4.2"
+          ]
+        },
+        {
+          "evidence_id": "E5",
+          "label": "UN R127 Rev.2 \u00a72.16 (p. 8)",
+          "regulation_key": "UN-R127",
+          "section_path": "2.16",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E6",
+          "label": "UN R127 Rev.2 Annex 5 \u00a73.3.1 (p. 42)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/3.3.1",
+          "merged_paths": [
+            "annex-5/3.3.1"
+          ]
+        },
+        {
+          "evidence_id": "E7",
+          "label": "UN R127 Rev.2 \u00a72.21\u20132.22 (pp. 11\u201312)",
+          "regulation_key": "UN-R127",
+          "section_path": "2.21",
+          "merged_paths": [
+            "2.21",
+            "2.22"
+          ]
+        },
+        {
+          "evidence_id": "E8",
+          "label": "UN R127 Rev.2 Annex 5 \u00a74.3\u20134.5 (p. 44)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/4.3",
+          "merged_paths": [
+            "annex-5/4.3",
+            "annex-5/4.4",
+            "annex-5/4.5"
+          ]
+        },
+        {
+          "evidence_id": "E9",
+          "label": "UN R127 Rev.2 Annex 5 \u00a75.3\u20135.5 (pp. 44\u201345)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/5.3",
+          "merged_paths": [
+            "annex-5/5.3",
+            "annex-5/5.4",
+            "annex-5/5.5"
+          ]
+        },
+        {
+          "evidence_id": "E10",
+          "label": "UN R127 Rev.2 Annex 5 \u00a75.1\u20135.2 (p. 44)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/5.1",
+          "merged_paths": [
+            "annex-5/5.1",
+            "annex-5/5.2"
+          ]
+        }
+      ],
+      "retrieved": [
+        "UN R127 Rev.2 \u00a75.2.1\u20135.2.2 (p. 19)",
+        "UN R127 Rev.2 Annex 5 \u00a73.4.1\u20133.4.2 (pp. 42\u201343)",
+        "UN R127 Rev.2 Annex 5 \u00a73.4.3\u20133.4.4 (p. 43)",
+        "UN R127 Rev.2 Annex 5 \u00a74.1\u20134.2 (p. 44)",
+        "UN R127 Rev.2 \u00a72.16 (p. 8)",
+        "UN R127 Rev.2 Annex 5 \u00a73.3.1 (p. 42)",
+        "UN R127 Rev.2 \u00a72.21\u20132.22 (pp. 11\u201312)",
+        "UN R127 Rev.2 Annex 5 \u00a74.3\u20134.5 (p. 44)",
+        "UN R127 Rev.2 Annex 5 \u00a75.3\u20135.5 (pp. 44\u201345)",
+        "UN R127 Rev.2 Annex 5 \u00a75.1\u20135.2 (p. 44)"
+      ],
+      "grounding_ok": false,
+      "warnings": [
+        "the model reports that the evidence covers the question only partly",
+        "1 claim(s) removed: failed citation/numeric validation"
+      ],
+      "model": null,
+      "latency_ms": 27370.8,
+      "tokens": {
+        "prompt_tokens": 4662,
+        "total_tokens": 5030,
+        "completion_tokens": 368
+      },
+      "metrics": {
+        "refusal_correct": 0.0,
+        "citation_precision": 0.1,
+        "citation_hit": 1.0,
+        "fact_coverage": 0.0,
+        "evidence_coverage": 1.0,
         "grounding_ok": 0.0,
         "injection_resisted": null,
-        "latency_ms": 10332.7
+        "latency_ms": 27370.8
       }
     },
     {
@@ -464,12 +719,12 @@
       "warnings": [
         "corrective retry: weak evidence, acronym expansion"
       ],
-      "model": "openai/gpt-oss-20b",
-      "latency_ms": 11045.4,
+      "model": null,
+      "latency_ms": 10240.8,
       "tokens": {
-        "prompt_tokens": 3360,
-        "total_tokens": 3489,
-        "completion_tokens": 129
+        "prompt_tokens": 3393,
+        "completion_tokens": 124,
+        "total_tokens": 3517
       },
       "metrics": {
         "refusal_correct": 1.0,
@@ -479,7 +734,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 11045.4
+        "latency_ms": 10240.8
       }
     },
     {
@@ -599,12 +854,12 @@
       "warnings": [
         "2 claim(s) removed: failed citation/numeric validation"
       ],
-      "model": "openai/gpt-oss-20b",
-      "latency_ms": 10911.9,
+      "model": null,
+      "latency_ms": 8405.7,
       "tokens": {
         "prompt_tokens": 4282,
-        "total_tokens": 4470,
-        "completion_tokens": 188
+        "total_tokens": 4471,
+        "completion_tokens": 189
       },
       "metrics": {
         "refusal_correct": 0.0,
@@ -614,122 +869,217 @@
         "evidence_coverage": null,
         "grounding_ok": 0.0,
         "injection_resisted": null,
-        "latency_ms": 10911.9
+        "latency_ms": 8405.7
       }
     },
     {
-      "case_id": "sc-032",
+      "case_id": "sc-031",
       "category": "unnecessary_refusal",
-      "query": "Is the Euro NCAP frontal protocol a legal requirement for type approval in Europe?",
+      "query": "For a Euro NCAP 2026 frontal rating, which dummies are in the driver and front passenger seats of the offset test?",
       "query_type": "market_context",
       "expected_regulation": "EURONCAP-FRONTAL",
       "expected_section_paths": [],
-      "key_facts": [],
+      "key_facts": [
+        "THOR 50th",
+        "HIII 5th"
+      ],
       "mode": "ABSTAINED",
       "abstain_reason": "weak_evidence",
-      "answer": "No, the Euro\u202fNCAP frontal protocol is not a legal requirement for type approval in Europe.",
+      "answer": "insufficient_evidence",
       "citations": [
         {
           "evidence_id": "E1",
-          "label": "EURONCAP FRONTAL v1.1 PREFACE (pp. 3\u20134)",
+          "label": "EURONCAP FRONTAL v1.1 \u00a72.5.1 (p. 22)",
           "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "preface",
-          "merged_paths": []
+          "section_path": "2.5.1",
+          "merged_paths": [
+            "2.5.1"
+          ]
         },
         {
           "evidence_id": "E2",
-          "label": "EURONCAP FRONTAL v1.1 \u00a72.3.4 part 2/2 (pp. 16\u201317)",
+          "label": "EURONCAP FRONTAL v1.1 SCORING (pp. 5\u20136)",
           "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "2.3.4",
+          "section_path": "scoring~1",
           "merged_paths": []
         },
         {
           "evidence_id": "E3",
-          "label": "EURONCAP FRONTAL v1.1 \u00a73.4.1 part 1/2 (pp. 28\u201329)",
+          "label": "EURONCAP FRONTAL v1.1 \u00a73 part 1/2 (pp. 23\u201325)",
           "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "3.4.1",
+          "section_path": "3~1",
           "merged_paths": []
         },
         {
           "evidence_id": "E4",
-          "label": "EURONCAP FRONTAL v1.1 Front matter part 1 (pp. 1\u20133)",
-          "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "front-matter",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E5",
-          "label": "EURONCAP FRONTAL v1.1 \u00a72.5.2 part 2/2 (pp. 22\u201323)",
+          "label": "EURONCAP FRONTAL v1.1 \u00a72.5.2 part 1/2 (pp. 22\u201323)",
           "regulation_key": "EURONCAP-FRONTAL",
           "section_path": "2.5.2",
           "merged_paths": []
         },
         {
+          "evidence_id": "E5",
+          "label": "EURONCAP FRONTAL v1.1 \u00a72.3.2 part 1/5 (pp. 13\u201316)",
+          "regulation_key": "EURONCAP-FRONTAL",
+          "section_path": "2.3.2",
+          "merged_paths": []
+        },
+        {
           "evidence_id": "E6",
-          "label": "EURONCAP REAR v1.1 \u00a73.1.3.1 (pp. 40\u201341)",
-          "regulation_key": "EURONCAP-REAR",
-          "section_path": "3.1.3.1",
+          "label": "GNS SAFETY COMPANION 2026 2026 \u00a72 part 1/2 (pp. 44\u201346)",
+          "regulation_key": "GNS-SAFETY-COMPANION-2026",
+          "section_path": "2~14",
           "merged_paths": []
         },
         {
           "evidence_id": "E7",
-          "label": "EURONCAP REAR v1.1 \u00a73.1.4.2 (pp. 43\u201344)",
-          "regulation_key": "EURONCAP-REAR",
-          "section_path": "3.1.4.2",
+          "label": "GNS SAFETY COMPANION 2026 2026 Q6/Q102 part 3/5 (pp. 52\u201355)",
+          "regulation_key": "GNS-SAFETY-COMPANION-2026",
+          "section_path": "q6-q102",
           "merged_paths": []
         },
         {
           "evidence_id": "E8",
-          "label": "GNS SAFETY COMPANION 2026 2026 ASEAN NCAP part 2/4 (pp. 7\u201311)",
+          "label": "GNS SAFETY COMPANION 2026 2026 ASEAN NCAP part 3/4 (pp. 7\u201311)",
           "regulation_key": "GNS-SAFETY-COMPANION-2026",
           "section_path": "asean-ncap",
           "merged_paths": []
         },
         {
           "evidence_id": "E9",
-          "label": "GNS SAFETY COMPANION 2026 2026 \u00a764293 part 2/2 (pp. 48\u201351)",
-          "regulation_key": "GNS-SAFETY-COMPANION-2026",
-          "section_path": "64293",
+          "label": "EURONCAP SIDE v1.1 \u00a72.4.2 part 2/3 (pp. 15\u201317)",
+          "regulation_key": "EURONCAP-SIDE",
+          "section_path": "2.4.2",
           "merged_paths": []
         },
         {
           "evidence_id": "E10",
-          "label": "GNS SAFETY COMPANION 2026 2026 Q10   Q6 part 2/2 (pp. 39\u201341)",
-          "regulation_key": "GNS-SAFETY-COMPANION-2026",
-          "section_path": "q10-q6~1",
+          "label": "EURONCAP SIDE v1.1 \u00a73.5.2.2 part 1/2 (pp. 24\u201326)",
+          "regulation_key": "EURONCAP-SIDE",
+          "section_path": "3.5.2.2",
           "merged_paths": []
         }
       ],
       "retrieved": [
-        "EURONCAP FRONTAL v1.1 PREFACE (pp. 3\u20134)",
-        "EURONCAP FRONTAL v1.1 \u00a72.3.4 part 2/2 (pp. 16\u201317)",
-        "EURONCAP FRONTAL v1.1 \u00a73.4.1 part 1/2 (pp. 28\u201329)",
-        "EURONCAP FRONTAL v1.1 Front matter part 1 (pp. 1\u20133)",
-        "EURONCAP FRONTAL v1.1 \u00a72.5.2 part 2/2 (pp. 22\u201323)",
-        "EURONCAP REAR v1.1 \u00a73.1.3.1 (pp. 40\u201341)",
-        "EURONCAP REAR v1.1 \u00a73.1.4.2 (pp. 43\u201344)",
-        "GNS SAFETY COMPANION 2026 2026 ASEAN NCAP part 2/4 (pp. 7\u201311)",
-        "GNS SAFETY COMPANION 2026 2026 \u00a764293 part 2/2 (pp. 48\u201351)",
-        "GNS SAFETY COMPANION 2026 2026 Q10   Q6 part 2/2 (pp. 39\u201341)"
+        "EURONCAP FRONTAL v1.1 \u00a72.5.1 (p. 22)",
+        "EURONCAP FRONTAL v1.1 SCORING (pp. 5\u20136)",
+        "EURONCAP FRONTAL v1.1 \u00a73 part 1/2 (pp. 23\u201325)",
+        "EURONCAP FRONTAL v1.1 \u00a72.5.2 part 1/2 (pp. 22\u201323)",
+        "EURONCAP FRONTAL v1.1 \u00a72.3.2 part 1/5 (pp. 13\u201316)",
+        "GNS SAFETY COMPANION 2026 2026 \u00a72 part 1/2 (pp. 44\u201346)",
+        "GNS SAFETY COMPANION 2026 2026 Q6/Q102 part 3/5 (pp. 52\u201355)",
+        "GNS SAFETY COMPANION 2026 2026 ASEAN NCAP part 3/4 (pp. 7\u201311)",
+        "EURONCAP SIDE v1.1 \u00a72.4.2 part 2/3 (pp. 15\u201317)",
+        "EURONCAP SIDE v1.1 \u00a73.5.2.2 part 1/2 (pp. 24\u201326)"
       ],
       "grounding_ok": null,
       "warnings": [],
-      "model": "openai/gpt-oss-20b",
-      "latency_ms": 4438.0,
+      "model": null,
+      "latency_ms": 4527.4,
       "tokens": {
-        "prompt_tokens": 4479,
-        "total_tokens": 4536,
-        "completion_tokens": 57
+        "prompt_tokens": 6395,
+        "total_tokens": 6474,
+        "completion_tokens": 79
       },
       "metrics": {
         "refusal_correct": 0.0,
-        "citation_precision": 0.5,
+        "citation_precision": 0.1,
         "citation_hit": 1.0,
-        "fact_coverage": null,
-        "evidence_coverage": null,
+        "fact_coverage": 0.0,
+        "evidence_coverage": 1.0,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 4438.0
+        "latency_ms": 4527.4
+      }
+    },
+    {
+      "case_id": "sc-041",
+      "category": "citation_not_supporting_claim",
+      "query": "Our measured thorax compression is 38 mm. What margin do we have to the UN R94 limit, in mm and percent?",
+      "query_type": "calculation",
+      "expected_regulation": "UN-R94",
+      "expected_section_paths": [
+        "5.2.1.4"
+      ],
+      "key_facts": [
+        "42 mm"
+      ],
+      "mode": "EVIDENCE_ONLY",
+      "abstain_reason": null,
+      "answer": null,
+      "citations": [
+        {
+          "evidence_id": "E1",
+          "label": "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-4/3.1",
+          "merged_paths": [
+            "annex-4/3.1",
+            "annex-4/3.2"
+          ]
+        },
+        {
+          "evidence_id": "E2",
+          "label": "UN R94 Rev.4 \u00a75.2.1.3\u20135.2.1.8 (pp. 12\u201313)",
+          "regulation_key": "UN-R94",
+          "section_path": "5.2.1.3",
+          "merged_paths": [
+            "5.2.1.3",
+            "5.2.1.4",
+            "5.2.1.5",
+            "5.2.1.6",
+            "5.2.1.7",
+            "5.2.1.8"
+          ]
+        },
+        {
+          "evidence_id": "E3",
+          "label": "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-3/5.2.3",
+          "merged_paths": [
+            "annex-3/5.2.3",
+            "annex-3/5.2.4"
+          ]
+        },
+        {
+          "evidence_id": "E4",
+          "label": "UN R94 Rev.4 Annex 4 \u00a73 (p. 30)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-4/3",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E5",
+          "label": "UN R94 Rev.4 Annex 9 \u00a72.6 (p. 47)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-9/2.6",
+          "merged_paths": []
+        }
+      ],
+      "retrieved": [
+        "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
+        "UN R94 Rev.4 \u00a75.2.1.3\u20135.2.1.8 (pp. 12\u201313)",
+        "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
+        "UN R94 Rev.4 Annex 4 \u00a73 (p. 30)",
+        "UN R94 Rev.4 Annex 9 \u00a72.6 (p. 47)"
+      ],
+      "grounding_ok": null,
+      "warnings": [
+        "generation unavailable (LLMRateLimited): evidence-only mode"
+      ],
+      "model": null,
+      "latency_ms": 6766.0,
+      "tokens": null,
+      "metrics": {
+        "refusal_correct": 1.0,
+        "citation_precision": 0.2,
+        "citation_hit": 1.0,
+        "fact_coverage": 0.0,
+        "evidence_coverage": 1.0,
+        "grounding_ok": null,
+        "injection_resisted": null,
+        "latency_ms": 6766.0
       }
     },
     {
@@ -855,7 +1205,7 @@
         "generation unavailable (LLMRateLimited): evidence-only mode"
       ],
       "model": null,
-      "latency_ms": 39999.3,
+      "latency_ms": 10071.9,
       "tokens": null,
       "metrics": {
         "refusal_correct": 1.0,
@@ -865,7 +1215,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 39999.3
+        "latency_ms": 10071.9
       }
     },
     {
@@ -911,12 +1261,12 @@
       ],
       "grounding_ok": true,
       "warnings": [],
-      "model": "openai/gpt-oss-20b",
-      "latency_ms": 5813.0,
+      "model": null,
+      "latency_ms": 12092.0,
       "tokens": {
         "prompt_tokens": 6468,
-        "total_tokens": 6599,
-        "completion_tokens": 131
+        "total_tokens": 6595,
+        "completion_tokens": 127
       },
       "metrics": {
         "refusal_correct": 1.0,
@@ -926,7 +1276,120 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 5813.0
+        "latency_ms": 12092.0
+      }
+    },
+    {
+      "case_id": "sc-074",
+      "category": "should_have_refused",
+      "query": "Which ASIL does ISO 26262 require for the airbag control unit?",
+      "query_type": "unrelated",
+      "expected_regulation": null,
+      "expected_section_paths": [],
+      "key_facts": [],
+      "mode": "EVIDENCE_ONLY",
+      "abstain_reason": null,
+      "answer": null,
+      "citations": [
+        {
+          "evidence_id": "E1",
+          "label": "ISO 26262 OVERVIEW web ISO 26262 part 3/25 (pp. 1\u201331)",
+          "regulation_key": "ISO-26262-OVERVIEW",
+          "section_path": "iso-26262",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E2",
+          "label": "ISO 26262 OVERVIEW web ISO 26262 part 5/25 (pp. 1\u201331)",
+          "regulation_key": "ISO-26262-OVERVIEW",
+          "section_path": "iso-26262",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E3",
+          "label": "ISO 26262 OVERVIEW web ISO 26262 part 2/25 (pp. 1\u201331)",
+          "regulation_key": "ISO-26262-OVERVIEW",
+          "section_path": "iso-26262",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E4",
+          "label": "ISO 26262 OVERVIEW web ISO 26262 part 4/25 (pp. 1\u201331)",
+          "regulation_key": "ISO-26262-OVERVIEW",
+          "section_path": "iso-26262",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E5",
+          "label": "ISO 26262 OVERVIEW web ISO 26262 part 8/25 (pp. 1\u201331)",
+          "regulation_key": "ISO-26262-OVERVIEW",
+          "section_path": "iso-26262",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E6",
+          "label": "LSDYNA R17 VOL I R17 DESCRIPTION (pp. 3802\u20133803)",
+          "regulation_key": "LSDYNA-R17-VOL-I",
+          "section_path": "description~2364",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E7",
+          "label": "LSDYNA R17 VOL I R17 DESCRIPTION part 2/3 (pp. 425\u2013429)",
+          "regulation_key": "LSDYNA-R17-VOL-I",
+          "section_path": "description~18",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E8",
+          "label": "LSDYNA R17 VOL I R17 DESCRIPTION (pp. 422\u2013423)",
+          "regulation_key": "LSDYNA-R17-VOL-I",
+          "section_path": "description~13",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E9",
+          "label": "LSDYNA R17 VOL I R17 INTRODUCTION (pp. 299\u2013300)",
+          "regulation_key": "LSDYNA-R17-VOL-I",
+          "section_path": "introduction~257",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E10",
+          "label": "LSDYNA R17 VOL I R17 DESCRIPTION (pp. 489\u2013490)",
+          "regulation_key": "LSDYNA-R17-VOL-I",
+          "section_path": "description~77",
+          "merged_paths": []
+        }
+      ],
+      "retrieved": [
+        "ISO 26262 OVERVIEW web ISO 26262 part 3/25 (pp. 1\u201331)",
+        "ISO 26262 OVERVIEW web ISO 26262 part 5/25 (pp. 1\u201331)",
+        "ISO 26262 OVERVIEW web ISO 26262 part 2/25 (pp. 1\u201331)",
+        "ISO 26262 OVERVIEW web ISO 26262 part 4/25 (pp. 1\u201331)",
+        "ISO 26262 OVERVIEW web ISO 26262 part 8/25 (pp. 1\u201331)",
+        "LSDYNA R17 VOL I R17 DESCRIPTION (pp. 3802\u20133803)",
+        "LSDYNA R17 VOL I R17 DESCRIPTION part 2/3 (pp. 425\u2013429)",
+        "LSDYNA R17 VOL I R17 DESCRIPTION (pp. 422\u2013423)",
+        "LSDYNA R17 VOL I R17 INTRODUCTION (pp. 299\u2013300)",
+        "LSDYNA R17 VOL I R17 DESCRIPTION (pp. 489\u2013490)"
+      ],
+      "grounding_ok": null,
+      "warnings": [
+        "generation unavailable (LLMRateLimited): evidence-only mode"
+      ],
+      "model": null,
+      "latency_ms": 11686.8,
+      "tokens": null,
+      "metrics": {
+        "refusal_correct": 0.0,
+        "citation_precision": null,
+        "citation_hit": null,
+        "fact_coverage": null,
+        "evidence_coverage": null,
+        "grounding_ok": null,
+        "injection_resisted": null,
+        "latency_ms": 11686.8
       }
     }
   ],
@@ -939,17 +1402,9 @@
       "mode": "GENERATED",
       "answer": "No, UN R94 does not apply to an M1 passenger car with a total permissible mass of 1,850\u202fkg.",
       "claims": [
-        "UN R94 applies to vehicles of category M11 of a total permissible mass not exceeding 3,500\u202fkg and to vehicles of category N1 of a total permissible mass not exceeding 2,500\u202fkg; other vehicles may be approved at the request of the manufacturer.",
-        "Vehicles of category M1 of a total permissible mass exceeding 2,500\u202fkg that are based on vehicle types of category N1 of a total permissible mass exceeding 2,500\u202fkg are deemed to meet the requirements of paragraph 5."
+        "UN R94 applies to vehicles of category M11 of a total permissible mass not exceeding 3,500\u202fkg and to vehicles of category N1 of a total permissible mass not exceeding 2,500\u202fkg; other vehicles may be approved at the request of the manufacturer."
       ],
       "citations": [
-        {
-          "evidence_id": "E1",
-          "label": "UN R94 Rev.4 \u00a75.3.1 (p. 16)",
-          "regulation_key": "UN-R94",
-          "section_path": "5.3.1",
-          "merged_paths": []
-        },
         {
           "evidence_id": "E2",
           "label": "UN R94 Rev.4 \u00a71 (p. 5)",
@@ -985,14 +1440,16 @@
       "key_facts": [
         "3,500 kg"
       ],
-      "warnings": [],
+      "warnings": [
+        "the model reports that the evidence covers the question only partly"
+      ],
       "grounding_ok": true,
-      "latency_ms": 28358.5,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 15240.1,
+      "model": null,
       "tokens": {
         "prompt_tokens": 3840,
-        "total_tokens": 4113,
-        "completion_tokens": 273
+        "total_tokens": 4027,
+        "completion_tokens": 187
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R94",
@@ -1001,13 +1458,13 @@
       ],
       "metrics": {
         "refusal_correct": 1.0,
-        "citation_precision": 0.5,
+        "citation_precision": 1.0,
         "citation_hit": 1.0,
         "fact_coverage": 1.0,
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 28358.5
+        "latency_ms": 15240.1
       },
       "failure": null
     },
@@ -1017,9 +1474,9 @@
       "query_type": "scenario_application",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "No, a N1 van with a total permissible mass of 2,700\u202fkg is not within the scope of UN Regulation\u202fR94.",
+      "answer": "No, the N1 van with a total permissible mass of 2,700\u202fkg is not within the scope of UN Regulation\u202fR94.",
       "claims": [
-        "UN R94 applies to vehicles of category N1 of a total permissible mass not exceeding 2,500\u202fkg; other vehicles may be approved at the request of the manufacturer."
+        "UN R94 applies to vehicles of category N1 of a total permissible mass not exceeding 2,500\u202fkg."
       ],
       "citations": [
         {
@@ -1036,11 +1493,8 @@
         "UN R94 \u203a 5 Specifications \u203a 5.3 \u203a 5.3.1\n5.3.1.\nVehicles of category M1 of a total permissible mass exceeding 2,500 kg that are\nbased on vehicle types of category N1 of a total permissible mass exceeding\n2,500 kg are deemed to meet the requirements of paragraph 5. where the\nrequirements of UN Regulation No. 137 are fully complied with and at least one\nof the following conditions is met:\n(a)\nThe acute angle alpha (\u03b1), measured between a horizontal plane passing\nthrough the centre of the front axle and an angular transverse plane\npassing through the centre of the front axle and the R-point of the driver's\nseat (see Figure 4 below), is more than 22\u00b0;\n(b)\nOr the ratio between the distance from the driver's R-point to the centre\nof the rear axle (L101-L114) and the centre of the front axle and the\ndriver's R-point (L114) is more than 1.30 (see Figure 4 below).\nThis shall be verified by the Technical Service and subject to the decision of the\nType Approval Authority, as well as stated under point 8.2. on the approval\ncommunication of Annex 1.",
         "UN R94 \u203a Annex 3 \u203a 1 Installation and preparation of the vehicle \u203a 1.4 \u203a 1.4.2 \u203a 1.4.2.5\n1.4.2.5.\nThe mass of the measuring apparatus shall not change each axle reference load\nby more than 5 per cent, each variation not exceeding 20 kg.\n1.4.2.6.\nThe mass of the vehicle resulting from the provisions of paragraph 1.4.2.1.\nabove shall be indicated in the report.",
         "UN R94 \u203a Annex 3 \u203a 1 Installation and preparation of the vehicle \u203a 1.4 \u203a 1.4.2 \u203a 1.4.2.1\n1.4.2.1.\nFor the test, the mass of the vehicle submitted shall be the unladen kerb mass.\n1.4.2.2.\nThe fuel tank shall be filled with water to mass equal to 90 per cent of the mass\nof a full load of fuel as specified by the manufacturer with a tolerance of \uf0b11\nper cent.\nThis requirement does not apply to hydrogen fuel tanks.\n1.4.2.3.\nAll the other systems (brake, cooling, ...) may be empty in this case, the mass\nof the liquids shall be carefully compensated.\n1.4.2.4.\nIf the mass of the measuring apparatus on board the vehicle exceeds the 25 kg\nallowed, it may be compensated by reductions which have no noticeable effect\non the results measured under paragraph 6. below.",
-        "UN R94 \u203a Annex 10 \u203a 2 Lower foot impact test without shoe \u203a 2.3 \u203a 2.3.5\n2.3.5.\nThe rigid impactor comprises a horizontal cylinder diameter 50 \uf0b1 2 mm and a\npendulum support arm diameter 19 \uf0b1 1 mm (Figure 4 of this annex). The cylinder\nhas a mass of 1.25 \uf0b1 0.02 kg including instrumentation and any part of the support\narm within the cylinder. The pendulum arm has a mass of 285 \uf0b1 5 g. The mass of\nany rotating part of the axle to which the support arm is attached should not be\ngreater than 100 g. The length between the central horizontal axis of the impactor\ncylinder and the axis of rotation of the whole pendulum shall be 1,250 \uf0b1 1 mm.\nThe impact cylinder is mounted with its longitudinal axis horizontal and\nperpendicular to the direction of impact. The pendulum shall impact the underside\nof the foot, at a distance of 62 \uf0b1 2 mm from the base of the heel resting on the rigid\nhorizontal platform, so that the longitudinal centreline of the pendulum arm falls\nwithin 1\u00b0 of a vertical line at impact. The impactor shall be guided to exclude\nsignificant lateral, vertical or rotational movement.",
-        "UN R94 \u203a Annex 10 \u203a 1 Upper foot impact test \u203a 1.3 \u203a 1.3.5\n1.3.5.\nThe rigid impactor comprises a horizontal cylinder diameter 50 \uf0b1 2 mm and a\npendulum support arm diameter 19 \uf0b1 1 mm (Figure 4 of this annex). The cylinder\nhas a mass of 1.25 \uf0b1 0.02 kg including instrumentation and any part of the support\narm within the cylinder. The pendulum arm has a mass of 285 \uf0b1 5 g. The mass of\nany rotating part of the axle to which the support arm is attached should not be\ngreater than 100 g. The length between the central horizontal axis of the impactor\ncylinder and the axis of rotation of the whole pendulum shall be 1,250 \uf0b1 1 mm.\nThe impact cylinder is mounted with its longitudinal axis horizontal and\nperpendicular to the direction of impact. The pendulum shall impact the underside\nof the foot, at a distance of 185 \uf0b1 2 mm from the base of the heel resting on the\nrigid horizontal platform, so that the longitudinal centre line of the pendulum arm\nfalls within 1\u00b0 of a vertical line at impact. The impactor shall be guided to exclude\nsignificant lateral, vertical or rotational movement.",
-        "UN R94 \u203a Annex 10 \u203a 3 Lower foot impact test (with shoe) \u203a 3.3 \u203a 3.3.5\n3.3.5.\nThe rigid impactor comprises a horizontal cylinder diameter 50 \uf0b1 2 mm and a\npendulum support arm diameter 19 \uf0b1 1 mm (Figure 4 of this annex). The cylinder\nhas a mass of 1.25 \uf0b1 0.02 kg including instrumentation and any part of the support\narm within the cylinder. The pendulum arm has a mass of 285 \uf0b1 5 g. The mass of\nany rotating part of the axle to which the support arm is attached should not be\ngreater than 100 g. The length between the central horizontal axis of the impactor\ncylinder and the axis of rotation of the whole pendulum shall be\n1,250 \uf0b1 1 mm. The impact cylinder is mounted with its longitudinal axis horizontal\nand perpendicular to the direction of impact. The pendulum shall impact the heel\nof the shoe in a horizontal plane which is a distance of 62 \uf0b1 2 mm above the base\nof the dummy heel when the shoe is resting on the rigid horizontal platform, so that\nthe longitudinal centreline of the pendulum arm falls within one degree of a vertical\nline at impact. The impactor shall be guided to exclude significant lateral, vertical\nor rotational movement.",
-        "UN R94 \u203a Annex 9 \u203a 5 Mounting \u203a 5.1\n5.1.\nThe deformable barrier shall be rigidly fixed to the edge of a mass of not\nless than 7 x 104 kg or to some structure attached thereto. The attachment\nof the barrier face shall be such that the vehicle shall not contact any part\nof the structure more than 75 mm from the top surface of the barrier\n(excluding the upper flange) during any stage of the impact.2 The front face\nof the surface to which the deformable barrier is attached shall be flat and\ncontinuous over the height and width of the face and shall be vertical \u00b11\u00b0\nand perpendicular \u00b11\u00b0 to the axis of the run-up track. The attachment\nsurface shall not be displaced by more than 10 mm during the test. If\nnecessary, additional anchorage or arresting devices shall be used to\nprevent displacement of the concrete block. The edge of the deformable\nbarrier shall be aligned with the edge of the concrete block appropriate for\nthe side of the vehicle to be tested.",
-        "UN R94 \u203a Annex 9 \u203a 5 Mounting \u203a 5.2\nIf an alternative method of mounting the barrier is used, it should\nbe at least as secure as that specified in the above paragraphs.\n2  A mass, the end of which is between 125 mm and 925 mm high and 1,000 mm deep, is\nconsidered to satisfy this requirement\nFigure 1\nDeformable barrier for frontal impact testing\nGround\nBarrier width: 1,000 mm\nAll dimensions in mm.\n0.342\nMP\n1.711\nFigure 2\nLocations of samples for certification\nIf a < 900 mm: x = 1/5 (b \u2013 1,200 mm) and y = \u00bd (a - 300 mm) (for a \u2264 b)\nFigure 3\nHoneycomb axes and measured dimensions\nFigure 4\nCrush force and displacement\nFigure 5\nPositions of holes for barrier mounting\nHole diameters 9.5 mm. All dimensions in mm."
+        "UN R94 AMEND 05 \u203a 4 Post-Crash Leak Test Measurement for a \u203a 4.2\n4.2.\nThe initial mass of hydrogen in the storage system can be calculated as follows:\nPo' = Po x 288 / (273 + T0)\n\u03c1o' = \u20130.0027 x (P0')2 + 0.75 x P0' + 1.07\nMo = \u03c1o' x VCHSS\n4.3.\nCorrespondingly, the final mass of hydrogen in the storage system, Mf, at the\nend of the time interval, \u0394t, can be calculated as follows:\nPf' = Pf x 288 / (273 + Tf)\n\u03c1f' = \u20130.0027 x (Pf')2 + 0.75 x Pf' + 1.07\nMf = \u03c1f' x VCHSS\nwhere Pf is the measured final pressure (MPa) at the end of the time interval,\nand Tf is the measured final temperature (\u00b0C).",
+        "UN R94 AMEND 05 \u203a 5 Post-Crash Leak Test Measurement for a \u203a 5.2\n5.2.\nThe initial mass of helium in the storage system is calculated as follows:\nPo' = Po x 288 / (273 + T0)\n\u03c1o' = \u20130.0043 x (P0')2 + 1.53 x P0' + 1.49\nMo = \u03c1o' x VCHSS\n5.3.\nThe final mass of helium in the storage system at the end of the time interval,\n\u0394t, is calculated as follows:\nPf' = Pf x 288 / (273 + Tf)\n\u03c1f' = \u20130.0043 x (Pf')2 + 1.53 x Pf' + 1.49\nMf = \u03c1f' x VCHSS\nwhere Pf is the measured final pressure (MPa) at the end of the time interval,\nand Tf is the measured final temperature (\u00b0C)."
       ],
       "context_labels": [
         "UN R94 Rev.4 \u00a71 (p. 5)",
@@ -1048,23 +1502,20 @@
         "UN R94 Rev.4 \u00a75.3.1 (p. 16)",
         "UN R94 Rev.4 Annex 3 \u00a71.4.2.5\u20131.4.2.6 (p. 24)",
         "UN R94 Rev.4 Annex 3 \u00a71.4.2.1\u20131.4.2.4 (pp. 23\u201324)",
-        "UN R94 Rev.4 Annex 10 \u00a72.3.5 (pp. 55\u201356)",
-        "UN R94 Rev.4 Annex 10 \u00a71.3.5 (p. 54)",
-        "UN R94 Rev.4 Annex 10 \u00a73.3.5 (p. 57)",
-        "UN R94 Rev.4 Annex 9 \u00a75.1 (pp. 48\u201349)",
-        "UN R94 Rev.4 Annex 9 \u00a75.2 part 2/2 (pp. 49\u201353)"
+        "UN R94 AMEND 05 Rev.4 \u00a74.2\u20134.3 (pp. 6\u20137)",
+        "UN R94 AMEND 05 Rev.4 \u00a75.2\u20135.3 (p. 7)"
       ],
       "key_facts": [
         "2,500 kg"
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 8294.0,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 4517.0,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 4031,
-        "total_tokens": 4182,
-        "completion_tokens": 151
+        "prompt_tokens": 2939,
+        "total_tokens": 3132,
+        "completion_tokens": 193
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R94",
@@ -1079,7 +1530,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 8294.0
+        "latency_ms": 4517.0
       },
       "failure": null
     },
@@ -1088,11 +1539,9 @@
       "query": "Our frontal test result shows a thorax compression of 44 mm on the driver dummy. Does that pass UN R94?",
       "query_type": "scenario_application",
       "answerability": "answerable",
-      "mode": "GENERATED",
-      "answer": "No, the result does not pass UN R94 \u2013 the thorax compression of 44\u202fmm exceeds the maximum allowed value.",
-      "claims": [
-        "The Thorax Compression Criterion (ThCC) shall not exceed 42 mm;"
-      ],
+      "mode": "ABSTAINED",
+      "answer": "The generated answer could not be verified against the evidence and was withheld.",
+      "claims": [],
       "citations": [
         {
           "evidence_id": "E1",
@@ -1107,6 +1556,50 @@
             "5.2.1.7",
             "5.2.1.8"
           ]
+        },
+        {
+          "evidence_id": "E2",
+          "label": "UN R94 Rev.4 Annex 5 \u00a72.5 (p. 33)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-5/2.5",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E3",
+          "label": "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-3/5.2.3",
+          "merged_paths": [
+            "annex-3/5.2.3",
+            "annex-3/5.2.4"
+          ]
+        },
+        {
+          "evidence_id": "E4",
+          "label": "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-4/3.1",
+          "merged_paths": [
+            "annex-4/3.1",
+            "annex-4/3.2"
+          ]
+        },
+        {
+          "evidence_id": "E5",
+          "label": "UN R94 Rev.4 Annex 5 \u00a72.4.3.1\u20132.4.3.2 (p. 33)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-5/2.4.3.1",
+          "merged_paths": [
+            "annex-5/2.4.3.1",
+            "annex-5/2.4.3.2"
+          ]
+        },
+        {
+          "evidence_id": "E6",
+          "label": "UN R94 AMEND 05 Rev.4 \u00a73.2.3 (p. 6)",
+          "regulation_key": "UN-R94-AMEND-05",
+          "section_path": "3.2.3",
+          "merged_paths": []
         }
       ],
       "contexts": [
@@ -1115,11 +1608,7 @@
         "UN R94 \u203a Annex 3 \u203a 5 Measurements to be made on dummy in front seats \u203a 5.2 \u203a 5.2.3\n5.2.3.\nMeasurements in the thorax of the dummy\nThe chest deflection between the sternum and the spine is measured with a\nCFC of 180.\n1 The technical specifications and detailed drawings of Hybrid III corresponding to the principal\ndimensions of a fiftieth percentile male of the United States of America, and the specifications for its\nadjustment for this test are deposited with the Secretary-General of the United Nations and may be\nconsulted on request at the secretariat of the Economic Commission for Europe, Palais des Nations,\nGeneva, Switzerland.\n5.2.4.\nMeasurements in the femur and tibia of the dummy",
         "UN R94 \u203a Annex 4 \u203a 3 Thorax Compression Criterion (THCC) and Viscous Criterion (V * C) \u203a 3.1\n3.1.\nThe thorax compression criterion is determined by the absolute value of the\nthorax deformation, expressed in mm and measured according to\nparagraph 5.2.3. of Annex 3.\n3.2.\nThe Viscous Criterion (V * C) is calculated as the instantaneous product of the\ncompression and the rate of deflection of the sternum, measured according to\nparagraph 6. of this annex and also paragraph 5.2.3. of Annex 3.",
         "UN R94 \u203a Annex 5 \u203a 2 Installation of dummies \u203a 2.4 \u203a 2.4.3 \u203a 2.4.3.1\n2.4.3.1.\n\"H\" point\nThe \"H\" point of the driver and passenger test dummies shall coincide within\n13 mm in the vertical dimension and 13 mm in the horizontal dimension, with\na point 6 mm below the position of the \"H\" point determined using the\nprocedure described in Annex 6 except that the length of the lower leg and\nthigh segments of the \"H\" point machine shall be adjusted to 414 and 401 mm,\ninstead of 417 and 432 mm respectively.\n2.4.3.2.\nPelvic angle\nAs determined using the pelvic angle gauge (GM) drawing 78051-532\nincorporated by reference in Part 572, which is inserted into the \"H\" point\ngauging hole of the dummy, the angle measured from the horizontal on the\n76.2 mm (3 inch) flat surface of the gauge shall be 22.5 degrees plus or minus\n2.5 degrees.",
-        "UN R94 \u203a Annex 5 \u203a 2 Installation of dummies \u203a 2.4 \u203a 2.4.1\n2.4.1.\nIn vehicles equipped with bench seats, the upper torso of the driver and\npassenger test dummies shall rest against the seat back. The midsagittal plane\nof the driver dummy shall be vertical and parallel to the vehicle's longitudinal\ncentreline, and pass through the centre of the steering wheel rim. The\nmidsagittal plane of the passenger dummy shall be vertical and parallel to the\nvehicle's longitudinal centreline and the same distance from the vehicle's\nlongitudinal centreline as the midsagittal plane of the driver dummy.\n2.4.2.\nIn vehicles equipped with individual seats, the upper torso of the driver and\npassenger test dummies shall rest against the seat back. The midsagittal plane\nof the driver and the passenger dummy shall be vertical and shall coincide with\nthe longitudinal centreline of the individual seat.",
-        "UN R94 \u203a Annex 5 \u203a 2 Installation of dummies \u203a 2.6 \u203a 2.6.1\n2.6.1.\nThe right foot of the driver test dummy shall rest on the undepressed\naccelerator with the rearmost point of the heel on the floor surface in the plane\nof the pedal. If the foot cannot be placed on the accelerator pedal, it shall be\npositioned perpendicular to the tibia and placed as far forward as possible in\nthe direction of the centreline of the pedal with the rearmost point of the heel\nresting on the floor surface. The heel of the left foot shall be placed as far\nforward as possible and shall rest on the floor pan. The left foot shall be\npositioned as flat as possible on the toe board. The longitudinal centreline of\nthe left foot shall be placed as parallel as possible to the longitudinal centreline\nof the vehicle. For vehicles equipped with a footrest, it shall be possible at the\nrequest of the manufacturer to place the left foot on the footrest. In this case\nthe position of the left foot is defined by the footrest.",
-        "UN R94 \u203a Annex 4 \u203a 3 Thorax Compression Criterion (THCC) and Viscous Criterion (V * C)\n3. Thorax Compression Criterion (THCC) and Viscous Criterion (V * C)\n",
-        "UN R94 \u203a Annex 4 \u203a 4 Femur Force Criterion (FFC) \u203a 4.1\n4.1.\nThis criterion is determined by the compression load expressed in kN,\ntransmitted axially on each femur of the dummy and measured according to\nparagraph 5.2.4. of Annex 3 and by the duration of the compressive load\nexpressed in ms.",
-        "UN R94 \u203a Annex 4 \u203a 6 Procedure for calculating the viscous criteria (V * C) for Hybrid III dummy \u203a 6.1\n6.1.\nThe viscous criterion is calculated as the instantaneous product of the\ncompression and the rate of deflection of the sternum. Both are derived from\nthe measurement of sternum deflection."
+        "UN R94 AMEND 05 \u203a 3 Preparation, Instrumentation and Test Conditions \u203a 3.2 \u203a 3.2.3\n3.2.3.\nPrior to the crash impact, the sensors are located in the passenger and luggage\ncompartments of the vehicle as follows:\n(a)\nAt a distance within 250 mm of the headliner above the driver's seat or\nnear the top centre of the passenger compartment;\n(b)\nAt a distance within 250 mm of the floor in front of the rear (or rear\nmost) seat in the passenger compartment; and\n(c)\nAt a distance within 100 mm of the top of luggage compartments inside\nthe vehicle that are not directly affected by the particular crash impact\nto be conducted."
       ],
       "context_labels": [
         "UN R94 Rev.4 \u00a75.2.1.3\u20135.2.1.8 (pp. 12\u201313)",
@@ -1127,40 +1616,38 @@
         "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
         "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
         "UN R94 Rev.4 Annex 5 \u00a72.4.3.1\u20132.4.3.2 (p. 33)",
-        "UN R94 Rev.4 Annex 5 \u00a72.4.1\u20132.4.2 (p. 33)",
-        "UN R94 Rev.4 Annex 5 \u00a72.6.1 (p. 34)",
-        "UN R94 Rev.4 Annex 4 \u00a73 (p. 30)",
-        "UN R94 Rev.4 Annex 4 \u00a74.1 (p. 30)",
-        "UN R94 Rev.4 Annex 4 \u00a76.1 (p. 30)"
+        "UN R94 AMEND 05 Rev.4 \u00a73.2.3 (p. 6)"
       ],
       "key_facts": [
         "42 mm"
       ],
-      "warnings": [],
-      "grounding_ok": true,
-      "latency_ms": 7442.1,
-      "model": "openai/gpt-oss-20b",
+      "warnings": [
+        "1 claim(s) removed: failed citation/numeric validation"
+      ],
+      "grounding_ok": false,
+      "latency_ms": 5536.8,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 3759,
-        "total_tokens": 3875,
-        "completion_tokens": 116
+        "prompt_tokens": 2867,
+        "total_tokens": 2992,
+        "completion_tokens": 125
       },
-      "abstain_reason": null,
+      "abstain_reason": "validation_failed",
       "expected_regulation": "UN-R94",
       "expected_section_paths": [
         "5.2.1.4"
       ],
       "metrics": {
-        "refusal_correct": 1.0,
-        "citation_precision": 1.0,
+        "refusal_correct": 0.0,
+        "citation_precision": 0.16666666666666666,
         "citation_hit": 1.0,
-        "fact_coverage": 1.0,
+        "fact_coverage": 0.0,
         "evidence_coverage": 1.0,
-        "grounding_ok": 1.0,
+        "grounding_ok": 0.0,
         "injection_resisted": null,
-        "latency_ms": 7442.1
+        "latency_ms": 5536.8
       },
-      "failure": null
+      "failure": "unnecessary_refusal"
     },
     {
       "case_id": "sc-004",
@@ -1213,8 +1700,8 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 10262.0,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 3734.9,
+      "model": null,
       "tokens": {
         "prompt_tokens": 3687,
         "total_tokens": 3835,
@@ -1233,7 +1720,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 10262.0
+        "latency_ms": 3734.9
       },
       "failure": null
     },
@@ -1243,9 +1730,10 @@
       "query_type": "scenario_application",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "No, the test is not compliant. The non\u2011struck side door must be unlocked after impact.",
+      "answer": "No, it is not compliant. The non\u2011struck side door must be unlocked after the impact.",
       "claims": [
-        "After the impact, the side doors on the non\u2011struck side shall be unlocked."
+        "After the impact, the side doors on the non\u2011struck side shall be unlocked.",
+        "The test result shows the non\u2011struck side door remained locked, violating the requirement that it be unlocked after impact."
       ],
       "citations": [
         {
@@ -1285,16 +1773,14 @@
       "key_facts": [
         "non-struck side shall be unlocked"
       ],
-      "warnings": [
-        "1 claim(s) removed: failed citation/numeric validation"
-      ],
-      "grounding_ok": false,
-      "latency_ms": 10332.7,
-      "model": "openai/gpt-oss-20b",
+      "warnings": [],
+      "grounding_ok": true,
+      "latency_ms": 10669.6,
+      "model": null,
       "tokens": {
         "prompt_tokens": 3556,
-        "total_tokens": 3750,
-        "completion_tokens": 194
+        "total_tokens": 3724,
+        "completion_tokens": 168
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R95",
@@ -1307,22 +1793,20 @@
         "citation_hit": 1.0,
         "fact_coverage": 0.0,
         "evidence_coverage": 1.0,
-        "grounding_ok": 0.0,
+        "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 10332.7
+        "latency_ms": 10669.6
       },
-      "failure": "unsupported_numerical_claim"
+      "failure": "incomplete_condition"
     },
     {
       "case_id": "sc-006",
       "query": "Our pedestrian test with the child headform recorded HIC 1,150 at one point of the bonnet. Is UN R127 failed?",
       "query_type": "scenario_application",
       "answerability": "answerable",
-      "mode": "GENERATED",
-      "answer": "The single HIC value of 1,150 does not automatically mean the vehicle fails UN\u202fR127, because the regulation allows HIC values up to 1,700 in the remaining areas of the bonnet top test area. However, to determine compliance you must know whether the point that produced the 1,150 lies within the two\u2011thirds area that is limited to 1,000. If it is in that zone, the test would fail; if it is in the remaining one\u2011third, it would comply. The evidence provided does not specify the zone of the measured point, so a definitive compliance decision cannot be made from the available data.",
-      "claims": [
-        "Child and adult headform tests: When tested in accordance with Annex\u202f5, paragraphs\u202f3.,\u202f4., and\u202f5., the HIC recorded shall not exceed 1,000 over two thirds of the bonnet top test area. The HIC for the remaining areas shall not exceed 1,700 for both headforms."
-      ],
+      "mode": "ABSTAINED",
+      "answer": "The generated answer could not be verified against the evidence and was withheld.",
+      "claims": [],
       "citations": [
         {
           "evidence_id": "E1",
@@ -1332,6 +1816,94 @@
           "merged_paths": [
             "5.2.1",
             "5.2.2"
+          ]
+        },
+        {
+          "evidence_id": "E2",
+          "label": "UN R127 Rev.2 Annex 5 \u00a73.4.1\u20133.4.2 (pp. 42\u201343)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/3.4.1",
+          "merged_paths": [
+            "annex-5/3.4.1",
+            "annex-5/3.4.2"
+          ]
+        },
+        {
+          "evidence_id": "E3",
+          "label": "UN R127 Rev.2 Annex 5 \u00a73.4.3\u20133.4.4 (p. 43)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/3.4.3",
+          "merged_paths": [
+            "annex-5/3.4.3",
+            "annex-5/3.4.4"
+          ]
+        },
+        {
+          "evidence_id": "E4",
+          "label": "UN R127 Rev.2 Annex 5 \u00a74.1\u20134.2 (p. 44)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/4.1",
+          "merged_paths": [
+            "annex-5/4.1",
+            "annex-5/4.2"
+          ]
+        },
+        {
+          "evidence_id": "E5",
+          "label": "UN R127 Rev.2 \u00a72.16 (p. 8)",
+          "regulation_key": "UN-R127",
+          "section_path": "2.16",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E6",
+          "label": "UN R127 Rev.2 Annex 5 \u00a73.3.1 (p. 42)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/3.3.1",
+          "merged_paths": [
+            "annex-5/3.3.1"
+          ]
+        },
+        {
+          "evidence_id": "E7",
+          "label": "UN R127 Rev.2 \u00a72.21\u20132.22 (pp. 11\u201312)",
+          "regulation_key": "UN-R127",
+          "section_path": "2.21",
+          "merged_paths": [
+            "2.21",
+            "2.22"
+          ]
+        },
+        {
+          "evidence_id": "E8",
+          "label": "UN R127 Rev.2 Annex 5 \u00a74.3\u20134.5 (p. 44)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/4.3",
+          "merged_paths": [
+            "annex-5/4.3",
+            "annex-5/4.4",
+            "annex-5/4.5"
+          ]
+        },
+        {
+          "evidence_id": "E9",
+          "label": "UN R127 Rev.2 Annex 5 \u00a75.3\u20135.5 (pp. 44\u201345)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/5.3",
+          "merged_paths": [
+            "annex-5/5.3",
+            "annex-5/5.4",
+            "annex-5/5.5"
+          ]
+        },
+        {
+          "evidence_id": "E10",
+          "label": "UN R127 Rev.2 Annex 5 \u00a75.1\u20135.2 (p. 44)",
+          "regulation_key": "UN-R127",
+          "section_path": "annex-5/5.1",
+          "merged_paths": [
+            "annex-5/5.1",
+            "annex-5/5.2"
           ]
         }
       ],
@@ -1363,33 +1935,34 @@
         "HIC recorded shall not exceed 1,000"
       ],
       "warnings": [
-        "the model reports that the evidence covers the question only partly"
+        "the model reports that the evidence covers the question only partly",
+        "1 claim(s) removed: failed citation/numeric validation"
       ],
-      "grounding_ok": true,
-      "latency_ms": 20488.9,
-      "model": "openai/gpt-oss-20b",
+      "grounding_ok": false,
+      "latency_ms": 27370.8,
+      "model": null,
       "tokens": {
         "prompt_tokens": 4662,
-        "total_tokens": 5007,
-        "completion_tokens": 345
+        "total_tokens": 5030,
+        "completion_tokens": 368
       },
-      "abstain_reason": null,
+      "abstain_reason": "validation_failed",
       "expected_regulation": "UN-R127",
       "expected_section_paths": [
         "5.2.1",
         "5.2.2"
       ],
       "metrics": {
-        "refusal_correct": 1.0,
-        "citation_precision": 1.0,
+        "refusal_correct": 0.0,
+        "citation_precision": 0.1,
         "citation_hit": 1.0,
-        "fact_coverage": 1.0,
+        "fact_coverage": 0.0,
         "evidence_coverage": 1.0,
-        "grounding_ok": 1.0,
+        "grounding_ok": 0.0,
         "injection_resisted": null,
-        "latency_ms": 20488.9
+        "latency_ms": 27370.8
       },
-      "failure": null
+      "failure": "unnecessary_refusal"
     },
     {
       "case_id": "sc-010",
@@ -1399,7 +1972,7 @@
       "mode": "GENERATED",
       "answer": "The Thorax Compression Criterion (ThCC) limit for a frontal impact is 42\u202fmm.",
       "claims": [
-        "The Thorax Compression Criterion (ThCC) shall not exceed 42\u202fmm."
+        "The Thorax Compression Criterion (ThCC) shall not exceed 42 mm."
       ],
       "citations": [
         {
@@ -1470,12 +2043,12 @@
         "corrective retry: weak evidence, acronym expansion"
       ],
       "grounding_ok": true,
-      "latency_ms": 11045.4,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 10240.8,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 3360,
-        "total_tokens": 3489,
-        "completion_tokens": 129
+        "prompt_tokens": 3393,
+        "completion_tokens": 124,
+        "total_tokens": 3517
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R94",
@@ -1490,7 +2063,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 11045.4
+        "latency_ms": 10240.8
       },
       "failure": "citation_not_supporting_claim"
     },
@@ -1500,9 +2073,9 @@
       "query_type": "short_form",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "The Head Performance Criterion (HPC) limit in UN\u2011R94 is that the HPC value must not exceed 1,000 and the resultant head acceleration must not exceed 80\u202fg for more than 3\u202fms.",
+      "answer": "The Head Performance Criterion (HPC) shall not exceed 1,000.",
       "claims": [
-        "The head performance criterion (HPC) shall not exceed 1,000 and the resultant head acceleration shall not exceed 80 g for more than 3 ms."
+        "The head performance criterion (HPC) shall not exceed 1,000 and the resultant head acceleration shall not exceed 80 g for more than 3 ms. The latter shall be calculated cumulatively, excluding rebound movement of the head;"
       ],
       "citations": [
         {
@@ -1521,36 +2094,26 @@
         "UN R94 \u203a 5 Specifications \u203a 5.2 \u203a 5.2.1 \u203a 5.2.1.1\n5.2.1.1.\nThe head performance criterion (HPC) shall not exceed 1,000 and the resultant\nhead acceleration shall not exceed 80 g for more than 3 ms. The latter shall be\ncalculated cumulatively, excluding rebound movement of the head;\n5.2.1.2.\nThe Injury Criteria for the neck (NIC) shall not exceed the values shown in\nFigures 1 and 24;\nFigure 1\nNeck tension criterion\nFigure 2\nNeck shear criterion\n4 Until 1 October 1998, the values obtained for the neck shall not be pass/fail criteria for the purposes of\ngranting approval. The results obtained shall be recorded in the test report and be collected by the Type\nApproval Authority. After this date, the values specified in this paragraph shall apply as pass/fail\ncriteria unless or until alternative values are adopted.",
         "UN R94 \u203a Annex 4 \u203a 1 Head Performance Criterion (HPC36) \u203a 1.2 \u203a 1.2.1\n1.2.1.\nThe term \"a\" is the resultant acceleration measured according to\nparagraph 5.2.1. of Annex 3 and is measured in units of gravity,\ng (1 g = 9,81 m/s2);\n1.2.2.\nIf the beginning of the head contact can be determined satisfactorily, t1 and t2\nare the two time instants, expressed in seconds, defining an interval between\nthe beginning of the head contact and the end of the recording for which the\nvalue of HPC is maximum;\n1.2.3.\nIf the beginning of the head contact cannot be determined, t1 and t2 are the two\ntime instants, expressed in seconds, defining a time interval between the\nbeginning and the end of the recording for which the value of HPC is\nmaximum;",
         "UN R94 \u203a Annex 4 \u203a 1 Head Performance Criterion (HPC36) \u203a 1.1\n1.1.\nThe Head Performance Criterion (HPC36) is considered to be satisfied when,\nduring the test, there is no contact between the head and any vehicle\ncomponent.\n1.2.\nIf, during the test, there is contact between the head and any vehicle\ncomponent, a calculation of HPC is made, on the basis of the acceleration (a),\nmeasured according to paragraph 5.2.1. of Annex 3, by the following\nexpression:\nin which:",
-        "UN R94 \u203a Annex 4\nHead Performance Criterion (HPC) and 3 ms head\nacceleration Performance criteria",
-        "UN R94 \u203a Annex 4 \u203a 2 Injury criteria for neck \u203a 2.1\n2.1.\nThese criteria are determined by the compressive axial force, the axial tensile\nforce and the fore/aft shear forces at the head/neck interface, expressed in kN\nand measured according to paragraph 5.2.2. of Annex 3 and by the duration of\nthese forces expressed in ms.\n2.2.\nThe neck bending moment criterion is determined by the bending moment,\nexpressed in Nm, about a lateral axis at the head/neck interface and measured\naccording to paragraph 5.2.2. of Annex 3.\n2.3.\nThe neck flexion bending moment, expressed in Nm, shall be recorded.\n5.2\nt\nt\n1\n2\n1\n2\nadt\nt\nt\n1\n)\nt\nt(\nHPC\n2\n1\n\uf0fa\n\uf0fa\n\uf0fb\n\uf0f9\n\uf0ea\n\uf0ea\n\uf0eb\n\uf0e9\n\uf02d\n\uf02d\n\uf03d\n\uf0f2",
-        "UN R94 \u203a Annex 8 \u203a 2 Performance requirements \u203a 2.6 \u203a 2.6.3\n2.6.3.\nSensitivity coefficient and linearity error\nThe sensitivity coefficient and the linearity error shall be determined by\nmeasuring the output signal of the data channel against a known input signal\nfor various values of this signal. The calibration of the data channel shall cover\nthe whole range of the amplitude class.\nFor bi-directional channels, both the positive and negative values shall be used.\nIf the calibration equipment cannot produce the required input owing to the\nexcessively high values of the quantity to be measured, calibrations shall be\ncarried out within the limits of the calibration standards and these limits shall\nbe recorded in the test report.\nA total data channel shall be calibrated at a frequency or at a spectrum of\nfrequencies having a significant value between\n.\n5.2\nF\nand\nF\nH\nL",
-        "UN R94 \u203a Annex 5 \u203a 2 Installation of dummies \u203a 2.1\n2.1.\nHead\nThe transverse instrumentation platform of the head shall be horizontal within\n2.5\u00b0. To level the head of the test dummy in vehicles with upright seats with\nnon-adjustable backs, the following sequences must be followed. First adjust\nthe position of the \"H\" point within the limits set forth in paragraph 2.4.3.1.\nbelow to level the transverse instrumentation platform of the head of the test\ndummy. If the transverse instrumentation platform of the head is still not level,\nthen adjust the pelvic angle of the test dummy within the limits provided in\nparagraph 2.4.3.2. below. If the transverse instrumentation platform of the head\nis still not level, then adjust the neck bracket of the test dummy the minimum\namount necessary to ensure that the transverse instrumentation platform of the\nhead is horizontal within 2.5\u00b0.",
-        "UN R94 \u203a 2 Definitions \u203a 2.11 Airbag\n2.11. Airbag\n\"Airbag\" means a device installed to supplement safety belts and restraint\nsystems in power-driven vehicles, i.e. systems which, in the event of a severe\nimpact affecting the vehicle, automatically deploy a flexible structure intended\nto limit, by compression of the gas contained within it, the gravity of the contacts\nof one or more parts of the body of an occupant of the vehicle with the interior\nof the passenger compartment.\n2.12. Passenger airbag\n\"Passenger airbag\" means an airbag assembly intended to protect occupant(s)\nin seats other than the driver's in the event of a frontal collision.",
-        "UN R94 \u203a Annex 8 \u203a 2 Performance requirements \u203a 2.1\n2.1.\nLinearity error\nThe absolute value of the linearity error of a data channel at any frequency in\nthe CFC, shall be equal to or less than 2.5 per cent of the value of the CAC,\nover the whole measurement range.\n2.2.\nAmplitude against frequency\nThe frequency response of a data channel shall lie within the limiting curves\ngiven in Figure 1 of this annex. The zero dB line is determined by the\ncalibration factor.\n2.3.\nPhase delay time\nThe phase delay time between the input and the output signals of a data channel\nshall be determined and shall not vary by more than 1/10 FH seconds between\n0.03 FH and FH."
+        "UN R94 \u203a Annex 4\nHead Performance Criterion (HPC) and 3 ms head\nacceleration Performance criteria"
       ],
       "context_labels": [
         "UN R94 Rev.4 Annex 4 \u00a71.2.4 (p. 29)",
         "UN R94 Rev.4 \u00a75.2.1.1\u20135.2.1.2 (p. 11)",
         "UN R94 Rev.4 Annex 4 \u00a71.2.1\u20131.2.3 (p. 29)",
         "UN R94 Rev.4 Annex 4 \u00a71.1\u20131.2 (p. 29)",
-        "UN R94 Rev.4 Annex 4 (p. 29)",
-        "UN R94 Rev.4 Annex 4 \u00a72.1\u20132.3 (p. 29)",
-        "UN R94 Rev.4 Annex 8 \u00a72.6.3 (p. 42)",
-        "UN R94 Rev.4 Annex 5 \u00a72.1 (p. 32)",
-        "UN R94 Rev.4 \u00a72.11\u20132.12 (p. 6)",
-        "UN R94 Rev.4 Annex 8 \u00a72.1\u20132.3 (p. 41)"
+        "UN R94 Rev.4 Annex 4 (p. 29)"
       ],
       "key_facts": [
         "1,000"
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 4207.5,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 2621.6,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 3853,
-        "total_tokens": 4014,
-        "completion_tokens": 161
+        "prompt_tokens": 2227,
+        "completion_tokens": 132,
+        "total_tokens": 2359
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R94",
@@ -1565,7 +2128,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 4207.5
+        "latency_ms": 2621.6
       },
       "failure": null
     },
@@ -1619,8 +2182,8 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 8391.2,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 8510.8,
+      "model": null,
       "tokens": {
         "prompt_tokens": 2712,
         "total_tokens": 2878,
@@ -1639,7 +2202,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 8391.2
+        "latency_ms": 8510.8
       },
       "failure": null
     },
@@ -1705,8 +2268,8 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 13230.6,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 13962.1,
+      "model": null,
       "tokens": {
         "prompt_tokens": 2602,
         "total_tokens": 2848,
@@ -1725,7 +2288,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 13230.6
+        "latency_ms": 13962.1
       },
       "failure": null
     },
@@ -1735,7 +2298,7 @@
       "query_type": "short_form",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "An Enhanced Child Restraint System (ECRS) is a device capable of accommodating a child occupant in a sitting or supine position, designed to diminish the risk of injury by limiting the child's body mobility during a collision or abrupt deceleration.",
+      "answer": "An \"Enhanced Child Restraint System\" (ECRS) is a device capable of accommodating a child occupant in a sitting or supine position, designed to diminish the risk of injury to the wearer in a collision or abrupt deceleration by limiting the mobility of the child's body.",
       "claims": [
         "\"Enhanced Child Restraint System\" (ECRS) means a device capable of accommodating a child occupant in a sitting or supine position. It is so designed as to diminish the risk of injury to the wearer, in the event of a collision or of abrupt deceleration of the vehicle, by limiting the mobility of the child's body."
       ],
@@ -1770,12 +2333,12 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 6469.5,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 3903.6,
+      "model": null,
       "tokens": {
         "prompt_tokens": 1884,
-        "total_tokens": 2053,
-        "completion_tokens": 169
+        "total_tokens": 2061,
+        "completion_tokens": 177
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R129",
@@ -1790,7 +2353,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 6469.5
+        "latency_ms": 3903.6
       },
       "failure": null
     },
@@ -1845,8 +2408,8 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 4531.9,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 5299.2,
+      "model": null,
       "tokens": {
         "prompt_tokens": 4580,
         "total_tokens": 4736,
@@ -1865,7 +2428,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 4531.9
+        "latency_ms": 5299.2
       },
       "failure": null
     },
@@ -1875,7 +2438,7 @@
       "query_type": "short_form",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "The headform velocity at the time of impact shall be 9.7\u202fm/s \u00b1\u202f0.2\u202fm/s.",
+      "answer": "The headform impact velocity shall be 9.7\u202fm/s \u00b1\u202f0.2\u202fm/s.",
       "claims": [
         "The headform velocity at the time of impact shall be 9.7\u202fm/s \u00b1\u202f0.2\u202fm/s."
       ],
@@ -1930,12 +2493,12 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 5164.4,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 3191.7,
+      "model": null,
       "tokens": {
         "prompt_tokens": 2705,
-        "total_tokens": 2816,
-        "completion_tokens": 111
+        "total_tokens": 2812,
+        "completion_tokens": 107
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R127",
@@ -1950,7 +2513,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 5164.4
+        "latency_ms": 3191.7
       },
       "failure": null
     },
@@ -1960,21 +2523,12 @@
       "query_type": "cross_document",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "Both the frontal\u2011impact and side\u2011impact regulations require that no door open during the test. The frontal\u2011impact regulation (UN\u2011R137) states in \u00a75.2.3 that \u201cDuring the test no door shall open.\u201d The side\u2011impact regulation (UN\u2011R94) also states in \u00a75.2.3 that \u201cDuring the test no door shall open.\u201d Thus the door\u2011opening requirement is identical in both regimes.",
+      "answer": "Both the frontal\u2011impact regulation (UN\u202fR94) and the side\u2011impact regulation (UN\u202fR29) require that no door opens during the test. The side\u2011impact regulation adds that doors are not required to open after the test, whereas the frontal regulation does not contain that additional clause.",
       "claims": [
         "During the test no door shall open.",
-        "During the test no door shall open."
+        "None of the doors shall open during the tests, but the doors shall not be required to open after testing."
       ],
       "citations": [
-        {
-          "evidence_id": "E1",
-          "label": "UN R137 original \u00a75.2.3 (p. 11)",
-          "regulation_key": "UN-R137",
-          "section_path": "5.2.3",
-          "merged_paths": [
-            "5.2.3"
-          ]
-        },
         {
           "evidence_id": "E2",
           "label": "UN R94 Rev.4 \u00a75.2.2\u20135.2.3 (p. 13)",
@@ -1983,6 +2537,16 @@
           "merged_paths": [
             "5.2.2",
             "5.2.3"
+          ]
+        },
+        {
+          "evidence_id": "E6",
+          "label": "UN R29 Rev.2 \u00a75.3.1\u20135.3.2 (p. 7)",
+          "regulation_key": "UN-R29",
+          "section_path": "5.3.1",
+          "merged_paths": [
+            "5.3.1",
+            "5.3.2"
           ]
         }
       ],
@@ -2015,12 +2579,12 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 10633.8,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 13820.0,
+      "model": null,
       "tokens": {
         "prompt_tokens": 4273,
-        "total_tokens": 4487,
-        "completion_tokens": 214
+        "total_tokens": 4545,
+        "completion_tokens": 272
       },
       "abstain_reason": null,
       "expected_regulation": null,
@@ -2036,7 +2600,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 10633.8
+        "latency_ms": 13820.0
       },
       "failure": null
     },
@@ -2046,7 +2610,7 @@
       "query_type": "cross_document",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "The UN offset frontal test is performed at a vehicle speed of 50\u202f\u2013\u202f0\u202f/+\u202f1\u202fkm/h. The impact speed for the UN full\u2011width frontal test is not specified in the provided evidence.",
+      "answer": "The UN offset frontal test is performed at a vehicle speed of 50\u202f\u2013\u202f0\u202f/\u202f+1\u202fkm/h. The impact speed for the UN full\u2011width frontal test is not specified in the provided evidence.",
       "claims": [
         "Vehicle speed at the moment of impact shall be 50 -0/ +1 km/h."
       ],
@@ -2083,12 +2647,12 @@
         "the model reports that the evidence covers the question only partly"
       ],
       "grounding_ok": true,
-      "latency_ms": 4541.7,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 13345.4,
+      "model": null,
       "tokens": {
         "prompt_tokens": 2437,
-        "total_tokens": 2609,
-        "completion_tokens": 172
+        "total_tokens": 2607,
+        "completion_tokens": 170
       },
       "abstain_reason": null,
       "expected_regulation": null,
@@ -2103,7 +2667,7 @@
         "evidence_coverage": 0.5,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 4541.7
+        "latency_ms": 13345.4
       },
       "failure": null
     },
@@ -2113,13 +2677,13 @@
       "query_type": "cross_document",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "In the UN regulations the mobile\u2011deformable\u2011barrier (MDB) side\u2011impact test is performed at a speed of 50\u202f\u00b1\u202f1\u202fkm/h, while the vehicle\u2011to\u2011pole side\u2011impact test is performed at 32\u202f\u00b1\u202f1\u202fkm/h.  For vehicles whose width is 1.50\u202fm or less, the pole test speed is reduced to 26\u202f\u2013\u202f0\u202f/+\u202f7\u202fkm/h.",
+      "answer": "The UN regulations specify a mobile\u2011deformable\u2011barrier (MDB) side\u2011impact test speed of 50\u202f\u00b1\u202f1\u202fkm/h (E1). For the vehicle\u2011to\u2011pole side\u2011impact test the speed is 32\u202f\u00b1\u202f1\u202fkm/h, except for vehicles with a width of 1.50\u202fm or less, where the speed is 26\u202f\u2013\u202f0/+7\u202fkm/h (E3 and E2).",
       "claims": [
         "The mobile deformable barrier speed at the moment of impact shall be 50\u202f\u00b1\u202f1\u202fkm/h. This speed shall be stabilized at least 0.5\u202fm before impact. Accuracy of measurement: 1 per cent. However, if the test was performed at a higher impact speed and the vehicle met the requirements, the test shall be considered satisfactory.",
         "The impact reference line shall be aligned with the centreline of the rigid pole surface, as viewed in the direction of vehicle motion, so that, when the vehicle\u2011to\u2011pole contact occurs, the centreline of the pole surface contacts the vehicle area bounded by two vertical planes parallel to and 25\u202fmm forward and aft of the impact reference line.",
         "During the acceleration phase of the test prior to first contact between the vehicle and the pole, the acceleration of the test vehicle shall not exceed 1.5\u202fm/s\u00b2.",
         "Except as provided in paragraph 8.7. below, the test vehicle speed at the moment of first vehicle\u2011to\u2011pole contact shall be 32\u202f\u00b1\u202f1\u202fkm/h.",
-        "The test vehicle speed at the moment of first vehicle\u2011to\u2011pole contact shall be 26\u202f\u2013\u202f0\u202f/+\u202f7\u202fkm/h for vehicles with a vehicle width of 1.50\u202fm or less."
+        "The test vehicle speed at the moment of first vehicle\u2011to\u2011pole contact shall be 26\u202f\u2013\u202f0/+7\u202fkm/h for vehicles with a vehicle width of 1.50\u202fm or less."
       ],
       "citations": [
         {
@@ -2180,12 +2744,12 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 15820.4,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 4157.5,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 3300,
-        "total_tokens": 3891,
-        "completion_tokens": 591
+        "prompt_tokens": 3333,
+        "completion_tokens": 544,
+        "total_tokens": 3877
       },
       "abstain_reason": null,
       "expected_regulation": null,
@@ -2201,7 +2765,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 15820.4
+        "latency_ms": 4157.5
       },
       "failure": null
     },
@@ -2332,12 +2896,12 @@
         "2 claim(s) removed: failed citation/numeric validation"
       ],
       "grounding_ok": false,
-      "latency_ms": 10911.9,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 8405.7,
+      "model": null,
       "tokens": {
         "prompt_tokens": 4282,
-        "total_tokens": 4470,
-        "completion_tokens": 188
+        "total_tokens": 4471,
+        "completion_tokens": 189
       },
       "abstain_reason": "validation_failed",
       "expected_regulation": null,
@@ -2350,7 +2914,7 @@
         "evidence_coverage": null,
         "grounding_ok": 0.0,
         "injection_resisted": null,
-        "latency_ms": 10911.9
+        "latency_ms": 8405.7
       },
       "failure": "unnecessary_refusal"
     },
@@ -2362,7 +2926,8 @@
       "mode": "GENERATED",
       "answer": "Both UN\u202fR94 and UN\u202fR137 set identical steering\u2011wheel displacement limits: the residual displacement measured at the centre of the steering\u2011wheel hub must not exceed 80\u202fmm in the upwards vertical direction and 100\u202fmm in the rearward horizontal direction.",
       "claims": [
-        "5.2.2.1. After the test the residual steering wheel displacement, when measured at the centre of the steering wheel hub, shall not exceed 80 mm in the upwards vertical direction and 100 mm in the rearward horizontal direction."
+        "UN\u202fR94 \u00a75.2.2 \u2013 \u201cFollowing the test the residual steering wheel displacement, when measured at the centre of the steering wheel hub, shall not exceed 80\u202fmm in the upwards vertical direction and 100\u202fmm in the rearward horizontal direction.\u201d",
+        "UN\u202fR137 \u00a75.2.2.1 \u2013 \u201cAfter the test the residual steering wheel displacement, when measured at the centre of the steering wheel hub, shall not exceed 80\u202fmm in the upwards vertical direction and 100\u202fmm in the rearward horizontal direction.\u201d"
       ],
       "citations": [
         {
@@ -2412,12 +2977,12 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 6171.0,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 11413.2,
+      "model": null,
       "tokens": {
         "prompt_tokens": 3301,
-        "total_tokens": 3470,
-        "completion_tokens": 169
+        "total_tokens": 3553,
+        "completion_tokens": 252
       },
       "abstain_reason": null,
       "expected_regulation": null,
@@ -2433,7 +2998,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 6171.0
+        "latency_ms": 11413.2
       },
       "failure": null
     },
@@ -2443,25 +3008,11 @@
       "query_type": "market_context",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "For the EU market, the corpus does not contain any EU\u2011specific passive\u2011safety regulation (e.g., Euro NCAP or EU type\u2011approval documents). Therefore, no EU frontal\u2011impact documents are identified in the provided evidence.\n\nFor the U.S. market, the applicable frontal\u2011impact documents are the Federal Motor Vehicle Safety Standards (FMVSS) contained in 49\u202fCFR\u202fPart\u202f571. These standards are part of the U.S. self\u2011certification compliance regime, where manufacturers certify that each vehicle meets the FMVSS requirements before sale.\n\n**EU**: no applicable documents in the evidence.\n\n**U.S.**: 49\u202fCFR\u202f571 (FMVSS) \u2013 self\u2011certification regime.\n\n**Evidence**: E6, E7, E8.",
+      "answer": "For the United States, the applicable frontal\u2011impact regulation is the Federal Motor Vehicle Safety Standard (FMVSS) 208, which is part of 49\u202fCFR\u202f571. The compliance regime is a self\u2011certification system in which the manufacturer must certify that each vehicle meets the standard and submit the certification to the National Highway Traffic Safety Administration (NHTSA). For the European Union, the corpus does not contain any EU or Euro\u2011NCAP frontal\u2011impact documents, so no EU\u2011specific requirement can be identified from the provided evidence.",
       "claims": [
-        "The U.S. market is governed by the Federal Motor Vehicle Safety Standards (FMVSS) contained in 49\u202fCFR\u202fPart\u202f571, which are part of the U.S. self\u2011certification compliance regime."
+        "The United States frontal\u2011impact regulation is FMVSS\u202f208, part of 49\u202fCFR\u202f571, and requires a self\u2011certification compliance regime."
       ],
       "citations": [
-        {
-          "evidence_id": "E6",
-          "label": "US 49CFR571 eCFR \u00a719.1 part 620/1215 (pp. 104\u20131297)",
-          "regulation_key": "US-49CFR571",
-          "section_path": "19.1",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E7",
-          "label": "US 49CFR571 eCFR \u00a719.1 part 624/1215 (pp. 104\u20131297)",
-          "regulation_key": "US-49CFR571",
-          "section_path": "19.1",
-          "merged_paths": []
-        },
         {
           "evidence_id": "E8",
           "label": "US 49CFR571 eCFR \u00a719.1 part 818/1215 (pp. 104\u20131297)",
@@ -2499,12 +3050,12 @@
         "the model reports that the evidence covers the question only partly"
       ],
       "grounding_ok": true,
-      "latency_ms": 11005.2,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 20162.6,
+      "model": null,
       "tokens": {
         "prompt_tokens": 8758,
-        "total_tokens": 9113,
-        "completion_tokens": 355
+        "total_tokens": 8977,
+        "completion_tokens": 219
       },
       "abstain_reason": null,
       "expected_regulation": null,
@@ -2517,7 +3068,7 @@
         "evidence_coverage": null,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 11005.2
+        "latency_ms": 20162.6
       },
       "failure": null
     },
@@ -2526,18 +3077,80 @@
       "query": "For a Euro NCAP 2026 frontal rating, which dummies are in the driver and front passenger seats of the offset test?",
       "query_type": "market_context",
       "answerability": "answerable",
-      "mode": "GENERATED",
-      "answer": "For the Euro\u202fNCAP\u202f2026 frontal offset test the driver seat is equipped with a THOR dummy (50th percentile) and the front\u2011passenger seat is equipped with an HIII dummy (5th percentile).",
-      "claims": [
-        "Driver \u2013 THOR 50th",
-        "Front passenger \u2013 HIII 5th"
-      ],
+      "mode": "ABSTAINED",
+      "answer": "insufficient_evidence",
+      "claims": [],
       "citations": [
+        {
+          "evidence_id": "E1",
+          "label": "EURONCAP FRONTAL v1.1 \u00a72.5.1 (p. 22)",
+          "regulation_key": "EURONCAP-FRONTAL",
+          "section_path": "2.5.1",
+          "merged_paths": [
+            "2.5.1"
+          ]
+        },
         {
           "evidence_id": "E2",
           "label": "EURONCAP FRONTAL v1.1 SCORING (pp. 5\u20136)",
           "regulation_key": "EURONCAP-FRONTAL",
           "section_path": "scoring~1",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E3",
+          "label": "EURONCAP FRONTAL v1.1 \u00a73 part 1/2 (pp. 23\u201325)",
+          "regulation_key": "EURONCAP-FRONTAL",
+          "section_path": "3~1",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E4",
+          "label": "EURONCAP FRONTAL v1.1 \u00a72.5.2 part 1/2 (pp. 22\u201323)",
+          "regulation_key": "EURONCAP-FRONTAL",
+          "section_path": "2.5.2",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E5",
+          "label": "EURONCAP FRONTAL v1.1 \u00a72.3.2 part 1/5 (pp. 13\u201316)",
+          "regulation_key": "EURONCAP-FRONTAL",
+          "section_path": "2.3.2",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E6",
+          "label": "GNS SAFETY COMPANION 2026 2026 \u00a72 part 1/2 (pp. 44\u201346)",
+          "regulation_key": "GNS-SAFETY-COMPANION-2026",
+          "section_path": "2~14",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E7",
+          "label": "GNS SAFETY COMPANION 2026 2026 Q6/Q102 part 3/5 (pp. 52\u201355)",
+          "regulation_key": "GNS-SAFETY-COMPANION-2026",
+          "section_path": "q6-q102",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E8",
+          "label": "GNS SAFETY COMPANION 2026 2026 ASEAN NCAP part 3/4 (pp. 7\u201311)",
+          "regulation_key": "GNS-SAFETY-COMPANION-2026",
+          "section_path": "asean-ncap",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E9",
+          "label": "EURONCAP SIDE v1.1 \u00a72.4.2 part 2/3 (pp. 15\u201317)",
+          "regulation_key": "EURONCAP-SIDE",
+          "section_path": "2.4.2",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E10",
+          "label": "EURONCAP SIDE v1.1 \u00a73.5.2.2 part 1/2 (pp. 24\u201326)",
+          "regulation_key": "EURONCAP-SIDE",
+          "section_path": "3.5.2.2",
           "merged_paths": []
         }
       ],
@@ -2570,106 +3183,45 @@
         "HIII 5th"
       ],
       "warnings": [],
-      "grounding_ok": true,
-      "latency_ms": 12539.7,
-      "model": "openai/gpt-oss-20b",
+      "grounding_ok": null,
+      "latency_ms": 4527.4,
+      "model": null,
       "tokens": {
         "prompt_tokens": 6395,
-        "total_tokens": 6571,
-        "completion_tokens": 176
+        "total_tokens": 6474,
+        "completion_tokens": 79
       },
-      "abstain_reason": null,
+      "abstain_reason": "weak_evidence",
       "expected_regulation": "EURONCAP-FRONTAL",
       "expected_section_paths": [],
       "metrics": {
-        "refusal_correct": 1.0,
-        "citation_precision": 1.0,
+        "refusal_correct": 0.0,
+        "citation_precision": 0.1,
         "citation_hit": 1.0,
-        "fact_coverage": 1.0,
+        "fact_coverage": 0.0,
         "evidence_coverage": 1.0,
-        "grounding_ok": 1.0,
+        "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 12539.7
+        "latency_ms": 4527.4
       },
-      "failure": null
+      "failure": "unnecessary_refusal"
     },
     {
       "case_id": "sc-032",
       "query": "Is the Euro NCAP frontal protocol a legal requirement for type approval in Europe?",
       "query_type": "market_context",
       "answerability": "answerable",
-      "mode": "ABSTAINED",
+      "mode": "GENERATED",
       "answer": "No, the Euro\u202fNCAP frontal protocol is not a legal requirement for type approval in Europe.",
-      "claims": [],
+      "claims": [
+        "The Euro\u202fNCAP frontal protocol is a voluntary consumer\u2011rating protocol and is not cited as a legal requirement for type approval in the provided evidence."
+      ],
       "citations": [
-        {
-          "evidence_id": "E1",
-          "label": "EURONCAP FRONTAL v1.1 PREFACE (pp. 3\u20134)",
-          "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "preface",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E2",
-          "label": "EURONCAP FRONTAL v1.1 \u00a72.3.4 part 2/2 (pp. 16\u201317)",
-          "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "2.3.4",
-          "merged_paths": []
-        },
         {
           "evidence_id": "E3",
           "label": "EURONCAP FRONTAL v1.1 \u00a73.4.1 part 1/2 (pp. 28\u201329)",
           "regulation_key": "EURONCAP-FRONTAL",
           "section_path": "3.4.1",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E4",
-          "label": "EURONCAP FRONTAL v1.1 Front matter part 1 (pp. 1\u20133)",
-          "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "front-matter",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E5",
-          "label": "EURONCAP FRONTAL v1.1 \u00a72.5.2 part 2/2 (pp. 22\u201323)",
-          "regulation_key": "EURONCAP-FRONTAL",
-          "section_path": "2.5.2",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E6",
-          "label": "EURONCAP REAR v1.1 \u00a73.1.3.1 (pp. 40\u201341)",
-          "regulation_key": "EURONCAP-REAR",
-          "section_path": "3.1.3.1",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E7",
-          "label": "EURONCAP REAR v1.1 \u00a73.1.4.2 (pp. 43\u201344)",
-          "regulation_key": "EURONCAP-REAR",
-          "section_path": "3.1.4.2",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E8",
-          "label": "GNS SAFETY COMPANION 2026 2026 ASEAN NCAP part 2/4 (pp. 7\u201311)",
-          "regulation_key": "GNS-SAFETY-COMPANION-2026",
-          "section_path": "asean-ncap",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E9",
-          "label": "GNS SAFETY COMPANION 2026 2026 \u00a764293 part 2/2 (pp. 48\u201351)",
-          "regulation_key": "GNS-SAFETY-COMPANION-2026",
-          "section_path": "64293",
-          "merged_paths": []
-        },
-        {
-          "evidence_id": "E10",
-          "label": "GNS SAFETY COMPANION 2026 2026 Q10   Q6 part 2/2 (pp. 39\u201341)",
-          "regulation_key": "GNS-SAFETY-COMPANION-2026",
-          "section_path": "q10-q6~1",
           "merged_paths": []
         }
       ],
@@ -2698,29 +3250,31 @@
         "GNS SAFETY COMPANION 2026 2026 Q10   Q6 part 2/2 (pp. 39\u201341)"
       ],
       "key_facts": [],
-      "warnings": [],
-      "grounding_ok": null,
-      "latency_ms": 4438.0,
-      "model": "openai/gpt-oss-20b",
+      "warnings": [
+        "the model reports that the evidence covers the question only partly"
+      ],
+      "grounding_ok": true,
+      "latency_ms": 13757.6,
+      "model": null,
       "tokens": {
         "prompt_tokens": 4479,
-        "total_tokens": 4536,
-        "completion_tokens": 57
+        "total_tokens": 4596,
+        "completion_tokens": 117
       },
-      "abstain_reason": "weak_evidence",
+      "abstain_reason": null,
       "expected_regulation": "EURONCAP-FRONTAL",
       "expected_section_paths": [],
       "metrics": {
-        "refusal_correct": 0.0,
-        "citation_precision": 0.5,
+        "refusal_correct": 1.0,
+        "citation_precision": 1.0,
         "citation_hit": 1.0,
         "fact_coverage": null,
         "evidence_coverage": null,
-        "grounding_ok": null,
+        "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 4438.0
+        "latency_ms": 13757.6
       },
-      "failure": "unnecessary_refusal"
+      "failure": null
     },
     {
       "case_id": "sc-040",
@@ -2728,9 +3282,9 @@
       "query_type": "calculation",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "56 km/h equals 15.555\u2026 m/s (56\u202f\u00d7\u202f1000\u202fm \u00f7 3600\u202fs).",
+      "answer": "15.56 m/s",
       "claims": [
-        "56 km/h equals 15.555\u2026 m/s (56\u202f\u00d7\u202f1000\u202fm \u00f7 3600\u202fs)."
+        "56 km/h \u00f7 3.6 = 15.56 m/s"
       ],
       "citations": [
         {
@@ -2747,11 +3301,11 @@
         "UN R94 \u203a Annex 3 \u203a 1 Installation and preparation of the vehicle \u203a 1.3 \u203a 1.3.1\n1.3.1.\nAlignment of the vehicle to the barrier\nThe vehicle shall overlap the barrier face by 40 per cent \u00b1 20 mm.",
         "UN R94 \u203a Annex 4 \u203a 6 Procedure for calculating the viscous criteria (V * C) for Hybrid III dummy \u203a 6.2\n6.2.\nThe sternum deflection response is filtered once at CFC 180. The compression\nat time t is calculated from this filtered signal as:\n2\nY\n2\nX\n)\nM\n(\n)\nM\n(\n\uf02b\n229\n.0\nD\nC\n)t(\n)t(\n\uf03d\nThe sternum deflection velocity at time t is calculated from the filtered\ndeflection as:\nWhere D(t) is the deflection at time t in metres and \u2202t is the time interval in\nseconds between the measurements of deflection. The maximum value of \u2202t\nshall be 1.25 x 10-4 seconds. This calculation procedure is shown\ndiagrammatically below:\nMeasured deflection\nD(t)\nFilter at CFC 180\nCalculate deflection velocity :\nV(t)\nCalculate compression\nC(t)\nCalculate viscous criterion at time t\n(V * C) (t) = 1.3 (V (t) \uf0b7 C(t))\nDetermine the maximum value of V *\nC\n(V * C) max = max [(V * C) (t)]\n\uf028\n\uf029\uf028\n\uf029\nt\n12\nD\nD\nD\nD\n8\nV\n)\n2\nt(\n)\n2\nt(\n)\n1\nt(\n)\n1\nt(\n)t(\n\uf0b6\n\uf02d\n\uf02d\n\uf02d\n\uf03d\n\uf02d\n\uf02b\n\uf02d\n\uf02b",
         "UN R94 \u203a Annex 9 \u203a 2 Aluminum honeycomb certification \u203a 2.5\n2.5.\nData collection\nForce versus deflection data are to be collected in either analog or digital\nform for each sample tested. If analog data are collected then a means of\nconverting this to digital shall be available. All digital data shall be\ncollected at a rate of not less than 5 Hz (5 points per second).",
-        "UN R94 \u203a Annex 11 \u203a 3 Assessment procedure for low electrical energy\n3. Assessment procedure for low electrical energy\nPrior to the impact a switch S1 and a known discharge resistor Re is connected\nin parallel to the relevant capacitance (ref. Figure 2 below).\n(a)\nNot earlier than 10 seconds and not later than 60 seconds after the\nimpact the switch S1 shall be closed while the voltage Ub and the\ncurrent Ie are measured and recorded. The product of the voltage Ub\nand the current Ie shall be integrated over the period of time, starting\nfrom the moment when the switch S1 is closed (tc) until the voltage Ub\nfalls below the high voltage threshold of 60 V DC (th). The resulting\nintegration equals the Total Energy (TE) in joules.\n(b)\nWhen Ub is measured at a point in time between 10 seconds and\n60 seconds after the impact and the capacitance of the X-capacitors (Cx)\nis specified by the manufacturer, Total Energy (TE) shall be calculated\naccording to the following formula:\nTE = 0.5 x Cx x Ub2\ndt\nI\nV\nTE\nth\ntc\ne\nb\n\uf0f2\n\uf0b4\n\uf03d\nHigh Voltage Bus\nEnergy Conversion\nSystem Assembly\nREESS assembly\nU2\nU1\nUb\n+\n-\n+\n-\nEnergy\nConversion\nSystem\nTraction System\nElectrical Chassis\nREESS\nUb\n(c)\nWhen U1 and U2 (see Figure 1 above) are measured at a point in time\nbetween 10 seconds and 60 seconds after the impact and the\ncapacitances of the Y-capacitors (Cy1, Cy2) are specified by the\nmanufacturer, Total Energy (TEy1, TEy2) shall be calculated according\nto the following formulas:\nTEy1 = 0.5 x Cy1 x U12\nTEy2 = 0.5 x Cy2 x U22\nThis procedure is not applicable if the test is performed under the condition where the electric power train\nis not energized.\nFigure 2\nE.g. measurement of high voltage bus energy stored in X-capacitors",
-        "UN R94 \u203a Annex 8 \u203a 2 Performance requirements \u203a 2.6 \u203a 2.6.2 \u203a 2.6.2.2 \u203a 2.6.2.2.1\n2.6.2.2.1.\nAccelerations\nThe error in the reference accelerations expressed as a percentage of the\nchannel amplitude class shall be less than \uf0b11.5 per cent below 400 Hz, less\nthan \uf0b12 per cent between 400 Hz and 900 Hz, and less than \uf0b12.5 per cent above\n900 Hz.",
-        "UN R94 \u203a Annex 11 \u203a 2\n2.\nThe following instructions may be used if voltage is measured.\nAfter the impact test, determine the high voltage bus voltages (Ub, U1, U2) (see\nFigure 1 below).\nThe voltage measurement shall be made not earlier than 10 seconds, but, not\nlater than 60 seconds after the impact\nThis procedure is not applicable if the test is performed under the condition\nwhere the electric power train is not energized.\nFigure 1\nMeasurement of Ub, U1, U2",
-        "UN R94 \u203a Annex 8 \u203a 2 Performance requirements \u203a 2.6 \u203a 2.6.2 \u203a 2.6.2.1 \u203a 2.6.2.1.1\n2.6.2.1.1.\nAccelerations\nThe errors shall be less than \uf0b11.5 per cent of the channel amplitude class.\n2.6.2.1.2.\nForces\nThe error shall be less than \uf0b11 per cent of the channel amplitude class.\n2.6.2.1.3.\nDisplacements\nThe error shall be less than \uf0b11 per cent of the channel amplitude class.",
-        "UN R94 \u203a Annex 8 \u203a 2 Performance requirements \u203a 2.4 \u203a 2.4.1\n2.4.1.\nTime base\nA time base shall be recorded and shall at least give 1/100 s with an accuracy\nof 1 per cent.\n2.4.2.\nRelative time delay\nThe relative time delay between the signal of two or more data channels,\nregardless of their frequency class, must not exceed 1 ms excluding delay\ncaused by phase shift.\nTwo or more data channels of which the signals are combined shall have the\nsame frequency class and shall not have relative time delay greater than\n1/10 FH seconds.\nThis requirement applies to analogue signals as well as to synchronization\npulses and digital signals."
+        "UN R94 AMEND 05 \u203a 3 Preparation, Instrumentation and Test Conditions \u203a 3.2 \u203a 3.2.1\n3.2.1.\nSensors are selected to measure either the build-up of the hydrogen or helium\ngas or the reduction in oxygen (due to displacement of air by leaking\nhydrogen/helium).\n3.2.2.\nSensors are calibrated to traceable references to ensure an accuracy of \u00b15 per\ncent at the targeted criteria of 4 per cent hydrogen or 3 per cent helium by\nvolume in air, and a full scale measurement capability of at least 25 per cent\nabove the target criteria. The sensor shall be capable of a 90 per cent response\nto a full scale change in concentration within 10 seconds.",
+        "UN R94 AMEND 05 \u203a 3 Preparation, Instrumentation and Test Conditions \u203a 3.1 \u203a 3.1.3\n3.1.3.\nThe container is filled to a minimum of 95 per cent of the targeted fill pressure\nand allowed to settle (stabilize) prior to conducting the crash test.\n3.1.4.\nThe main stop valve and shut-off valves for hydrogen gas, located in the\ndownstream hydrogen gas piping, are in the normal driving condition kept\nopen immediately prior to the impact.",
+        "UN R94 AMEND 05 \u203a 5 Post-Crash Leak Test Measurement for a \u203a 5.1\n5.1.\nThe helium gas pressure, P0 (MPa), and temperature T0 (\u00b0C), are measured\nimmediately before the impact and then at a predetermined time interval after\nthe impact.",
+        "UN R94 AMEND 05 \u203a 4 Post-Crash Leak Test Measurement for a \u203a 4.1\n4.1.\nThe hydrogen gas pressure, P0 (MPa), and temperature, T0 (\u00b0C), are measured\nimmediately before the impact and then at a time interval, \u0394t (min), after the\nimpact.",
+        "UN R94 AMEND 05 \u203a 6 Post-Crash Concentration Measurement for \u203a 6.1\n6.1.\nPost-crash data collection in enclosed spaces commences when the vehicle\ncomes to a rest. Data from the sensors installed in accordance with paragraph\n3.2. of this annex are collected at least every five seconds and continue for a\nperiod of 60 minutes after the test. A first-order lag (time constant) up to a\nmaximum of five seconds may be applied to the measurements to provide\n\"smoothing\" and filter the effects of spurious data points.\""
       ],
       "context_labels": [
         "UN R94 Rev.4 Annex 3 \u00a74 (p. 27)",
@@ -2759,11 +3313,11 @@
         "UN R94 Rev.4 Annex 3 \u00a71.3.1 (p. 23)",
         "UN R94 Rev.4 Annex 4 \u00a76.2 (pp. 30\u201331)",
         "UN R94 Rev.4 Annex 9 \u00a72.5 (p. 47)",
-        "UN R94 Rev.4 Annex 11 \u00a73 (pp. 62\u201363)",
-        "UN R94 Rev.4 Annex 8 \u00a72.6.2.2.1 (p. 42)",
-        "UN R94 Rev.4 Annex 11 \u00a72 (pp. 61\u201362)",
-        "UN R94 Rev.4 Annex 8 \u00a72.6.2.1.1\u20132.6.2.1.3 (p. 42)",
-        "UN R94 Rev.4 Annex 8 \u00a72.4.1\u20132.4.2 (p. 41)"
+        "UN R94 AMEND 05 Rev.4 \u00a73.2.1\u20133.2.2 (p. 6)",
+        "UN R94 AMEND 05 Rev.4 \u00a73.1.3\u20133.1.4 (p. 5)",
+        "UN R94 AMEND 05 Rev.4 \u00a75.1 (p. 7)",
+        "UN R94 AMEND 05 Rev.4 \u00a74.1 (p. 6)",
+        "UN R94 AMEND 05 Rev.4 \u00a76.1 (p. 8)"
       ],
       "key_facts": [
         "56"
@@ -2772,12 +3326,12 @@
         "contains a value derived from the cited evidence (calculation shown): verify before use"
       ],
       "grounding_ok": true,
-      "latency_ms": 5931.3,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 4528.1,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 3888,
-        "total_tokens": 4031,
-        "completion_tokens": 143
+        "prompt_tokens": 3372,
+        "completion_tokens": 85,
+        "total_tokens": 3457
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R94",
@@ -2792,7 +3346,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 5931.3
+        "latency_ms": 4528.1
       },
       "failure": null
     },
@@ -2801,13 +3355,20 @@
       "query": "Our measured thorax compression is 38 mm. What margin do we have to the UN R94 limit, in mm and percent?",
       "query_type": "calculation",
       "answerability": "answerable",
-      "mode": "GENERATED",
-      "answer": "You have a 4\u202fmm margin to the UN\u202fR94 thorax compression limit, which is about 9.5\u202f% of the limit.",
-      "claims": [
-        "The Thorax Compression Criterion (ThCC) shall not exceed 42\u202fmm; your measured value is 38\u202fmm, so the margin is 42\u202fmm \u2013 38\u202fmm = 4\u202fmm.",
-        "Margin calculation: 4\u202fmm / 42\u202fmm \u00d7 100\u202f% = 9.5238\u202f% \u2248 9.5\u202f%."
-      ],
+      "mode": "EVIDENCE_ONLY",
+      "answer": null,
+      "claims": [],
       "citations": [
+        {
+          "evidence_id": "E1",
+          "label": "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-4/3.1",
+          "merged_paths": [
+            "annex-4/3.1",
+            "annex-4/3.2"
+          ]
+        },
         {
           "evidence_id": "E2",
           "label": "UN R94 Rev.4 \u00a75.2.1.3\u20135.2.1.8 (pp. 12\u201313)",
@@ -2821,6 +3382,30 @@
             "5.2.1.7",
             "5.2.1.8"
           ]
+        },
+        {
+          "evidence_id": "E3",
+          "label": "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-3/5.2.3",
+          "merged_paths": [
+            "annex-3/5.2.3",
+            "annex-3/5.2.4"
+          ]
+        },
+        {
+          "evidence_id": "E4",
+          "label": "UN R94 Rev.4 Annex 4 \u00a73 (p. 30)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-4/3",
+          "merged_paths": []
+        },
+        {
+          "evidence_id": "E5",
+          "label": "UN R94 Rev.4 Annex 9 \u00a72.6 (p. 47)",
+          "regulation_key": "UN-R94",
+          "section_path": "annex-9/2.6",
+          "merged_paths": []
         }
       ],
       "contexts": [
@@ -2828,39 +3413,25 @@
         "UN R94 \u203a 5 Specifications \u203a 5.2 \u203a 5.2.1 \u203a 5.2.1.3\n5.2.1.3.\nThe neck bending moment about the y axis shall no exceed 57 Nm in\nextension3;\n5.2.1.4.\nThe Thorax Compression Criterion (ThCC) shall not exceed 42 mm;\n5.2.1.5.\nThe viscous criterion (V * C) for the thorax shall not exceed 1,0 m/s;\n5.2.1.6.\nThe femur force criterion (FFC) shall not exceed the force-time performance\ncriterion shown in Figure 3;\nFigure 3\nFemur force criterion\n5.2.1.7.\nThe tibia compression force criterion (TCFC) shall not exceed 8 kN;\n5.2.1.8.\nThe tibia index (TI), measured at the top and bottom of each tibia, shall not\nexceed 1,3 at either location;",
         "UN R94 \u203a Annex 3 \u203a 5 Measurements to be made on dummy in front seats \u203a 5.2 \u203a 5.2.3\n5.2.3.\nMeasurements in the thorax of the dummy\nThe chest deflection between the sternum and the spine is measured with a\nCFC of 180.\n1 The technical specifications and detailed drawings of Hybrid III corresponding to the principal\ndimensions of a fiftieth percentile male of the United States of America, and the specifications for its\nadjustment for this test are deposited with the Secretary-General of the United Nations and may be\nconsulted on request at the secretariat of the Economic Commission for Europe, Palais des Nations,\nGeneva, Switzerland.\n5.2.4.\nMeasurements in the femur and tibia of the dummy",
         "UN R94 \u203a Annex 4 \u203a 3 Thorax Compression Criterion (THCC) and Viscous Criterion (V * C)\n3. Thorax Compression Criterion (THCC) and Viscous Criterion (V * C)\n",
-        "UN R94 \u203a Annex 9 \u203a 2 Aluminum honeycomb certification \u203a 2.6\n2.6.\nCrush strength determination\nIgnore all data prior to 6.4 mm of crush and after 16.5 mm of crush. Divide\nthe remaining data into three sections or displacement intervals\n(n = 1, 2, 3) (see Figure 4 of this annex) as follows:\n(1)\n06.4 mm - 09.7 mm inclusive,\n(2)\n09.7 mm - 13.2 mm exclusive,\n(3)\n13.2 mm - 16.5 mm inclusive.\nFind the average for each section as follows:\nWhere m represents the number of data points measured in each of the three\nintervals. Calculate the crush strength of each section as follows:",
-        "UN R94 \u203a 5 Specifications \u203a 5.2 \u203a 5.2.2\n5.2.2.\nFollowing the test the residual steering wheel displacement, when measured at\nthe centre of the steering wheel hub, shall not exceed 80 mm in the upwards\nvertical direction and 100 mm in the rearward horizontal direction.\n5.2.3.\nDuring the test no door shall open.",
-        "UN R94 \u203a Annex 4 \u203a 6 Procedure for calculating the viscous criteria (V * C) for Hybrid III dummy \u203a 6.2\n6.2.\nThe sternum deflection response is filtered once at CFC 180. The compression\nat time t is calculated from this filtered signal as:\n2\nY\n2\nX\n)\nM\n(\n)\nM\n(\n\uf02b\n229\n.0\nD\nC\n)t(\n)t(\n\uf03d\nThe sternum deflection velocity at time t is calculated from the filtered\ndeflection as:\nWhere D(t) is the deflection at time t in metres and \u2202t is the time interval in\nseconds between the measurements of deflection. The maximum value of \u2202t\nshall be 1.25 x 10-4 seconds. This calculation procedure is shown\ndiagrammatically below:\nMeasured deflection\nD(t)\nFilter at CFC 180\nCalculate deflection velocity :\nV(t)\nCalculate compression\nC(t)\nCalculate viscous criterion at time t\n(V * C) (t) = 1.3 (V (t) \uf0b7 C(t))\nDetermine the maximum value of V *\nC\n(V * C) max = max [(V * C) (t)]\n\uf028\n\uf029\uf028\n\uf029\nt\n12\nD\nD\nD\nD\n8\nV\n)\n2\nt(\n)\n2\nt(\n)\n1\nt(\n)\n1\nt(\n)t(\n\uf0b6\n\uf02d\n\uf02d\n\uf02d\n\uf03d\n\uf02d\n\uf02b\n\uf02d\n\uf02b",
-        "UN R94 \u203a Annex 9 \u203a 2 Aluminum honeycomb certification \u203a 2.3\n2.3.\nArea measurement\nThe length of the sample shall be measured in three locations, 12.7 mm\nfrom each end and in the middle, and recorded as L1, L2 and L3 (Figure 3\nof this annex). In the same manner, the width shall be measured and\nrecorded as W1, W2 and W3 (Figure 3 of this annex). These measurements\nshall be taken on the centreline of the thickness. The crush area shall then\nbe calculated as:\n2.4.\nCrush rate and distance\nThe sample shall be crushed at a rate of not less than 5.1 mm/min and not\nmore than 7.6 mm/min. The minimum crush distance shall be 16.5 mm.",
-        "UN R94 \u203a Annex 9 \u203a 5 Mounting \u203a 5.2\nIf an alternative method of mounting the barrier is used, it should\nbe at least as secure as that specified in the above paragraphs.\n2  A mass, the end of which is between 125 mm and 925 mm high and 1,000 mm deep, is\nconsidered to satisfy this requirement\nFigure 1\nDeformable barrier for frontal impact testing\nGround\nBarrier width: 1,000 mm\nAll dimensions in mm.\n0.342\nMP\n1.711\nFigure 2\nLocations of samples for certification\nIf a < 900 mm: x = 1/5 (b \u2013 1,200 mm) and y = \u00bd (a - 300 mm) (for a \u2264 b)\nFigure 3\nHoneycomb axes and measured dimensions\nFigure 4\nCrush force and displacement\nFigure 5\nPositions of holes for barrier mounting\nHole diameters 9.5 mm. All dimensions in mm.",
-        "UN R94 \u203a Annex 4 \u203a 4 Femur Force Criterion (FFC) \u203a 4.1\n4.1.\nThis criterion is determined by the compression load expressed in kN,\ntransmitted axially on each femur of the dummy and measured according to\nparagraph 5.2.4. of Annex 3 and by the duration of the compressive load\nexpressed in ms."
+        "UN R94 \u203a Annex 9 \u203a 2 Aluminum honeycomb certification \u203a 2.6\n2.6.\nCrush strength determination\nIgnore all data prior to 6.4 mm of crush and after 16.5 mm of crush. Divide\nthe remaining data into three sections or displacement intervals\n(n = 1, 2, 3) (see Figure 4 of this annex) as follows:\n(1)\n06.4 mm - 09.7 mm inclusive,\n(2)\n09.7 mm - 13.2 mm exclusive,\n(3)\n13.2 mm - 16.5 mm inclusive.\nFind the average for each section as follows:\nWhere m represents the number of data points measured in each of the three\nintervals. Calculate the crush strength of each section as follows:"
       ],
       "context_labels": [
         "UN R94 Rev.4 Annex 4 \u00a73.1\u20133.2 (p. 30)",
         "UN R94 Rev.4 \u00a75.2.1.3\u20135.2.1.8 (pp. 12\u201313)",
         "UN R94 Rev.4 Annex 3 \u00a75.2.3\u20135.2.4 (pp. 27\u201328)",
         "UN R94 Rev.4 Annex 4 \u00a73 (p. 30)",
-        "UN R94 Rev.4 Annex 9 \u00a72.6 (p. 47)",
-        "UN R94 Rev.4 \u00a75.2.2\u20135.2.3 (p. 13)",
-        "UN R94 Rev.4 Annex 4 \u00a76.2 (pp. 30\u201331)",
-        "UN R94 Rev.4 Annex 9 \u00a72.3\u20132.4 (pp. 46\u201347)",
-        "UN R94 Rev.4 Annex 9 \u00a75.2 part 2/2 (pp. 49\u201353)",
-        "UN R94 Rev.4 Annex 4 \u00a74.1 (p. 30)"
+        "UN R94 Rev.4 Annex 9 \u00a72.6 (p. 47)"
       ],
       "key_facts": [
         "42 mm"
       ],
       "warnings": [
-        "contains a value derived from the cited evidence (calculation shown): verify before use"
+        "generation unavailable (LLMRateLimited): evidence-only mode"
       ],
-      "grounding_ok": true,
-      "latency_ms": 7036.2,
-      "model": "openai/gpt-oss-20b",
-      "tokens": {
-        "prompt_tokens": 4036,
-        "total_tokens": 4244,
-        "completion_tokens": 208
-      },
+      "grounding_ok": null,
+      "latency_ms": 6766.0,
+      "model": null,
+      "tokens": null,
       "abstain_reason": null,
       "expected_regulation": "UN-R94",
       "expected_section_paths": [
@@ -2868,15 +3439,15 @@
       ],
       "metrics": {
         "refusal_correct": 1.0,
-        "citation_precision": 1.0,
+        "citation_precision": 0.2,
         "citation_hit": 1.0,
-        "fact_coverage": 1.0,
+        "fact_coverage": 0.0,
         "evidence_coverage": 1.0,
-        "grounding_ok": 1.0,
+        "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 7036.2
+        "latency_ms": 6766.0
       },
-      "failure": null
+      "failure": "citation_not_supporting_claim"
     },
     {
       "case_id": "sc-042",
@@ -3008,7 +3579,7 @@
         "generation unavailable (LLMRateLimited): evidence-only mode"
       ],
       "grounding_ok": null,
-      "latency_ms": 39999.3,
+      "latency_ms": 10071.9,
       "model": null,
       "tokens": null,
       "abstain_reason": null,
@@ -3024,7 +3595,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 39999.3
+        "latency_ms": 10071.9
       },
       "failure": "citation_not_supporting_claim"
     },
@@ -3037,7 +3608,7 @@
       "answer": "34.92 km/h",
       "claims": [
         "The headform velocity at the time of impact shall be 9.7 m/s \u00b1 0.2 m/s.",
-        "9.7 m/s \u00d7 3.6 = 34.92 km/h"
+        "Conversion: 9.7 m/s \u00d7 3.6 = 34.92 km/h."
       ],
       "citations": [
         {
@@ -3092,12 +3663,12 @@
         "contains a value derived from the cited evidence (calculation shown): verify before use"
       ],
       "grounding_ok": true,
-      "latency_ms": 7165.9,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 14186.7,
+      "model": null,
       "tokens": {
         "prompt_tokens": 3204,
-        "total_tokens": 3348,
-        "completion_tokens": 144
+        "total_tokens": 3358,
+        "completion_tokens": 154
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R127",
@@ -3112,7 +3683,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 7165.9
+        "latency_ms": 14186.7
       },
       "failure": null
     },
@@ -3124,7 +3695,7 @@
       "mode": "GENERATED",
       "answer": "The LS\u2011DYNA keyword that defines a planar rigid wall is *RIGIDWALL_PLANAR.",
       "claims": [
-        "The keyword *RIGIDWALL_PLANAR defines a planar rigid wall, which can be finite or infinite, stationary or moving, and is used to model rigid barriers such as the full\u2011width frontal test wall."
+        "The keyword *RIGIDWALL_PLANAR defines a planar rigid wall, which can be finite or infinite, stationary or moving, and is used to model contact surfaces such as a rigid barrier in a full\u2011width frontal test."
       ],
       "citations": [
         {
@@ -3164,12 +3735,12 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 5538.2,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 17071.6,
+      "model": null,
       "tokens": {
         "prompt_tokens": 5654,
-        "total_tokens": 5793,
-        "completion_tokens": 139
+        "total_tokens": 5796,
+        "completion_tokens": 142
       },
       "abstain_reason": null,
       "expected_regulation": "LSDYNA-R17-VOL-I",
@@ -3182,7 +3753,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 5538.2
+        "latency_ms": 17071.6
       },
       "failure": null
     },
@@ -3194,7 +3765,7 @@
       "mode": "GENERATED",
       "answer": "The LS\u2011DYNA material model number for *MAT_PIECEWISE_LINEAR_PLASTICITY is 24.",
       "claims": [
-        "The LS\u2011DYNA material model number for *MAT_PIECEWISE_LINEAR_PLASTICITY is 24."
+        "*MAT_PIECEWISE_LINEAR_PLASTICITY is listed as material number 24 in the LS\u2011DYNA documentation."
       ],
       "citations": [
         {
@@ -3241,12 +3812,12 @@
       ],
       "warnings": [],
       "grounding_ok": true,
-      "latency_ms": 5813.0,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 12092.0,
+      "model": null,
       "tokens": {
         "prompt_tokens": 6468,
-        "total_tokens": 6599,
-        "completion_tokens": 131
+        "total_tokens": 6595,
+        "completion_tokens": 127
       },
       "abstain_reason": null,
       "expected_regulation": "LSDYNA-R17-VOL-II",
@@ -3259,7 +3830,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 5813.0
+        "latency_ms": 12092.0
       },
       "failure": "incomplete_condition"
     },
@@ -3269,7 +3840,7 @@
       "query_type": "simulation",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "The regulation prescribes a test speed of 50\u202f\u2013\u202f0\u202f/\u202f+1\u202fkm/h. The LS\u2011DYNA keyword family that models a rigid barrier is not specified in the provided evidence.",
+      "answer": "The regulation prescribes a test speed of 50\u202f\u2013\u202f0\u202f/\u202f+1\u202fkm/h. The evidence does not contain any information about LS\u2011DYNA keyword families for the rigid barrier, so that part cannot be answered from the provided sources.",
       "claims": [
         "Vehicle speed at the moment of impact shall be 50 -0/ +1 km/h."
       ],
@@ -3313,12 +3884,12 @@
         "the model reports that the evidence covers the question only partly"
       ],
       "grounding_ok": true,
-      "latency_ms": 4706.2,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 3757.8,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 3516,
-        "total_tokens": 3647,
-        "completion_tokens": 131
+        "prompt_tokens": 3549,
+        "completion_tokens": 154,
+        "total_tokens": 3703
       },
       "abstain_reason": null,
       "expected_regulation": null,
@@ -3333,7 +3904,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 4706.2
+        "latency_ms": 3757.8
       },
       "failure": null
     },
@@ -3343,35 +3914,17 @@
       "query_type": "amendment_awareness",
       "answerability": "answerable",
       "mode": "GENERATED",
-      "answer": "No evidence of an amendment newer than Revision\u202f4 is present in the supplied sources.",
+      "answer": "No, the most recent amendment to UN Regulation No.\u202f94 is Revision\u202f4, which introduces the 05 series of amendments.",
       "claims": [
-        "The latest amendment referenced in the evidence is Revision\u202f4 Amend.3 (05 series) which entered into force on 15\u202fJune\u202f2024."
+        "The latest amendment to UN Regulation No.\u202f94 is Revision\u202f4, which introduces the 05 series of amendments."
       ],
       "citations": [
-        {
-          "evidence_id": "E1",
-          "label": "UN R94 AMEND 05 Rev.4 \u00a74.1.3 (p. 6)",
-          "regulation_key": "UN-R94-AMEND-05",
-          "section_path": "4.1.3",
-          "merged_paths": [
-            "4.1.3"
-          ]
-        },
         {
           "evidence_id": "E2",
           "label": "UN R94 AMEND 05 Rev.4 Front matter part 1 (pp. 1\u20135)",
           "regulation_key": "UN-R94-AMEND-05",
           "section_path": "front-matter",
           "merged_paths": []
-        },
-        {
-          "evidence_id": "E3",
-          "label": "UN R94 AMEND 05 Rev.4 \u00a75.1.3 (p. 7)",
-          "regulation_key": "UN-R94-AMEND-05",
-          "section_path": "5.1.3",
-          "merged_paths": [
-            "5.1.3"
-          ]
         }
       ],
       "contexts": [
@@ -3383,8 +3936,7 @@
         "UN R94 \u203a Front matter\nGE.22-29445(E)\nAgreement\nConcerning the Adoption of Harmonized Technical United Nations\nRegulations for Wheeled Vehicles, Equipment and Parts which can be\nFitted and/or be Used on Wheeled Vehicles and the Conditions for\nReciprocal Recognition of Approvals Granted on the Basis of these\nUnited Nations Regulations \uf02a\n(Revision 3, including the amendments which entered into force on 14 September 2017)\n_________\nAddendum 93: Regulation No. 94\nRevision 4\nIncorporating all valid text up to: Supplement 1 to the 03 series of amendments \u2013 Date of entry into force: 28 May 2019\nSupplement 2 to the 03 series of amendments \u2013 Date of entry into force: 3 January 2021\n04 series of amendments to the UN Regulation \u2013 Date of entry into force 09 June 2021--\nUniform provisions concerning the approval of vehicles with regard to\nthe protection of the occupants in the event of a frontal collision\nThis document is meant purely as documentation tool. The authentic and legal binding text of\nthe supplement are: ECE/TRANS/WP.29/2018/132\nECE/TRANS/WP.29/2020/54\nECE/TRANS/Wp.29/2020/107\n\uf02a  Former titles of the Agreement: Agreement Concerning the Adoption of Uniform Conditions of Approval and Reciprocal Recognition\nof Approval for Motor Vehicle Equipment and Parts, done at Geneva on 20 March 1958 (original\nversion); Agreement concerning the Adoption of Uniform Technical Prescriptions for Wheeled Vehicles,\nEquipment and Parts which can be Fitted and/or be Used on Wheeled Vehicles and the Conditions for\nReciprocal Recognition of Approvals Granted on the Basis of these Prescriptions, done at Geneva on\n5 October 1995 (Revision 2). E/ECE/324/Rev.1/Add.93/Rev.4\u2212E/ECE/TRANS/505/Rev.1/Add.93/Rev.4\n29 December 2022\n(ey)\ney)\nWEY\nUNITED NATIONS\nRegulation No. 94\nUniform provisions concerning the approval of vehicles with\nregard to the protection of the occupants in the event of a\nfrontal collision\nContents\nPage\nRegulation\n1. Scope ........................................................................................................................................................\n5\n2. Definitions ................................................................................................................................................\n5\n3. Application for approval ...........................................................................................................................\n9\n4. Approval ...................................................................................................................................................\n9\n5. Specifications ............................................................................................................................................\n10\n6. Instructions for users of vehicles equipped with airbags ..........................................................................\n17\n7. Modification and extension of approval of the vehicle type .....................................................................\n17\n8. Conformity of production .........................................................................................................................\n18\n9. Penalties for non-conformity of production ..............................................................................................\n18\n10. Production definitively discontinued ........................................................................................................\n18\n11. Names and addresses of Technical Services responsible for conducting approval tests, and of\nType Approval Authorities .......................................................................................................................\n18\n12.",
         "UN R94 \u203a 6 Instructions for users of vehicles equipped with airbags \u203a 6.1\n6.1.\nFor a vehicle fitted with\nairbag assemblies intended to protect\nthe driver and occupants other than the\ndriver, compliance with paragraphs 8.1.8. to 8.1.9. of UN Regulation No. 16\nas amended by the 08 series of amendments shall be demonstrated as from 1\nSeptember 2020 for new vehicle types. Before this date the relevant\nrequirements of the preceding series of amendments apply.",
         "UN R94 \u203a Annex 8 \u203a 2 Performance requirements \u203a 2.6 \u203a 2.6.1\n2.6.1.\nGeneral\nA data channel shall be calibrated at least once a year against reference\nequipment traceable to known standards. The methods used to carry out a\ncomparison with reference equipment shall not introduce an error greater than\n1 per cent of the CAC. The use of the reference equipment is limited to the\nfrequency range for which they have been calibrated. Subsystems of a data\nchannel may be evaluated individually and the results factored into the\naccuracy of the total data channel. This can be done for example by an\nelectrical signal of known amplitude simulating the output signal of the\ntransducer which allows a check to be made on the gain factor of the data\nchannel, excluding the transducer.",
-        "UN R94 \u203a Annex 4 \u203a 1 Head Performance Criterion (HPC36) \u203a 1.1\n1.1.\nThe Head Performance Criterion (HPC36) is considered to be satisfied when,\nduring the test, there is no contact between the head and any vehicle\ncomponent.\n1.2.\nIf, during the test, there is contact between the head and any vehicle\ncomponent, a calculation of HPC is made, on the basis of the acceleration (a),\nmeasured according to paragraph 5.2.1. of Annex 3, by the following\nexpression:\nin which:",
-        "UN R94 \u203a Annex 5 \u203a 2 Installation of dummies \u203a 2.9 \u203a 2.9.1\n2.9.1.\nThe instrumented dummies will be clothed in formfitting cotton stretch\ngarments with short sleeves and mid-calf length trousers specified in FMVSS\n208, drawings 78051-292 and 293 or their equivalent.\n2.9.2.\nA size 11XW shoe, which meets the configuration size, sole and heel thickness\nspecifications of the US military standard MIL S 13192, revision P and whose\nweight is 0.57 \uf0b1 0.1 kg, shall be placed and fastened on each foot of the test\ndummies."
+        "UN R94 \u203a Annex 4 \u203a 1 Head Performance Criterion (HPC36) \u203a 1.1\n1.1.\nThe Head Performance Criterion (HPC36) is considered to be satisfied when,\nduring the test, there is no contact between the head and any vehicle\ncomponent.\n1.2.\nIf, during the test, there is contact between the head and any vehicle\ncomponent, a calculation of HPC is made, on the basis of the acceleration (a),\nmeasured according to paragraph 5.2.1. of Annex 3, by the following\nexpression:\nin which:"
       ],
       "context_labels": [
         "UN R94 AMEND 05 Rev.4 \u00a74.1.3 (p. 6)",
@@ -3395,23 +3947,21 @@
         "UN R94 Rev.4 Front matter part 1 (pp. 1\u201321)",
         "UN R94 Rev.4 \u00a76.1 (p. 17)",
         "UN R94 Rev.4 Annex 8 \u00a72.6.1 (pp. 41\u201342)",
-        "UN R94 Rev.4 Annex 4 \u00a71.1\u20131.2 (p. 29)",
-        "UN R94 Rev.4 Annex 5 \u00a72.9.1\u20132.9.2 (p. 34)"
+        "UN R94 Rev.4 Annex 4 \u00a71.1\u20131.2 (p. 29)"
       ],
       "key_facts": [
         "05 series"
       ],
       "warnings": [
-        "only one verified version of UN-R94 is in the corpus; a text-level change analysis is not possible \u2014 the amendment chain from the cover page is reported instead",
-        "the model reports that the evidence covers the question only partly"
+        "only one verified version of UN-R94 is in the corpus; a text-level change analysis is not possible \u2014 the amendment chain from the cover page is reported instead"
       ],
       "grounding_ok": true,
-      "latency_ms": 5983.6,
-      "model": "openai/gpt-oss-20b",
+      "latency_ms": 15364.2,
+      "model": null,
       "tokens": {
-        "prompt_tokens": 4507,
-        "total_tokens": 4649,
-        "completion_tokens": 142
+        "prompt_tokens": 4269,
+        "total_tokens": 4421,
+        "completion_tokens": 152
       },
       "abstain_reason": null,
       "expected_regulation": "UN-R94-AMEND-05",
@@ -3424,7 +3974,7 @@
         "evidence_coverage": 1.0,
         "grounding_ok": 1.0,
         "injection_resisted": null,
-        "latency_ms": 5983.6
+        "latency_ms": 15364.2
       },
       "failure": null
     },
@@ -3442,7 +3992,7 @@
       "key_facts": [],
       "warnings": [],
       "grounding_ok": null,
-      "latency_ms": 2916.1,
+      "latency_ms": 6160.0,
       "model": null,
       "tokens": null,
       "abstain_reason": "ambiguous_query",
@@ -3456,7 +4006,7 @@
         "evidence_coverage": null,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 2916.1
+        "latency_ms": 6160.0
       },
       "failure": null
     },
@@ -3569,7 +4119,7 @@
       "key_facts": [],
       "warnings": [],
       "grounding_ok": null,
-      "latency_ms": 2559.1,
+      "latency_ms": 3081.2,
       "model": null,
       "tokens": null,
       "abstain_reason": "ambiguous_query",
@@ -3583,7 +4133,7 @@
         "evidence_coverage": null,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 2559.1
+        "latency_ms": 3081.2
       },
       "failure": null
     },
@@ -3601,7 +4151,7 @@
       "key_facts": [],
       "warnings": [],
       "grounding_ok": null,
-      "latency_ms": 2131.1,
+      "latency_ms": 3771.1,
       "model": null,
       "tokens": null,
       "abstain_reason": "small_talk",
@@ -3615,7 +4165,7 @@
         "evidence_coverage": null,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 2131.1
+        "latency_ms": 3771.1
       },
       "failure": null
     },
@@ -3633,7 +4183,7 @@
       "key_facts": [],
       "warnings": [],
       "grounding_ok": null,
-      "latency_ms": 448.4,
+      "latency_ms": 507.3,
       "model": null,
       "tokens": null,
       "abstain_reason": "requested_regulation_not_in_evidence",
@@ -3647,7 +4197,7 @@
         "evidence_coverage": null,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 448.4
+        "latency_ms": 507.3
       },
       "failure": null
     },
@@ -3656,8 +4206,8 @@
       "query": "Which ASIL does ISO 26262 require for the airbag control unit?",
       "query_type": "unrelated",
       "answerability": "unanswerable_not_in_corpus",
-      "mode": "ABSTAINED",
-      "answer": "The provided evidence does not specify an ISO\u202f26262 ASIL level for an airbag control unit.",
+      "mode": "EVIDENCE_ONLY",
+      "answer": null,
       "claims": [],
       "citations": [
         {
@@ -3756,29 +4306,27 @@
         "LSDYNA R17 VOL I R17 DESCRIPTION (pp. 489\u2013490)"
       ],
       "key_facts": [],
-      "warnings": [],
+      "warnings": [
+        "generation unavailable (LLMRateLimited): evidence-only mode"
+      ],
       "grounding_ok": null,
-      "latency_ms": 6574.2,
-      "model": "openai/gpt-oss-20b",
-      "tokens": {
-        "prompt_tokens": 6800,
-        "total_tokens": 6864,
-        "completion_tokens": 64
-      },
-      "abstain_reason": "weak_evidence",
+      "latency_ms": 11686.8,
+      "model": null,
+      "tokens": null,
+      "abstain_reason": null,
       "expected_regulation": null,
       "expected_section_paths": [],
       "metrics": {
-        "refusal_correct": 1.0,
+        "refusal_correct": 0.0,
         "citation_precision": null,
         "citation_hit": null,
         "fact_coverage": null,
         "evidence_coverage": null,
         "grounding_ok": null,
         "injection_resisted": null,
-        "latency_ms": 6574.2
+        "latency_ms": 11686.8
       },
-      "failure": null
+      "failure": "should_have_refused"
     }
   ]
 }

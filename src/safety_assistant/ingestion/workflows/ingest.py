@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime as dt
+import logging
 import pathlib
 import subprocess
 import traceback
@@ -133,14 +134,23 @@ class _Ctx:
         self.session.flush()
 
 
+log = logging.getLogger(__name__)
+
+
 def _now() -> dt.datetime:
     return dt.datetime.now(dt.UTC)
 
 
 def _default_parser(settings: Settings) -> DocumentParser:
-    from safety_assistant.ingestion.parse.ocr import ocr_from_settings
+    from safety_assistant.ingestion.parse.ocr import OcrUnavailable, ocr_from_settings
 
-    ocr = ocr_from_settings(settings.ocr_provider, lang=settings.ocr_language)
+    try:
+        ocr = ocr_from_settings(settings.ocr_provider, lang=settings.ocr_language)
+    except OcrUnavailable as exc:
+        # A missing OCR binary must not fail every upload: text-layer PDFs need no OCR, and pages
+        # without one stay flagged NEEDS_REVIEW exactly as with OCR_PROVIDER=none.
+        log.warning("OCR unavailable (%s); pages without a text layer will be flagged, not read", exc)
+        return PyMuPDFParser(ocr=None)
     return PyMuPDFParser(ocr=None if ocr.name == "none" else ocr)
 
 
@@ -739,7 +749,7 @@ def _chunk(
             )
         )
 
-    drafts = chunk_document(nd, parsed.tables, CitationContext(e.regulation_key, e.version.label))
+    drafts = chunk_document(nd, parsed.tables, CitationContext(e.regulation_key, e.version.label, e.title))
     for d in drafts:
         s.add(
             Chunk(

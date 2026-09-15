@@ -47,7 +47,7 @@ export default function DocumentDetailPage() {
         <div className="min-w-0 flex-1">
           <h1 className="text-xl font-semibold" data-testid="document-title">{d.title}</h1>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <ScopeBadge scope={d.scope} />
+            <ScopeBadge scope={d.scope} kind={d.document_type} />
             <DocumentStatus status={d.status} />
             <span className="font-mono text-xs text-muted-foreground">{d.document_key}</span>
           </div>

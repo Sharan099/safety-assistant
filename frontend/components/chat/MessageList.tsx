@@ -8,14 +8,39 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Message } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { humanizeWarning, supportingLines } from "@/lib/warnings";
 
 function pages(item: EvidenceItem): string {
   if (!item.page_start) return "";
   return item.page_end && item.page_end !== item.page_start ? `pp. ${item.page_start}–${item.page_end}` : `p. ${item.page_start}`;
 }
 
+/** The excerpt with the lines that carry the answer highlighted and scrolled into view. */
+export function ExcerptLines({ excerpt, answer }: { excerpt: string; answer?: string }) {
+  const lines = excerpt.split("\n");
+  const hits = answer ? supportingLines(excerpt, answer) : new Set<number>();
+  const first = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    first.current?.scrollIntoView({ block: "center" });
+  }, [excerpt, answer]);
+  const firstHit = Math.min(...hits);
+  return (
+    <>
+      {lines.map((line, i) => {
+        const hit = hits.has(i);
+        const ref = i === firstHit ? first : undefined;
+        return (
+          <span key={i} ref={ref} data-supporting={hit || undefined} className={cn("block", hit && "rounded bg-evidence-soft font-medium text-foreground")}>
+            {line || "\u00a0"}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
 /** Hover / focus preview of the cited lines: what the answer rests on, before opening the panel. */
-export function CitationPreview({ item, children }: { item: EvidenceItem; children: React.ReactElement }) {
+export function CitationPreview({ item, answer, children }: { item: EvidenceItem; answer?: string; children: React.ReactElement }) {
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
@@ -26,7 +51,7 @@ export function CitationPreview({ item, children }: { item: EvidenceItem; childr
           <span className="text-text-secondary"> · {item.version_label}</span>
         </div>
         <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap px-3 py-2 font-sans text-xs leading-relaxed">
-          {item.excerpt ?? "Excerpt not stored for this citation — open the evidence panel."}
+          {item.excerpt ? <ExcerptLines excerpt={item.excerpt} answer={answer} /> : "Excerpt not stored for this citation — open the evidence panel."}
         </pre>
       </TooltipContent>
     </Tooltip>
@@ -35,6 +60,7 @@ export function CitationPreview({ item, children }: { item: EvidenceItem; childr
 
 /** Renders "[E1]" / "[1]" markers in answer text as buttons that focus the evidence panel. */
 export function CitationMarkers({ text, items, onFocus }: { text: string; items: EvidenceItem[]; onFocus: (id: string) => void }) {
+  const answer = text;
   const parts = text.split(/(\[E?\d+\])/g);
   return (
     <>
@@ -46,7 +72,7 @@ export function CitationMarkers({ text, items, onFocus }: { text: string; items:
         const item = m[0].startsWith("[E") ? items.find((it) => it.id === `E${n}`) : items.find((it) => it.order === n);
         if (!item) return <span key={i}>{part}</span>;
         return (
-          <CitationPreview key={i} item={item}>
+          <CitationPreview key={i} item={item} answer={answer}>
             <button
               type="button"
               data-testid="citation-marker"
@@ -63,10 +89,11 @@ export function CitationMarkers({ text, items, onFocus }: { text: string; items:
   );
 }
 
-export function AssistantMessage({ message, live }: { message: Message; live?: EvidenceItem[] }) {
+export function AssistantMessage({ message, live, onAskAgain }: { message: Message; live?: EvidenceItem[]; onAskAgain?: () => void }) {
   const { show, focus } = useEvidence();
   const items = live ?? fromCitations(message.citations);
   const mode = message.answer_mode ?? "EVIDENCE_ONLY";
+  const transient = message.warnings.some((w) => w.startsWith("generation unavailable"));
   return (
     <article
       className="rounded-xl border bg-card p-4"
@@ -90,6 +117,15 @@ export function AssistantMessage({ message, live }: { message: Message; live?: E
         <p className="text-sm text-text-secondary" data-testid="abstain">
           {message.content || "The authorized sources do not contain enough evidence to answer. Try naming the regulation, broadening the source scope, or uploading the relevant document."}
         </p>
+      ) : mode === "EVIDENCE_ONLY" && !message.content ? (
+        <div className="text-sm text-text-secondary" data-testid="evidence-only">
+          <p>No answer was written for this turn; the retrieved evidence is listed below so nothing is lost.</p>
+          {transient && onAskAgain && (
+            <Button size="sm" variant="outline" className="mt-2" onClick={onAskAgain} data-testid="ask-again">
+              Ask again
+            </Button>
+          )}
+        </div>
       ) : (
         <div className="whitespace-pre-wrap text-sm leading-relaxed">
           <CitationMarkers text={message.content} items={items} onFocus={(id) => { show(items, id); focus(id); }} />
@@ -98,8 +134,8 @@ export function AssistantMessage({ message, live }: { message: Message; live?: E
       {message.warnings.length > 0 && (
         <ul className="mt-3 space-y-1 rounded-md bg-warning-soft p-2 text-xs text-warning" data-testid="warnings" aria-label="Warnings">
           {message.warnings.map((w, i) => (
-            <li key={i} className="flex items-start gap-1.5">
-              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden /> {w}
+            <li key={i} className="flex items-start gap-1.5" title={w}>
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden /> {humanizeWarning(w)}
             </li>
           ))}
         </ul>
@@ -125,7 +161,7 @@ export function AssistantMessage({ message, live }: { message: Message; live?: E
                 <span className="font-mono">[{c.order + 1}]</span> {c.label}
               </button>
             );
-            return <li key={c.order}>{item ? <CitationPreview item={item}>{chip}</CitationPreview> : chip}</li>;
+            return <li key={c.order}>{item ? <CitationPreview item={item} answer={message.content}>{chip}</CitationPreview> : chip}</li>;
           })}
         </ol>
       )}
@@ -144,11 +180,13 @@ export function MessageList({
   liveEvidence,
   pending,
   failed,
+  onAskAgain,
 }: {
   messages: Message[];
   liveEvidence?: Record<string, EvidenceItem[]>;
   pending?: string | null;
   failed?: FailedTurn | null;
+  onAskAgain?: (content: string) => void;
 }) {
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -156,15 +194,24 @@ export function MessageList({
   }, [messages.length, pending, failed]);
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-4" aria-live="polite">
-      {messages.map((m) =>
-        m.role === "user" ? (
-          <div key={m.id} className="self-end rounded-xl bg-primary-soft px-4 py-2.5 text-sm" data-testid="user-message">
-            {m.content}
-          </div>
-        ) : (
-          <AssistantMessage key={m.id} message={m} live={liveEvidence?.[m.id]} />
-        ),
-      )}
+      {messages.map((m, i) => {
+        if (m.role === "user") {
+          return (
+            <div key={m.id} className="self-end rounded-xl bg-primary-soft px-4 py-2.5 text-sm" data-testid="user-message">
+              {m.content}
+            </div>
+          );
+        }
+        const question = messages[i - 1]?.role === "user" ? messages[i - 1].content : null;
+        return (
+          <AssistantMessage
+            key={m.id}
+            message={m}
+            live={liveEvidence?.[m.id]}
+            onAskAgain={question && onAskAgain ? () => onAskAgain(question) : undefined}
+          />
+        );
+      })}
       {pending && (
         <>
           <div className="self-end rounded-xl bg-primary-soft px-4 py-2.5 text-sm">{pending}</div>

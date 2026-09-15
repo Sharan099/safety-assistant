@@ -47,7 +47,7 @@ function NewInvestigation() {
       <div className="flex h-12 items-center gap-3 border-b bg-card px-4">
         <h1 className="text-sm font-semibold">New investigation</h1>
         <SourceScopeSelector value={scope} onChange={setScope} me={me.data} />
-        {scope.document_ids.length > 0 && <span className="text-xs text-text-secondary">Limited to 1 selected document</span>}
+        {scope.document_ids.length > 0 && <span className="text-xs text-text-secondary">Searching the selected document — plus any regulation you name in the question</span>}
       </div>
       <div className="flex flex-1 flex-col justify-end">
         <div className="mx-auto max-w-3xl px-4 py-8 text-sm text-text-secondary">

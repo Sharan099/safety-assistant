@@ -118,3 +118,18 @@ def test_private_material_never_leaks_to_other_users_or_orgs() -> None:
     # Alice's private doc in ORG_B is hers regardless of org membership: ownership is the key
     assert DOCS[6] in visible
     assert Regulation.scope is not None  # the ORM column the predicate is built on exists
+
+
+def test_document_focus_unions_with_named_regulations() -> None:
+    from safety_assistant.retrieval.base import ScopeFilter, document_in_scope
+
+    report, r94 = uuid.uuid4(), uuid.uuid4()
+    authz = Authz(user_id=uuid.uuid4(), organization_ids=(uuid.uuid4(),), workspace_ids=(), document_ids=(report,))
+    focused = ScopeFilter(authz=authz)
+    assert document_in_scope(focused, report, "ACME-TR-2026-0417")
+    assert not document_in_scope(focused, r94, "UN-R94")  # focus alone: only the report
+    named = ScopeFilter(authz=authz, regulation_keys=("UN-R94",))
+    assert document_in_scope(named, report, "ACME-TR-2026-0417")  # the report stays
+    assert document_in_scope(named, r94, "UN-R94")  # and the named regulation joins it
+    assert not document_in_scope(named, uuid.uuid4(), "UN-R95")
+    assert document_in_scope(ScopeFilter(authz=Authz(user_id=None, organization_ids=(), workspace_ids=())), r94, "X")

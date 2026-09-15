@@ -190,17 +190,19 @@ class RegulatoryAgent:
                 "mode": "EVIDENCE_ONLY",
                 "warnings": state["warnings"] + ["no LLM configured: evidence-only mode"],
             }
-        confidential = [e for e in state["evidence"] if e.data_class not in self.llm_data_classes]
-        if confidential:
-            return {
-                **state,
-                "mode": "EVIDENCE_ONLY",
-                "warnings": state["warnings"]
-                + [
-                    "evidence includes data classes the configured LLM provider is not cleared for "
-                    f"({sorted({e.data_class for e in confidential})}): evidence-only mode"
-                ],
-            }
+        # Policy, not a heuristic: evidence the provider is not cleared for never reaches it. The
+        # cleared part of the evidence is still answered (the regulation side of "my report vs R94");
+        # the withheld documents are named in a warning and stay visible as evidence.
+        cleared = [e for e in state["evidence"] if e.data_class in self.llm_data_classes]
+        withheld = sorted({e.regulation_title for e in state["evidence"] if e.data_class not in self.llm_data_classes})
+        warnings = list(state["warnings"])
+        if withheld:
+            warnings.append(
+                f"not sent to the answer model (provider not cleared for that data class): {', '.join(withheld)}"
+            )
+        if withheld and not cleared:
+            return {**state, "mode": "EVIDENCE_ONLY", "warnings": warnings}
+        state = {**state, "warnings": warnings}
         if state.get("llm_calls", 0) >= self.budget.max_llm_calls:
             return {
                 **state,
@@ -213,7 +215,7 @@ class RegulatoryAgent:
             f"intent={state['intent']}; route={state['route']}; "
             f"regulations={','.join(state['regulation_keys']) or 'any'}; as_of={scope.as_of or 'current'}"
         )
-        user = build_user_message(state["query"], state["evidence"], scope_note)
+        user = build_user_message(state["query"], cleared, scope_note)
         if state.get("extra_context"):
             user = user.replace("<question>", f"{state['extra_context']}\n\n<question>", 1)
         if state.get("project_context"):

@@ -8,7 +8,7 @@ import { Composer } from "@/components/chat/Composer";
 import { type FailedTurn, MessageList } from "@/components/chat/MessageList";
 import { SourceScopeSelector, scopeSummary } from "@/components/chat/SourceScopeSelector";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/States";
-import { type EvidenceItem, fromEvidence, useEvidence } from "@/components/evidence/EvidenceContext";
+import { type EvidenceItem, fromCitations, fromEvidence, useEvidence } from "@/components/evidence/EvidenceContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConversation, useMe, usePatchConversation, useSendMessage } from "@/features/queries";
@@ -61,6 +61,13 @@ export default function ConversationPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conv.data, id]);
+
+  // Opening an investigation shows the evidence of its latest answer instead of an empty panel.
+  useEffect(() => {
+    const last = [...(conv.data?.messages ?? [])].reverse().find((m) => m.role === "assistant" && m.citations.length > 0);
+    if (last) show(live[last.id] ?? fromCitations(last.citations));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conv.data?.id]);
 
   if (conv.isPending || me.isPending) return <div className="p-4"><LoadingState rows={4} label="Loading conversation" /></div>;
   if (conv.isError || me.isError) {
@@ -116,7 +123,7 @@ export default function ConversationPage() {
             <EmptyState title="No messages yet" hint="Ask the first question below." />
           </div>
         ) : (
-          <MessageList messages={c.messages} liveEvidence={live} pending={pending} failed={failed} />
+          <MessageList messages={c.messages} liveEvidence={live} pending={pending} failed={failed} onAskAgain={(q) => ask(q, null)} />
         )}
       </div>
       {archived ? (

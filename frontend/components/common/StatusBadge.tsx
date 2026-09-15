@@ -36,11 +36,20 @@ const SCOPE: Record<SourceScopeName, { label: string; cls: string }> = {
   PRIVATE_USER: { label: "Private document", cls: "bg-warning-soft text-warning" },
 };
 
-export function ScopeBadge({ scope }: { scope: SourceScopeName }) {
+const VERIFIED_KIND: Record<string, string> = {
+  REGULATION: "Verified regulation",
+  STANDARD: "Verified standard / protocol",
+  MANUAL: "Verified manual",
+  TECHNICAL_REPORT: "Verified reference",
+};
+
+/** Verified sources are labelled by what they are (a CAE manual is not a regulation); uploads by who can see them. */
+export function ScopeBadge({ scope, kind }: { scope: SourceScopeName; kind?: string }) {
   const s = SCOPE[scope];
+  const label = scope === "AUTHORITATIVE_ORG" && kind ? (VERIFIED_KIND[kind] ?? "Verified source") : s.label;
   return (
     <Badge variant="secondary" className={cn("font-medium", s.cls)} data-testid="scope-badge">
-      {s.label}
+      {label}
     </Badge>
   );
 }

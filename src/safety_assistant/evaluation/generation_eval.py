@@ -199,7 +199,7 @@ def _record_from_answer(case: GoldCase, resp: AnswerResponse, latency_ms: float)
         warnings=list(resp.warnings),
         grounding_ok=resp.validation.ok if resp.validation else None,
         latency_ms=round(latency_ms, 1),
-        model=str(resp.versions.get("model") or "") or None,
+        model=str(resp.versions.get("llm_model") or "") or None,
         tokens=resp.tokens,
         abstain_reason=str(resp.abstain_reason) if resp.abstain_reason else None,
         expected_regulation=case.expected_regulation_key,

@@ -106,3 +106,17 @@ def test_ocr_adapters() -> None:
     with pytest.raises(OcrUnavailable):
         NoOcr().ocr_png(b"\x89PNG")
     assert ocr_from_settings("none").name == "none"
+
+
+def test_missing_ocr_binary_degrades_to_no_ocr(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from safety_assistant.config import get_settings
+    from safety_assistant.ingestion.workflows.ingest import _default_parser
+
+    monkeypatch.setenv("OCR_PROVIDER", "tesseract")
+    monkeypatch.setattr("shutil.which", lambda _b: None)
+    get_settings.cache_clear()
+    try:
+        parser = _default_parser(get_settings())
+    finally:
+        get_settings.cache_clear()
+    assert parser.ocr is None  # the upload proceeds; scanned pages stay flagged

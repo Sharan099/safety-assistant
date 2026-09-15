@@ -117,3 +117,15 @@ def test_padded_citations_are_pruned_to_the_supporting_evidence() -> None:
     prose = Claim(text="A protective system restrains the occupants.", evidence_ids=["E1", "E3"])
     kept, _ = validate_draft(GroundedDraft(answer="", claims=[prose]), ev)
     assert kept[0].evidence_ids == ["E3"]
+
+
+def test_numbers_stated_in_the_question_are_known_inputs() -> None:
+    ev = [_ev("E1", "5.2.1.4. The Thorax Compression Criterion (ThCC) shall not exceed 42 mm;")]
+    claim = Claim(text="Your 44 mm exceeds the 42 mm ThCC limit.", evidence_ids=["E1"])
+    kept, _ = validate_draft(GroundedDraft(answer="", claims=[claim]), ev)
+    assert kept == []  # 44 mm comes from nowhere
+    kept, _ = validate_draft(GroundedDraft(answer="", claims=[claim]), ev, question="Our result is 44 mm; does it pass?")
+    assert len(kept) == 1
+    invented = Claim(text="Your 44 mm exceeds the 45 mm ThCC limit.", evidence_ids=["E1"])
+    kept, _ = validate_draft(GroundedDraft(answer="", claims=[invented]), ev, question="Our result is 44 mm; does it pass?")
+    assert kept == []  # the limit itself must still come from the evidence

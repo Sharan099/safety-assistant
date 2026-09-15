@@ -265,7 +265,7 @@ class RegulatoryAgent:
             return state
         if not draft.claims:
             return {**state, "mode": "ABSTAINED", "abstain_reason": "weak_evidence", "message": draft.answer}
-        kept, report = validate_draft(draft, state["evidence"])
+        kept, report = validate_draft(draft, state["evidence"], question=state["query"])
         warnings = list(state["warnings"])
         if draft.insufficient_evidence:
             # The model flagged partial coverage but still made cited claims: the validator decides what

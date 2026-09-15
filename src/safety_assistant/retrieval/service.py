@@ -357,9 +357,11 @@ class RetrievalService:
 
         # guard + diversify. The per-version cap only makes sense when several
         # documents compete; a query scoped to one regulation may legitimately be
-        # answered by many chunks of that one text.
+        # answered by many chunks of that one text (its amendment sheet is a second
+        # version of the same document, not a competitor).
         distinct_versions = {rows[c].version.id for c in fused_order}
-        cap = k if len(distinct_versions) <= 1 else max(MAX_CHUNKS_PER_VERSION, -(-k // 2))
+        one_document = len(distinct_versions) <= 1 or len(scope.regulation_keys) == 1
+        cap = k if one_document else max(MAX_CHUNKS_PER_VERSION, -(-k // 2))
         selected: list[tuple[CandidateRow, LegRanks]] = []
         per_version: dict[uuid.UUID, int] = {}
         seen_sha: set[str] = set()

@@ -69,8 +69,14 @@ def _evidence_text(e: Evidence) -> str:
     return "\n".join(parts)
 
 
-def validate_draft(draft: GroundedDraft, evidence: list[Evidence]) -> tuple[list[Claim], ValidationReport]:
+def validate_draft(
+    draft: GroundedDraft, evidence: list[Evidence], *, question: str = ""
+) -> tuple[list[Claim], ValidationReport]:
+    """Numbers the engineer stated in the question ("our result is 44 mm") are known inputs, not
+    fabrications: a claim may repeat them next to the limit it cites. Every other number must be in
+    the cited evidence."""
     by_id = {e.evidence_id: e for e in evidence}
+    stated = claimed_numbers(question)
     results: list[ClaimValidation] = []
     unknown: list[str] = []
     kept: list[Claim] = []
@@ -87,7 +93,7 @@ def validate_draft(draft: GroundedDraft, evidence: list[Evidence]) -> tuple[list
             cited = "\n".join(_evidence_text(by_id[x]) for x in claim.evidence_ids)
             have = {canonical_number(m.group(1)) for m in _NUMBER_RE.finditer(cited)}
             claimed = claimed_numbers(claim.text)
-            unmatched = sorted(n for n in claimed if n not in have)
+            unmatched = sorted(n for n in claimed if n not in have and n not in stated)
             # A calculation may introduce derived numbers, but must start from numbers the evidence states.
             invalid = unmatched if claim.kind == "REQUIREMENT" else ([] if claimed & have else sorted(claimed))
             if invalid:

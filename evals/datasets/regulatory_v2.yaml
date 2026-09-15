@@ -38,8 +38,13 @@ cases:
   query_type: numeric_threshold
   difficulty: medium
   expected_regulation_key: UN-R94
+  expected_regulation_keys:
+  - UN-R94
+  - UN-R137
   expected_section_paths:
   - 5.2.1.1
+  - 5.2.1.1.1
+  - 5.2.1.2.1
   key_facts:
   - HPC shall not exceed 1,000
   - resultant head acceleration shall not exceed 80 g for more than 3 ms
@@ -229,8 +234,13 @@ cases:
   query_type: numeric_threshold
   difficulty: easy
   expected_regulation_key: UN-R95
+  expected_regulation_keys:
+  - UN-R95
+  - UN-R135
   expected_section_paths:
   - 5.2.1.2
+  - 5.3.4.1
+  reviewer_notes: side impact without a regulation name covers UN R95 (RDC 42 mm) and UN R135 pole (thorax rib deflection 55 mm); the R95 value must be stated
   key_facts:
   - Rib Deflection Criterion (RDC) less than or equal to 42 mm
   acceptable_citations:

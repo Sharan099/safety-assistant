@@ -32,13 +32,14 @@ def _reg_label(key: str) -> str:
     return key.replace("UN-R", "UN R").replace("-", " ")
 
 
-def _short(query: str) -> str:
+def _short(query: str) -> str | None:
     words = [
         w
         for w in re.findall(r"[A-Za-z0-9*_.\-]+", query)
         if w.lower() in significant_tokens(query) or re.search(r"\d", w)
     ]
-    return " ".join(words[:6]) or query
+    # fewer than three content words is not a question an engineer would type ("out")
+    return " ".join(words[:6]) if len(words) >= 3 else None
 
 
 def _typo(query: str) -> str | None:

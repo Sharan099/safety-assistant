@@ -112,14 +112,18 @@ cases:
   human_reviewed: false
   notes: phrasing variant (short) of r94-002; same truth
 - case_id: r94-003-scoped
-  query: In UN R94, head performance criterion limit frontal impact
+  query: In UN R137, head performance criterion limit frontal impact
   query_type: variation_scoped
   difficulty: medium
   expected_regulation_key: UN-R94
-  expected_regulation_keys: &id013 []
+  expected_regulation_keys: &id013
+  - UN-R94
+  - UN-R137
   hard_negative_regulation_keys: &id014 []
   expected_section_paths: &id015
   - 5.2.1.1
+  - 5.2.1.1.1
+  - 5.2.1.2.1
   expected_section_prefixes: &id016 []
   key_facts: &id017
   - HPC shall not exceed 1,000
@@ -322,22 +326,6 @@ cases:
   source: synthetic
   human_reviewed: false
   notes: phrasing variant (imperative) of r94-006; same truth
-- case_id: r94-006-short
-  query: protective system
-  query_type: variation_short
-  difficulty: easy
-  expected_regulation_key: UN-R94
-  expected_regulation_keys: *id031
-  hard_negative_regulation_keys: *id032
-  expected_section_paths: *id033
-  expected_section_prefixes: *id034
-  key_facts: *id035
-  acceptable_citations: *id036
-  answerability: answerable
-  review_status: DRAFT
-  source: synthetic
-  human_reviewed: false
-  notes: phrasing variant (short) of r94-006; same truth
 - case_id: r94-007-scoped
   query: In UN R94, by how much must the vehicle overlap the deformable barrier in the R94 test?
   query_type: variation_scoped
@@ -830,14 +818,17 @@ cases:
   human_reviewed: false
   notes: phrasing variant (imperative) of r95-001; same truth
 - case_id: r95-002-scoped
-  query: In UN R95, what is the rib deflection criterion in side impact?
+  query: In UN R135, what is the rib deflection criterion in side impact?
   query_type: variation_scoped
   difficulty: easy
   expected_regulation_key: UN-R95
-  expected_regulation_keys: &id091 []
+  expected_regulation_keys: &id091
+  - UN-R95
+  - UN-R135
   hard_negative_regulation_keys: &id092 []
   expected_section_paths: &id093
   - 5.2.1.2
+  - 5.3.4.1
   expected_section_prefixes: &id094 []
   key_facts: &id095
   - Rib Deflection Criterion (RDC) less than or equal to 42 mm
@@ -1255,22 +1246,6 @@ cases:
   source: synthetic
   human_reviewed: false
   notes: phrasing variant (imperative) of r16-002; same truth
-- case_id: r16-002-short
-  query: emergency retractor
-  query_type: variation_short
-  difficulty: easy
-  expected_regulation_key: UN-R16
-  expected_regulation_keys: *id133
-  hard_negative_regulation_keys: *id134
-  expected_section_paths: *id135
-  expected_section_prefixes: *id136
-  key_facts: *id137
-  acceptable_citations: *id138
-  answerability: answerable
-  review_status: DRAFT
-  source: synthetic
-  human_reviewed: false
-  notes: phrasing variant (short) of r16-002; same truth
 - case_id: r16-003-scoped
   query: In UN R16, iSOFIX definition
   query_type: variation_scoped
@@ -1461,22 +1436,6 @@ cases:
   source: synthetic
   human_reviewed: false
   notes: phrasing variant (imperative) of r16-006; same truth
-- case_id: r16-006-short
-  query: out
-  query_type: variation_short
-  difficulty: medium
-  expected_regulation_key: UN-R16
-  expected_regulation_keys: *id157
-  hard_negative_regulation_keys: *id158
-  expected_section_paths: *id159
-  expected_section_prefixes: *id160
-  key_facts: *id161
-  acceptable_citations: *id162
-  answerability: answerable
-  review_status: DRAFT
-  source: synthetic
-  human_reviewed: false
-  notes: phrasing variant (short) of r16-006; same truth
 - case_id: r129-001-scoped
   query: In UN R129, what is i-Size?
   query_type: variation_scoped

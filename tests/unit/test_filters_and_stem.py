@@ -30,3 +30,21 @@ def test_significant_tokens_drop_stopwords() -> None:
 def test_scope_effective_date_defaults_to_today() -> None:
     assert ScopeFilter(as_of=datetime.date(2020, 1, 1)).effective_date() == datetime.date(2020, 1, 1)
     assert ScopeFilter().effective_date(datetime.date(2026, 9, 11)) == datetime.date(2026, 9, 11)
+
+
+def test_regulation_scope_includes_amendment_sheets() -> None:
+    from safety_assistant.retrieval.base import key_in_scope
+
+    assert key_in_scope("UN-R94", ("UN-R94",))
+    assert key_in_scope("UN-R94-AMEND-05", ("UN-R94",))  # the sheet that amends the selected text
+    assert not key_in_scope("UN-R95", ("UN-R94",))
+    assert not key_in_scope("UN-R941", ("UN-R94",))
+
+
+def test_definition_intent_and_synonym_rewrite() -> None:
+    from safety_assistant.generation.grounding import rewrite_query
+    from safety_assistant.retrieval.service import _DEFINITION_INTENT
+
+    assert _DEFINITION_INTENT.search("ECRS definition") and _DEFINITION_INTENT.search("What is a protective system?")
+    assert not _DEFINITION_INTENT.search("ThCC limit frontal?")
+    assert rewrite_query("belt webbing min width") == "belt WEBBING (strap) min width"

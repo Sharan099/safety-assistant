@@ -35,7 +35,7 @@ variable "api_cpu" {
 }
 variable "api_memory" {
   type    = number
-  default = 3072 # fastembed model + in-memory BM25 index of ~20k chunks
+  default = 4096 # 2 uvicorn workers × (fastembed + cross-encoder + two in-memory BM25 indexes over ~27k chunks)
 }
 variable "worker_count" {
   type    = number

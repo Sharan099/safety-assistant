@@ -11,12 +11,13 @@ from __future__ import annotations
 import dataclasses
 import datetime
 import logging
+import re
 import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from sqlalchemy import or_
+from sqlalchemy import case, func, or_
 from sqlalchemy.orm import Session
 
 from safety_assistant.config import Settings, get_settings
@@ -28,7 +29,14 @@ from safety_assistant.providers.rerankers import RerankCandidate, Reranker, get_
 from safety_assistant.retrieval.base import CandidateRow, rows_by_id, scoped_statement
 from safety_assistant.retrieval.context import EvidenceBundle, LegRanks, build_evidence
 from safety_assistant.retrieval.dense import dense_search
-from safety_assistant.retrieval.filters import DEFAULT_MIN_SHARED_TERMS, ScopeFilter, has_known_authority, is_relevant
+from safety_assistant.retrieval.filters import (
+    DEFAULT_MIN_SHARED_TERMS,
+    ScopeFilter,
+    expand_synonyms,
+    has_known_authority,
+    is_relevant,
+    significant_tokens,
+)
 from safety_assistant.retrieval.fusion import reciprocal_rank_fusion
 from safety_assistant.retrieval.rerank import apply_reranker
 from safety_assistant.retrieval.sparse import Bm25Index, sparse_search
@@ -37,6 +45,8 @@ log = logging.getLogger(__name__)
 
 MAX_CHUNKS_PER_VERSION = 4  # diversification: one document may not fill the whole list
 EXACT_LEG_WEIGHT = 2.0  # an exact clause-id hit is stronger evidence than any single semantic leg
+DEFINITION_LEG_WEIGHT = 1.5
+_DEFINITION_INTENT = re.compile(r"\b(defin(e|ed|es|ition|itions)|meaning of|what (is|are)|what does .* mean)\b", re.I)
 DEFAULT_TOKEN_BUDGET = 6000
 
 
@@ -231,7 +241,7 @@ class RetrievalService:
                 cid
                 for cid, _ in sparse_search(
                     session,
-                    query,
+                    expand_synonyms(query),
                     scope,
                     top_k=cfg.sparse_top_k,
                     index=self._bm25_index,
@@ -259,6 +269,11 @@ class RetrievalService:
             t0 = time.perf_counter()
             exact_ids = self._exact_leg(session, qs, scope, today=today)
             timings["exact"] = _ms(t0)
+        definition_ids: list[uuid.UUID] = []
+        if cfg.use_exact and _DEFINITION_INTENT.search(query):
+            t0 = time.perf_counter()
+            definition_ids = self._definition_leg(session, query, scope, today=today)
+            timings["definition"] = _ms(t0)
 
         lists, weights = [], []
         for ids, w in (
@@ -266,6 +281,7 @@ class RetrievalService:
             (sparse_ids, self.config.sparse_weight),
             (sac_sparse_ids, self.config.sac_sparse_weight),
             (exact_ids, EXACT_LEG_WEIGHT),
+            (definition_ids, DEFINITION_LEG_WEIGHT),
         ):
             if ids:
                 lists.append(ids)
@@ -326,6 +342,11 @@ class RetrievalService:
                 fused_order = sorted(head, key=lambda c: rerank_scores[c], reverse=True) + tail
             timings["rerank"] = _ms(t0)
 
+        # An exact clause-identifier hit is what the user asked for: it leads the list whatever the
+        # reranker thought, and the diversity cap below never removes it (a regulation's amendment
+        # sheet counts as a second version and would otherwise squeeze the clause out).
+        fused_order = [c for c in fused_order if c in exact_rank] + [c for c in fused_order if c not in exact_rank]
+
         # guard + diversify. The per-version cap only makes sense when several
         # documents compete; a query scoped to one regulation may legitimately be
         # answered by many chunks of that one text.
@@ -367,7 +388,7 @@ class RetrievalService:
                 rejected += 1
                 entry["rejected"] = "relevance_floor"
                 continue
-            if row.chunk.chunk_sha256 in seen_sha or per_version.get(row.version.id, 0) >= cap:
+            if row.chunk.chunk_sha256 in seen_sha or (not exact_hit and per_version.get(row.version.id, 0) >= cap):
                 entry["rejected"] = "dedup"
                 continue
             seen_sha.add(row.chunk.chunk_sha256)
@@ -425,6 +446,26 @@ class RetrievalService:
             .where(or_(*conds))
             .order_by(Chunk.ordinal)
             .limit(20)
+        )
+        return list(session.scalars(stmt).all())
+
+    def _definition_leg(
+        self, session: Session, query: str, scope: ScopeFilter, *, today: datetime.date | None
+    ) -> list[uuid.UUID]:
+        """ "X definition" / "what is X": DEFINITION-kind chunks whose text contains every content term of
+        the query other than the definition words themselves. Deterministic, scoped, at most 20."""
+        stop = {"definition", "definitions", "define", "defined", "defines", "meaning", "mean", "what", "does"}
+        terms = [t for t in significant_tokens(query) if t not in stop][:4]
+        if not terms:
+            return []
+        # '"ISOFIX" means …' (the term *is* the defined phrase) before '"ISOFIX anchorage system" means …'
+        exact_phrase = Chunk.content.op("~*")(f'"{re.escape(terms[0])}[^"]{{0,4}}"')
+        stmt = (
+            scoped_statement(scope, today=today)
+            .with_only_columns(Chunk.id)
+            .where(Chunk.chunk_type == "DEFINITION", *[Chunk.content.ilike(f"%{t}%") for t in terms])
+            .order_by(case((exact_phrase, 0), else_=1), func.strpos(func.lower(Chunk.content), terms[0]), Chunk.ordinal)
+            .limit(12)
         )
         return list(session.scalars(stmt).all())
 

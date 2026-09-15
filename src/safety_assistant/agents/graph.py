@@ -263,10 +263,14 @@ class RegulatoryAgent:
         draft = state.get("draft")
         if draft is None:
             return state
-        if draft.insufficient_evidence or not draft.claims:
+        if not draft.claims:
             return {**state, "mode": "ABSTAINED", "abstain_reason": "weak_evidence", "message": draft.answer}
         kept, report = validate_draft(draft, state["evidence"])
         warnings = list(state["warnings"])
+        if draft.insufficient_evidence:
+            # The model flagged partial coverage but still made cited claims: the validator decides what
+            # survives; the flag becomes a warning instead of discarding a grounded answer.
+            warnings.append("the model reports that the evidence covers the question only partly")
         if any(c.kind == "CALCULATION" for c in kept):
             warnings.append("contains a value derived from the cited evidence (calculation shown): verify before use")
         if report.dropped_claims:

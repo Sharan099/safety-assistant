@@ -33,11 +33,12 @@ Registry documents are the *verified* corpus — 42 sources in `knowledge/00_reg
 1. Sign in (organization OIDC, or a seeded development login).
 2. Check **Sources**: the verified corpus grouped as UNECE regulations (in regulation-number order, amendment sheets under their text), FMVSS, Euro NCAP protocols, CAE manuals and reference handbooks, each with its version in force.
 3. Start an investigation, choose sources — *Verified regulations*, *Workspace documents*, *My private documents*, or all authorized — and ask.
-4. Read the answer with its mode badge (**Grounded**, **Evidence only**, **Insufficient evidence**) and click any `[n]` marker: the evidence panel shows regulation, version, clause, page, validity window, source scope and the exact excerpt, with "Open source" and "Copy citation".
-5. Upload a PDF; watch the real stages (Uploaded → Validating → Parsing → Chunking → Embedding → Indexing → Verifying → Ready); on failure read the plain-language reason and diagnostic reference, then retry or replace.
-6. Come back later: investigations, messages, citations and source scope are restored.
+4. Read the answer with its mode badge (**Grounded**, **Evidence only**, **Insufficient evidence**). Hovering or focusing any `[n]` marker or citation chip previews the exact cited lines, page and version; clicking opens the evidence panel with regulation, version, clause, page, validity window, source scope, the full excerpt, "Open source" and "Copy citation". Derived values (a unit conversion, a margin against a limit) are shown with their working and flagged "verify before use".
+5. Ask the way engineers ask: short forms ("ThCC limit frontal?"), scenarios ("our driver dummy showed 44 mm chest compression — does that pass?"), cross-document comparisons (offset vs full-width frontal speeds), market questions (EU type approval vs FMVSS vs Euro NCAP), simulation set-up from the LS-DYNA manuals. Set your **Current project** in Settings (vehicle category, mass, markets) and "my vehicle" resolves to it. Greetings and off-topic questions get a plain reply saying what the assistant answers from; nothing is invented.
+6. Upload a PDF; watch the real stages (Uploaded → Validating → Parsing → Chunking → Embedding → Indexing → Verifying → Ready); on failure read the plain-language reason and diagnostic reference, then retry or replace.
+7. Come back later: investigations, messages, citations and source scope are restored.
 
-The flows above (six, including the Sources page) are automated in Playwright against the real API, worker and LLM (`frontend/tests/e2e/flows.spec.ts`). No screenshots are checked in; run `make e2e` to see them.
+The flows above (seven) are automated in Playwright against the real API, worker and LLM (`frontend/tests/e2e/flows.spec.ts`). No screenshots are checked in; run `make e2e` to see them.
 
 ## Measured results
 
@@ -62,7 +63,27 @@ This corpus is harder by construction than the earlier one: UN R137 and the Euro
 
 ### End-to-end answers on the current corpus (real LLM)
 
-JUDGED_CURRENT_PLACEHOLDER
+Free-tier gateway, `LLM_MODEL=gpt-oss-20b` (the small model chosen for answers — see [Model choice](#model-choice)), prompt `grounded_v3`, deterministic metrics only (RAGAS/DeepEval need a paid or quota-free judge). Measured 2026-09-15; result files `evals/results/generation_*_2026091{4,5}*.json`. The two gold sets are the human-written cases of `regulatory_v2` (60: 45 answerable / partial + 15 unanswerable, ambiguous and adversarial) and `engineer_scenarios_v1` (34).
+
+| Metric | Human set (n = 60) | Engineer scenarios (n = 34) |
+|---|---|---|
+| Refusal accuracy (unanswerable → abstain, answerable → answer) | 0.915 | 0.853 |
+| Citation hit (expected regulation + clause cited) | 0.860 | 0.966 |
+| Citation precision | 0.657 | 0.660 |
+| Key-fact coverage in the answer | 0.795 | 0.769 |
+| Key-fact coverage in the retrieved evidence | 0.955 | 0.981 |
+| Grounding validator accepted the draft | 0.977 | 0.808 |
+| Adversarial injection resisted (6 cases) | 6/6 | – |
+| p50 answer latency | 15.1 s | 17.9 s |
+
+Three runs of the same code on 2026-09-15 spanned refusal 0.90–0.92 / citation hit 0.84–0.88 / fact coverage 0.74–0.83 on the human set and 0.85–0.97 / 0.93–0.97 / 0.73–0.87 on the scenario set; the spread is the free gateway (timeouts and malformed JSON from the small model under load count against the metrics — those turns are never cached and are re-asked on the next run). By slice on the scenario set: calculations 4/4 with the working shown, cross-document 5/5 cited, amendment awareness 1/1, unrelated questions declined 4/5; short forms 6/7. What still fails, by cause: the reranker re-imposing a twin clause from a sibling regulation (R137 for R94, R135 for R95); the model citing both twins for a definition both regulations state (counted as low precision); one fabricated non-numeric answer (an ASIL level "required" by an ISO 26262 overview article) that no deterministic check can catch; a footnote marker glued to "M1" in the R94 scope text ("M11") that the model read as a category.
+
+**Production gate.** The gate this project sets for a production release is refusal accuracy, citation hit and key-fact coverage all ≥ 0.90 on the human set with a stable provider. Measured: 0.915 / 0.860 / 0.795. The system is **not at that gate**; retrieval (evidence coverage 0.955–0.981) is not the bottleneck, answer synthesis by a free small model under an unstable gateway is. Claims of "98 % accuracy on any question" are not supported by any measurement here and are not made.
+
+### Model choice
+
+Answers are a pure RAG synthesis task, so a small instruct model is the right default. Of the routes available on the gateway, `gpt-oss-20b` answered in ~0.9 s round-trip when the gateway was healthy, produced valid JSON on most turns and refused less than the reasoning routes; `gpt-oss-120b` and the instruct routes (`mistral-small-3.2-24b`, `llama-3.3-70b`) were rate-limited for sustained runs, so no like-for-like comparison could be completed. Document summaries use `SUMMARY_MODEL` (an instruct model; the validator rejects reasoning-style output). Every answer records the routed model; costs per query are estimated in the judged report from token usage and `evals/pricing.yaml`.
+
 
 ### Document identity: summary-augmented chunking
 
@@ -99,7 +120,7 @@ End-to-end answers on that corpus (`regulatory_v2`, 262 cases, free-tier models 
 
 ### Ingestion, load, product flows
 
-42 sources → 27,222 chunks; full ingestion 47 min on the laptop including OCR of three scanned texts and 1,400 pages of 49 CFR 571; re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (16-source corpus, pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 6/6 flows (PLAYWRIGHT_DATE_PLACEHOLDER).
+42 sources → 27,222 chunks; full ingestion 47 min on the laptop including OCR of three scanned texts and 1,400 pages of 49 CFR 571; re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (16-source corpus, pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 7/7 flows against the real API, worker and gateway (2026-09-15).
 
 ## Architecture
 
@@ -143,7 +164,7 @@ One Python package (`src/safety_assistant/`), one database, one worker process, 
 | Frontend | `frontend/app/{login,app/*}`, `frontend/components/{shell,chat,evidence,documents,common,ui}` |
 | Infrastructure | `infra/docker`, `infra/terraform`, `infra/monitoring`, `.github/workflows` |
 
-Data model in one line: `organizations → memberships → users`, `workspaces → workspace_memberships`; `regulations` (the logical document: scope, organization, workspace, owner, archived) → `regulation_versions` (lifecycle, validity window, parser/chunker/index versions) → `sections` / `chunks` (`content` = evidence, `retrieval_text` = index-only) / `chunk_embeddings` (one row per representation) / `document_summaries`; `source_artifacts` (SHA-256, storage key); `ingestion_jobs` / `ingestion_runs` / `ingestion_events`; `conversations` → `messages` → `message_citations`; `query_traces`; `audit_events`. Migrations are forward-only Alembic (`0001`–`0005`), round-tripped head → 0001 → head in the test suite.
+Data model in one line: `organizations → memberships → users`, `workspaces → workspace_memberships`; `regulations` (the logical document: scope, organization, workspace, owner, archived) → `regulation_versions` (lifecycle, validity window, parser/chunker/index versions) → `sections` / `chunks` (`content` = evidence, `retrieval_text` = index-only) / `chunk_embeddings` (one row per representation) / `document_summaries`; `source_artifacts` (SHA-256, storage key); `ingestion_jobs` / `ingestion_runs` / `ingestion_events`; `conversations` → `messages` (mode, abstain reason) → `message_citations`; `user_preferences` (incl. the project context); `query_traces`; `audit_events`. Migrations are forward-only Alembic (`0001`–`0006`), round-tripped head → 0001 → head in the test suite.
 
 ## Why the architecture looks this way
 
@@ -175,7 +196,7 @@ Data model in one line: `organizations → memberships → users`, `workspaces �
 | Authorization | Organization roles (engineer, knowledge_admin, auditor, org_admin) map to scopes on every route. Authentication never implies membership: a signed-in user without a membership row is denied. Resource ownership is checked server-side; foreign ids return 404, not 403. |
 | Isolation | Document-level predicate before retrieval/ranking and on every listing, detail, job and evidence lookup; conversations are owner-scoped; tests cover other-user, other-workspace, other-organization, guessed-UUID and insufficient-role access. |
 | Uploads | Bounded stream read, PDF magic bytes, size and page caps, password-protected PDFs refused, safe server-generated filenames and content-addressed storage keys (no client paths), full validation in the worker, malware-scan boundary (clamd INSTREAM; fail-closed when unreachable; `none` in development), scanned documents without OCR are quarantined rather than indexed empty. Quarantine is terminal. |
-| Injection | Questions, evidence and conversation history are data inside tagged blocks; injection signals are recorded as warnings; citations are validated against the current request's evidence only. |
+| Injection | Questions, evidence, conversation history and the project context are data inside tagged blocks; injection signals are recorded as warnings; citations are validated against the current request's evidence only. |
 | Web | CORS explicit allowlist (production refuses wildcard with credentials), CSRF header required on cookie-authenticated mutations, request body limits (2,000-char queries, bounded uploads), per-principal rate limiting, interactive API docs disabled in production, no stack traces or provider errors to clients (request id only), CSP / nosniff / frame-deny headers on the web app. |
 | Secrets & logs | Secrets from environment / Secrets Manager only; no credentials in git (scanned tracked content and history); production refuses the development database password and weak session secrets; logs redact connection-string passwords, bearer tokens and key=value secrets; traces store principal ids, never tokens. |
 | Provider policy | `LLM_DATA_CLASSES` decides which data classes a provider may see; confidential evidence with an uncleared provider degrades to evidence-only. |
@@ -186,7 +207,7 @@ Not implemented / deployment-specific: malware scanning and OCR are adapters tha
 
 Retrieval and generation are measured separately; retrieval gates are deterministic and run in CI, generation runs against a real LLM outside CI.
 
-**Datasets** — `evals/datasets/regulatory_v1.yaml` (human), `regulatory_v2.yaml` (v1 + generated + hand-written) and `document_mismatch_v1.yaml` (36 twin-clause cases with `hard_negative_regulation_keys`). Each case records `source` (`human` | `llm_generated` | `llm_generated_reviewed` | `synthetic`), `human_reviewed`, `review_status`, `query_type`, expected regulation/clauses, `key_facts`, `answerability`, notes. Generated cases come from `scripts/eval/generate_cases.py` (a clause → up to two questions; a case survives only if every key fact is a verbatim span of the clause) and are assembled by `scripts/eval/build_dataset.py` (stratified, half of them scoped "In UN R16, …").
+**Datasets** — `evals/datasets/regulatory_v1.yaml` (human), `regulatory_v2.yaml` (v1 + generated + hand-written), `document_mismatch_v1.yaml` (36 twin-clause cases with `hard_negative_regulation_keys`) and `engineer_scenarios_v1.yaml` (34 cases: scenario application, short forms, cross-document, market context, calculations, simulation set-up, amendment awareness, and questions to decline). Each case records `source` (`human` | `llm_generated` | `llm_generated_reviewed` | `synthetic`), `human_reviewed`, `review_status`, `query_type`, expected regulation/clauses, `key_facts`, `answerability`, notes. Generated cases come from `scripts/eval/generate_cases.py` (a clause → up to two questions; a case survives only if every key fact is a verbatim span of the clause) and are assembled by `scripts/eval/build_dataset.py` (stratified, half of them scoped "In UN R16, …").
 
 **Retrieval** — `uv run safety-assistant eval-retrieval --dataset <yaml> [--legs …] [--source human] [--types …] [--representation content|sac_v2|sac_v1]` writes a report per leg with passage metrics, document metrics (recall@1/3/5, MRR) and the mismatch rate (`drm@1`, `drm@5`); `scripts/eval/sac_ab.py` runs the baseline-vs-SAC comparison on identical queries and lists the cases that flipped; `scripts/eval/drm_cases.py` prints the per-case document diff between two reports; `scripts/eval/grid.py` runs configuration grids (weights, `rerank_top_n`, `rerank_policy`). Every retrieval trace records, per candidate, the document, version, section, page, leg ranks and scores, plus a document distribution of the top candidates.
 
@@ -210,6 +231,8 @@ make eval-judged                                           # needs LLM_* configu
 |---|---|
 | LLM unavailable, times out, or returns malformed output | Retrieval still runs; the answer is `EVIDENCE_ONLY` with the evidence bundle; `sa_answers_total{mode}` increments; readiness stays green (tested in `tests/integration/test_fault_injection.py`). |
 | Evidence below the gate threshold | `ABSTAINED` with the searched scope; never a guessed regulation. |
+| Greeting, "what can you do", or a question none of the sources covers | A deterministic reply naming what the assistant answers from (no retrieval or LLM for greetings; `abstain_reason` `small_talk` / `no_evidence`); the UI shows it as an assistant note, not a refusal. |
+| Model derives a number (conversion, margin) | Allowed only as a `CALCULATION` claim whose inputs are in the cited evidence; the answer is flagged "derived value, verify". A derived number inside a `REQUIREMENT` claim is dropped. |
 | Model cites an unknown id or a number not in the evidence | The claim is dropped; if none survive, `ABSTAINED` with `validation_failed`. |
 | Reranker or embedding failure | Fused order is used / 503 with a request id; nothing is silently served from a degraded index. |
 | Document cannot be parsed, is scanned without OCR, is password-protected, or fails the scanner | `QUARANTINED` with a public reason and a diagnostic reference; never retrievable; a new upload is required. |
@@ -257,11 +280,12 @@ Test layout: `tests/unit` (parsers, chunking, lifecycle, fusion, citation valida
 
 ## Deployment
 
-**Status: deployment-ready, not deployed.** The container image builds and passes a production-mode smoke test locally; Terraform is validated (`fmt`, `validate`) but has never been applied — no cloud account was available.
+**Status: staging-ready, not deployed.** The container image builds and passes a production-mode smoke test locally (docs/OpenAPI and dev login absent, unauthenticated requests 401, insecure settings refused at startup); Terraform is validated (`fmt`, `validate`) but has never been applied — no cloud account was available.
 
 - **Image** `infra/docker/Dockerfile`: multi-stage uv build, non-root (uid 10001), read-only root filesystem, embedding and cross-encoder models baked in, healthcheck; entrypoints `api`, `worker`, `migrate`. `infra/docker/compose.yaml` runs api + worker + PostgreSQL + MinIO for a full local stack.
 - **Terraform** `infra/terraform/`: ALB (TLS 1.3) → ECS Fargate API service (circuit-breaker rollback) and worker service → RDS PostgreSQL 16 (TLS forced, encrypted, 14-day PITR, private subnets) + versioned encrypted S3 + Secrets Manager (`DATABASE_URL`, `SESSION_SECRET`, `OIDC_CLIENT_SECRET` set out-of-band) + CloudWatch alarms. Variables contain no secrets.
 - **Procedure**: build and push the image (`release.yml` on tags, with SBOM) → `terraform apply` with a `tfvars` file (`envs/staging.tfvars.example`) → migrations run as a one-shot task (`entrypoint.sh migrate`) before the service update → warm a request to build the BM25 index → verify `/health/ready`. Rollback = redeploy the previous task definition; migrations are additive with downgrade scripts.
+- **Model**: set `LLM_MODEL` to a small instruct model (`gpt-oss-20b` measured here) and `SUMMARY_MODEL` to an instruct model for summaries; `LLM_TIMEOUT_SECONDS` is a wall-clock budget per call including retries (30 s default). Rebuild the SAC index (`safety-assistant reindex`) after changing `SUMMARY_MODEL`.
 - **Production settings enforced at startup**: `APP_ENV=production` refuses fake providers, `AUTH_MODE=none`, dev login, weak `SESSION_SECRET`, the development database password and wildcard CORS.
 - **Observability**: JSON logs with request ids (secrets redacted), OpenTelemetry spans (retrieval, agent, LLM, ingestion), Prometheus `/metrics` (request/stage latency, answer modes, citation failures, retrieval no-hit, LLM calls/tokens, ingestion runs, freshness lag); alert rules and a dashboard in `infra/monitoring/`.
 
@@ -280,6 +304,7 @@ Test layout: `tests/unit` (parsers, chunking, lifecycle, fusion, citation valida
 - **Per-process rate limiter and BM25 index**: two API replicas mean two budgets and two indexes (each consistent, both rebuilt on corpus change). A shared limiter (Redis or the load balancer) and a shared/refreshable lexical index are the migration points before scaling wide; the queue already tolerates many workers.
 - **Cross-encoder latency** (~1.2 s on CPU) applies to `/search` too.
 - **Scanned regulations** (UN R21, R32 and R33 base texts) are OCR'd with Tesseract; the text is searchable but their clause tree is not recovered, so they cite by page and part rather than clause. The eCFR layout of 49 CFR Part 571 collapses into one large section as well, so FMVSS answers cite a part number and a wide page range rather than `§ 571.208 S5.1`; a CFR-aware normaliser is the fix. The consolidated texts of R25 (1990), R42 (1980) and the R32/R33 originals are old; their newer amendment sheets are separate sources and are not merged into the text.
+- **Answer synthesis** depends on the configured provider. On the free gateway used here a run can lose turns to timeouts or malformed JSON; those turns degrade to evidence-only (never a fabricated answer) and the judged harness re-asks them. Non-numeric fabrication (a claimed classification or obligation that the cited text does not state) is caught only by the judges, not by the validator; the validator guarantees citations exist and numbers match.
 - **Summary-augmented retrieval** costs four broad-set passage cases (R@10 0.935 → 0.919) for its document-level gains, and 13 of the 36 twin-clause cases still resolve to the wrong document at rank 1 — mostly because the cross-encoder sees chunk text only and puts the identical twin back on top. fastembed truncates MiniLM input at 128 tokens, which also bounds the baseline dense leg to the first ~128 tokens of a chunk. Summaries come from a free-tier instruct model; the validator rejects reasoning dumps and truncation but not subtle factual drift, which is why the summary is never evidence.
 - **OIDC** is tested against an in-process fake provider, not a live Entra ID / Keycloak; RP-initiated logout is not implemented.
 - **Infrastructure** is validated but unapplied; container and dependency scans (Trivy, SBOM, pip-audit, gitleaks, semgrep) run in CI — `pip-audit` and `npm audit` were run locally and are clean.

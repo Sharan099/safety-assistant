@@ -32,6 +32,7 @@ from sqlalchemy.orm import Session
 from safety_assistant.domain.regulations import RETRIEVABLE_CURRENT, RETRIEVABLE_HISTORICAL
 from safety_assistant.persistence.models import Chunk, Regulation, RegulationVersion
 from safety_assistant.retrieval.authz import DocumentRef, anonymous_allows
+from safety_assistant.retrieval.base import key_in_scope
 from safety_assistant.retrieval.filters import ScopeFilter, light_stem
 
 _TOKEN_RE = re.compile(r"\d+(?:\.\d+)+|[a-z0-9_*]+")
@@ -63,7 +64,7 @@ class VersionMeta:
             return False
         if self.valid_to is not None and self.valid_to <= d:
             return False
-        if scope.regulation_keys and self.regulation_key not in scope.regulation_keys:
+        if scope.regulation_keys and not key_in_scope(self.regulation_key, scope.regulation_keys):
             return False
         if scope.kinds and self.kind not in scope.kinds:
             return False

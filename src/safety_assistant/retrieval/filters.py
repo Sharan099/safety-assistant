@@ -82,6 +82,22 @@ def light_stem(token: str) -> str:
     return token
 
 
+# Engineering words → the regulation's own vocabulary, appended for lexical retrieval only.
+SYNONYMS = {
+    "webbing": "strap",
+    "seatbelt": "safety-belt",
+    "seatbelts": "safety-belts",
+    "bumper": "protective device",
+    "childseat": "child restraint",
+    "windscreen": "windshield",
+}
+
+
+def expand_synonyms(query: str) -> str:
+    extra = [v for k, v in SYNONYMS.items() if re.search(rf"\b{k}\b", query, re.IGNORECASE)]
+    return f"{query} {' '.join(extra)}" if extra else query
+
+
 def significant_tokens(text: str) -> set[str]:
     return {light_stem(t) for t in _TOKEN_RE.findall(text.lower()) if t not in _STOPWORDS and len(t) > 2}
 

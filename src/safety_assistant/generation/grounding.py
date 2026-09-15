@@ -26,6 +26,27 @@ from safety_assistant.retrieval.filters import significant_tokens
 
 MIN_STRONG_EVIDENCE = 1
 WEAK_QUERY_TERMS = 1
+# A question that names none of these (and no regulation or clause) cannot select a source:
+# "What is the maximum allowed value?" is ambiguous however many words it has.
+DOMAIN_TERMS = frozenset(
+    """head thorax chest neck femur tibia knee pelvis rib abdomen dummy occupant passenger driver child
+    belt belts anchorage anchorages buckle retractor webbing strap restraint isofix tether seat seats
+    headrest barrier pole impact impactor collision crash frontal side lateral rear pedestrian headform
+    legform bonnet bumper door doors lock latch hinge steering airbag fuel tank leakage fire electrolyte
+    voltage reess hydrogen battery deflection compression force moment acceleration velocity speed
+    displacement excursion energy hic hpc thcc vc viscous criterion criteria limit limits mass category
+    vehicle vehicles m1 n1 approval type test tests annex paragraph clause regulation regulations series
+    revision amendment supplement definition means width height length load strength conditioning
+    abrasion corrosion temperature keyword material contact element solver model pulse sled simulation
+    ncap fmvss ece unece iso protocol rating scoring i-size isize ecrs crs r-point h-point booster
+    carrycot webbing tongue latchplate pretensioner""".split()
+)
+_WORD_RE = re.compile(r"[a-z0-9*-]+")
+
+
+def has_domain_term(query: str) -> bool:
+    return any(w in DOMAIN_TERMS for w in _WORD_RE.findall(query.lower()))
+
 
 # Domain acronyms the lexical leg cannot bridge on its own. Expansion is a
 # deterministic rewrite used only for the single corrective retry.
@@ -47,6 +68,12 @@ ACRONYMS: dict[str, str] = {
     "odb": "offset deformable barrier",
     "reess": "rechargeable electrical energy storage system",
     "sbr": "safety-belt reminder",
+    # regulation vocabulary for common engineering words
+    "webbing": "strap",
+    "seatbelt": "safety-belt",
+    "seat belt": "safety-belt",
+    "child seat": "child restraint system",
+    "bumper": "front and rear protective devices",
 }
 
 
@@ -111,7 +138,8 @@ def evaluate_gate(
     if msg := small_talk(query):
         return GateDecision(False, "small_talk", msg)
     terms = significant_tokens(query)
-    if not qs.regulation_keys and not qs.has_exact_identifier and len(terms) <= WEAK_QUERY_TERMS:
+    weak = len(terms) <= WEAK_QUERY_TERMS or (len(terms) <= 5 and not has_domain_term(query))
+    if not qs.regulation_keys and not qs.has_exact_identifier and weak:
         return GateDecision(
             False,
             "ambiguous_query",

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — 2026-09-15 (engineer questions, small-model answers, production hardening)
+
+- Answer path: the LLM call's timeout is a wall-clock budget including retries (≤ 30 s, then evidence-only); Next.js proxy timeout 120 s; a failed turn stays in the thread with Retry; citation markers and chips preview the cited lines, page and version on hover/focus.
+- Answer quality: claim kind `CALCULATION` (derived values allowed only from evidence inputs, flagged "verify"); prompt `grounded_v3` (direct answer first, exact requirement sentence, scenario application, cross-document regimes, short forms, simulation questions, partial answers instead of blanket refusals); Settings → Current project (`user_preferences.project_context`) reaches the model as data; greetings and off-topic questions get a capabilities reply; `messages.abstain_reason` (migration `0006`).
+- Retrieval: exact clause-identifier hits lead the result list and bypass the diversity cap (an amendment sheet counted as a second version and squeezed the clause out); a regulation's key selects its amendment sheets too; a deterministic definition leg for "what is X / X definition"; engineering synonyms for the lexical leg (webbing→strap …); ambiguity gate uses a passive-safety lexicon ("What is the maximum allowed value?" abstains).
+- Evaluation: `engineer_scenarios_v1` (34 cases: scenarios, short forms, cross-document, market regimes, calculations, simulation, amendment awareness, declines); the judged harness fingerprints prompt text and pipeline code and never caches transient provider failures; gold cases that became answerable with the new corpus rewritten from corpus facts; `LLM_MODEL=gpt-oss-20b` measured as the small default (README).
+- Deployment: production image rebuilt and smoke-tested (docs/OpenAPI/dev-login absent, unauthenticated 401, validator refuses insecure settings); API task memory 4 GB for two workers; Terraform fmt/validate; pip-audit and npm audit clean.
+
 ## 0.5.0 — 2026-09-14 (curated 42-source corpus, Sources page)
 
 - Corpus replaced by the delivered `Knowledge source` set, curated by `scripts/maintenance/build_registry.py`: 52 files → 42 sources (5 byte-identical duplicates, one older revision and one already-incorporated amendment sheet dropped; three scanned texts merged from their parts and OCR'd; amendment sheets newer than a consolidated text kept as separate sources). Files renamed by regulation, revision, series, year and subject under `knowledge/{unece,us_fmvss,euro_ncap,standards,cae_manuals,reference}`; registry fields (symbol, revision, series, dates) parsed from cover pages, null when absent. `scripts/maintenance/prune_corpus.py` removes documents that left the registry and, with `--superseded`, non-active versions.

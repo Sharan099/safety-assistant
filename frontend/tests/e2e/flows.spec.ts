@@ -137,3 +137,22 @@ test("6. sources page lists the verified corpus grouped and in regulation order"
   expect(numbers).toEqual([...numbers].sort((a, b) => a - b)); // numeric, not lexical (R94 before R129)
   await expect(rows.first()).toContainText(/UN R\d+/);
 });
+
+test("7. settings project context is saved; a greeting gets a capabilities reply, not a refusal", async ({ page }) => {
+  await login(page, ALICE);
+  await page.goto("/app/settings");
+  const project = page.getByTestId("pref-project");
+  const text = `M1 passenger car, 1,850 kg, EU market (run ${Date.now()})`; // unique: saving only fires on change
+  await project.fill(text);
+  await project.blur();
+  await expect(page.getByText("Saved")).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId("pref-project")).toHaveValue(text);
+  await page.goto("/app/chat?new=1");
+  await page.getByTestId("query").fill("hello");
+  await page.getByTestId("ask").click();
+  const answer = page.getByTestId("answer");
+  await expect(answer).toBeVisible();
+  await expect(answer.getByTestId("answer-mode")).toHaveAttribute("data-mode", "ASSISTANT");
+  await expect(answer).toContainText(/UN regulations/);
+});

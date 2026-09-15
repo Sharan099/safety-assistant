@@ -1,0 +1,341 @@
+# Engineer-scenario benchmark: the kinds of questions a passive-safety engineer actually types —
+# scenario application ("my M1 car, 1,850 kg…"), short forms and acronyms, cross-document comparison,
+# market context (UN type approval vs FMVSS vs Euro NCAP), calculations from stated values, simulation
+# set-up from the CAE manuals, follow-up phrasing, and questions the assistant must decline smartly.
+#
+# Provenance: source=synthetic — written 2026-09-14 from the ingested sections (every key fact is a
+# verbatim span of the cited clause, read from the `sections` table); not human-reviewed until the
+# owner marks it. Calculations list the input fact only; the derived value is checked by hand in the
+# judged report (CALCULATION claims are flagged as derived by the validator).
+dataset_version: engineer_scenarios_v1
+cases:
+  # ---------------------------------------------------------------- scenario application
+  - case_id: sc-001
+    query: My project is an M1 passenger car with a total permissible mass of 1,850 kg for the EU. Does UN R94 apply to it?
+    query_type: scenario_application
+    difficulty: medium
+    expected_regulation_key: UN-R94
+    expected_section_paths: ["1"]
+    key_facts: ["3,500 kg"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-002
+    query: We have an N1 van at 2,700 kg total permissible mass. Is it inside the scope of the frontal collision regulation UN R94?
+    query_type: scenario_application
+    difficulty: hard
+    expected_regulation_key: UN-R94
+    expected_section_paths: ["1"]
+    key_facts: ["2,500 kg"]
+    notes: "R94 §1: N1 only up to 2,500 kg — the answer must say the van is outside the scope, not invent an exemption."
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-003
+    query: Our frontal test result shows a thorax compression of 44 mm on the driver dummy. Does that pass UN R94?
+    query_type: scenario_application
+    difficulty: medium
+    expected_regulation_key: UN-R94
+    expected_section_paths: ["5.2.1.4"]
+    key_facts: ["42 mm"]
+    notes: "Application: 44 mm exceeds the 42 mm limit — fails."
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-004
+    query: In our full-width test we measured a residual steering wheel displacement of 85 mm upwards. Is that acceptable under UN R137?
+    query_type: scenario_application
+    difficulty: medium
+    expected_regulation_key: UN-R137
+    expected_section_paths: ["5.2.2.1"]
+    key_facts: ["80 mm"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-005
+    query: After our side impact test the door on the struck side stayed locked but the non-struck side door was still locked too. Is that compliant with UN R95?
+    query_type: scenario_application
+    difficulty: hard
+    expected_regulation_key: UN-R95
+    expected_section_paths: ["5.3.2"]
+    key_facts: ["non-struck side shall be unlocked"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-006
+    query: Our pedestrian test with the child headform recorded HIC 1,150 at one point of the bonnet. Is UN R127 failed?
+    query_type: scenario_application
+    difficulty: hard
+    expected_regulation_key: UN-R127
+    expected_section_paths: ["5.2.1", "5.2.2"]
+    key_facts: ["HIC recorded shall not exceed 1,000"]
+    notes: "R127 allows a zone split (1,000 over part of the area); the answer must state the 1,000 limit and the area rule rather than a flat fail."
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- short forms / acronyms
+  - case_id: sc-010
+    query: ThCC limit frontal?
+    query_type: short_form
+    difficulty: medium
+    expected_regulation_key: UN-R94
+    expected_section_paths: ["5.2.1.4"]
+    key_facts: ["42 mm"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-011
+    query: HPC limit R94
+    query_type: short_form
+    difficulty: easy
+    expected_regulation_key: UN-R94
+    expected_section_paths: ["5.2.1.1"]
+    key_facts: ["1,000"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-012
+    query: R135 pole speed narrow car
+    query_type: short_form
+    difficulty: medium
+    expected_regulation_key: UN-R135
+    expected_section_paths: ["annex-3/8.7"]
+    key_facts: ["26 -0/+7 km/h"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-013
+    query: R135 pole speed normal width
+    query_type: short_form
+    difficulty: medium
+    expected_regulation_key: UN-R135
+    expected_section_paths: ["annex-3/8.6"]
+    key_facts: ["32"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-014
+    query: ECRS definition
+    query_type: short_form
+    difficulty: easy
+    expected_regulation_key: UN-R129
+    expected_section_paths: ["2.1"]
+    key_facts: ["sitting or supine position"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-015
+    query: belt webbing min width R16
+    query_type: short_form
+    difficulty: medium
+    expected_regulation_key: UN-R16
+    expected_section_paths: ["6.3.1.2"]
+    key_facts: ["46 mm"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-016
+    query: R127 headform velocity
+    query_type: short_form
+    difficulty: medium
+    expected_regulation_key: UN-R127
+    expected_section_paths: ["annex-5/5.6"]
+    key_facts: ["9.7 m/s"]
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- cross-document
+  - case_id: sc-020
+    query: Compare the door-opening requirement during the test between the frontal regulation and the side regulation.
+    query_type: cross_document
+    difficulty: hard
+    expected_regulation_keys: [UN-R94, UN-R95]
+    expected_section_paths: ["5.2.3", "5.3.1"]
+    key_facts: ["no door shall open"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-021
+    query: What are the impact speeds of the UN offset frontal test and the UN full-width frontal test?
+    query_type: cross_document
+    difficulty: hard
+    expected_regulation_keys: [UN-R94, UN-R137]
+    expected_section_paths: ["annex-3/4"]
+    key_facts: ["56", "50"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-022
+    query: Side impact with the mobile deformable barrier versus the pole test — what are the test speeds in the UN regulations?
+    query_type: cross_document
+    difficulty: hard
+    expected_regulation_keys: [UN-R95, UN-R135]
+    expected_section_paths: ["annex-4/3", "annex-3/8.6"]
+    key_facts: ["50", "32"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-023
+    query: Which regulation covers i-Size enhanced child restraint systems and which one covers the older child restraint systems by mass group?
+    query_type: cross_document
+    difficulty: medium
+    expected_regulation_keys: [UN-R129, UN-R44]
+    expected_section_paths: []
+    key_facts: []
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-024
+    query: How do the steering-wheel displacement limits compare between UN R94 and UN R137?
+    query_type: cross_document
+    difficulty: hard
+    expected_regulation_keys: [UN-R94, UN-R137]
+    expected_section_paths: ["5.2.2", "5.2.2.1"]
+    key_facts: ["80 mm", "100 mm"]
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- market / regime context
+  - case_id: sc-030
+    query: We sell the same car in the EU and the US. Which frontal-impact documents in the corpus apply to each market, and what kind of compliance regime is each?
+    query_type: market_context
+    difficulty: hard
+    expected_regulation_keys: [UN-R94, US-49CFR571]
+    expected_section_paths: []
+    key_facts: []
+    notes: "Expected: UN R94 (1958 Agreement type approval) for the EU, 49 CFR 571 / FMVSS 208 (self-certification) for the US; no invented requirement."
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-031
+    query: For a Euro NCAP 2026 frontal rating, which dummies are in the driver and front passenger seats of the offset test?
+    query_type: market_context
+    difficulty: hard
+    expected_regulation_key: EURONCAP-FRONTAL
+    expected_section_prefixes: ["scoring"]
+    key_facts: ["THOR 50th", "HIII 5th"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-032
+    query: Is the Euro NCAP frontal protocol a legal requirement for type approval in Europe?
+    query_type: market_context
+    difficulty: hard
+    expected_regulation_key: EURONCAP-FRONTAL
+    expected_section_paths: []
+    key_facts: []
+    notes: "Expected: no — a consumer-rating protocol (Euro NCAP copyright/disclaimer); type approval is UN R94/R137. No fabricated legal status."
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- calculations
+  - case_id: sc-040
+    query: Convert the UN R94 offset barrier impact speed into metres per second.
+    query_type: calculation
+    difficulty: medium
+    expected_regulation_key: UN-R94
+    expected_section_paths: ["annex-3/4"]
+    key_facts: ["56"]
+    notes: "Derived value 15.6 m/s (56 / 3.6) must be shown as a calculation, not as a requirement."
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-041
+    query: Our measured thorax compression is 38 mm. What margin do we have to the UN R94 limit, in mm and percent?
+    query_type: calculation
+    difficulty: medium
+    expected_regulation_key: UN-R94
+    expected_section_paths: ["5.2.1.4"]
+    key_facts: ["42 mm"]
+    notes: "Derived: 4 mm, about 9.5 % — shown as a calculation."
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-042
+    query: What is the kinetic energy of a 1,500 kg vehicle at the UN R137 full-width test speed?
+    query_type: calculation
+    difficulty: hard
+    expected_regulation_key: UN-R137
+    expected_section_paths: ["annex-3/4"]
+    key_facts: ["50"]
+    notes: "Derived: 50 km/h = 13.9 m/s; E = ½ · 1,500 · 13.9² ≈ 145 kJ — the mass comes from the question, the speed from the evidence."
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-043
+    query: The R127 headform impact velocity in km/h?
+    query_type: calculation
+    difficulty: medium
+    expected_regulation_key: UN-R127
+    expected_section_paths: ["annex-5/5.6"]
+    key_facts: ["9.7 m/s"]
+    notes: "Derived: 34.9 km/h."
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- simulation / CAE
+  - case_id: sc-050
+    query: Which LS-DYNA keyword defines a planar rigid wall, for example to model the rigid barrier of the full-width frontal test?
+    query_type: simulation
+    difficulty: medium
+    expected_regulation_key: LSDYNA-R17-VOL-I
+    expected_section_paths: []
+    key_facts: ["*RIGIDWALL_PLANAR"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-051
+    query: What is the material model number of *MAT_PIECEWISE_LINEAR_PLASTICITY in LS-DYNA?
+    query_type: simulation
+    difficulty: easy
+    expected_regulation_key: LSDYNA-R17-VOL-II
+    expected_section_paths: []
+    key_facts: ["024"]
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-052
+    query: I am setting up an LS-DYNA model of the UN R137 test. What impact speed does the regulation prescribe and which keyword family models the rigid barrier?
+    query_type: simulation
+    difficulty: hard
+    expected_regulation_keys: [UN-R137, LSDYNA-R17-VOL-I]
+    expected_section_paths: ["annex-3/4"]
+    key_facts: ["50"]
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- amendment awareness
+  - case_id: sc-060
+    query: Is there an amendment to UN R94 newer than Revision 4, and what series does it introduce?
+    query_type: amendment_awareness
+    difficulty: hard
+    expected_regulation_key: UN-R94-AMEND-05
+    expected_section_paths: []
+    key_facts: ["05 series"]
+    source: synthetic
+    review_status: DRAFT
+  # ---------------------------------------------------------------- decline smartly
+  - case_id: sc-070
+    query: What is the weather in Munich today?
+    query_type: unrelated
+    difficulty: easy
+    expected_regulation_key: null
+    expected_section_paths: []
+    key_facts: []
+    answerability: unanswerable_out_of_scope
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-071
+    query: Write me a short poem about airbags.
+    query_type: unrelated
+    difficulty: easy
+    expected_regulation_key: null
+    expected_section_paths: []
+    key_facts: []
+    answerability: unanswerable_out_of_scope
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-072
+    query: hello
+    query_type: unrelated
+    difficulty: easy
+    expected_regulation_key: null
+    expected_section_paths: []
+    key_facts: []
+    answerability: unanswerable_out_of_scope
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-073
+    query: What is the maximum allowed noise level of a vehicle horn under UN R28?
+    query_type: unrelated
+    difficulty: medium
+    expected_regulation_key: null
+    expected_section_paths: []
+    key_facts: []
+    answerability: unanswerable_not_in_corpus
+    notes: "UN R28 is not ingested; the assistant must say so rather than answer from another regulation."
+    source: synthetic
+    review_status: DRAFT
+  - case_id: sc-074
+    query: Which ASIL does ISO 26262 require for the airbag control unit?
+    query_type: unrelated
+    difficulty: hard
+    expected_regulation_key: null
+    expected_section_paths: []
+    key_facts: []
+    answerability: unanswerable_not_in_corpus
+    notes: "Only an ISO 26262 overview article is ingested; ASIL assignment is not in it."
+    source: synthetic
+    review_status: DRAFT

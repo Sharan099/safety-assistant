@@ -49,12 +49,23 @@ def scoped_statement(
         stmt = stmt.where(or_(RegulationVersion.valid_from.is_(None), RegulationVersion.valid_from <= d))
         stmt = stmt.where(or_(RegulationVersion.valid_to.is_(None), RegulationVersion.valid_to > d))
     if scope.regulation_keys:
-        stmt = stmt.where(Regulation.regulation_key.in_(list(scope.regulation_keys)))
+        stmt = stmt.where(regulation_key_matches(scope.regulation_keys))
     if scope.kinds:
         stmt = stmt.where(Regulation.kind.in_(list(scope.kinds)))
     if scope.authority_levels:
         stmt = stmt.where(Regulation.authority_level.in_(list(scope.authority_levels)))
     return stmt
+
+
+def regulation_key_matches(keys: tuple[str, ...]):  # type: ignore[no-untyped-def]
+    """A regulation key selects the text *and* its supplements/amendment sheets (`UN-R94-AMEND-05`)."""
+    return or_(
+        *[Regulation.regulation_key == k for k in keys], *[Regulation.regulation_key.like(f"{k}-%") for k in keys]
+    )
+
+
+def key_in_scope(regulation_key: str, keys: tuple[str, ...]) -> bool:
+    return any(regulation_key == k or regulation_key.startswith(f"{k}-") for k in keys)
 
 
 def scoped_chunk_ids(session: Session, scope: ScopeFilter, *, today: datetime.date | None = None) -> list[uuid.UUID]:

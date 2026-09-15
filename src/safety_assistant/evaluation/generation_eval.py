@@ -147,14 +147,25 @@ def score(case: GoldCase, rec: CaseRecord) -> dict[str, float | None]:
     return m
 
 
+def _transient(rec: CaseRecord) -> bool:
+    return any(w.startswith("generation unavailable") for w in rec.warnings)
+
+
 def pipeline_fingerprint(service: AnswerService, dataset: GoldDataset) -> str:
-    from safety_assistant.generation.prompts.grounded_v1 import PROMPT_VERSION
+    """Everything that changes an answer: dataset, retrieval config, prompt (version *and* text —
+    a reworded rule must not reuse cached answers), model, and the pipeline modules themselves."""
+    from safety_assistant.generation.prompts import grounded_v1
 
     llm = service.llm
+    code = hashlib.sha256()
+    for mod in ("agents/graph.py", "generation/citations.py", "generation/grounding.py", "retrieval/service.py"):
+        code.update(pathlib.Path(grounded_v1.__file__).parents[2].joinpath(mod).read_bytes())
     parts = {
         "dataset": dataset.dataset_version,
         "retrieval": dataclasses.asdict(service.retrieval.config),
-        "prompt": PROMPT_VERSION,
+        "prompt": grounded_v1.PROMPT_VERSION,
+        "prompt_sha": hashlib.sha256(grounded_v1.SYSTEM.encode()).hexdigest()[:12],
+        "code_sha": code.hexdigest()[:12],
         "llm": f"{llm.name}:{llm.model}" if llm else "none",
     }
     return hashlib.sha256(json.dumps(parts, sort_keys=True, default=str).encode()).hexdigest()[:16]
@@ -207,7 +218,9 @@ def run_case(
         t0 = time.perf_counter()
         resp = service.answer(session, case.query, scope=scope, principal="eval", scopes=["eval"])
         rec = _record_from_answer(case, resp, (time.perf_counter() - t0) * 1000)
-        if cache:
+        # A transient provider failure (429 / 5xx / timeout) is not an answer: never cache it, so the
+        # next run re-asks instead of freezing a rate-limit episode into the measurement.
+        if cache and not _transient(rec):
             cache.parent.mkdir(parents=True, exist_ok=True)
             cache.write_text(json.dumps(dataclasses.asdict(rec)), encoding="utf-8")
     rec.metrics = score(case, rec)

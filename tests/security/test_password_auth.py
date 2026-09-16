@@ -29,7 +29,11 @@ def client(clean_db, db_session):  # type: ignore[no-untyped-def]
 def test_signup_creates_an_engineer_and_signs_them_in(client, db_session) -> None:  # type: ignore[no-untyped-def]
     r = client.post(
         "/api/v1/auth/signup",
-        json={"email": "new.engineer@example.test", "display_name": "New Engineer", "password": "correct-horse-battery"},
+        json={
+            "email": "new.engineer@example.test",
+            "display_name": "New Engineer",
+            "password": "correct-horse-battery",
+        },
         headers=CSRF,
     )
     assert r.status_code == 201, r.text
@@ -65,7 +69,8 @@ def test_signup_and_login_require_the_csrf_header(client) -> None:  # type: igno
     body = {"email": "nocsrf@example.test", "display_name": "N", "password": "long-enough-password"}
     assert client.post("/api/v1/auth/signup", json=body).status_code == 403
     client.post("/api/v1/auth/signup", json=body, headers=CSRF)
-    assert client.post("/api/v1/auth/login", json={"email": body["email"], "password": body["password"]}).status_code == 403
+    login_body = {"email": body["email"], "password": body["password"]}
+    assert client.post("/api/v1/auth/login", json=login_body).status_code == 403
 
 
 def test_login_succeeds_with_correct_password_and_fails_generically_otherwise(client, db_session) -> None:  # type: ignore[no-untyped-def]
@@ -73,11 +78,13 @@ def test_login_succeeds_with_correct_password_and_fails_generically_otherwise(cl
     client.post("/api/v1/auth/signup", json=signup, headers=CSRF)
     client.cookies.clear()
 
-    ok = client.post("/api/v1/auth/login", json={"email": signup["email"], "password": signup["password"]}, headers=CSRF)
+    login_body = {"email": signup["email"], "password": signup["password"]}
+    ok = client.post("/api/v1/auth/login", json=login_body, headers=CSRF)
     assert ok.status_code == 200 and "session" in client.cookies
     client.cookies.clear()
 
-    wrong_pw = client.post("/api/v1/auth/login", json={"email": signup["email"], "password": "totally-wrong"}, headers=CSRF)
+    wrong_pw_body = {"email": signup["email"], "password": "totally-wrong"}
+    wrong_pw = client.post("/api/v1/auth/login", json=wrong_pw_body, headers=CSRF)
     unknown = client.post(
         "/api/v1/auth/login", json={"email": "nobody-at-all@example.test", "password": "whatever12345"}, headers=CSRF
     )
@@ -128,4 +135,5 @@ def test_password_auth_can_be_disabled(client, monkeypatch) -> None:  # type: ig
     monkeypatch.setattr(get_settings(), "password_auth_enabled", False)
     body = {"email": "off@example.test", "display_name": "Off", "password": "long-enough-password"}
     assert client.post("/api/v1/auth/signup", json=body, headers=CSRF).status_code == 404
-    assert client.post("/api/v1/auth/login", json={"email": "x@example.test", "password": "y"}, headers=CSRF).status_code == 404
+    off_body = {"email": "x@example.test", "password": "y"}
+    assert client.post("/api/v1/auth/login", json=off_body, headers=CSRF).status_code == 404

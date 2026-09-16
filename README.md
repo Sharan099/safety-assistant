@@ -117,7 +117,7 @@ End-to-end answers on that corpus (`regulatory_v2`, 262 cases, free-tier models 
 
 ### Ingestion, load, product flows
 
-42 sources → 27,222 chunks; full ingestion 47 min on the laptop including OCR of three scanned texts and 1,400 pages of 49 CFR 571; re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~10 s locally. Load (16-source corpus, pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 8/8 flows against the real API, worker and gateway (2026-09-16, adds sign-up/sign-in).
+42 sources → 27,222 chunks; full ingestion 47 min on the laptop including OCR of three scanned texts and 1,400 pages of 49 CFR 571 (measured before the 0.8.1 chunking-stage fix below); re-ingesting an unchanged source is a no-op; a 3-page upload reaches READY in ~5 s locally (measured live, worker log). Section rows are batch-inserted, not one `flush()` per section — on the corpus's most section-heavy document (LS-DYNA R17 Vol I, 4,745 sections) the chunking stage measured 44.1 s before that fix and 25.3 s after, isolated on an otherwise-identical run. Load (16-source corpus, pre-cross-encoder configuration, 2 workers, no LLM): `/search` 5 users → 5.5 rps, p50 742 ms, 0 errors; `/ask` evidence-only 5 users → 3.9 rps, p50 1.14 s. Playwright: 8/8 flows against the real API, worker and gateway (2026-09-16, adds sign-up/sign-in).
 
 ## Architecture
 

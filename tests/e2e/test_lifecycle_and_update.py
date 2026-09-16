@@ -183,3 +183,50 @@ def test_change_impact_diff_between_versions(clean_db, db_session, env) -> None:
     assert "-The thorax compression criterion (ThCC) shall not exceed 42 mm." in d.changed[0].diff
     assert "+The thorax compression criterion (ThCC) shall not exceed 45 mm." in d.changed[0].diff
     assert d.summary()["normative_changes"] == ["3.2.2", "3.2.4"]
+
+
+def test_section_insertion_is_batched_not_one_round_trip_per_section(clean_db, db_session, env) -> None:  # type: ignore[no-untyped-def]
+    """Regression guard for a flush-per-section loop that turned a 1,000-section document (49 CFR,
+    LS-DYNA manuals) into 1,000 database round trips: the number of INSERT statements against
+    `sections` must not scale with the number of sections."""
+    from sqlalchemy import event
+
+    inserts = []
+    engine = db_session.get_bind()
+
+    def _count(conn, cursor, statement, parameters, context, executemany):  # type: ignore[no-untyped-def]
+        if "insert into sections" in statement.lower():
+            inserts.append(statement)
+
+    event.listen(engine, "before_cursor_execute", _count)
+    try:
+        out = _ingest(db_session, env, "test-un-r999-rev1")
+    finally:
+        event.remove(engine, "before_cursor_execute", _count)
+
+    assert out.status == "SUCCEEDED"
+    n_sections = db_session.scalar(select(func.count(Section.id)))
+    assert n_sections >= 14  # the fixture regulation has enough sections to make this meaningful
+    assert len(inserts) <= 2, f"{len(inserts)} INSERT statements for {n_sections} sections (want ~1)"
+
+
+def test_reingesting_unchanged_content_does_not_touch_blob_storage_again(clean_db, db_session, env) -> None:  # type: ignore[no-untyped-def]
+    """A --force reprocess or a retry after a transient failure re-validates and re-parses the same
+    bytes, but must not re-touch blob storage for content already stored (S3 HEAD/PUT round trips,
+    or even a filesystem stat, are wasted work once the artifact row already has a storage_uri)."""
+    puts = []
+    real_put = env["blobs"].put
+
+    def counted_put(data, **kw):  # type: ignore[no-untyped-def]
+        puts.append(len(data))
+        return real_put(data, **kw)
+
+    env["blobs"].put = counted_put  # type: ignore[method-assign]
+
+    out1 = _ingest(db_session, env, "test-un-r999-rev1")
+    assert out1.status == "SUCCEEDED"
+    assert len(puts) == 1  # the PDF, stored once
+
+    out2 = _ingest(db_session, env, "test-un-r999-rev1", force=True)
+    assert out2.status == "SUCCEEDED"
+    assert len(puts) == 1, "reprocessing the same bytes must not call blobs.put again"

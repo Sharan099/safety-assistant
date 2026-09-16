@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.8.1 — 2026-09-16 (hydration warning, ingestion latency)
+
+- Frontend: `suppressHydrationWarning` on `<html>`/`<body>` in the root layout. The mismatch was
+  browser extensions (Grammarly, a scrollbar-styling extension) mutating those two elements before
+  React hydrates — not application state; the attribute only suppresses the warning for that one
+  element's own attributes, not its children, so a real mismatch anywhere else still surfaces.
+- Ingestion latency: a document's structural sections were inserted one row and one `flush()` (a
+  database round trip) at a time, so a document with many sections paid one round trip per section.
+  Measured on the corpus's most section-heavy real document (LS-DYNA R17 Vol I, 4,745 sections,
+  9,303 chunks): the chunking stage dropped from 44.1 s to 25.3 s (−43%) for a full re-chunk,
+  isolated on an otherwise-identical run (parse/embed unaffected, same code). Sections are now
+  batch-inserted in one `add_all()` + one `flush()`; a section's parent is always emitted before it
+  in document order, so pre-generating every row's id up front and wiring `parent_section_id`
+  before insertion is safe (verified against real nested annex/clause fixtures and a query-count
+  regression test).
+- Also in `_artifact()`: a reprocess of already-stored content (`--force`, a retry after a
+  transient failure, a byte-identical duplicate under a second `source_key`) no longer touches blob
+  storage again (an S3 HEAD round trip, or a filesystem stat) once the artifact row already has a
+  `storage_uri`.
+- Tests: `test_section_insertion_is_batched_not_one_round_trip_per_section` (asserts ≤2 INSERT
+  statements regardless of section count — a direct regression guard, not a timing assertion) and
+  `test_reingesting_unchanged_content_does_not_touch_blob_storage_again`.
+
 ## 0.8.0 — 2026-09-16 (self-service sign-up and sign-in)
 
 - Identity: `POST /api/v1/auth/signup` and `/auth/login` — a passive-safety engineer can create their

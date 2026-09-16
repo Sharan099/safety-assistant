@@ -553,6 +553,11 @@ def _validate(ctx: _Ctx, version: RegulationVersion, e: SourceEntry, data: bytes
 
 def _artifact(ctx: _Ctx, e: SourceEntry, data: bytes, sha: str) -> SourceArtifact:
     art = ctx.session.scalar(select(SourceArtifact).where(SourceArtifact.sha256 == sha))
+    # blobs.put() does a network round trip (S3 HEAD, or at least a filesystem stat) — skip it
+    # entirely when the artifact is already known and stored: a --force reprocess, a retry after a
+    # transient failure, or a byte-identical duplicate under a second source_key all hit this.
+    if art is not None and art.storage_uri:
+        return art
     uri = ctx.blobs.put(data, suffix=".pdf")
     if art is None:
         art = SourceArtifact(
@@ -567,7 +572,7 @@ def _artifact(ctx: _Ctx, e: SourceEntry, data: bytes, sha: str) -> SourceArtifac
             metadata_={"source_uri_status": e.source_uri_status},
         )
         ctx.session.add(art)
-    elif not art.storage_uri:
+    else:
         art.storage_uri = uri
         art.retrieved_at = art.retrieved_at or _now()
     ctx.session.flush()
@@ -654,6 +659,7 @@ def _normalize(ctx: _Ctx, version: RegulationVersion, e: SourceEntry, parsed: Pa
 def _chunk(
     ctx: _Ctx, version: RegulationVersion, e: SourceEntry, parsed: ParsedDocument, nd: NormalizedDocument
 ) -> None:
+    started = _now()
     s = ctx.session
     cfg_hash = chunker_config_hash() + normalizer_config_hash()
     existing_chunks = s.scalar(select(func.count()).select_from(Chunk).where(Chunk.version_id == version.id)) or 0
@@ -665,6 +671,7 @@ def _chunk(
     ):
         ctx.stats["chunks"] = existing_chunks
         ctx.stats["chunks_reused"] = True
+        ctx.stats["chunk_seconds"] = (_now() - started).total_seconds()
         ctx.advance(
             version,
             VersionStatus.CHUNKED,
@@ -683,9 +690,13 @@ def _chunk(
     s.execute(delete(Section).where(Section.version_id == version.id))
     s.flush()
 
-    section_ids: dict[str, uuid.UUID] = {}
-    for ns in nd.sections:
-        row = Section(
+    # IDs are generated here (not by the DB) so every row can be built and added in one pass —
+    # a flush per section turned a 1,000-section document (49 CFR, LS-DYNA manuals) into 1,000
+    # round trips. Safe because a section's parent is always emitted before it (ordinal order).
+    section_ids: dict[str, uuid.UUID] = {ns.path: uuid.uuid4() for ns in nd.sections}
+    sections = [
+        Section(
+            id=section_ids[ns.path],
             version_id=version.id,
             parent_section_id=section_ids.get(ns.parent_path) if ns.parent_path else None,
             ordinal=ns.ordinal,
@@ -701,9 +712,10 @@ def _chunk(
             content=ns.content,
             content_sha256=ns.content_sha256,
         )
-        s.add(row)
-        s.flush()
-        section_ids[ns.path] = row.id
+        for ns in nd.sections
+    ]
+    s.add_all(sections)
+    s.flush()
 
     for xr in nd.cross_references:
         s.add(
@@ -774,6 +786,7 @@ def _chunk(
     ctx.stats["chunks"] = len(drafts)
     ctx.stats["tables"] = len(parsed.tables)
     ctx.stats["figures"] = len(parsed.figures)
+    ctx.stats["chunk_seconds"] = (_now() - started).total_seconds()
     ctx.advance(version, VersionStatus.CHUNKED, f"{len(drafts)} chunks written", chunks=len(drafts))
 
 

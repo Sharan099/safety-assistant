@@ -130,6 +130,10 @@ def callback(
         log.warning("oidc callback rejected: %s", exc)
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "sign-in could not be completed") from exc
     except httpx.HTTPError as exc:
+        # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
+        # only the exception's class name is logged (e.g. "ConnectTimeout"), never its args or the
+        # token exchange response body — the rule matches on "token" in the message text, not on
+        # what's actually logged.
         log.warning("oidc token exchange unreachable: %s", type(exc).__name__)
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "identity provider unavailable") from exc
     user = _upsert_user(session, claims, settings)

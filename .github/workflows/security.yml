@@ -14,7 +14,7 @@ jobs:
         with: { version: "0.11.14" }
       - run: uv sync --frozen
       - name: pip-audit (known CVEs in the locked environment)
-        run: uvx pip-audit --strict --progress-spinner off -r <(uv export --frozen --no-dev --no-hashes --format requirements-txt)
+        run: uvx pip-audit --strict --progress-spinner off -r <(uv export --frozen --no-dev --no-emit-project --no-hashes --color never --format requirements-txt)
       - name: bandit (SAST)
         run: uvx bandit -q -r src -ll -ii
   secrets:

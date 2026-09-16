@@ -1,0 +1,19 @@
+title = "safety-assistant gitleaks config"
+
+[extend]
+useDefault = true
+
+# The generic-api-key rule matches any "*key*": "<opaque-looking string>" pair by entropy alone.
+# It fires on this project's `regulation_key` fields (values like "UN-R94", "US-49CFR571") wherever
+# they appear — generated evaluation output, the gold datasets, and the source registry — because
+# the field name contains "key" and regulation identifiers are short mixed-case/digit strings.
+# None of these are credentials. `.env.example` is a template; by policy it never holds a real
+# secret, only empty or placeholder values, so it is excluded from scanning entirely.
+[allowlist]
+description = "regulation_key identifiers (not credentials) and the secret-free .env template"
+paths = [
+  '''evals/results/.*\.json''',
+  '''evals/datasets/.*\.yaml''',
+  '''knowledge/00_registry/sources\.yaml''',
+  '''(^|/)\.env\.example$''',
+]

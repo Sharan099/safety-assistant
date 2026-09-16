@@ -30,7 +30,7 @@ def client(clean_db, db_session):  # type: ignore[no-untyped-def]
 
 def _login(c: TestClient, email: str) -> None:
     c.cookies.clear()
-    assert c.post("/api/v1/auth/dev-login", json={"email": email}).status_code == 200
+    assert c.post("/api/v1/auth/dev-login", json={"email": email}, headers=CSRF).status_code == 200
 
 
 def test_user_a_cannot_see_or_touch_user_b_conversations(client) -> None:  # type: ignore[no-untyped-def]

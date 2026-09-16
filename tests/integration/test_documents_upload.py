@@ -64,7 +64,7 @@ def env(corpus, db_session, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPa
 
 def _login(c: TestClient, email: str) -> None:
     c.cookies.clear()
-    assert c.post("/api/v1/auth/dev-login", json={"email": email}).status_code == 200
+    assert c.post("/api/v1/auth/dev-login", json={"email": email}, headers=CSRF).status_code == 200
 
 
 def _upload(c: TestClient, data: bytes, **fields: str) -> dict:  # type: ignore[type-arg]

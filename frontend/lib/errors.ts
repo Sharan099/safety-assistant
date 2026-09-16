@@ -26,3 +26,12 @@ export function errorMessage(e: unknown): string {
   if (e instanceof TypeError) return "The API is unreachable.";
   return e instanceof Error ? e.message : "Unexpected error.";
 }
+
+/** Sign-up/sign-in specific: a 401 here means "wrong credentials", not "your session expired" —
+ * there was no session yet. Every other status still reads through the shared mapping. */
+export function authErrorMessage(e: unknown): string {
+  if (e instanceof ApiError && e.status === 401) {
+    return typeof e.detail === "string" ? e.detail : "Invalid email or password.";
+  }
+  return errorMessage(e);
+}

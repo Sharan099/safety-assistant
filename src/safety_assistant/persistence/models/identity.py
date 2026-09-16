@@ -6,7 +6,7 @@ import datetime
 import uuid
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -34,9 +34,15 @@ class User(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     display_name: Mapped[str] = mapped_column(Text)
     # ACTIVE | SUSPENDED
     status: Mapped[str] = mapped_column(Text, default="ACTIVE")
-    # OIDC subject when provisioned from a token; NULL for CLI/dev-created users.
+    # OIDC subject when provisioned from a token; NULL for CLI/dev-created/password users.
     external_subject: Mapped[str | None] = mapped_column(Text, unique=True)
     last_login_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
+    # Self-service email/password sign-in (security/passwords.py). NULL for OIDC-only users —
+    # password_hash presence, not a flag, is the source of truth for "can this user log in with a
+    # password". `failed_login_attempts`/`locked_until` bound a brute-force run against one account.
+    password_hash: Mapped[str | None] = mapped_column(Text)
+    failed_login_attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    locked_until: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Membership(Base):

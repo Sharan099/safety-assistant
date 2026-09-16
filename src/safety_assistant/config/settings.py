@@ -132,6 +132,14 @@ class Settings(BaseSettings):
     session_ttl_hours: int = 12
     # Dev-only login as a seeded user (no password). Production refuses it.
     dev_login_enabled: bool = False
+    # Self-service email/password sign-up and sign-in (identity.service, security/passwords.py).
+    # Independent of auth_mode/OIDC — this is the browser-session path, available in production.
+    password_auth_enabled: bool = True
+    password_min_length: int = 10
+    # Per-account lockout after this many consecutive failed sign-ins (persisted on the user row,
+    # so it holds across replicas without a shared cache); cleared on a successful sign-in.
+    login_max_attempts: int = 5
+    login_lockout_minutes: int = 15
 
     @model_validator(mode="after")
     def _production_forbids_fakes(self) -> Settings:

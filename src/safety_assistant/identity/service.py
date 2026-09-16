@@ -25,6 +25,7 @@ from safety_assistant.persistence.models import (
     WorkspaceMembership,
 )
 from safety_assistant.persistence.models.identity import DEFAULT_ORGANIZATION_ID, ORG_ROLES
+from safety_assistant.security.passwords import hash_password, needs_rehash, verify_password
 
 
 def _now() -> dt.datetime:
@@ -70,11 +71,17 @@ def create_user(
     role: str,
     organization: Organization | None = None,
     external_subject: str | None = None,
+    password: str | None = None,
 ) -> User:
     if role not in ORG_ROLES:
         raise ValueError(f"unknown role {role!r}; expected one of {ORG_ROLES}")
     org = organization or default_organization(session)
-    user = User(email=email.lower(), display_name=display_name, external_subject=external_subject)
+    user = User(
+        email=email.lower(),
+        display_name=display_name,
+        external_subject=external_subject,
+        password_hash=hash_password(password) if password else None,
+    )
     session.add(user)
     session.flush()
     session.add(Membership(user_id=user.id, organization_id=org.id, role=role))
@@ -89,6 +96,55 @@ def user_by_email(session: Session, email: str) -> User | None:
 
 def user_by_subject(session: Session, subject: str) -> User | None:
     return session.scalar(select(User).where(User.external_subject == subject))
+
+
+@dataclass(frozen=True)
+class AuthResult:
+    """Every outcome of a password sign-in attempt, so the route can log/respond without
+    re-deriving why: `ok` is the only thing shown to the client (generic "invalid credentials"),
+    `reason` is for the audit event."""
+
+    ok: bool
+    user: User | None = None
+    reason: str = ""
+
+
+_DUMMY_HASH = hash_password("not-a-real-password-just-for-timing")  # verified on unknown-email attempts
+
+
+def authenticate_user(session: Session, settings: Settings, *, email: str, password: str) -> AuthResult:
+    """Email/password check with per-account lockout. Always runs a scrypt verification, even for an
+    unknown email or a locked account, so response time does not reveal which case applies."""
+    user = user_by_email(session, email)
+    now = _now()
+    if user is None or user.password_hash is None:
+        verify_password(password, _DUMMY_HASH)
+        return AuthResult(False, reason="no_such_account")
+    if user.locked_until is not None and user.locked_until > now:
+        verify_password(password, user.password_hash)
+        return AuthResult(False, reason="locked")
+    if user.status != "ACTIVE":
+        verify_password(password, user.password_hash)
+        return AuthResult(False, reason="inactive")
+    if not verify_password(password, user.password_hash):
+        user.failed_login_attempts += 1
+        if user.failed_login_attempts >= settings.login_max_attempts:
+            user.locked_until = now + dt.timedelta(minutes=settings.login_lockout_minutes)
+        session.flush()
+        return AuthResult(False, reason="bad_password")
+    if needs_rehash(user.password_hash):
+        user.password_hash = hash_password(password)
+    user.failed_login_attempts = 0
+    user.locked_until = None
+    user.last_login_at = now
+    session.flush()
+    return AuthResult(True, user=user)
+
+
+def set_password(user: User, password: str) -> None:
+    user.password_hash = hash_password(password)
+    user.failed_login_attempts = 0
+    user.locked_until = None
 
 
 def create_workspace(session: Session, *, organization_id: uuid.UUID, name: str, owner: User) -> Workspace:

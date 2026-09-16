@@ -9,7 +9,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 
 from safety_assistant.api.dependencies.auth import Principal, get_principal
 from safety_assistant.config import Settings, get_settings
@@ -59,3 +59,24 @@ def rate_limited(
         metrics.RATE_LIMITED.inc()
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "rate limit exceeded", headers={"Retry-After": "1"})
     return principal
+
+
+# Sign-up/sign-in have no principal yet — a fixed, tight per-IP budget (independent of
+# rate_limit_per_minute) slows credential stuffing; the per-account lockout in
+# identity.service.authenticate_user is the control that survives many source IPs.
+_AUTH_ATTEMPTS_PER_MINUTE = 10
+_auth_limiter = RateLimiter(_AUTH_ATTEMPTS_PER_MINUTE)
+
+
+def auth_rate_limited(request: Request) -> None:
+    client = request.client.host if request.client else "unknown"
+    if not _auth_limiter.allow(client):
+        metrics.RATE_LIMITED.inc()
+        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "too many attempts", headers={"Retry-After": "30"})
+
+
+def reset_auth_rate_limit() -> None:
+    """Test-only: TestClient always reports the same client host, so every signup/login test in a
+    session would otherwise share one budget."""
+    with _auth_limiter._lock:
+        _auth_limiter._buckets.clear()

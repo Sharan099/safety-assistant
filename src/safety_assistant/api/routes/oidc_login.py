@@ -155,6 +155,7 @@ def methods(settings: Settings = Depends(get_settings)) -> dict[str, bool]:
     return {
         "dev_login": settings.dev_login_enabled and settings.app_env != "production",
         "oidc": bool(settings.oidc_issuer and settings.oidc_client_id and settings.oidc_redirect_uri),
+        "password": settings.password_auth_enabled,
     }
 
 

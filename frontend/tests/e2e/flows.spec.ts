@@ -156,3 +156,28 @@ test("7. settings project context is saved; a greeting gets a capabilities reply
   await expect(answer.getByTestId("answer-mode")).toHaveAttribute("data-mode", "ASSISTANT");
   await expect(answer).toContainText(/UN regulations/);
 });
+
+test("8. sign up a new engineer, sign out, sign back in with the same password", async ({ page }) => {
+  await page.context().clearCookies();
+  await page.goto("/login");
+  await page.getByTestId("mode-signup").click();
+  const email = `e2e.signup.${Date.now()}@example.test`;
+  await page.getByTestId("signup-name").fill("E2E New Engineer");
+  await page.getByTestId("password-email").fill(email);
+  await page.getByTestId("password-input").fill("correct-horse-battery-staple");
+  await page.getByTestId("password-submit").click();
+  await expect(page).toHaveURL(/\/app\/home/);
+  await expect(page.getByTestId("user-menu")).toContainText("E2E New Engineer");
+  await page.getByTestId("user-menu").click();
+  await page.getByTestId("logout").click();
+  await expect(page).toHaveURL(/\/login/);
+
+  // a wrong password is refused, then the real one signs back in
+  await page.getByTestId("password-email").fill(email);
+  await page.getByTestId("password-input").fill("the-wrong-password");
+  await page.getByTestId("password-submit").click();
+  await expect(page.getByTestId("password-error")).toContainText(/invalid email or password/);
+  await page.getByTestId("password-input").fill("correct-horse-battery-staple");
+  await page.getByTestId("password-submit").click();
+  await expect(page).toHaveURL(/\/app\/home/);
+});

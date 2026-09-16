@@ -1,6 +1,6 @@
 [project]
 name = "safety-assistant"
-version = "0.7.0"
+version = "0.8.0"
 description = "Automotive passive-safety regulatory knowledge system: versioned ingestion, hybrid retrieval, evidence-verified answers"
 readme = "README.md"
 license = { file = "LICENSE" }

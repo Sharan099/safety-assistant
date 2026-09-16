@@ -10,16 +10,37 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from safety_assistant.api.dependencies.auth import SESSION_COOKIE, Principal, require_user
+from safety_assistant.api.dependencies.auth import CSRF_HEADER, SESSION_COOKIE, Principal, require_user
+from safety_assistant.api.middleware.ratelimit import auth_rate_limited
 from safety_assistant.config import Settings, get_settings
-from safety_assistant.identity.service import issue_session, load_identity, record_audit, user_by_email
+from safety_assistant.identity.service import (
+    authenticate_user,
+    create_user,
+    issue_session,
+    load_identity,
+    record_audit,
+    user_by_email,
+)
 from safety_assistant.persistence import get_session
 
 router = APIRouter(prefix="/api/v1", tags=["identity"])
 
+_EMAIL_RE = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
 
 class DevLoginRequest(BaseModel):
     email: str = Field(min_length=3, max_length=254, pattern=r"^[^@\s]+@[^@\s]+$")
+
+
+class SignupRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=254, pattern=_EMAIL_RE)
+    display_name: str = Field(min_length=1, max_length=200)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=254, pattern=_EMAIL_RE)
+    password: str = Field(min_length=1, max_length=128)
 
 
 class PreferencesPatch(BaseModel):
@@ -28,6 +49,15 @@ class PreferencesPatch(BaseModel):
     preferred_language: str | None = Field(default=None, min_length=2, max_length=8)
     ui_theme: Literal["light", "dark", "system"] | None = None
     project_context: str | None = Field(default=None, max_length=800)
+
+
+def _require_csrf_header(request: Request) -> None:
+    """Login/sign-up set a cookie in the response, so they need the same anti-CSRF header as any
+    other unsafe request even though there is no session yet to check it against — otherwise a
+    cross-site form POST could sign a victim's browser into an attacker-controlled account
+    ("login CSRF"). A plain HTML form cannot add a custom header, so this alone blocks it."""
+    if not request.headers.get(CSRF_HEADER):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, f"{CSRF_HEADER} header required")
 
 
 def set_session_cookie(response: Response, token: str, settings: Settings) -> None:
@@ -42,6 +72,80 @@ def set_session_cookie(response: Response, token: str, settings: Settings) -> No
     )
 
 
+@router.post("/auth/signup", status_code=status.HTTP_201_CREATED, dependencies=[Depends(auth_rate_limited)])
+def signup(
+    req: SignupRequest,
+    request: Request,
+    response: Response,
+    settings: Settings = Depends(get_settings),
+    session: Session = Depends(get_session),
+) -> dict[str, Any]:
+    """Self-service sign-up for a passive-safety engineer. Creates the user with the `engineer`
+    role in the default organization and signs them straight in (same session cookie as sign-in)."""
+    _require_csrf_header(request)
+    if not settings.password_auth_enabled:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "not found")
+    if not settings.session_secret:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "SESSION_SECRET is not configured")
+    if len(req.password) < settings.password_min_length:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, f"password must be at least {settings.password_min_length} characters"
+        )
+    local_part = req.email.split("@", 1)[0].lower()
+    if len(local_part) >= 3 and local_part in req.password.lower():
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "password must not contain your email address")
+    if user_by_email(session, req.email) is not None:
+        # Deliberate: same trade-off as most consumer sign-ups (confirms the email is registered);
+        # sign-in below never confirms this the other way, which is where it would matter more.
+        raise HTTPException(status.HTTP_409_CONFLICT, "an account with this email already exists")
+    user = create_user(session, email=req.email, display_name=req.display_name, role="engineer", password=req.password)
+    record_audit(
+        session,
+        action="auth.signup",
+        resource_type="user",
+        resource_id=str(user.id),
+        actor_user_id=user.id,
+        request_id=getattr(request.state, "request_id", None),
+    )
+    session.commit()
+    set_session_cookie(response, issue_session(user.id, settings), settings)
+    return {"user_id": str(user.id), "email": user.email}
+
+
+@router.post("/auth/login", dependencies=[Depends(auth_rate_limited)])
+def login(
+    req: LoginRequest,
+    request: Request,
+    response: Response,
+    settings: Settings = Depends(get_settings),
+    session: Session = Depends(get_session),
+) -> dict[str, Any]:
+    _require_csrf_header(request)
+    if not settings.password_auth_enabled:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "not found")
+    if not settings.session_secret:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "SESSION_SECRET is not configured")
+    result = authenticate_user(session, settings, email=req.email, password=req.password)
+    record_audit(
+        session,
+        action="auth.login" if result.ok else "auth.login_failed",
+        resource_type="user",
+        resource_id=str(result.user.id) if result.user else None,
+        actor_subject=req.email if not result.user else None,
+        actor_user_id=result.user.id if result.user else None,
+        request_id=getattr(request.state, "request_id", None),
+        metadata=None if result.ok else {"reason": result.reason},
+        success=result.ok,
+    )
+    session.commit()
+    if not result.ok or result.user is None:
+        # Same message and (near enough) the same cost whether the account, the password or the
+        # lockout was the reason — never tell an attacker which one to try next.
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid email or password")
+    set_session_cookie(response, issue_session(result.user.id, settings), settings)
+    return {"user_id": str(result.user.id), "email": result.user.email}
+
+
 @router.post("/auth/dev-login")
 def dev_login(
     req: DevLoginRequest,
@@ -51,6 +155,7 @@ def dev_login(
     session: Session = Depends(get_session),
 ) -> dict[str, Any]:
     """Password-less login as a seeded user. Refused unless DEV_LOGIN_ENABLED (never in production)."""
+    _require_csrf_header(request)
     if not settings.dev_login_enabled or settings.app_env == "production":
         raise HTTPException(status.HTTP_404_NOT_FOUND, "not found")
     if not settings.session_secret:

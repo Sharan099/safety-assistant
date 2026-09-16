@@ -30,13 +30,13 @@ def users(corpus, db_session):  # type: ignore[no-untyped-def]
 
 def login(c: TestClient, email: str) -> None:
     c.cookies.clear()
-    r = c.post("/api/v1/auth/dev-login", json={"email": email})
+    r = c.post("/api/v1/auth/dev-login", json={"email": email}, headers=CSRF)
     assert r.status_code == 200, r.text
     assert "session" in c.cookies
 
 
 def test_dev_login_sets_httponly_cookie_and_me_reflects_membership(client, users, db_session) -> None:  # type: ignore[no-untyped-def]
-    r = client.post("/api/v1/auth/dev-login", json={"email": "a@example.test"})
+    r = client.post("/api/v1/auth/dev-login", json={"email": "a@example.test"}, headers=CSRF)
     assert r.status_code == 200
     assert "httponly" in r.headers["set-cookie"].lower() and "samesite=lax" in r.headers["set-cookie"].lower()
     me = client.get("/api/v1/me").json()
@@ -47,7 +47,7 @@ def test_dev_login_sets_httponly_cookie_and_me_reflects_membership(client, users
 
 
 def test_unknown_user_and_missing_cookie_are_rejected(client, users) -> None:  # type: ignore[no-untyped-def]
-    assert client.post("/api/v1/auth/dev-login", json={"email": "nobody@example.test"}).status_code == 401
+    assert client.post("/api/v1/auth/dev-login", json={"email": "nobody@example.test"}, headers=CSRF).status_code == 401
     client.cookies.clear()
     assert client.get("/api/v1/me").status_code == 403  # anonymous viewer has no user identity
     client.cookies.set("session", "forged")

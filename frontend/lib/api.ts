@@ -52,8 +52,12 @@ export const api = {
   // identity
   me: () => request<Me>("/api/v1/me"),
   devLogin: (email: string) => request<{ user_id: string; email: string }>("/api/v1/auth/dev-login", json({ email })),
+  signup: (body: { email: string; display_name: string; password: string }) =>
+    request<{ user_id: string; email: string }>("/api/v1/auth/signup", json(body)),
+  login: (body: { email: string; password: string }) =>
+    request<{ user_id: string; email: string }>("/api/v1/auth/login", json(body)),
   logout: () => request<{ ok: boolean }>("/api/v1/auth/logout", { method: "POST" }),
-  authMethods: () => request<{ dev_login: boolean; oidc: boolean }>("/api/v1/auth/oidc/methods"),
+  authMethods: () => request<{ dev_login: boolean; oidc: boolean; password: boolean }>("/api/v1/auth/oidc/methods"),
   patchPreferences: (p: Partial<Preferences>) => request<Me>("/api/v1/me/preferences", patch(p)),
   // corpus / system
   ready: () => request<Readiness>("/health/ready"),

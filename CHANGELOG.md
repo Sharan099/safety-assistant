@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.8.0 — 2026-09-16 (self-service sign-up and sign-in)
+
+- Identity: `POST /api/v1/auth/signup` and `/auth/login` — a passive-safety engineer can create their
+  own account (role `engineer` in the default organization) and sign back in, alongside the existing
+  OIDC and dev-login paths. Passwords are hashed with `hashlib.scrypt` (stdlib, memory-hard, random
+  16-byte salt, self-describing encoding for a future parameter bump) in `security/passwords.py` —
+  never stored, logged, or returned in the clear.
+- Security hardening: sign-in returns the same message and status for a wrong password and an
+  unknown email (no account-existence oracle); a per-account lockout (`LOGIN_MAX_ATTEMPTS`,
+  `LOGIN_LOCKOUT_MINUTES`) persists on the user row so it holds across replicas without a shared
+  cache and clears on the next success; a per-IP rate limit bounds signup/login attempts
+  (`auth_rate_limited`, independent of the per-principal query limiter); signup and login require
+  the CSRF header despite having no session yet, closing login-CSRF; minimum password length and a
+  same-as-email-local-part check at signup.
+- Migration `0007` (additive/nullable/defaulted: `users.password_hash`, `failed_login_attempts`,
+  `locked_until`; forward/rollback round-trip tested).
+- CLI: `safety-assistant users add --password` and `users set-password` for operator-provisioned
+  password accounts.
+- Frontend: the login page gets a sign-in/create-account toggle (email, password, and a name field
+  for signup) above the existing OIDC button and dev-login fallback.
+- Tests: `tests/unit/test_passwords.py` (hashing correctness, malformed-hash fail-closed, rehash
+  detection), `tests/security/test_password_auth.py` (signup, duplicate email, weak password,
+  login success/failure parity, lockout, CSRF, feature flag off), Playwright flow 8 (sign up →
+  sign out → wrong password refused → sign back in).
+
 ## 0.7.0 — 2026-09-15 (engineer walkthrough fixes, 461-question evaluation)
 
 Findings and their status: `docs/QA_REPORT_2026-09-15.md`.

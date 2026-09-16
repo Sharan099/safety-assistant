@@ -1,4 +1,4 @@
-"""Prometheus metrics — the operational set from CLAUDE.md §12/§15.
+"""Prometheus metrics — the operational set from ENGINEERING.md §12/§15.
 Names are stable; labels are low-cardinality only (no queries, no principals)."""
 
 from __future__ import annotations

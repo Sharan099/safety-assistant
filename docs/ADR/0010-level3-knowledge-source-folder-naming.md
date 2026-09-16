@@ -5,14 +5,14 @@
 
 ## Context
 
-`PRD_LEVEL3.md` §5, `TRD_LEVEL3.md` §1/§3, and `CLAUDE_CODE_LEVEL3_INSTRUCTIONS.md`
+`PRD_LEVEL3.md` §5, `TRD_LEVEL3.md` §1/§3, and `LEVEL3_INSTRUCTIONS.md`
 all name the immutable raw-source root as `knowledge_source/`. The repository's
 actual immutable root — already referenced by the committed
 `knowledge/00_registry/source_manifest.yaml` (`original_path` fields),
 `packages/ingestion/pipeline.py`, `.gitignore`, and every V1 ADR — is
 `Knowledge source/` (capitalized, with a literal space).
 
-`CLAUDE_CODE_LEVEL3_INSTRUCTIONS.md` §3 explicitly delegates this kind of
+`LEVEL3_INSTRUCTIONS.md` §3 explicitly delegates this kind of
 conflict: "If two existing documents disagree, identify the conflict and
 choose the least disruptive solution consistent with Level 3 requirements."
 

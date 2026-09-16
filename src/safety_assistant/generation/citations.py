@@ -1,4 +1,4 @@
-"""Programmatic citation validation (CLAUDE.md §10).
+"""Programmatic citation validation (ENGINEERING.md §10).
 
 - every cited evidence id must exist in the bundle;
 - every claim needs at least one evidence id;

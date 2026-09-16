@@ -1,4 +1,4 @@
-"""Security / adversarial suite (CLAUDE.md §11, §14)."""
+"""Security / adversarial suite (ENGINEERING.md §11, §14)."""
 
 from __future__ import annotations
 

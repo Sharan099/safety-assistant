@@ -1,5 +1,5 @@
 """Operational/audit tables: ingestion runs + events, query traces,
-evaluation cases, user feedback — CLAUDE.md §5.1, §15."""
+evaluation cases, user feedback — ENGINEERING.md §5.1, §15."""
 
 from __future__ import annotations
 

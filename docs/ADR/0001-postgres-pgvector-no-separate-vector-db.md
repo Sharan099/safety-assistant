@@ -20,7 +20,7 @@ data. Do not introduce Qdrant, Weaviate, Milvus, or Elasticsearch in V1.
 - One service to run/operate on constrained hardware instead of two.
 - JSONB covers flexible engineering metadata; FTS covers keyword retrieval.
 - Transactions span domain writes and evidence/provenance writes.
-- `TRD.md` §7 and `CLAUDE_CODE_BOOTSTRAP_PROMPT.md` §13 mandate this explicitly.
+- `TRD.md` §7 and `BOOTSTRAP_PROMPT.md` §13 mandate this explicitly.
 
 ## Consequences
 

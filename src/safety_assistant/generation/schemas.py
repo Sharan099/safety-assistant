@@ -1,4 +1,4 @@
-"""Structured generation contract (CLAUDE.md §10). The model fills `GroundedDraft`;
+"""Structured generation contract (ENGINEERING.md §10). The model fills `GroundedDraft`;
 the service wraps it into `AnswerResponse` after programmatic validation."""
 
 from __future__ import annotations

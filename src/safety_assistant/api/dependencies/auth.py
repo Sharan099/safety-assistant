@@ -1,4 +1,4 @@
-"""Authentication + authorization dependencies (CLAUDE.md, ADR-0029 §4).
+"""Authentication + authorization dependencies (ENGINEERING.md, ADR-0029 §4).
 
 Bearer modes (Settings.auth_mode):
 - ``none``     development only: every request is an anonymous RegulationViewer.

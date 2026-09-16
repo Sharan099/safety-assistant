@@ -1,4 +1,4 @@
-"""Typed agent state and hard budgets (CLAUDE.md §9)."""
+"""Typed agent state and hard budgets (ENGINEERING.md §9)."""
 
 from __future__ import annotations
 

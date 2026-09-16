@@ -2,7 +2,7 @@
 
     DISCOVERED → DOWNLOADED → VALIDATED → PARSED → NORMALIZED → CHUNKED → INDEXED → VERIFIED → ACTIVE
 
-Idempotency keys (CLAUDE.md §6):
+Idempotency keys (ENGINEERING.md §6):
 
     parse  = source_sha256 + parser_version + parser_config_hash
     chunk  = parsed_hash   + chunker_version + chunker_config_hash

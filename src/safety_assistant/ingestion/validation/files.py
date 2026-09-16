@@ -1,4 +1,4 @@
-"""Source-file validation gate (CLAUDE.md §14): registry hash match, size
+"""Source-file validation gate (ENGINEERING.md §14): registry hash match, size
 limit, PDF magic bytes, page-count limit. Runs before any parser sees bytes."""
 
 from __future__ import annotations

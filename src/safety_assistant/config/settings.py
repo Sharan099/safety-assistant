@@ -2,7 +2,7 @@
 
 `app_env` selects a profile:
 
-- ``production``: fakes are refused at construction time (CLAUDE.md §2.3 /
+- ``production``: fakes are refused at construction time (ENGINEERING.md §2.3 /
   §5.4 — never silently use mock embeddings or fake LLM output). Readiness
   fails if the real embedding model cannot load.
 - ``development``: real providers by default, fakes allowed if asked for.
@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     # Per-principal request budget for /ask and /search (in-process token bucket).
     rate_limit_per_minute: int = 60
 
-    # Retrieval candidate sizes (CLAUDE.md §8 starting points; tune from evals only).
+    # Retrieval candidate sizes (ENGINEERING.md §8 starting points; tune from evals only).
     retrieval_dense_top_k: int = 30
     retrieval_sparse_top_k: int = 30
     retrieval_final_k: int = 10
@@ -99,7 +99,7 @@ class Settings(BaseSettings):
     # Summaries want a plain instruct model: reasoning-style outputs are rejected by the validator.
     summary_model: str = ""
 
-    # Ingestion resource limits (CLAUDE.md §14).
+    # Ingestion resource limits (ENGINEERING.md §14).
     ingest_max_file_bytes: int = 200 * 1024 * 1024
     ingest_max_pages: int = 5000
     # Untrusted-upload boundaries: malware scanning (clamd) and OCR for scanned pages are optional

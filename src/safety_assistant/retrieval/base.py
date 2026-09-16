@@ -2,7 +2,7 @@
 
 Scope (lifecycle status, temporal validity, regulation, data class) is
 applied in SQL *before* any leg scores anything — historical queries filter
-before ranking (CLAUDE.md §8)."""
+before ranking (ENGINEERING.md §8)."""
 
 from __future__ import annotations
 

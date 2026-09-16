@@ -1,7 +1,7 @@
 """Content-addressed blob storage behind one small interface.
 
 Keys are server-generated from the content hash — never from client-supplied
-filenames (CLAUDE.md §14). ``FilesystemBlobStore`` is the development
+filenames (ENGINEERING.md §14). ``FilesystemBlobStore`` is the development
 backend; an S3-compatible adapter plugs in behind the same Protocol.
 """
 

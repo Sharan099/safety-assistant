@@ -1,6 +1,6 @@
 """Prompt-injection detection — a deterministic flag, not a filter.
 
-Retrieved documents and user questions are data (CLAUDE.md §2.5). This module
+Retrieved documents and user questions are data (ENGINEERING.md §2.5). This module
 only *labels* suspicious instructions so the trace, the warnings and the tests
 can see them; the generation contract itself is what prevents them from
 becoming instructions (evidence-only answers, schema output, validation)."""

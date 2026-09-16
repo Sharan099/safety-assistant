@@ -1,4 +1,4 @@
-"""Evidence-sufficiency gate and bounded corrective retrieval (CLAUDE.md §8, §12).
+"""Evidence-sufficiency gate and bounded corrective retrieval (ENGINEERING.md §8, §12).
 
 Deterministic decisions, made before any LLM call:
 

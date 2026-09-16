@@ -1,4 +1,4 @@
-"""Version lifecycle — deterministic state machine (CLAUDE.md §6).
+"""Version lifecycle — deterministic state machine (ENGINEERING.md §6).
 
 Only ``ACTIVE`` versions are retrievable. Transitions are validated in code,
 never left to the LLM or to callers writing arbitrary strings.

@@ -63,5 +63,5 @@ set `LLM_API_KEY`/`LLM_MODEL` in `.env` and no code changes are needed.
   an external local service the developer starts separately. Actual
   installation is deferred to Phase 14 (`IMPLEMENTATION_PLAN.md`) when the
   provider is first wired up.
-- Claude Sonnet (via Claude Code) remains strictly the coding/development
-  model and is never conflated with the application's runtime LLM.
+- The coding-assistant model used during development is a separate concern
+  from the application's runtime LLM and must never be conflated with it.

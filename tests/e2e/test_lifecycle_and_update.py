@@ -1,4 +1,4 @@
-"""E2E (CLAUDE.md §11): source → ingest → validate → parse → chunk → index →
+"""E2E (ENGINEERING.md §11): source → ingest → validate → parse → chunk → index →
 verify → activate → query → evidence → open source; then the update flow
 v1 active → v2 ingested → changed chunks only re-embedded → v2 active →
 current query uses v2, historical query still resolves to v1."""

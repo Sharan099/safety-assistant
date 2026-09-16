@@ -1,4 +1,4 @@
-"""Deterministic retrieval regression against the ingested corpus (CLAUDE.md §11).
+"""Deterministic retrieval regression against the ingested corpus (ENGINEERING.md §11).
 
 Runs only when the development corpus (real fastembed vectors, all sources
 ACTIVE) is reachable — never against the hashing test profile. Each stable

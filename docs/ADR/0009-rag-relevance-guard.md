@@ -5,7 +5,7 @@
 
 ## Context
 
-`PRD_COPILOT_UPDATE.md` §8 and `CLAUDE_CODE_COPILOT_CHANGE_REQUEST.md` Phase 8
+`PRD_COPILOT_UPDATE.md` §8 and `COPILOT_CHANGE_REQUEST.md` Phase 8
 report a retrieval-quality problem observed in real use: documentary
 retrieval surfaced clearly unrelated material (an AES/Rijndael passage) as
 "evidence." Reproducing this against the real corpus surfaced two distinct,

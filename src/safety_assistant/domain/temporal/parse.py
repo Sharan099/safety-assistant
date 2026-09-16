@@ -1,5 +1,5 @@
 """Deterministic query scope parsing: regulation identifiers, clause/annex
-references, as-of dates. No LLM involved (CLAUDE.md §2.4)."""
+references, as-of dates. No LLM involved (ENGINEERING.md §2.4)."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Structural chunking — CLAUDE.md §7.
+"""Structural chunking — ENGINEERING.md §7.
 
 Units follow the section tree, never a fixed window:
 

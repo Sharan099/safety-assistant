@@ -1,4 +1,4 @@
-"""Bounded LangGraph orchestration (CLAUDE.md §9).
+"""Bounded LangGraph orchestration (ENGINEERING.md §9).
 
     START → parse_query → route_intent
         ├─ standard        (exact_lookup / technical_qa / definition / historical)

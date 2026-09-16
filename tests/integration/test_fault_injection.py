@@ -1,4 +1,4 @@
-"""Fault injection (CLAUDE.md §16): the system must fail safely, not silently.
+"""Fault injection (ENGINEERING.md §16): the system must fail safely, not silently.
 
 - reranker crash   → retrieval still answers from fused order, marked degraded
 - embedding crash  → readiness 503, /search 500 with request id (no fake vectors)

@@ -1,4 +1,4 @@
-"""Canonical regulatory model — CLAUDE.md §5.1.
+"""Canonical regulatory model — ENGINEERING.md §5.1.
 
 Traceability chain every answer must satisfy:
 
@@ -122,7 +122,7 @@ class RegulationVersion(Base, UUIDPrimaryKeyMixin, CreatedAtMixin):
     status: Mapped[str] = mapped_column(Text, default="DISCOVERED", index=True)
     activated_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
 
-    # Idempotency / lineage keys (CLAUDE.md §6).
+    # Idempotency / lineage keys (ENGINEERING.md §6).
     parser_name: Mapped[str | None] = mapped_column(Text)
     parser_version: Mapped[str | None] = mapped_column(Text)
     parser_config_hash: Mapped[str | None] = mapped_column(Text)

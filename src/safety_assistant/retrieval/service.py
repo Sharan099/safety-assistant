@@ -1,4 +1,4 @@
-"""Hybrid retrieval service — the deterministic production baseline (CLAUDE.md §8).
+"""Hybrid retrieval service — the deterministic production baseline (ENGINEERING.md §8).
 
 query → scope parse → SQL scope (status/temporal/regulation/data class)
       → dense top-k + sparse top-k (+ exact-identifier leg)

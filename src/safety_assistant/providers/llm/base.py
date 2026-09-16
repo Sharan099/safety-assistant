@@ -1,6 +1,6 @@
 """LLM provider contract with classified errors.
 
-Rules (CLAUDE.md §2.3, §22): never silently substitute a different model or
+Rules (ENGINEERING.md §2.3, §22): never silently substitute a different model or
 fake output; classify failures so callers can retry a 429 but not a 400;
 structured output is validated against the requested schema in code.
 """

@@ -1,4 +1,4 @@
-"""Bounded agent routing (CLAUDE.md §9): comparison, change analysis, budgets."""
+"""Bounded agent routing (ENGINEERING.md §9): comparison, change analysis, budgets."""
 
 from __future__ import annotations
 

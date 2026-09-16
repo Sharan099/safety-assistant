@@ -1,4 +1,4 @@
-"""SSRF-safe source fetcher (CLAUDE.md §14).
+"""SSRF-safe source fetcher (ENGINEERING.md §14).
 
 Rules, all enforced before a byte is read:
 - https only; host must be on the allowlist derived from the registry;

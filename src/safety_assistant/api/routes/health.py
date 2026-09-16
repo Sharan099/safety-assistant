@@ -1,4 +1,4 @@
-"""Health semantics (CLAUDE.md §15):
+"""Health semantics (ENGINEERING.md §15):
 
 - /health/live   process alive;
 - /health/ready  safe to receive traffic: database reachable, migrations at head,

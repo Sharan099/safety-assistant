@@ -5,7 +5,7 @@
 
 ## Context
 
-`TRD_LEVEL3.md` §10/§15/§25 and `CLAUDE_CODE_LEVEL3_INSTRUCTIONS.md` §10/§13/§21
+`TRD_LEVEL3.md` §10/§15/§25 and `LEVEL3_INSTRUCTIONS.md` §10/§13/§21
 name Docling as the primary PDF structural parser, tesseract-class OCR as a
 fallback, and a reranker after RRF.
 

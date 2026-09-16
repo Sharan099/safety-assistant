@@ -1,6 +1,6 @@
 # Gold evaluation set — regulatory_v1
 #
-# Growth status: 47 cases (target 200–500, CLAUDE.md §12). Every case was
+# Growth status: 47 cases (target 200–500, ENGINEERING.md §12). Every case was
 # authored against the ingested text (section paths verified in the corpus on
 # 2026-09-11) and is human-reviewed unless review_status says otherwise.
 #
